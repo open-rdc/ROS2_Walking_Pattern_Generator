@@ -1,0 +1,6 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/opt/ros/foxy/lib/python3.8/site-packages"
+    ],
+    "cmake.sourceDirectory": "${workspaceFolder}/walking_pattern_generator"
+}
