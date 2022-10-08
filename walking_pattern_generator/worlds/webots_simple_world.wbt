@@ -1,0 +1,18 @@
+#VRML_SIM R2022a utf8
+WorldInfo {
+}
+Viewpoint {
+  orientation 0.06493816884801967 0.022242937682311476 -0.9976413613869098 2.4830391326630354
+  position 1.619236275770147 1.3346521854318472 0.37283757597448525
+}
+TexturedBackground {
+  texture "mars"
+}
+TexturedBackgroundLight {
+  texture "mars"
+}
+Floor {
+}
+RobotisOp2 {
+  controller "<extern>"
+}

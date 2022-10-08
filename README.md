@@ -1,2 +1,4 @@
 # ROS2_Walking_Pattern_Generator
-Walking Pattern Generator using ROS2 for Humanoid Robots
+Walking Pattern Generator using ROS2 for Humanoid Robots<br>
+<br>
+(Under Construction...)<br>
