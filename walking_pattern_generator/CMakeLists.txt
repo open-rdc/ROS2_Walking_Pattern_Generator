@@ -19,6 +19,37 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(webots_ros2_driver REQUIRED)
+find_package(pluginlib REQUIRED)
+
+pluginlib_export_plugin_description_file(webots_ros2_driver walking_pattern_generator.xml)
+
+add_library(robot_controller
+  SHARED
+  src/WebotsRobotController.cpp
+)
+
+target_include_directories(robot_controller
+  PRIVATE
+  include
+)
+
+ament_target_dependencies(robot_controller
+  pluginlib
+  rclcpp
+  webots_ros2_driver
+)
+install(TARGETS
+  robot_controller
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+ament_export_include_directories(
+  include
+)
+ament_export_libraries(
+  robot_controller
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

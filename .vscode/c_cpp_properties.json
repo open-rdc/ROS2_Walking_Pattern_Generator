@@ -7,7 +7,7 @@
       },
       "includePath": [
         "/opt/ros/foxy/include/**",
-        "/home/ubuntu20-4-ros2/webots_ros2/src/walking_pattern_generator/include/**",
+        "/home/ubuntu20-4-ros2/webots_ros2/src/walking_pattern_generator/include/walking_pattern_generator/**",
         "/usr/include/**"
       ],
       "name": "ROS",
