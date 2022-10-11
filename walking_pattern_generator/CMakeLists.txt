@@ -38,12 +38,6 @@ ament_target_dependencies(robot_controller
   rclcpp
   webots_ros2_driver
 )
-install(DIRECTORY
-  launch
-  DESTINATION share/${PROJECT_NAME}/
-)
-
-
 install(TARGETS
   robot_controller
   ARCHIVE DESTINATION lib
@@ -55,6 +49,11 @@ ament_export_include_directories(
 )
 ament_export_libraries(
   robot_controller
+)
+
+install(DIRECTORY
+  launch
+ DESTINATION share/${PROJECT_NAME}/
 )
 
 if(BUILD_TESTING)
