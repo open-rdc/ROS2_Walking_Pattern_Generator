@@ -12,7 +12,7 @@ namespace walking_pattern_generator {
         //rclcpp::init(argc, argv);
         
         // webots_ros2_driverのsensor周りを参考にすると、以下のような記述。恐らくこの記述も、ROS2の初期化となっているはず。（未検証。未コンパイル）
-        // PluginInterface::init(node, parameters);
+        PluginInterface::init(node, parameters);
         
         auto ros2_node = rclcpp::Node::make_shared("robot_controller");
 

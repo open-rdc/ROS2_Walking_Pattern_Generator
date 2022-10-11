@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<robot name="RobotisOp2">
+  <webots>
+    <plugin type="walking_pattern_generator.WebotsRobotController.WebotsRobotController">
+      <parameterExample>someValue</parameterExample>
+      <!--↑コレの役割がわからん-->
+    </plugin>
+  </webots>
+</robot>

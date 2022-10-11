@@ -14,5 +14,6 @@ TexturedBackgroundLight {
 Floor {
 }
 RobotisOp2 {
+  name "RobotisOp2"
   controller "<extern>"
 }
