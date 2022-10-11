@@ -53,7 +53,9 @@ ament_export_libraries(
 
 install(DIRECTORY
   launch
- DESTINATION share/${PROJECT_NAME}/
+  worlds
+  resource
+  DESTINATION share/${PROJECT_NAME}/
 )
 
 if(BUILD_TESTING)

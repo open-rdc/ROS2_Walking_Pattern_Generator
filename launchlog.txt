@@ -1,0 +1,6 @@
+[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-12-00-21-36-895194-ubuntu204ros2-msi-19846
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [webots-1]: process started with pid [19850]
+[ERROR] [webots-1]: process[webots-1] failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'
+[INFO] [webots-1]: sending signal 'SIGTERM' to process[webots-1]
+[INFO] [webots-1]: process has finished cleanly [pid 19850]

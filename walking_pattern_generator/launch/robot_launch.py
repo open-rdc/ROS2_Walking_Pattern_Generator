@@ -8,7 +8,7 @@ from webots_ros2_driver.webots_launcher import WebotsLauncher
 
 def generate_launch_description():
     package_dir = get_package_share_directory("walking_pattern_generator")
-    robot_description = pathlib.Path(os.path.join(package_dir, "resource", "webots_robotis_op2_description.urdf")).read_text()
+    robot_description = pathlib.Path(os.path.join(package_dir, 'resource', 'webots_robotis_op2_description.urdf')).read_text()
 
     webots = WebotsLauncher(
         world = os.path.join(package_dir, "worlds", "webots_simple_world.wbt")
@@ -27,13 +27,13 @@ def generate_launch_description():
     return launch.LaunchDescription([
         webots,
         robotis_op2_driver,
-        """
+        
         launch.actions.RegisterEventHandler(
             event_handler = launch.event_handlers.OnProcessExit(
                 target_action = webots,
                 on_exit = [launch.actions.EmitEvent(event = launch.events.Shutdown())],
             )
         )
-        """
+        
         
     ])
