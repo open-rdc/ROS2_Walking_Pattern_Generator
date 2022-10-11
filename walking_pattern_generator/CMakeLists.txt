@@ -51,6 +51,7 @@ ament_export_libraries(
   robot_controller
 )
 
+# ココで、install/PACKAGE_NAME/share/PACKAGE_NAME/下に置くディレクトリを明示。launchファイルはココからファイルを覗く.
 install(DIRECTORY
   launch
   worlds
