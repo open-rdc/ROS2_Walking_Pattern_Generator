@@ -18,7 +18,7 @@ def generate_launch_description():
         package = "webots_ros2_driver",
         executable = "driver",
         output = "screen",
-        additional_env = {"WEBOTS_ROBOT_NAME": "RobotisOp2"},
+        additional_env = {"WEBOTS_CONTROLLER_URL": "ROBOTIS_OP2"},
         parameters = [
             {"robot_description": robot_description}
         ],
@@ -27,7 +27,6 @@ def generate_launch_description():
     return launch.LaunchDescription([
         webots,
         robotis_op2_driver,
-        
         launch.actions.RegisterEventHandler(
             event_handler = launch.event_handlers.OnProcessExit(
                 target_action = webots,

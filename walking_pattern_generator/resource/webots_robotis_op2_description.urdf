@@ -1,9 +1,7 @@
 <?xml version="1.0" ?>
-<robot name="RobotisOp2">
-  <webots>
-    <plugin type="walking_pattern_generator.WebotsRobotController.WebotsRobotController" />
-      <parameterExample>someValue</parameterExample>
-      <!--↑コレの役割がわからん-->
-    </plugin>
-  </webots>
+<robot name="ROBOTIS OP2">
+    <webots>
+        <plugin type="walking_pattern_generator::WalkingPatternGenerator" />
+        <!--ココはコレであっているはず（webots_ros2_controllの適用とかもこういう書き方だし）。問題は、プラグインを定義しているhpp, cppの方にあると思われる。-->
+    </webots>
 </robot>

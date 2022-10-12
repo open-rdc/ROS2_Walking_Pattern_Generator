@@ -1,10 +1,100 @@
-[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-12-14-08-52-355914-ubuntu204ros2-msi-8207
+[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-12-16-13-54-642921-ubuntu204ros2-msi-32530
 [INFO] [launch]: Default logging verbosity is set to INFO
-[INFO] [webots-1]: process started with pid [8210]
-[INFO] [driver-2]: process started with pid [8212]
-[driver-2] Cannot open file: /tmp/webots-8210-WEW8Gz/WEBOTS_SERVER (retry count 1)
-[driver-2] Cannot open file: /tmp/webots-8210-WEW8Gz/WEBOTS_SERVER (retry count 2)
+[INFO] [webots-1]: process started with pid [32533]
+[INFO] [driver-2]: process started with pid [32535]
+[driver-2] Cannot open file: /tmp/webots-32533-ER0DiO/WEBOTS_SERVER (retry count 1)
+[driver-2] Cannot open file: /tmp/webots-32533-ER0DiO/WEBOTS_SERVER (retry count 2)
+[driver-2] ModuleNotFoundError: No module named 'src'
 [driver-2] terminate called after throwing an instance of 'std::runtime_error'
-[driver-2]   what():  Invalid URDF, it doesn't contain a <robot> tag
-[ERROR] [driver-2]: process has died [pid 8212, exit code -6, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_e4nlvm98'].
-[INFO] [webots-1]: process has finished cleanly [pid 8210]
+[driver-2]   what():  The src.WebotsRobotController.walking_pattern_generator plugin cannot be found (C++ or Python).
+[ERROR] [driver-2]: process has died [pid 32535, exit code -6, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_et42etki'].
+[INFO] [webots-1]: process has finished cleanly [pid 32533]
+
+[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-12-16-18-47-852681-ubuntu204ros2-msi-33437
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [webots-1]: process started with pid [33440]
+[INFO] [driver-2]: process started with pid [33442]
+[driver-2] Cannot open file: /tmp/webots-33440-8txPc8/WEBOTS_SERVER (retry count 1)
+[driver-2] Cannot open file: /tmp/webots-33440-8txPc8/WEBOTS_SERVER (retry count 2)
+[driver-2] ModuleNotFoundError: No module named 'walking_pattern_generator'
+[driver-2] terminate called after throwing an instance of 'std::runtime_error'
+[driver-2]   what():  The walking_pattern_generator.WebotsRobotController.walking_pattern_generator plugin cannot be found (C++ or Python).
+[ERROR] [driver-2]: process has died [pid 33442, exit code -6, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_pfh3r46u'].
+
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [webots-1]: process has finished cleanly [pid 33440]
+[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-12-16-19-59-029867-ubuntu204ros2-msi-33894
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [webots-1]: process started with pid [33897]
+[INFO] [driver-2]: process started with pid [33899]
+[driver-2] Cannot open file: /tmp/webots-33897-PAnt6R/WEBOTS_SERVER (retry count 1)
+[driver-2] Cannot open file: /tmp/webots-33897-PAnt6R/WEBOTS_SERVER (retry count 2)
+[driver-2] ModuleNotFoundError: No module named 'WebotsRobotController'
+[driver-2] terminate called after throwing an instance of 'std::runtime_error'
+[driver-2]   what():  The WebotsRobotController.WebotsRobotController.walking_pattern_generator plugin cannot be found (C++ or Python).
+[ERROR] [driver-2]: process has died [pid 33899, exit code -6, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_su769ppz'].
+
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [webots-1]: process has finished cleanly [pid 33897]
+[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-12-16-21-04-258013-ubuntu204ros2-msi-34337
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [webots-1]: process started with pid [34340]
+[INFO] [driver-2]: process started with pid [34342]
+[driver-2] Cannot open file: /tmp/webots-34340-n4MRwA/WEBOTS_SERVER (retry count 1)
+[driver-2] Cannot open file: /tmp/webots-34340-n4MRwA/WEBOTS_SERVER (retry count 2)
+[driver-2] ModuleNotFoundError: No module named 'walking_pattern_generator::WebotsRobotController'
+[driver-2] terminate called after throwing an instance of 'std::runtime_error'
+[driver-2]   what():  The walking_pattern_generator::WebotsRobotController plugin cannot be found (C++ or Python).
+[ERROR] [driver-2]: process has died [pid 34342, exit code -6, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_342bvsz7'].
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[ERROR] [webots-1]: process[webots-1] failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'
+[INFO] [webots-1]: sending signal 'SIGTERM' to process[webots-1]
+[ERROR] [webots-1]: process has died [pid 34340, exit code -15, cmd '/usr/local/webots/webots       /home/ubuntu20-4-ros2/webots_ros2/install/walking_pattern_generator/share/walking_pattern_generator/worlds/webots_simple_world.wbt --batch --mode=realtime'].
+
+[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-12-16-29-13-602391-ubuntu204ros2-msi-35923
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [webots-1]: process started with pid [35935]
+[INFO] [driver-2]: process started with pid [35937]
+[driver-2] Cannot open file: /tmp/webots-35935-llT4yo/WEBOTS_SERVER (retry count 1)
+[driver-2] Cannot open file: /tmp/webots-35935-llT4yo/WEBOTS_SERVER (retry count 2)
+[driver-2] ModuleNotFoundError: No module named 'walking_pattern_generator'
+[driver-2] terminate called after throwing an instance of 'std::runtime_error'
+[driver-2]   what():  The walking_pattern_generator.robot_controller.WebotsRobotController plugin cannot be found (C++ or Python).
+[ERROR] [driver-2]: process has died [pid 35937, exit code -6, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_fne4ev7f'].
+[INFO] [webots-1]: process has finished cleanly [pid 35935]
+
+[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-12-16-42-34-124325-ubuntu204ros2-msi-38088
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [webots-1]: process started with pid [38091]
+[INFO] [driver-2]: process started with pid [38093]
+[driver-2] Cannot open file: /tmp/webots-38091-Nwaen9/WEBOTS_SERVER (retry count 1)
+[driver-2] Cannot open file: /tmp/webots-38091-Nwaen9/WEBOTS_SERVER (retry count 2)
+[driver-2] ModuleNotFoundError: No module named 'walking_pattern_generator::WebotsRobotController'
+[driver-2] terminate called after throwing an instance of 'std::runtime_error'
+[driver-2]   what():  The walking_pattern_generator::WebotsRobotController plugin cannot be found (C++ or Python).
+[ERROR] [driver-2]: process has died [pid 38093, exit code -6, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_hjtg1wez'].
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [webots-1]: process has finished cleanly [pid 38091]
+
+[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-12-16-54-31-485641-ubuntu204ros2-msi-40504
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [webots-1]: process started with pid [40507]
+[INFO] [driver-2]: process started with pid [40509]
+[driver-2] Cannot open file: /tmp/webots-40507-prGDZb/WEBOTS_SERVER (retry count 1)
+[driver-2] Cannot open file: /tmp/webots-40507-prGDZb/WEBOTS_SERVER (retry count 2)
+[driver-2] ModuleNotFoundError: No module named 'walking_pattern_generator::walking_pattern_generator::WebotsRobotController'
+[driver-2] terminate called after throwing an instance of 'std::runtime_error'
+[driver-2]   what():  The walking_pattern_generator::walking_pattern_generator::WebotsRobotController plugin cannot be found (C++ or Python).
+[ERROR] [driver-2]: process has died [pid 40509, exit code -6, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_i5w1lw37'].
+[INFO] [webots-1]: process has finished cleanly [pid 40507]
+
+[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-12-16-55-58-846486-ubuntu204ros2-msi-41047
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [webots-1]: process started with pid [41050]
+[INFO] [driver-2]: process started with pid [41052]
+[driver-2] Cannot open file: /tmp/webots-41050-tbiXn4/WEBOTS_SERVER (retry count 1)
+[driver-2] Cannot open file: /tmp/webots-41050-tbiXn4/WEBOTS_SERVER (retry count 2)
+[driver-2] /opt/ros/foxy/lib/webots_ros2_driver/driver: symbol lookup error: /home/ubuntu20-4-ros2/webots_ros2/install/walking_pattern_generator/lib/libwalking_pattern_generator.so: undefined symbol: _ZN18webots_ros2_driver15PluginInterface4initEPNS_10WebotsNodeERSt13unordered_mapINSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEES9_St4hashIS9_ESt8equal_toIS9_ESaISt4pairIKS9_S9_EEE
+[ERROR] [driver-2]: process has died [pid 41052, exit code 127, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_l9_99ae0'].
+[INFO] [webots-1]: process has finished cleanly [pid 41050]
+

@@ -23,23 +23,26 @@ find_package(pluginlib REQUIRED)
 
 pluginlib_export_plugin_description_file(webots_ros2_driver walking_pattern_generator.xml)
 
-add_library(robot_controller
+add_library(
+  ${PROJECT_NAME}
   SHARED
-  src/WebotsRobotController.cpp
+  src/WalkingPatternGenerator.cpp
 )
 
-target_include_directories(robot_controller
+target_include_directories(
+  ${PROJECT_NAME}
   PRIVATE
   include
 )
 
-ament_target_dependencies(robot_controller
+ament_target_dependencies(
+  ${PROJECT_NAME}
   pluginlib
   rclcpp
   webots_ros2_driver
 )
 install(TARGETS
-  robot_controller
+  ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
@@ -48,7 +51,7 @@ ament_export_include_directories(
   include
 )
 ament_export_libraries(
-  robot_controller
+  ${PROJECT_NAME}
 )
 
 # ココで、install/PACKAGE_NAME/share/PACKAGE_NAME/下に置くディレクトリを明示。launchファイルはココからファイルを覗く.
