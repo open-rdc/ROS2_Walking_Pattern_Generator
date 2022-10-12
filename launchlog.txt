@@ -35,4 +35,45 @@ google先生: https://www.google.com/search?channel=fs&client=ubuntu&q=error+sym
             https://www.google.com/search?channel=fs&client=ubuntu&q=ld_library_pathとは
             https://n9d.hatenadiary.org/entry/20080820/1219228809
 ROS2対応: https://qiita.com/NeK/items/48c55bd473091d41cc75
+>>> pluginを修正したら治ったわ。
 
+[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-13-01-17-16-687350-ubuntu204ros2-msi-4512
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [webots-1]: process started with pid [4515]
+[INFO] [driver-2]: process started with pid [4517]
+[driver-2] Cannot open file: /tmp/webots-4515-IYNFzC/WEBOTS_SERVER (retry count 1)
+[driver-2] Cannot open file: /tmp/webots-4515-IYNFzC/WEBOTS_SERVER (retry count 2)
+[driver-2] Cannot open file: /tmp/webots-4515-IYNFzC/WEBOTS_SERVER (retry count 3)
+[driver-2] Cannot open file: /tmp/webots-4515-IYNFzC/WEBOTS_SERVER (retry count 4)
+[driver-2] [INFO] [1665591441.059534081] [ROBOTIS_OP2]: Hello my mine...
+[INFO] [webots-1]: process has finished cleanly [pid 4515]
+[INFO] [driver-2]: sending signal 'SIGINT' to process[driver-2]
+[ERROR] [driver-2]: process has died [pid 4517, exit code -2, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_b3hmkwcq'].
+
+[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-13-01-18-45-416151-ubuntu204ros2-msi-4927
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [webots-1]: process started with pid [4939]
+[INFO] [driver-2]: process started with pid [4941]
+[driver-2] Cannot open file: /tmp/webots-4939-zDsKys/WEBOTS_SERVER (retry count 1)
+[driver-2] Cannot open file: /tmp/webots-4939-zDsKys/WEBOTS_SERVER (retry count 2)
+[driver-2] [INFO] [1665591527.579007561] [ROBOTIS_OP2]: Hello my mine...
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[ERROR] [driver-2]: process has died [pid 4941, exit code -2, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_r376b8bi'].
+[INFO] [webots-1]: process has finished cleanly [pid 4939]
+
+[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-13-01-23-21-343885-ubuntu204ros2-msi-6074
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [webots-1]: process started with pid [6077]
+[INFO] [driver-2]: process started with pid [6079]
+[driver-2] Cannot open file: /tmp/webots-6077-e3JFFL/WEBOTS_SERVER (retry count 1)
+[driver-2] Cannot open file: /tmp/webots-6077-e3JFFL/WEBOTS_SERVER (retry count 2)
+[driver-2] [INFO] [1665591803.492812905] [ROBOTIS_OP2]: Hello my mine...
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+~~~(大量にstepで出力される)
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[ERROR] [driver-2]: process has died [pid 6079, exit code -13, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_6qkr218s'].
+[INFO] [webots-1]: process has finished cleanly [pid 6077]
