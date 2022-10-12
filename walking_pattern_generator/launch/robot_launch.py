@@ -16,7 +16,7 @@ def generate_launch_description():
 
     robotis_op2_driver = Node(
         package = "webots_ros2_driver",
-        executable = "dirver",
+        executable = "driver",
         output = "screen",
         additional_env = {"WEBOTS_ROBOT_NAME": "RobotisOp2"},
         parameters = [
