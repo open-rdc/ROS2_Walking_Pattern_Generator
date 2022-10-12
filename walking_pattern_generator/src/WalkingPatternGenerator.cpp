@@ -18,6 +18,8 @@ namespace walking_pattern_generator {
 
     void WalkingPatternGenerator::step() {
         std::cout << "Ride On!" << std::endl;
+        // ココからロボットのデータを逐次Publishをしたい。
+        // 他nodeから計算結果などもsubscribeしたい。
     }
 }
 
