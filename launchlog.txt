@@ -77,3 +77,37 @@ ROS2対応: https://qiita.com/NeK/items/48c55bd473091d41cc75
 [driver-2] Ride On!
 [ERROR] [driver-2]: process has died [pid 6079, exit code -13, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_6qkr218s'].
 [INFO] [webots-1]: process has finished cleanly [pid 6077]
+
+[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-14-00-28-41-865216-ubuntu204ros2-msi-21522
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [webots-1]: process started with pid [21525]
+[INFO] [driver-2]: process started with pid [21527]
+[driver-2] Cannot open file: /tmp/webots-21525-hSspQE/WEBOTS_SERVER (retry count 1)
+[driver-2] Cannot open file: /tmp/webots-21525-hSspQE/WEBOTS_SERVER (retry count 2)
+[driver-2] Error: wb_position_sensor_get_value() called for a disabled device! Please use: wb_position_sensor_enable(). 
+>>> 値が取れないよ！値の取得を有効にして！ってことらしい。
+[driver-2] [INFO] [1665674924.026093194] [ROBOTIS_OP2]: Hello my mine...nan
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[driver-2] Ride On!
+[ERROR] [driver-2]: process has died [pid 21527, exit code -13, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_1u_7gs07'].
+[INFO] [webots-1]: process has finished cleanly [pid 21525]
