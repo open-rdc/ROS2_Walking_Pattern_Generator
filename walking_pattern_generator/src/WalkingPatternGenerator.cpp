@@ -1,5 +1,8 @@
-#include "walking_pattern_generator/WalkingPatternGenerator.hpp"
 #include "pluginlib/class_list_macros.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/string.hpp"
+
+#include "walking_pattern_generator/WalkingPatternGenerator.hpp"
 #include <webots/Motor.hpp>
 #include <webots/PositionSensor.hpp>
 #include <webots/Accelerometer.hpp>
@@ -8,6 +11,14 @@
 // webots関連の関数を使いやすくするために、using namepaceで省略できるようにしたほうが良いかも。
 
 namespace walking_pattern_generator {
+    // rclcpp::Nodeの継承。Node化するために実装。publisherをstep()で実行すればOK。
+    Node_WalkingPatternGenerator::Node_WalkingPatternGenerator (
+        const std::string &name_space,
+        const rclcpp::NodeOptions &options
+    ): Node("robot_controller", name_space, options) {
+        publisher = rclcpp::Node::create_publisher<std_msgs::msg::String>("test", rclcpp::QoS(10));
+    }
+
     void WalkingPatternGenerator::init (
         webots_ros2_driver::WebotsNode *node, 
         std::unordered_map<std::string, std::string> &parameters
@@ -25,7 +36,7 @@ namespace walking_pattern_generator {
         positionSensor[0]->webots::PositionSensor::enable(100);  // sampling period: 100[ms]. この宣言の直後に値は得られない。1周期後（ここでは100[ms）後に１つ目の値が得られる。
         accelerometer->webots::Accelerometer::enable(100);  // sampling period: 100[ms]
         gyro->webots::Gyro::enable(100);  // sampling period: 100[ms]
-        
+
         double hage = positionSensor[0]->webots::PositionSensor::getValue();
         motor[0]->webots::Motor::setPosition(1);  // 単位: [rad]
         RCLCPP_INFO(node->get_logger(), "Hello my mine...%lf", hage);

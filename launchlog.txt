@@ -171,3 +171,113 @@ ROS2対応: https://qiita.com/NeK/items/48c55bd473091d41cc75
 [driver-2] [INFO] [1665735283.667876219] [ROBOTIS_OP2]: hogehoge: 1.001663
 [ERROR] [driver-2]: process has died [pid 25909, exit code -13, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_cx3zwbu2'].
 [INFO] [webots-1]: process has finished cleanly [pid 25907]
+
+[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-14-19-05-51-356923-ubuntu204ros2-msi-44459
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [webots-1]: process started with pid [44462]
+[INFO] [driver-2]: process started with pid [44464]
+[driver-2] Cannot open file: /tmp/webots-44462-n1lyVI/WEBOTS_SERVER (retry count 1)
+[driver-2] Cannot open file: /tmp/webots-44462-n1lyVI/WEBOTS_SERVER (retry count 2)
+[driver-2] [INFO] [1665741953.456692159] [ROBOTIS_OP2]: Hello my mine...nan
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741953.480284679] [ROBOTIS_OP2]: hogehoge: nan
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741954.499172682] [ROBOTIS_OP2]: hogehoge: nan
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741955.535013325] [ROBOTIS_OP2]: hogehoge: nan
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741956.539862839] [ROBOTIS_OP2]: hogehoge: -0.667266
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741957.560959673] [ROBOTIS_OP2]: hogehoge: -0.667266
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741958.575430220] [ROBOTIS_OP2]: hogehoge: -0.667266
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741959.589391506] [ROBOTIS_OP2]: hogehoge: -0.667266
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741960.605735191] [ROBOTIS_OP2]: hogehoge: 0.564491
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741961.635339074] [ROBOTIS_OP2]: hogehoge: 0.564491
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741962.656062210] [ROBOTIS_OP2]: hogehoge: 0.564491
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741963.682144707] [ROBOTIS_OP2]: hogehoge: 0.564491
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741964.722155486] [ROBOTIS_OP2]: hogehoge: 1.117344
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741965.740892467] [ROBOTIS_OP2]: hogehoge: 1.117344
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741966.770079078] [ROBOTIS_OP2]: hogehoge: 1.117344
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741967.785062886] [ROBOTIS_OP2]: hogehoge: 1.117344
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741968.811468888] [ROBOTIS_OP2]: hogehoge: 1.036306
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741969.831829218] [ROBOTIS_OP2]: hogehoge: 1.036306
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741970.847516246] [ROBOTIS_OP2]: hogehoge: 1.036306
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741971.862849059] [ROBOTIS_OP2]: hogehoge: 1.036306
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741972.880319907] [ROBOTIS_OP2]: hogehoge: 1.007776
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741973.898409095] [ROBOTIS_OP2]: hogehoge: 1.007776
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741974.919510879] [ROBOTIS_OP2]: hogehoge: 1.007776
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741975.941266495] [ROBOTIS_OP2]: hogehoge: 1.007776
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741976.945628191] [ROBOTIS_OP2]: hogehoge: 1.001663
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741977.951739216] [ROBOTIS_OP2]: hogehoge: 1.001663
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741978.971978724] [ROBOTIS_OP2]: hogehoge: 1.001663
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741979.989399994] [ROBOTIS_OP2]: hogehoge: 1.001663
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741981.007287407] [ROBOTIS_OP2]: hogehoge: 1.000355
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741982.014092244] [ROBOTIS_OP2]: hogehoge: 1.000355
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741983.031351498] [ROBOTIS_OP2]: hogehoge: 1.000355
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741984.048461784] [ROBOTIS_OP2]: hogehoge: 1.000355
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741985.066110244] [ROBOTIS_OP2]: hogehoge: 1.000076
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741986.083354078] [ROBOTIS_OP2]: hogehoge: 1.000076
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741987.086061691] [ROBOTIS_OP2]: hogehoge: 1.000076
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741988.088589415] [ROBOTIS_OP2]: hogehoge: 1.000076
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741989.090924663] [ROBOTIS_OP2]: hogehoge: 1.000016
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741990.093352390] [ROBOTIS_OP2]: hogehoge: 1.000016
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741991.095826656] [ROBOTIS_OP2]: hogehoge: 1.000016
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741992.098218188] [ROBOTIS_OP2]: hogehoge: 1.000016
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741993.100719779] [ROBOTIS_OP2]: hogehoge: 1.000003
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741994.103064049] [ROBOTIS_OP2]: hogehoge: 1.000003
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741995.105481252] [ROBOTIS_OP2]: hogehoge: 1.000003
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741996.107916571] [ROBOTIS_OP2]: hogehoge: 1.000003
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741997.110347893] [ROBOTIS_OP2]: hogehoge: 1.000001
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741998.112755651] [ROBOTIS_OP2]: hogehoge: 1.000001
+[driver-2] Ride On!
+[driver-2] [INFO] [1665741999.114978054] [ROBOTIS_OP2]: hogehoge: 1.000001
+[driver-2] Ride On!
+[driver-2] [INFO] [1665742000.117411836] [ROBOTIS_OP2]: hogehoge: 1.000001
+[driver-2] Ride On!
+[driver-2] [INFO] [1665742001.119845832] [ROBOTIS_OP2]: hogehoge: 1.000000
+[driver-2] Ride On!
+[driver-2] [INFO] [1665742002.122174486] [ROBOTIS_OP2]: hogehoge: 1.000000
+[driver-2] Ride On!
+[driver-2] [INFO] [1665742003.124412237] [ROBOTIS_OP2]: hogehoge: 1.000000
+[ERROR] [driver-2]: process has died [pid 44464, exit code -13, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_6a3hiumx'].
+[INFO] [webots-1]: process has finished cleanly [pid 44462]
