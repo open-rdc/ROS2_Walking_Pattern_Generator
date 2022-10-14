@@ -2,6 +2,10 @@
 #include "pluginlib/class_list_macros.hpp"
 #include <webots/Motor.hpp>
 #include <webots/PositionSensor.hpp>
+#include <webots/Accelerometer.hpp>
+#include <webots/Gyro.hpp>
+
+// webots関連の関数を使いやすくするために、using namepaceで省略できるようにしたほうが良いかも。
 
 namespace walking_pattern_generator {
     void WalkingPatternGenerator::init (
@@ -10,22 +14,36 @@ namespace walking_pattern_generator {
     ) {
 
         /* これはpluginである。そのため、ココでnodeの宣言やROS2とnodeの初期化は行わない。別途、main関数含むプログラムから使う。 */
-        /* 各データや各関節名を得る変数の宣言は、hppの方で宣言したほうが良い。さすればinitでもstepでもアクセスできる。privateかprotectedか。 */
 
         // 以下のような処理をココで行えば良い
-        auto robot = node->robot();
-        auto hoge = robot->getMotor("AnkleL");
-        auto hige = robot->getPositionSensor("AnkleLS");
-        double hage = hige->webots::PositionSensor::getValue();
-        hoge->webots::Motor::setPosition(1);  // 単位: [rad]
+        Node = node;
+        robot = Node->robot();
+        motor[0] = robot->getMotor("AnkleL");
+        positionSensor[0] = robot->getPositionSensor("AnkleLS");  // value type: double
+        accelerometer = robot->getAccelerometer("Accelerometer");  // values type: double* (need check document)
+        gyro = robot->getGyro("Gyro");  // values type: double* (need check document)
+        positionSensor[0]->webots::PositionSensor::enable(100);  // sampling period: 100[ms]. この宣言の直後に値は得られない。1周期後（ここでは100[ms）後に１つ目の値が得られる。
+        accelerometer->webots::Accelerometer::enable(100);  // sampling period: 100[ms]
+        gyro->webots::Gyro::enable(100);  // sampling period: 100[ms]
+        
+        double hage = positionSensor[0]->webots::PositionSensor::getValue();
+        motor[0]->webots::Motor::setPosition(1);  // 単位: [rad]
         RCLCPP_INFO(node->get_logger(), "Hello my mine...%lf", hage);
     }
 
     void WalkingPatternGenerator::step() {
+        double hage;
         std::cout << "Ride On!" << std::endl;
-        sleep(1.0);  // sleepすると、webotsのシミュレーション時間も止まる。止まるというより、時間の進みが*0.08とかになる。
+        hage = positionSensor[0]->webots::PositionSensor::getValue();
+        RCLCPP_INFO(Node->get_logger(), "hogehoge: %lf", hage);
+        sleep(1.0);  // sleepすると、webotsのシミュレーション時間も止まる。止まるというより、時間の進みが*0.08とかになる。サンプリングも止まるから、注意。
+        // サンプリング周期を設定して、その周期でstepを進めてやれば、リアルタイム性のある制御となる。
+            // 計算時間が確保できないなら、その間シミュレートを止めることもできる。<ーはじめはコレでいきたい。
+       
+        // auto pub = Node->create_publisher<std::string>("test");
         // ココからロボットのデータを逐次Publishをしたい。
         // 他nodeから計算結果などもsubscribeしたい。
+            // 恐らく、hppの方にnode作成用の関数を作成し、実体化させる必要がある。
     }
 }
 

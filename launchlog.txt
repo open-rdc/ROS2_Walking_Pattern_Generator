@@ -111,3 +111,63 @@ ROS2対応: https://qiita.com/NeK/items/48c55bd473091d41cc75
 [driver-2] Ride On!
 [ERROR] [driver-2]: process has died [pid 21527, exit code -13, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_1u_7gs07'].
 [INFO] [webots-1]: process has finished cleanly [pid 21525]
+
+[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-14-17-14-17-140019-ubuntu204ros2-msi-25904
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [webots-1]: process started with pid [25907]
+[INFO] [driver-2]: process started with pid [25909]
+[driver-2] Cannot open file: /tmp/webots-25907-m8vCOE/WEBOTS_SERVER (retry count 1)
+[driver-2] Cannot open file: /tmp/webots-25907-m8vCOE/WEBOTS_SERVER (retry count 2)
+[driver-2] [INFO] [1665735259.238892949] [ROBOTIS_OP2]: Hello my mine...nan
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735259.264497129] [ROBOTIS_OP2]: hogehoge: nan
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735260.283800394] [ROBOTIS_OP2]: hogehoge: nan
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735261.317086054] [ROBOTIS_OP2]: hogehoge: nan
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735262.334256454] [ROBOTIS_OP2]: hogehoge: -0.667266
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735263.353149019] [ROBOTIS_OP2]: hogehoge: -0.667266
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735264.363178451] [ROBOTIS_OP2]: hogehoge: -0.667266
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735265.387520215] [ROBOTIS_OP2]: hogehoge: -0.667266
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735266.396647870] [ROBOTIS_OP2]: hogehoge: 0.564491
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735267.404443025] [ROBOTIS_OP2]: hogehoge: 0.564491
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735268.419598435] [ROBOTIS_OP2]: hogehoge: 0.564491
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735269.437420878] [ROBOTIS_OP2]: hogehoge: 0.564491
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735270.456620020] [ROBOTIS_OP2]: hogehoge: 1.117344
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735271.476582590] [ROBOTIS_OP2]: hogehoge: 1.117344
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735272.505792862] [ROBOTIS_OP2]: hogehoge: 1.117344
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735273.523383741] [ROBOTIS_OP2]: hogehoge: 1.117344
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735274.548178087] [ROBOTIS_OP2]: hogehoge: 1.036306
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735275.565819194] [ROBOTIS_OP2]: hogehoge: 1.036306
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735276.584037774] [ROBOTIS_OP2]: hogehoge: 1.036306
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735277.600417570] [ROBOTIS_OP2]: hogehoge: 1.036306
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735278.613522269] [ROBOTIS_OP2]: hogehoge: 1.007776
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735279.622024029] [ROBOTIS_OP2]: hogehoge: 1.007776
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735280.629812341] [ROBOTIS_OP2]: hogehoge: 1.007776
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735281.647099209] [ROBOTIS_OP2]: hogehoge: 1.007776
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735282.650533573] [ROBOTIS_OP2]: hogehoge: 1.001663
+[driver-2] Ride On!
+[driver-2] [INFO] [1665735283.667876219] [ROBOTIS_OP2]: hogehoge: 1.001663
+[ERROR] [driver-2]: process has died [pid 25909, exit code -13, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_cx3zwbu2'].
+[INFO] [webots-1]: process has finished cleanly [pid 25907]
