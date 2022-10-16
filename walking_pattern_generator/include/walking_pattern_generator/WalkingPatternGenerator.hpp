@@ -7,19 +7,26 @@
 #include "webots_ros2_driver/WebotsNode.hpp"
 
 namespace walking_pattern_generator {
-    
-    class WalkingPatternGenerator : public webots_ros2_driver::PluginInterface, public rclcpp::Node {
+    // node_test1
+    class Node_WalkingPatternGenerator : public rclcpp::Node {
         public:
-            WalkingPatternGenerator();
+            Node_WalkingPatternGenerator(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
+            rclcpp::Publisher<std_msgs::msg::String>::SharedPtr __pub;
+    };
+
+    class WalkingPatternGenerator : public webots_ros2_driver::PluginInterface {
+        public:
             void init(
                 webots_ros2_driver::WebotsNode *node, 
                 std::unordered_map<std::string, std::string> &parameters
                 ) override;
             void step() override;
 
+            rclcpp::Publisher<std_msgs::msg::String>::SharedPtr __pub;
+
         private:
             // node_test2
-            rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher;
+            // rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher;
             webots_ros2_driver::WebotsNode *Node;
             webots::Robot *robot;
             webots::Motor *motor[20];
@@ -27,14 +34,6 @@ namespace walking_pattern_generator {
             webots::Accelerometer *accelerometer;
             webots::Gyro *gyro;
     };
-
-    // node_test1
-    // class Node_WalkingPatternGenerator : public rclcpp::Node {
-    //     public:
-    //         Node_WalkingPatternGenerator(const rclcpp::NodeOptions &options);
-    //     private:
-    //         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher;
-    // };
 }
 
 #endif

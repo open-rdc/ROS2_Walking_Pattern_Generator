@@ -1,5 +1,6 @@
 #include "pluginlib/class_list_macros.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp/qos.hpp"
 #include "std_msgs/msg/string.hpp"
 
 #include "walking_pattern_generator/WalkingPatternGenerator.hpp"
@@ -11,24 +12,16 @@
 // webots関連の関数を使いやすくするために、using namepaceで省略できるようにしたほうが良いかも。
 
 namespace walking_pattern_generator {
-    // node_test1. rclcpp::Nodeの継承。Node化するために実装。publisherをstep()で実行すればOK。
+    // // node_test1. rclcpp::Nodeの継承。Node化するために実装。publisherをstep()で実行すればOK。
     // Node_WalkingPatternGenerator::Node_WalkingPatternGenerator (const rclcpp::NodeOptions &options)
     // : Node("robot_controller", options) {
-    //     publisher = rclcpp::Node::create_publisher<std_msgs::msg::String>("test", rclcpp::QoS(10));
+    //     __pub = this->create_publisher<std_msgs::msg::String>("test", rclcpp::QoS(10));
     // }
-
-    WalkingPatternGenerator::WalkingPatternGenerator()
-    : Node("RobotisOp2_controller") {
-        publisher = create_publisher<std_msgs::msg::String>("test", 10);
-    }
-
         
     void WalkingPatternGenerator::init (
         webots_ros2_driver::WebotsNode *node, 
         std::unordered_map<std::string, std::string> &parameters
     ) {
-        // node_test2
-        
         /* これはpluginである。そのため、ココでnodeの宣言やROS2とnodeの初期化は行わない。別途、main関数含むプログラムから使う。 */
 
         // 以下のような処理をココで行えば良い
@@ -44,14 +37,15 @@ namespace walking_pattern_generator {
         double hage = positionSensor[0]->webots::PositionSensor::getValue();
         motor[0]->webots::Motor::setPosition(1);  // 単位: [rad]
         RCLCPP_INFO(node->get_logger(), "Hello my mine...%lf", hage);
+
+        __pub = node->create_publisher<std_msgs::msg::String>("test", rclcpp::QoS(10));
     }
 
     void WalkingPatternGenerator::step() {
-        // node_test1&2共通
-        auto pub_string = std::make_shared<std_msgs::msg::String>();
-        pub_string->data = "Hello baby...";
-        publisher->publish(*pub_string);
-
+        auto datamsg = std::make_shared<std_msgs::msg::String>();
+        static int count = 0;
+        datamsg->data = "Hello: " + std::to_string(count++);
+        __pub->publish(*datamsg);
 
 
         // 以下、お遊び
