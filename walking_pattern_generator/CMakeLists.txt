@@ -21,6 +21,7 @@ find_package(rclcpp REQUIRED)
 find_package(webots_ros2_driver REQUIRED)
 find_package(pluginlib REQUIRED)
 
+# 以下、Plugin関連
 pluginlib_export_plugin_description_file(webots_ros2_driver walking_pattern_generator.xml)
 
 add_library(
@@ -60,6 +61,23 @@ install(DIRECTORY
   worlds
   resource
   DESTINATION share/${PROJECT_NAME}/
+)
+
+# 以下、Test1_Sub関連
+add_executable(test1_sub
+  src/test1_sub.cpp
+  src/test1_sub_main.cpp
+)
+ament_target_dependencies(test1_sub
+  rclcpp
+)
+target_include_directories(test1_sub
+  PRIVATE
+  include
+)
+install(TARGETS
+  test1_sub
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)
