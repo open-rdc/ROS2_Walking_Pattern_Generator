@@ -281,3 +281,56 @@ ROS2対応: https://qiita.com/NeK/items/48c55bd473091d41cc75
 [driver-2] [INFO] [1665742003.124412237] [ROBOTIS_OP2]: hogehoge: 1.000000
 [ERROR] [driver-2]: process has died [pid 44464, exit code -13, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_6a3hiumx'].
 [INFO] [webots-1]: process has finished cleanly [pid 44462]
+
+[INFO] [launch]: All log files can be found below /home/ubuntu20-4-ros2/.ros/log/2022-10-17-20-54-13-097710-ubuntu204ros2-msi-20396
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [webots-1]: process started with pid [20399]
+[INFO] [driver-2]: process started with pid [20401]
+[driver-2] Cannot open file: /tmp/webots-20399-72MBRP/WEBOTS_SERVER (retry count 1)
+[driver-2] Cannot open file: /tmp/webots-20399-72MBRP/WEBOTS_SERVER (retry count 2)
+[driver-2] [INFO] [1666007655.243634941] [ROBOTIS_OP2]: Hello my mind...
+[driver-2] [INFO] [1666007655.254306544] [ROBOTIS_OP2]: pos: NAN, acc: [x: NAN, y: NAN, z: NAN], gyro: [x: NAN, y: NAN, z: NAN] 
+[driver-2] [INFO] [1666007655.285067900] [ROBOTIS_OP2]: pos: NAN, acc: [x: NAN, y: NAN, z: NAN], gyro: [x: NAN, y: NAN, z: NAN] 
+[driver-2] [INFO] [1666007655.316460506] [ROBOTIS_OP2]: pos: NAN, acc: [x: NAN, y: NAN, z: NAN], gyro: [x: NAN, y: NAN, z: NAN] 
+[driver-2] [INFO] [1666007655.343461366] [ROBOTIS_OP2]: pos: -0.892268, acc: [x: 513.241628, y: 508.711100, z: 654.526349], gyro: [x: 508.280864, y: 546.635845, z: 510.283593] 
+[driver-2] [INFO] [1666007655.371217172] [ROBOTIS_OP2]: pos: -0.892268, acc: [x: 513.241628, y: 508.711100, z: 654.526349], gyro: [x: 508.280864, y: 546.635845, z: 510.283593] 
+[driver-2] [INFO] [1666007655.399132769] [ROBOTIS_OP2]: pos: -0.892268, acc: [x: 513.241628, y: 508.711100, z: 654.526349], gyro: [x: 508.280864, y: 546.635845, z: 510.283593] 
+[driver-2] [INFO] [1666007655.434721075] [ROBOTIS_OP2]: pos: -0.892268, acc: [x: 513.241628, y: 508.711100, z: 654.526349], gyro: [x: 508.280864, y: 546.635845, z: 510.283593] 
+[driver-2] [INFO] [1666007655.467922044] [ROBOTIS_OP2]: pos: 0.285608, acc: [x: 504.266578, y: 537.484009, z: 614.312981], gyro: [x: 516.396391, y: 581.746244, z: 493.667530] 
+[driver-2] [INFO] [1666007655.495914002] [ROBOTIS_OP2]: pos: 0.285608, acc: [x: 504.266578, y: 537.484009, z: 614.312981], gyro: [x: 516.396391, y: 581.746244, z: 493.667530] 
+[driver-2] [INFO] [1666007655.530914603] [ROBOTIS_OP2]: pos: 0.285608, acc: [x: 504.266578, y: 537.484009, z: 614.312981], gyro: [x: 516.396391, y: 581.746244, z: 493.667530] 
+[driver-2] [INFO] [1666007655.563821549] [ROBOTIS_OP2]: pos: 0.285608, acc: [x: 504.266578, y: 537.484009, z: 614.312981], gyro: [x: 516.396391, y: 581.746244, z: 493.667530] 
+[driver-2] [INFO] [1666007655.595129249] [ROBOTIS_OP2]: pos: 1.063505, acc: [x: 486.153634, y: 557.953077, z: 565.289918], gyro: [x: 534.165817, y: 619.833708, z: 497.508926] 
+[driver-2] [INFO] [1666007655.629662406] [ROBOTIS_OP2]: pos: 1.063505, acc: [x: 486.153634, y: 557.953077, z: 565.289918], gyro: [x: 534.165817, y: 619.833708, z: 497.508926] 
+[driver-2] [INFO] [1666007655.663117148] [ROBOTIS_OP2]: pos: 1.063505, acc: [x: 486.153634, y: 557.953077, z: 565.289918], gyro: [x: 534.165817, y: 619.833708, z: 497.508926] 
+[driver-2] [INFO] [1666007655.707150990] [ROBOTIS_OP2]: pos: 1.063505, acc: [x: 486.153634, y: 557.953077, z: 565.289918], gyro: [x: 534.165817, y: 619.833708, z: 497.508926] 
+[driver-2] [INFO] [1666007655.731411228] [ROBOTIS_OP2]: pos: 1.053218, acc: [x: 524.148115, y: 763.610117, z: 448.710440], gyro: [x: 510.741113, y: 455.354896, z: 514.907668] 
+[driver-2] [INFO] [1666007655.761213445] [ROBOTIS_OP2]: pos: 1.053218, acc: [x: 524.148115, y: 763.610117, z: 448.710440], gyro: [x: 510.741113, y: 455.354896, z: 514.907668] 
+[driver-2] [INFO] [1666007655.791161170] [ROBOTIS_OP2]: pos: 1.053218, acc: [x: 524.148115, y: 763.610117, z: 448.710440], gyro: [x: 510.741113, y: 455.354896, z: 514.907668] 
+[driver-2] [INFO] [1666007655.826625253] [ROBOTIS_OP2]: pos: 1.053218, acc: [x: 524.148115, y: 763.610117, z: 448.710440], gyro: [x: 510.741113, y: 455.354896, z: 514.907668] 
+[driver-2] [INFO] [1666007655.858798007] [ROBOTIS_OP2]: pos: 1.011392, acc: [x: 509.522970, y: 570.487926, z: 558.397054], gyro: [x: 512.046252, y: 571.268324, z: 526.236253] 
+[driver-2] [INFO] [1666007655.896825615] [ROBOTIS_OP2]: pos: 1.011392, acc: [x: 509.522970, y: 570.487926, z: 558.397054], gyro: [x: 512.046252, y: 571.268324, z: 526.236253] 
+[driver-2] [INFO] [1666007655.919672132] [ROBOTIS_OP2]: pos: 1.011392, acc: [x: 509.522970, y: 570.487926, z: 558.397054], gyro: [x: 512.046252, y: 571.268324, z: 526.236253] 
+[driver-2] [INFO] [1666007655.958493939] [ROBOTIS_OP2]: pos: 1.011392, acc: [x: 509.522970, y: 570.487926, z: 558.397054], gyro: [x: 512.046252, y: 571.268324, z: 526.236253] 
+[driver-2] [INFO] [1666007655.984830277] [ROBOTIS_OP2]: pos: 1.002437, acc: [x: 520.107943, y: 678.651822, z: 507.630518], gyro: [x: 511.963257, y: 511.242959, z: 512.299976] 
+[driver-2] [INFO] [1666007656.016841336] [ROBOTIS_OP2]: pos: 1.002437, acc: [x: 520.107943, y: 678.651822, z: 507.630518], gyro: [x: 511.963257, y: 511.242959, z: 512.299976] 
+[driver-2] [INFO] [1666007656.055844785] [ROBOTIS_OP2]: pos: 1.002437, acc: [x: 520.107943, y: 678.651822, z: 507.630518], gyro: [x: 511.963257, y: 511.242959, z: 512.299976] 
+[driver-2] [INFO] [1666007656.089903888] [ROBOTIS_OP2]: pos: 1.002437, acc: [x: 520.107943, y: 678.651822, z: 507.630518], gyro: [x: 511.963257, y: 511.242959, z: 512.299976] 
+[driver-2] [INFO] [1666007656.121680591] [ROBOTIS_OP2]: pos: 1.000521, acc: [x: 515.164199, y: 638.266567, z: 525.042167], gyro: [x: 512.130240, y: 511.516245, z: 512.079007] 
+[driver-2] [INFO] [1666007656.153818886] [ROBOTIS_OP2]: pos: 1.000521, acc: [x: 515.164199, y: 638.266567, z: 525.042167], gyro: [x: 512.130240, y: 511.516245, z: 512.079007] 
+[driver-2] [INFO] [1666007656.185810310] [ROBOTIS_OP2]: pos: 1.000521, acc: [x: 515.164199, y: 638.266567, z: 525.042167], gyro: [x: 512.130240, y: 511.516245, z: 512.079007] 
+[driver-2] [INFO] [1666007656.212702396] [ROBOTIS_OP2]: pos: 1.000521, acc: [x: 515.164199, y: 638.266567, z: 525.042167], gyro: [x: 512.130240, y: 511.516245, z: 512.079007] 
+[driver-2] [INFO] [1666007656.246550705] [ROBOTIS_OP2]: pos: 1.000111, acc: [x: 515.129708, y: 638.799491, z: 525.643421], gyro: [x: 512.053899, y: 511.804187, z: 512.031544] 
+[driver-2] [INFO] [1666007656.280268117] [ROBOTIS_OP2]: pos: 1.000111, acc: [x: 515.129708, y: 638.799491, z: 525.643421], gyro: [x: 512.053899, y: 511.804187, z: 512.031544] 
+[driver-2] [INFO] [1666007656.311908378] [ROBOTIS_OP2]: pos: 1.000111, acc: [x: 515.129708, y: 638.799491, z: 525.643421], gyro: [x: 512.053899, y: 511.804187, z: 512.031544] 
+[driver-2] [INFO] [1666007656.346052242] [ROBOTIS_OP2]: pos: 1.000111, acc: [x: 515.129708, y: 638.799491, z: 525.643421], gyro: [x: 512.053899, y: 511.804187, z: 512.031544] 
+[driver-2] [INFO] [1666007656.380275873] [ROBOTIS_OP2]: pos: 1.000024, acc: [x: 515.160180, y: 639.044862, z: 525.737995], gyro: [x: 512.020490, y: 511.920919, z: 512.013453] 
+[driver-2] [INFO] [1666007656.412542766] [ROBOTIS_OP2]: pos: 1.000024, acc: [x: 515.160180, y: 639.044862, z: 525.737995], gyro: [x: 512.020490, y: 511.920919, z: 512.013453] 
+[driver-2] [INFO] [1666007656.444242717] [ROBOTIS_OP2]: pos: 1.000024, acc: [x: 515.160180, y: 639.044862, z: 525.737995], gyro: [x: 512.020490, y: 511.920919, z: 512.013453] 
+[driver-2] [INFO] [1666007656.476025884] [ROBOTIS_OP2]: pos: 1.000024, acc: [x: 515.160180, y: 639.044862, z: 525.737995], gyro: [x: 512.020490, y: 511.920919, z: 512.013453] 
+[driver-2] [INFO] [1666007656.506474557] [ROBOTIS_OP2]: pos: 1.000005, acc: [x: 515.174299, y: 639.145132, z: 525.775052], gyro: [x: 512.006027, y: 511.968185, z: 512.006140] 
+[driver-2] [INFO] [1666007656.540164338] [ROBOTIS_OP2]: pos: 1.000005, acc: [x: 515.174299, y: 639.145132, z: 525.775052], gyro: [x: 512.006027, y: 511.968185, z: 512.006140] 
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[ERROR] [driver-2]: process has died [pid 20401, exit code -2, cmd '/opt/ros/foxy/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_9h2rv3f4'].
+[INFO] [webots-1]: process has finished cleanly [pid 20399]
+

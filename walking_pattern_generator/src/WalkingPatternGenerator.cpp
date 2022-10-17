@@ -17,28 +17,44 @@ namespace walking_pattern_generator
         webots_ros2_driver::WebotsNode *node, 
         std::unordered_map<std::string, std::string> &parameters
     ) {
-        robot = node->robot();
+        Node = node;
+        robot = Node->robot();
         motor[0] = robot->getMotor("AnkleL");
         positionSensor[0] = robot->getPositionSensor("AnkleLS");  // value type: double
         accelerometer = robot->getAccelerometer("Accelerometer");  // values type: double* (need check document)
         gyro = robot->getGyro("Gyro");  // values type: double* (need check document)
+
         positionSensor[0]->webots::PositionSensor::enable(100);  // sampling period: 100[ms]. この宣言の直後に値は得られない。1周期後（ここでは100[ms）後に１つ目の値が得られる。
         accelerometer->webots::Accelerometer::enable(100);  // sampling period: 100[ms]
         gyro->webots::Gyro::enable(100);  // sampling period: 100[ms]
 
-        double hage = positionSensor[0]->webots::PositionSensor::getValue();
-        motor[0]->webots::Motor::setPosition(1);  // 単位: [rad]
-        RCLCPP_INFO(node->get_logger(), "Hello my mine...%lf", hage);
+        RCLCPP_INFO(Node->get_logger(), "Hello my mind...");
 
         __pub = node->create_publisher<std_msgs::msg::String>("test", rclcpp::QoS(10));
     }
 
     void WalkingPatternGenerator::step() {
-        auto datamsg = std::make_shared<std_msgs::msg::String>();
-        static int count = 0;
-        datamsg->data = "Hello: " + std::to_string(count++);
-        __pub->publish(*datamsg);
+        // CHECK SENSOR DATA
+        positionSensorValue[0] = positionSensor[0]->webots::PositionSensor::getValue();  // 毎stepで値を再取得しないと、値が更新されない。
+        accelerometerValue = accelerometer->webots::Accelerometer::getValues();  // 毎stepで値を再取得せずとも、値は更新される。値を保持するためには、他変数にコピーする必要がある。
+        gyroValue = gyro->webots::Gyro::getValues();  // 加速度センサ値と同様。
 
+        motorValue[0] = 1;
+        motor[0]->webots::Motor::setPosition(motorValue[0]);  // 単位: [rad]
+        
+        RCLCPP_INFO(Node->get_logger(), "pos: %F, acc: [x: %F, y: %F, z: %F], gyro: [x: %F, y: %F, z: %F] ", 
+            positionSensorValue[0], accelerometerValue[0], accelerometerValue[1], accelerometerValue[2],gyroValue[0], gyroValue[1], gyroValue[2]);
+
+        // 以上のstep周期: 約 25[ms]
+        // データを100[ms]で取得しており、標準出力でセンサ値が４回の出力記録の周期で変化しているため。
+
+        // PUBLISH
+        // auto datamsg = std::make_shared<std_msgs::msg::String>();
+        // static int count = 0;
+        // datamsg->data = "Hello: " + std::to_string(count++);
+        // __pub->publish(*datamsg);
+
+        // TEST
         // double hage;
         // std::cout << "Ride On!" << std::endl;
         // hage = positionSensor[0]->webots::PositionSensor::getValue();
@@ -50,10 +66,9 @@ namespace walking_pattern_generator
             // 計算時間が確保できないなら、その間シミュレートを止めることもできる。<ーはじめはコレでいきたい。
         // rosbagも有り
 
-        // auto pub = Node->create_publisher<std::string>("test");
         // ココからロボットのデータを逐次Publishをしたい。
         // 他nodeから計算結果などもsubscribeしたい。
-            // 恐らく、hppの方にnode作成用の関数を作成し、実体化させる必要がある。
+            // 別に新規でpluginを作成し、PubとSubを分けたほうが良さげ？
     }
 }
 
