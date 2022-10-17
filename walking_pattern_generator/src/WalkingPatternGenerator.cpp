@@ -40,6 +40,7 @@ namespace walking_pattern_generator
         gyroValue = gyro->webots::Gyro::getValues();  // 加速度センサ値と同様。
 
         motorValue[0] = 1;
+        motor[0]->webots::Motor::setVelocity(0.1);
         motor[0]->webots::Motor::setPosition(motorValue[0]);  // 単位: [rad]
         
         RCLCPP_INFO(Node->get_logger(), "pos: %F, acc: [x: %F, y: %F, z: %F], gyro: [x: %F, y: %F, z: %F] ", 
