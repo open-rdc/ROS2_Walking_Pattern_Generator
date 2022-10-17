@@ -6,14 +6,8 @@
 #include "webots_ros2_driver/PluginInterface.hpp"
 #include "webots_ros2_driver/WebotsNode.hpp"
 
-namespace walking_pattern_generator {
-    // node_test1
-    class Node_WalkingPatternGenerator : public rclcpp::Node {
-        public:
-            Node_WalkingPatternGenerator(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
-            rclcpp::Publisher<std_msgs::msg::String>::SharedPtr __pub;
-    };
-
+namespace walking_pattern_generator 
+{
     class WalkingPatternGenerator : public webots_ros2_driver::PluginInterface {
         public:
             void init(
@@ -22,11 +16,8 @@ namespace walking_pattern_generator {
                 ) override;
             void step() override;
 
-            rclcpp::Publisher<std_msgs::msg::String>::SharedPtr __pub;
-
         private:
-            // node_test2
-            // rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher;
+            rclcpp::Publisher<std_msgs::msg::String>::SharedPtr __pub;
             webots_ros2_driver::WebotsNode *Node;
             webots::Robot *robot;
             webots::Motor *motor[20];
