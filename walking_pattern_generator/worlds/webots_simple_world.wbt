@@ -24,3 +24,8 @@ RobotisOp2 {
   controller "<extern>"
   supervisor TRUE
 }
+Robot {
+  name "robot"
+  controller "<extern>"
+  supervisor TRUE
+}

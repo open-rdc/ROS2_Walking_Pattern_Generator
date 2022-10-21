@@ -80,6 +80,25 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+# 以下、Supervisor_pub関連
+add_executable(supervisor_pub
+  src/Supervisor_pub.cpp
+  src/Supervisor_pub_main.cpp
+)
+ament_target_dependencies(supervisor_pub
+  rclcpp
+  webots_ros2_driver
+  
+)
+target_include_directories(supervisor_pub
+  PRIVATE
+  include
+)
+install(TARGETS
+  supervisor_pub
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights

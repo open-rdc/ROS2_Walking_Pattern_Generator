@@ -1,0 +1,5 @@
+>>> Supervisorを用いてロボットの座標などを得るプログラムを試作中
+> プログラムが一度はconnectするのだが、すぐにdisconnectしてしまう
+> 同じportのrobot（ROBOTIS_OP2）にアクセスすると、アクセス拒否される？。されてもgetFromDefで取得しているから問題なし？
+> すぐに落ちるのは、stepで繰り返していないからだと思われる。これはrobot::step?, WebotsNode::step?. WebotsNodeでplugin化するのが良さそう。
+ 

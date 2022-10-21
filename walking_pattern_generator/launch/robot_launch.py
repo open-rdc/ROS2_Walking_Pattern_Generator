@@ -14,11 +14,20 @@ def generate_launch_description():
         world = os.path.join(package_dir, "worlds", "webots_simple_world.wbt")
     )
 
-    robotis_op2_driver = Node(
-        package = "webots_ros2_driver",
-        executable = "driver",
+    # robotis_op2_driver = Node(
+    #     package = "webots_ros2_driver",
+    #     executable = "driver",
+    #     output = "screen",
+    #     additional_env = {"WEBOTS_CONTROLLER_URL": "ipc://1234/ROBOTIS_OP2"},
+    #     parameters = [
+    #         {"robot_description": robot_description}
+    #     ],
+    # )
+    supervisor_pub = Node(
+        package = "walking_pattern_generator",
+        executable = "supervisor_pub",
         output = "screen",
-        additional_env = {"WEBOTS_CONTROLLER_URL": "ROBOTIS_OP2"},
+        additional_env = {"WEBOTS_CONTROLLER_URL": "ipc://1234/robot"},
         parameters = [
             {"robot_description": robot_description}
         ],
@@ -28,7 +37,8 @@ def generate_launch_description():
 
     return launch.LaunchDescription([
         webots,
-        robotis_op2_driver,
+        # robotis_op2_driver,
+        supervisor_pub,
         ros2_supervisor,
         launch.actions.RegisterEventHandler(
             event_handler = launch.event_handlers.OnProcessExit(

@@ -4,7 +4,6 @@
 #include "std_msgs/msg/string.hpp"
 
 #include "walking_pattern_generator/WalkingPatternGenerator.hpp"
-#include <webots/Supervisor.hpp>
 #include <webots/Motor.hpp>
 #include <webots/PositionSensor.hpp>
 #include <webots/Accelerometer.hpp>
@@ -18,16 +17,6 @@ namespace walking_pattern_generator
         webots_ros2_driver::WebotsNode *node, 
         std::unordered_map<std::string, std::string> &parameters
     ) {
-        // SUPERVISOR
-        // supervisor = new webots::Supervisor();
-        // SupervisorNode = supervisor->getFromDef("ROBOTIS_OP2");
-        // field_translation = SupervisorNode->getField("translation");
-        // field_rotation = SupervisorNode->getField("rotation");
-
-
-
-
-
         // NODE
         Node = node;
         robot = Node->robot();
@@ -47,14 +36,6 @@ namespace walking_pattern_generator
     }
 
     void WalkingPatternGenerator::step() {
-        // SUPERVISOR: CHECK ROBOT DATA
-        // translation = field_translation->getSFVec3f();
-        // rotation = field_rotation->getSFRotation();
-
-        // std::cout << "field_trans: [" << translation[0] << ", " << translation[1] << ", " << translation[2] << "]" << std::endl;
-        // std::cout << "field_rotat: [" << rotation[0] << ", " << rotation[1] << ", " << rotation[2] << "]\n" << std::endl;
-
-
         // NODE: CHECK SENSOR DATA
         positionSensorValue[0] = positionSensor[0]->webots::PositionSensor::getValue();  // 毎stepで値を再取得しないと、値が更新されない。
         accelerometerValue = accelerometer->webots::Accelerometer::getValues();  // 毎stepで値を再取得せずとも、値は更新される。値を保持するためには、他変数にコピーする必要がある。
