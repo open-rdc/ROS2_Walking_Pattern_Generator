@@ -4,7 +4,7 @@ import pathlib
 import launch
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
-from webots_ros2_driver.webots_launcher import WebotsLauncher
+from webots_ros2_driver.webots_launcher import WebotsLauncher, Ros2SupervisorLauncher
 
 def generate_launch_description():
     package_dir = get_package_share_directory("walking_pattern_generator")
@@ -24,9 +24,12 @@ def generate_launch_description():
         ],
     )
 
+    ros2_supervisor = Ros2SupervisorLauncher()
+
     return launch.LaunchDescription([
         webots,
         robotis_op2_driver,
+        ros2_supervisor,
         launch.actions.RegisterEventHandler(
             event_handler = launch.event_handlers.OnProcessExit(
                 target_action = webots,
