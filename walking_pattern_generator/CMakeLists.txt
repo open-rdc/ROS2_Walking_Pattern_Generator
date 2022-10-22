@@ -64,40 +64,40 @@ install(DIRECTORY
 )
 
 # 以下、Test1_Sub関連
-add_executable(test1_sub
-  src/test1_sub.cpp
-  src/test1_sub_main.cpp
-)
-ament_target_dependencies(test1_sub
-  rclcpp
-)
-target_include_directories(test1_sub
-  PRIVATE
-  include
-)
-install(TARGETS
-  test1_sub
-  DESTINATION lib/${PROJECT_NAME}
-)
+# add_executable(test1_sub
+#   src/test1_sub.cpp
+#   src/test1_sub_main.cpp
+# )
+# ament_target_dependencies(test1_sub
+#   rclcpp
+# )
+# target_include_directories(test1_sub
+#   PRIVATE
+#   include
+# )
+# install(TARGETS
+#   test1_sub
+#   DESTINATION lib/${PROJECT_NAME}
+# )
 
 # 以下、Supervisor_pub関連
-add_executable(supervisor_pub
-  src/Supervisor_pub.cpp
-  src/Supervisor_pub_main.cpp
-)
-ament_target_dependencies(supervisor_pub
-  rclcpp
-  webots_ros2_driver
+# add_executable(supervisor_pub
+#   src/Supervisor_pub.cpp
+#   src/Supervisor_pub_main.cpp
+# )
+# ament_target_dependencies(supervisor_pub
+#   rclcpp
+#   webots_ros2_driver
   
-)
-target_include_directories(supervisor_pub
-  PRIVATE
-  include
-)
-install(TARGETS
-  supervisor_pub
-  DESTINATION lib/${PROJECT_NAME}
-)
+# )
+# target_include_directories(supervisor_pub
+#   PRIVATE
+#   include
+# )
+# install(TARGETS
+#   supervisor_pub
+#   DESTINATION lib/${PROJECT_NAME}
+# )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

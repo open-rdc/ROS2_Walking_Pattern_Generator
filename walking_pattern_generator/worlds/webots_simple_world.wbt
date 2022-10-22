@@ -19,13 +19,8 @@ TexturedBackgroundLight {
 }
 Floor {
 }
-RobotisOp2 {
+DEF ROBOTIS_OP2 RobotisOp2 {
   name "ROBOTIS_OP2"
-  controller "<extern>"
-  supervisor TRUE
-}
-Robot {
-  name "robot"
   controller "<extern>"
   supervisor TRUE
 }
