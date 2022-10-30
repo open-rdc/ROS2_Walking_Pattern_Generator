@@ -5,6 +5,8 @@ Reference: [1], https://github.com/cyberbotics/webots/blob/master/projects/robot
 
 <Links>
 
+anchor: JointPosition (x-axis, y-axis, z-axis) [m].
+
 Robot
 - Neck: 19: DEF DNeck, x-y-z, axis (x0, y0, z1), anchor (x0, y-0, z0.051), line-213
 - - Head: 20: DEF DHead, x-y-z, axis (x-1, y0, z0), anchor ( = Neck), line-261
@@ -55,8 +57,8 @@ Robot
 
 <RotationalMotors( = Motors)>
 
-maxForce = maxTorque: 2.5 [N*m]=[kgf*m]=[kg*m/(s^2)*m]
-acceleration: 55 [rad/s^2]
+maxForce = maxTorque: 2.5 [N*m]=[kgf*m]=[kg*(m/(s^2))*m]
+acceleration: 55 [rad/(s^2)]
 maxVelocity: 12.26 [rad/s]
 dampingConstant: 0.002
 staticFriction: 0.025 [N*m]
