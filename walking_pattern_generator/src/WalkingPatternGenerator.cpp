@@ -55,12 +55,12 @@ namespace walking_pattern_generator
         accelerometerValue = accelerometer->webots::Accelerometer::getValues();  // 毎stepで値を再取得せずとも、値は更新される。値を保持するためには、他変数にコピーする必要がある。
         gyroValue = gyro->webots::Gyro::getValues();  // 加速度センサ値と同様。
 
-        // motorValue[0] = 1;
-        // motor[0]->webots::Motor::setVelocity(0.1);
-        // motor[0]->webots::Motor::setPosition(motorValue[0]);  // 単位: [rad]
+        motorValue[0] = 1;
+        motor[0]->webots::Motor::setVelocity(0.1);
+        motor[0]->webots::Motor::setPosition(motorValue[0]);  // 単位: [rad]
         
-        // RCLCPP_INFO(Node->get_logger(), "pos: %F, acc: [x: %F, y: %F, z: %F], gyro: [x: %F, y: %F, z: %F] ", 
-        //     positionSensorValue[0], accelerometerValue[0], accelerometerValue[1], accelerometerValue[2],gyroValue[0], gyroValue[1], gyroValue[2]);
+        RCLCPP_INFO(Node->get_logger(), "pos: %F, acc: [x: %F, y: %F, z: %F], gyro: [x: %F, y: %F, z: %F] ", 
+            positionSensorValue[0], accelerometerValue[0], accelerometerValue[1], accelerometerValue[2],gyroValue[0], gyroValue[1], gyroValue[2]);
         
         // SUPERVISOR: CHECK DATA
         translation = field_translation->getSFVec3f();  // ロボットが持つ、自身の位置ベクトル[x[m], y[m], z[m]]
@@ -107,7 +107,7 @@ namespace walking_pattern_generator
         //                         , centerOfMass[0], centerOfMass[1], centerOfMass[2]
         // );
         // CHECK: ContactPoints
-        RCLCPP_INFO(Node->get_logger(), "%d", size);
+        // RCLCPP_INFO(Node->get_logger(), "%d", size);
         // for(int i = 0, i <= size, i++){
         //     if(i == size){
         //         std::cout << contactPoint[i] << std::endl;
