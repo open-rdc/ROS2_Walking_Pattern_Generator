@@ -19,7 +19,9 @@ Walking Pattern Generator using ROS2 for Humanoid Robots<br>
 ・Used Robot: ROBOTIS OP2 ([official](https://e-shop.robotis.co.jp/product.php?id=14))<br>
 　・Webots simulation source data ([GitHub, cyberbotics, Webots, Darwin-op.proto](https://github.com/cyberbotics/webots/blob/master/projects/robots/robotis/darwin-op/protos/Darwin-op.proto
 ))<br>
-　　・Joint Status: ROS2_Walking_Pattern_Generator/STATUS.txt
+
+　　・Joint Status: [STATUS.txt](https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/blob/main/STATUS.txt)
+
 <br>
 　・Webots User Guide ([ROBOTIS' Robotis OP2](https://cyberbotics.com/doc/guide/robotis-op2))
 <br>
@@ -36,5 +38,6 @@ Walking Pattern Generator using ROS2 for Humanoid Robots<br>
 ・[@Nek, ROS2導入＆レクチャー, Qiita](https://qiita.com/NeK/items/7ac0f4ec10d51dbca084)<br>
 　↑ 特にコードの記述の参考にさせていただいたサイト様
 <br>
+
 ・[オーム社, 梶田秀司, 『ヒューマノイドロボット（改訂２版）』](https://www.ohmsha.co.jp/book/9784274226021/)<br>
 　↑ 特に理論の参考にさせていただいた参考書
