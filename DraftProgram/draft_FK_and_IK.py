@@ -1,220 +1,191 @@
 import numpy as np
 
 class Kinematics():
-    id1, id2, id3, id4, id5, id6, id7, id8, id9, id10, id11, id12, id13, id14, id15, id16, id17, id18, id19, id20 = None
-    LR_links, LL_links, AR_links, AL_links = None
-    
-    def __init(self, kinematics, target, data):
+    def __init__(self, kinematics, link, jointsAngle, reference):
         # 各関節の同次変換行列（ID別）
-        id1 = [
-            [], 
-            [], 
-            [], 
+        # protoファイルに記述されている情報からして、関節が持つ座標系は、全て共通しているわけではない。xyzもあれば、zxyもある。
+        # しかし結局、出力は方向を持たない只の関節角度値だけである。
+        # そのため今回は、全てxyzの座標系を持つと読み替えて、同次変換行列を作成する。
+        id01 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id2 = [
-            [], 
-            [], 
-            [], 
+        )
+        id02 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id3 = [
-            [], 
-            [], 
-            [], 
+        )
+        id03 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id4 = [
-            [], 
-            [], 
-            [], 
+        )
+        id04 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id5 = [
-            [], 
-            [], 
-            [], 
+        )
+        id05 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id6 = [
-            [], 
-            [], 
-            [], 
+        )
+        id06 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id7 = [
-            [], 
-            [], 
-            [], 
+        )
+        id07 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id8 = [
-            [], 
-            [], 
-            [], 
+        )
+        id08 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id9 = [
-            [], 
-            [], 
-            [], 
+        )
+        id09 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id10 = [
-            [], 
-            [], 
-            [], 
+        )
+        id10 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id11 = [
-            [], 
-            [], 
-            [], 
+        )
+        id11 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id12 = [
-            [], 
-            [], 
-            [], 
+        )
+        id12 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id13 = [
-            [], 
-            [], 
-            [], 
+        )
+        id13 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id14 = [
-            [], 
-            [], 
-            [], 
+        )
+        id14 =np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id15 = [ 
-            [], 
-            [], 
-            [], 
+        )
+        id15 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id16 = [
-            [], 
-            [], 
-            [], 
+        )
+        id16 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id17 = [
-            [], 
-            [], 
-            [], 
+        )
+        id17 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id18 = [
-            [], 
-            [], 
-            [], 
+        )
+        id18 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
             [0, 0, 0, 1]]
-        id19 = [
-            [], 
-            [], 
-            [], 
-            [0, 0, 0, 1]] # Neck
-        id20 = [
-            [], 
-            [], 
-            [], 
-            [0, 0, 0, 1]] # Head
-
-        LR_links = [id7, id9, id11, id13, id15, id17]
-        LL_links = [id8, id10, id12, id14, id16, id18]
-        AR_links = [id1, id3, id5]
-        AL_links = [id2, id4, id6]
-
-        # ここで、全Linkに対して変数を用意しているが、４セットもいらず最低１セットあれば良い。てか１セットのほうが良い。両足計算しないといけないが、その場合、ROS2であることを活かして左右それぞれ別nodeとして用意してやれば、マルチタスクで両足を計算できるよ。
+        )
+        id19 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 1]]
+        )
+        id20 = np.matrix([
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 0], 
+            [0, 0, 0, 1]]
+        )
 
         # LR: LegRight, LL: LegLeft, AR: ArmRight, AL: ArmLeft
-        # 目標リンクの位置p_ref、姿勢R_Ref
-        LR_p_ref = []
-        LR_R_ref = [[], [], []]
-        LR_ref = [LR_p_ref, LR_R_ref]
-        LL_p_ref = []
-        LL_R_ref = [[], [], []]
-        LL_ref = [LL_p_ref, LL_R_ref]
-        AR_p_ref = []
-        AR_R_ref = [[], [], []]
-        AR_ref = [AR_p_ref, AR_R_ref]
-        AL_p_ref = []
-        AL_R_ref = [[], [], []]
-        AL_ref = [AL_p_ref, AL_R_ref]
+        self.LR_links = [id07, id09, id11, id13, id15, id17]
+        self.LL_links = [id08, id10, id12, id14, id16, id18]
+        self.AR_links = [id01, id03, id05]
+        self.AL_links = [id02, id04, id06]
 
-        # 注目リンクの位置p、姿勢R
-        LR_p_cur = []
-        LR_R_cur = [[], [], []]
-        LR_cur = [LR_p_cur, LR_R_cur]
-        LL_p_cur = []
-        LL_R_cur = [[], [], []]
-        LL_cur = [LL_p_cur, LL_R_cur]
-        AR_p_cur = []
-        AR_R_cur = [[], [], []]
-        AR_cur = [AR_p_cur, AR_R_cur]
-        AL_p_cur = []
-        AL_R_cur = [[], [], []]
-        AL_cur = [AL_p_cur, AL_R_cur]
+        # ここで、全Linkに対して変数を用意しているが、４セットもいらず最低１セットあれば良い。てか１セットのほうが良い。歩行では必ず両足計算しないといけないが、結局左右別々で計算するのだから、この場合、ROS2であることを活かして左右それぞれ別nodeとして用意してやれば、マルチタスクで両足を計算できるよ。
+
+        # 目標リンクの位置p_ref、姿勢R_Ref
+        p_ref = np.zeros(3)
+        R_ref = np.zeros((3,3)) # 目標姿勢（＝目標回転行列）は、目標角度(roll, pitch, yaw)から計算してやれば良い。（ベタ踏みで歩行するなら目標姿勢は０のまま？）
+        self.ref = np.matrix([p_ref, R_ref])
+
+        # 注目リンクの位置p_cur、姿勢R_cur
+        p_cur = np.zeros(3)
+        R_cur = np.zeros((3,3))
+        self.cur = np.matrix([p_cur, R_cur])
 
         # 位置の誤差p_diff、姿勢の誤差R_diff
-        LR_p_diff = []
-        LR_R_diff = [[], [], []]
-        LR_diff = [LR_p_diff, LR_R_diff]
-        LL_p_diff = []
-        LL_R_diff = [[], [], []]
-        LL_diff = [LL_p_diff, LL_R_diff]
-        AR_p_diff = []
-        AR_R_diff = [[], [], []]
-        AR_diff = [AR_p_diff, AR_R_diff]
-        AL_p_diff = []
-        AL_R_diff = [[], [], []]
-        AL_diff = [AL_p_diff, AL_R_diff]
+        p_diff = np.zeros(3)
+        R_diff = np.zeros((3,3))
+        self.diff = np.matrix([p_diff, R_diff])
 
-        # 現在において、注目リンクまでの各関節角度を並べたベクトル（＝配列）q、関節角度修正量q_diff
-        LR_q_cur = []
-        LR_q_diff = []
-        LR_q = [LR_q_cur, LR_q_diff]
-        LL_q_cur = []
-        LL_q_diff = []
-        LL_q = [LL_q_cur, LL_q_diff]
-        AR_q_cur = []
-        AR_q_diff = []
-        AR_q = [AR_q_cur, AR_q_diff]
-        AL_q_cur = []
-        AL_q_diff = []
-        AL_q = [AL_q_cur, AL_q_diff]
+        # 現在において、注目リンクまでの各関節角度を並べたベクトル（＝配列）q_cur、関節角度修正量q_diff
+        q_cur = np.array(jointsAngle)
+        q_diff = np.zeros(len(jointsAngle))
+        q = np.matrix([q_cur, q_diff])
 
-    # def kinematics(self, kinematics, target, data):
-        if kinematics == "FK":
-            # targetのq_cur = data
-            if target == "LR":
-                LR_q[0] = data
-                print(LR_q)
-            elif target == "LL":
-                LL_q[0] = data
-                print(LL_q)
-            elif target == "AR":
-                AR_q[0] = data
-                print(AR_q)
-            elif target == "AL":
-                AL_q[0] = data
-                print(AL_q)
-            Kinematics.FK(target)
+        if kinematics == "FK": # 順運動学
+            Kinematics.FK(link)
 
-        elif kinematics == "IK":
-            # targetのq_cur = data
-            if target == "LR":
-                LR_q[0] = data
-                LR_q[1] = np.zero(len(data), dtype="float32")
-                print(LR_q)
-            elif target == "LL":
-                LL_q[0] = data
-                LL_q[1] = np.zero(len(data), dtype="float32")
-                print(LL_q)
-            elif target == "AR":
-                AR_q[0] = data
-                AR_q[1] = np.zero(len(data), dtype="float32")
-                print(AR_q)
-            elif target == "AL":
-                AL_q[0] = data
-                AL_q[1] = np.zero(len(data), dtype="float32")
-                print(AL_q)
-
-            # targetのq_diff = np.zero(dataと同じ要素数の、全要素が０のベクトルを代入)
-            Kinematics.IK(target)
+        elif kinematics == "IK": # 逆運動学
+            Kinematics.IK(link)
             
-    def FK(self, target): # 順運動学
-        pass
 
-    def IK(self, target): # 逆運動学
-        pass
+    def FK(self, link): # 順運動学
+        if link == "LR":
+            links = self.LR_links
+        elif link == "LL":
+            links = self.LL_links
+        elif link == "AR":
+            links = self.AR_links
+        elif link == "AL":
+            links = self.AL_links
+
+        return self.q[0]
+
+
+    def IK(self, link): # 逆運動学
+        if link == "LR":
+            links = self.LR_links
+        elif link == "LL":
+            links = self.LL_links
+        elif link == "AR":
+            links = self.AR_links
+        elif link == "AL":
+            links = self.AL_links
+
+        return self.q[0]
 
 
 def main():
