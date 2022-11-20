@@ -1,0 +1,5 @@
+順・逆運動学を解くのに使えそうなライブラリの調査
+・pinocchio
+・RBDL
+・Eigen3
+・qpOASES
