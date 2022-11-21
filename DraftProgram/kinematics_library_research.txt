@@ -1,5 +1,30 @@
 順・逆運動学を解くのに使えそうなライブラリの調査
-・pinocchio
-・RBDL
+・pinocchio: https://github.com/stack-of-tasks/pinocchio
+　・最新リリース: Pinocchio 2.6.12 _Nov 6
+　・Pythonインターフェイス有り(pip or conda)。C++(98/03/11/14/17/20)の場合はHeader only
+　・線形代数のEigenと、衝突検出のFCLに基づいて構築
+　・C++ template library
+　・CppADCodeGenでの自動コード生成をサポート
+　・順運動学、順・逆動力学（RNEA? etc?）、重心動力学。それぞれの解析的導関数。
+　・ROS2 Foxy, Humble. Rolling にも対応。
+　・モデルはURDFやSDF
+　・ドキュメントが超充実している。サンプルコード(C++, Python)もある。https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/index.html
+　　・逆運動学の例(閉ループモデル＝数値解法): https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_b-examples_i-inverse-kinematics.html#autotoc_md63
+　　・例では、Levenberg Marquardt法の、Singularity-Robust inverse法で、各残渣に関する任意の重み正定値行列Weを１として、負にしたもので、修正角運動量を求めている。
+　・インストールはココ。aptから。https://stack-of-tasks.github.io/pinocchio/download.html
+　・2008, Roy Featherstone, 『Rigid Body Dynamics Algorithms』から影響を受けている。https://link.springer.com/book/10.1007/978-1-4899-7560-7
+　　・この著者が開発したアルゴリズムが、Articulated Body Algorithm (ABA)。
+　　・Amazon: https://www.amazon.co.jp/Rigid-Body-Dynamics-Algorithms-Featherstone/dp/0387743146
+　　
+・RBDL: https://github.com/rbdl/rbdl
+　・最新リリース: RBDL v3.2.1 _Aug 17
+　・Kinematic chains and 分岐モデルの順・逆動力学（RNEA, CRBA, ABA）、順・逆運動学、ヤコビアンの計算、接触と衝突処理の成約、閉ループモデルのコードが含まれている。
+　・モデルは、URDF or Lua
+　・言語、C++, Python(wapper)
+　・ドキュメントも、必要なことが書かれている。pinocchioほどではない。https://rbdl.github.io/index.html
+　・外部依存関係はないが、数学ライブラリのEigen3を使えば最適なパフォーマンスが得られる。別途必要。
+　・インストールは、git cloneからのscript起動。
+　・2008, Roy Featherstone, 『Rigid Body Dynamics Algorithms』から影響を受けている。https://link.springer.com/book/10.1007/978-1-4899-7560-7
+
 ・Eigen3
 ・qpOASES
