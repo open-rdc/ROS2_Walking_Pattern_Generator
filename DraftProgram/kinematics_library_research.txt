@@ -20,11 +20,16 @@
 　・最新リリース: RBDL v3.2.1 _Aug 17
 　・Kinematic chains and 分岐モデルの順・逆動力学（RNEA, CRBA, ABA）、順・逆運動学、ヤコビアンの計算、接触と衝突処理の成約、閉ループモデルのコードが含まれている。
 　・モデルは、URDF or Lua
+　・ROSには未対応？CMake周りを設定してやれば通るのだろうが。
 　・言語、C++, Python(wapper)
 　・ドキュメントも、必要なことが書かれている。pinocchioほどではない。https://rbdl.github.io/index.html
 　・外部依存関係はないが、数学ライブラリのEigen3を使えば最適なパフォーマンスが得られる。別途必要。
 　・インストールは、git cloneからのscript起動。
 　・2008, Roy Featherstone, 『Rigid Body Dynamics Algorithms』から影響を受けている。https://link.springer.com/book/10.1007/978-1-4899-7560-7
 
-・Eigen3
-・qpOASES
+・Eigen3: https://eigen.tuxfamily.org/index.php?title=Main_Page
+　・線形代数のC++ template library
+
+・qpOASES: https://github.com/coin-or/qpOASES, https://www.coin-or.org/qpOASES/doc/3.2/doxygen/index.html
+　・オンライン・アクティブセット法を実装するライブラリ
+　・C++
