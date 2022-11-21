@@ -18,61 +18,124 @@ namespace walking_pattern_generator
         webots_ros2_driver::WebotsNode *node, 
         std::unordered_map<std::string, std::string> &parameters
     ) {
+        std::vector<std::string> MotorsName = {"ShoulderR", "ShoulderL", "ArmUpperR", "ArmUpperL", "ArmLowerR", "ArmLowerL", "PelvYR", "PelvYL", "PelvR", "PelvL", "LegUpperR", "LegUpperL", "LegLowerR", "LegLowerL", "AnkleR", "AnkleL", "FootR", "FootL", "Neck", "Head"};
+
+        if(MotorsName[0] != "ShoulderR"){ 
+            std::cout << "ERROR!: MotorsName is fucking array!!" << std::endl; 
+        }
+        std::string hoge = MotorsName[0] + "S";
+        if( hoge != "ShoulderRS"){
+            std::cout << "ERROR!: MotorsName is fucking array.push_back()!!" << std::endl; 
+        }
+
         // NODE
         Node = node;
         robot = Node->robot();
-        motor[0] = robot->getMotor("AnkleL");
-        positionSensor[0] = robot->getPositionSensor("AnkleLS");  // value type: double
+
+        for(int i = 0; i <20; i++) {
+            motor[i] = robot->getMotor(MotorsName[i]);
+            positionSensor[i] = robot->getPositionSensor(MotorsName[i]+"S");  // value type: double
+            positionSensor[i]->webots::PositionSensor::enable(100);  // sampling period: 100[ms]. この宣言の直後に値は得られない。1周期後（ここでは100[ms）後に１つ目の値が得られる。
+        }
         accelerometer = robot->getAccelerometer("Accelerometer");  // values type: double* (need check document)
         gyro = robot->getGyro("Gyro");  // values type: double* (need check document)
 
-        positionSensor[0]->webots::PositionSensor::enable(100);  // sampling period: 100[ms]. この宣言の直後に値は得られない。1周期後（ここでは100[ms）後に１つ目の値が得られる。
         accelerometer->webots::Accelerometer::enable(100);  // sampling period: 100[ms]
         gyro->webots::Gyro::enable(100);  // sampling period: 100[ms]
 
         RCLCPP_INFO(Node->get_logger(), "Hello my mind...");
 
-        __pub = node->create_publisher<std_msgs::msg::String>("test", rclcpp::QoS(10));
+        // __pub = node->create_publisher<std_msgs::msg::String>("test", rclcpp::QoS(10));
         
 
 
         // Supervisor
-        supervisor = Node->robot();
-        SupervisorNode = supervisor->getFromDef("ROBOTIS_OP2");
-        if (SupervisorNode == NULL) {
-            std::cout << "ERROR!: getFromDef == NULL" << std::endl;
-            while(true){ 
+        // supervisor = Node->robot();
+        // SupervisorNode = supervisor->getFromDef("ROBOTIS_OP2");
+        // if (SupervisorNode == NULL) {
+        //     std::cout << "ERROR!: getFromDef == NULL" << std::endl;
+        //     while(true){ 
                  
-            }
-        }
-        field_translation = SupervisorNode->getField("translation");
-        field_rotation = SupervisorNode->getField("rotation");
+        //     }
+        // }
+        // field_translation = SupervisorNode->getField("translation");
+        // field_rotation = SupervisorNode->getField("rotation");
     }
+
+
 
     void WalkingPatternGenerator::step() {
         // NODE: CHECK SENSOR DATA
-        positionSensorValue[0] = positionSensor[0]->webots::PositionSensor::getValue();  // 毎stepで値を再取得しないと、値が更新されない。
+
+        for(int i = 0; i < 20; i++){
+            positionSensorValue[i] = float(positionSensor[i]->webots::PositionSensor::getValue());  // 毎stepで値を再取得しないと、値が更新されない。
+        }
         accelerometerValue = accelerometer->webots::Accelerometer::getValues();  // 毎stepで値を再取得せずとも、値は更新される。値を保持するためには、他変数にコピーする必要がある。
         gyroValue = gyro->webots::Gyro::getValues();  // 加速度センサ値と同様。
 
-        motorValue[0] = 1;
-        motor[0]->webots::Motor::setVelocity(0.1);
-        motor[0]->webots::Motor::setPosition(motorValue[0]);  // 単位: [rad]
-        
-        RCLCPP_INFO(Node->get_logger(), "pos: %F, acc: [x: %F, y: %F, z: %F], gyro: [x: %F, y: %F, z: %F] ", 
-            positionSensorValue[0], accelerometerValue[0], accelerometerValue[1], accelerometerValue[2],gyroValue[0], gyroValue[1], gyroValue[2]);
+        // 最初、Tポーズ
+        if(first_step){
+            first_step = false;
+            for(int i = 0; i < 20; i++){
+                motorValue[i] = 0;  // [rad]
+
+                if( (i == 2) or (i == 3) ) {  // 両肩（2: R, 3: L）
+                    // if(i == 2) motorValue[i] = 0.79;  // 0.79[rad] == 45[deg]
+                    // if(i == 3) motorValue[i] = -0.79;
+                    motor[i]->webots::Motor::setVelocity(0.5);
+                    motor[i]->webots::Motor::setPosition(double(motorValue[i]));  // 単位: [rad]
+                    continue;
+                }
+                else if( (i == 4) or (i == 5) ) {  // 両肘（4: R, 5: L）
+                    // if(i == 4) motorValue[i] = -1.57;  // 1.57[rad] == 90[deg]
+                    // if(i == 5) motorValue[i] = 1.57;
+                    motor[i]->webots::Motor::setVelocity(0.5);
+                    motor[i]->webots::Motor::setPosition(double(motorValue[i]));  // 単位: [rad]
+                    continue;
+                }
+                else if( (i == 10) or (i == 11) or (i == 14) or (i == 15) ) {  // 立たせるための角速度調整（両脚付け根Y軸, 両足首Y軸）
+                    motorValue[i] = 0;  // [rad]
+                    motor[i]->webots::Motor::setVelocity(0.25);  // [rad/s]
+                    motor[i]->webots::Motor::setPosition(double(motorValue[i]));  // 単位: [rad]
+                    continue;
+                }
+                else if(i == 19) {  // まっすぐ前を向かせる調整（Head）
+                    // motorValue[i] = 0.26;  // 0.26[rad] == 15[deg]
+                    motor[i]->webots::Motor::setVelocity(0.5);
+                    motor[i]->webots::Motor::setPosition(double(motorValue[i]));  // 単位: [rad]
+                    continue;
+                }
+                else{  // 他、全関節
+                    motorValue[i] = 0;  // [rad]
+                    motor[i]->webots::Motor::setVelocity(0.5);
+                    motor[i]->webots::Motor::setPosition(double(motorValue[i]));  // 単位: [rad]
+                    continue;
+                }
+            }
+        }
+
+        for(int i = 0; i < 20; i++){
+            std::cout << positionSensorValue[i] << ", " ;
+        }
+        std::cout << std::endl;
+
+        // RCLCPP_INFO(Node->get_logger(), "acc: [x: %F, y: %F, z: %F], gyro: [x: %F, y: %F, z: %F] ", 
+        //     accelerometerValue[0], accelerometerValue[1], accelerometerValue[2],gyroValue[0], gyroValue[1], gyroValue[2]);
+
+        // RCLCPP_INFO(Node->get_logger(), "pos: %F, acc: [x: %F, y: %F, z: %F], gyro: [x: %F, y: %F, z: %F] ", 
+        //     positionSensorValue[0], accelerometerValue[0], accelerometerValue[1], accelerometerValue[2],gyroValue[0], gyroValue[1], gyroValue[2]);
         
         // SUPERVISOR: CHECK DATA
-        translation = field_translation->getSFVec3f();  // ロボットが持つ、自身の位置ベクトル[x[m], y[m], z[m]]
-        rotation = field_rotation->getSFRotation();  // ロボットが持つ、自身の座標系各軸の回転角度[x[rad], y[rad], z[rad]]
+        // translation = field_translation->getSFVec3f();  // ロボットが持つ、自身の位置ベクトル[x[m], y[m], z[m]]
+        // rotation = field_rotation->getSFRotation();  // ロボットが持つ、自身の座標系各軸の回転角度[x[rad], y[rad], z[rad]]
 
-        position = SupervisorNode->getPosition();  // ワールド座標系から見た、ロボットのローカル座標系の位置ベクトル[x[m], y[m], z[m]]translation, rotationともに、値は同一
-        orientation = SupervisorNode->getOrientation();  // ワールド座標系から見た、ロボットのローカル座標系との回転行列[[x,y,z], [x,y,z], [x,y,z]]
-        pose = SupervisorNode->getPose();  // ワールド座標系とロボット（ローカル座標系）間の同次変換行列
-        centerOfMass = SupervisorNode->getCenterOfMass();  // ロボットの重心
-        velocity = SupervisorNode->getVelocity();  // ワールド座標系で表現された、ロボットの速度、角速度
-        int size;
-        contactPoint = SupervisorNode->getContactPoints(true, &size);
+        // position = SupervisorNode->getPosition();  // ワールド座標系から見た、ロボットのローカル座標系の位置ベクトル[x[m], y[m], z[m]]translation, rotationともに、値は同一
+        // orientation = SupervisorNode->getOrientation();  // ワールド座標系から見た、ロボットのローカル座標系との回転行列[[x,y,z], [x,y,z], [x,y,z]]
+        // pose = SupervisorNode->getPose();  // ワールド座標系とロボット（ローカル座標系）間の同次変換行列
+        // centerOfMass = SupervisorNode->getCenterOfMass();  // ロボットの重心
+        // velocity = SupervisorNode->getVelocity();  // ワールド座標系で表現された、ロボットの速度、角速度
+        // int size;
+        // contactPoint = SupervisorNode->getContactPoints(true, &size);
 
         // RCLCPP_INFO(  // 位置ベクトル: 各関数での数値の比較（結果: 同値（ワールド座標系からロボットのローカル座標系への位置ベクトル））
         //     Node->get_logger(), "\n      position: [%F, %F, %F],"

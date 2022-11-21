@@ -27,12 +27,13 @@ namespace walking_pattern_generator
             webots::Accelerometer *accelerometer;  // accelerometer
             webots::Gyro *gyro;  // gyro
 
-            double motorValue[20];  // motor control values
-            double positionSensorValue[20];  // position sensor values
+            float motorValue[20];  // motor control values
+            float positionSensorValue[20];  // position sensor values
             // 加速度、および角速度センサは、lookupTableもoptionとして存在する。デフォルトは空（＝値は生データ）。
             const double *accelerometerValue;  // 3次元ベクトルで返ってくる。３要素であるため、indexは0~2に対応し、x,y,zの順。単位[m/s^2]。地球の重力加速度が乗っている。重力加速度は設定で変更可能。
             const double *gyroValue;  // 加速度センサと同様。単位[rad/s]
 
+            bool first_step = true;
 
 
             // Supervisor(ただ、positionとかのグローバル座標系から見るやつは、Nodeからも見られそう。)
