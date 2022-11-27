@@ -1,4 +1,4 @@
-""" Relerense
+""" Reference
 1. https://cyberbotics.com/doc/guide/robotis-op2#position-of-the-motors
 2. https://github.com/ROBOTIS-GIT/ROBOTIS-OP2-Common/tree/master/robotis_op2_description/urdf
 3. https://github.com/cyberbotics/webots/blob/master/projects/robots/robotis/darwin-op/protos/Darwin-op.proto
@@ -35,6 +35,8 @@ class Kinematics():
         # しかし結局、出力は方向を持たない只の関節角度値だけである。
         # そのため今回は、全てxyzの座標系を持つと読み替えて、同次変換行列を作成する。
         # でも座標変換の有無が発生するから、それじゃあうまくいかない可能性？
+
+        # 位置ベクトルはprotoファイルの方に合わせた。全関節の座標系（つまりxyz座標系）はURDFに合わせた。位置ベクトルはURDFのほうが細かく設定されている。
 
         # ShoulderR(axis y-1)
         theta01 = 0
