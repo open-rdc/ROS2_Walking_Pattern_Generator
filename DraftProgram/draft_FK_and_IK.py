@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """ Reference
 1. https://cyberbotics.com/doc/guide/robotis-op2#position-of-the-motors
 2. https://github.com/ROBOTIS-GIT/ROBOTIS-OP2-Common/tree/master/robotis_op2_description/urdf
@@ -6,8 +8,9 @@
 
 import numpy as np
 
+
 def Tx(theta, vec):
-    return  np.matrix([  # ArmUpperR(axis x-1)
+    return  np.matrix([
             [1, 0, 0, vec[0]], 
             [0, np.cos(theta), np.sin(-theta), vec[1]], 
             [0, np.sin(theta), np.cos(theta), vec[2]], 
@@ -28,8 +31,9 @@ def Tz(theta, vec):
             [0, 0, 0, 1]]
     )
 
+
 class Kinematics():
-    def __init__(self, kinematics, link_type, jointsAngle, reference):
+    def __init__(self, kinematics, link_type, jointsAngle):
         # 各関節の同次変換行列（ID別）
         # protoファイルに記述されている情報からして、関節が持つ座標系は、全て共通しているわけではない。xyzもあれば、zxyもある。
         # しかし結局、出力は方向を持たない只の関節角度値だけである。
@@ -79,8 +83,15 @@ class Kinematics():
         T10 = Tx(theta10, [0.0, 0.0, 0.0])
 
         # LegUpperR(axis y1)
-        theta11 = 0
-        T11 = Ty(theta11, [0.0, 0.0, 0.0])
+        self.theta11 = 0
+        # self.T11 = Ty(self.theta11, [0.0, 0.0, 0.0])
+        vec = [0.0, 0.0, 0.0]
+        self.T11 = np.matrix([  
+            [np.cos(self.theta11), 0, np.sin(self.theta11), vec[0]], 
+            [0, 1, 0, vec[1]], 
+            [np.sin(self.theta11*-1), 0, np.cos(self.theta11), vec[2]], 
+            [0, 0, 0, 1]]
+    )
 
         # LegUpperL(axis y-1)
         theta12 = 0
@@ -118,75 +129,85 @@ class Kinematics():
         theta20 = 0
         T20 = Ty(theta20, [0.0, 0.0, 0.0])
 
-        # LR: LegRight, LL: LegLeft, AR: ArmRight, AL: ArmLeft
-        self.LR_angles = [theta07, theta09, theta11, theta13, theta15, theta17]
-        self.LR_links = [T07, T09, T11, T13, T15, T17]
-        self.LL_angles = [theta08, theta10, theta12, theta14, theta16, theta18]
-        self.LL_links = [T08, T10, T12, T14, T16, T18]
-        self.AR_angles = [theta01, theta03, theta05]
-        self.AR_links = [T01, T03, T05]
-        self.AL_angles = [theta02, theta04, theta06]
-        self.AL_links = [T02, T04, T06]
-
         # 必ず両足計算しないといけないが、結局左右別々で計算するのだから、この場合、ROS2であることを活かして左右それぞれ別nodeとして用意してやれば、マルチタスクで両足を計算できるよ。
 
         # 目標リンクの位置p_ref、姿勢R_Ref
         p_ref = np.zeros(3)
         R_ref = np.zeros((3,3)) # 目標姿勢（＝目標回転行列）は、目標角度(roll, pitch, yaw)から計算してやれば良い。（ベタ踏みで歩行するなら目標姿勢は０のまま？）
-        self.ref = np.matrix([p_ref, R_ref])
+        self.ref = [p_ref, R_ref]
 
         # 注目リンクの位置p_now、姿勢R_now
         p_now = np.zeros(3)
         R_now = np.zeros((3,3))
-        self.cur = np.matrix([p_now, R_now])
+        self.cur = [p_now, R_now]
 
         # 位置の誤差p_diff、姿勢の誤差R_diff
         p_diff = np.zeros(3)
         R_diff = np.zeros((3,3))
-        self.diff = np.matrix([p_diff, R_diff])
+        self.diff = [p_diff, R_diff]
 
         # 現在において、注目リンクまでの各関節角度を並べたベクトル（＝配列）q_now、関節角度修正量q_diff
         q_now = np.array(jointsAngle)
         q_diff = np.zeros(len(jointsAngle))
-        q = np.matrix([q_now, q_diff])
-            
+        self.q = [q_now, q_diff]
 
-    def FK(self, link_type): # 順運動学
+        # LR: LegRight, LL: LegLeft, AR: ArmRight, AL: ArmLeft
         if link_type == "LR":
-            links = self.LR_links
-            angles = self.LR_angles
+            self.angles = [theta07, theta09, self.theta11, theta13, theta15, theta17]
+            self.links = [T07, T09, self.T11, T13, T15, T17]
         elif link_type == "LL":
-            links = self.LL_links
-            angles = self.LL_angles
+            self.angles = [theta08, theta10, theta12, theta14, theta16, theta18]
+            self.links = [T08, T10, T12, T14, T16, T18]
         elif link_type == "AR":
-            links = self.AR_links
-            angles = self.AR_angles
+            self.angles = [theta01, theta03, theta05]
+            self.links = [T01, T03, T05]
         elif link_type == "AL":
-            links = self.AL_links
-            angles = self.AL_angles
+            self.angles = [theta02, theta04, theta06]
+            self.links = [T02, T04, T06]
+
+        for i in range(0, len(self.q[0])):
+            self.angles[i] = self.q[0][i]
+
+        if(kinematics == "FK"):
+            Kinematics.FK(self)
+        elif(kinematics == "IK"):
+            Kinematics.IK(self)
+
+
+    def FK(self): # 順運動学
+        print(self.angles[2])
+        print(self.links[2])
+        
+        self.q[0][2] = 1.57
+        for i in range(0, len(self.q[0])):
+            self.angles[i] = self.q[0][i]
+        
+        # 失敗
+        print(self.angles[2])
+        print(self.links[2])
+        print(self.T11)
+
+        # 失敗
+        self.theta11 = self.q[0][2]
+        print(self.theta11)
+        print(self.T11)
+        
+        # 成功
+        T = Ty(self.theta11, [0.0, 0.0, 0.0])
+        print(T)
 
         return self.q[0]
 
 
-    def IK(self, link_type): # 逆運動学
-        if link_type == "LR":
-            links = self.LR_links
-            angles = self.LR_angles
-        elif link_type == "LL":
-            links = self.LL_links
-            angles = self.LL_angles
-        elif link_type == "AR":
-            links = self.AR_links
-            angles = self.AR_angles
-        elif link_type == "AL":
-            links = self.AL_links
-            angles = self.AL_angles
+    def IK(self): # 逆運動学
 
         return self.q[0]
 
 
 def main():
-    return 0
+    z = Kinematics(kinematics="FK", link_type="LR", jointsAngle=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+    print(z)
+
 
 if __name__ == "__main__":
     main()
