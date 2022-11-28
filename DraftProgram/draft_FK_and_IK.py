@@ -68,7 +68,8 @@ class Kinematics():
 
         # PelvYR(axis z-1)
         theta07 = 0
-        T07 = Tz(theta07, [-0.005, -0.037, -0.1222])
+        r07 = [-0.005, -0.037, -0.1222]
+        T07 = Tz(theta07, r07)
 
         # PelvYL(axis z-1)
         theta08 = 0
@@ -76,22 +77,17 @@ class Kinematics():
 
         # PelvR(axis x-1)
         theta09 = 0
-        T09 = Tx(theta09, [0.0, 0.0, 0.0])
+        r09 = [0.0, 0.0, 0.0]
+        T09 = Tx(theta09, r09)
 
         # PelvL(axis x-1)
         theta10 = 0
         T10 = Tx(theta10, [0.0, 0.0, 0.0])
 
         # LegUpperR(axis y1)
-        self.theta11 = 0
-        # self.T11 = Ty(self.theta11, [0.0, 0.0, 0.0])
-        vec = [0.0, 0.0, 0.0]
-        self.T11 = np.matrix([  
-            [np.cos(self.theta11), 0, np.sin(self.theta11), vec[0]], 
-            [0, 1, 0, vec[1]], 
-            [np.sin(self.theta11*-1), 0, np.cos(self.theta11), vec[2]], 
-            [0, 0, 0, 1]]
-    )
+        theta11 = 0
+        r11 = [0.0, 0.0, 0.0]
+        T11 = Ty(theta11, r11)
 
         # LegUpperL(axis y-1)
         theta12 = 0
@@ -99,7 +95,8 @@ class Kinematics():
 
         # LegLowerR(axis y1)
         theta13 = 0
-        T13 = Ty(theta13, [0.0, 0.0, -0.093])
+        r13 = [0.0, 0.0, -0.093]
+        T13 = Ty(theta13, r13)
 
         # LegLowerL(axis y-1)
         theta14 = 0
@@ -107,7 +104,8 @@ class Kinematics():
 
         # AnkleR(axis y-1)
         theta15 = 0
-        T15 = Ty(theta15, [0.0, 0.0, -0.093])
+        r15 = [0.0, 0.0, -0.093]
+        T15 = Ty(theta15, r15)
 
         # AnkleL(axis y1)
         theta16 = 0
@@ -115,7 +113,8 @@ class Kinematics():
 
         # FootR(axis x1)
         theta17 = 0
-        T17 = Tx(theta17, [0.0, 0.0, 0.0])
+        r17 = [0.0, 0.0, 0.0]
+        T17 = Tx(theta17, r17)
 
         # FootL(axis x1)
         theta18 = 0
@@ -153,8 +152,10 @@ class Kinematics():
 
         # LR: LegRight, LL: LegLeft, AR: ArmRight, AL: ArmLeft
         if link_type == "LR":
-            self.angles = [theta07, theta09, self.theta11, theta13, theta15, theta17]
-            self.links = [T07, T09, self.T11, T13, T15, T17]
+            self.angles = [theta07, theta09, theta11, theta13, theta15, theta17]
+            self.links = [T07, T09, T11, T13, T15, T17]
+            self.r = [r07, r09, r11, r13, r15, r17]
+            self.T = [Tz, Tx, Ty, Ty, Ty, Tx]
         elif link_type == "LL":
             self.angles = [theta08, theta10, theta12, theta14, theta16, theta18]
             self.links = [T08, T10, T12, T14, T16, T18]
@@ -165,6 +166,7 @@ class Kinematics():
             self.angles = [theta02, theta04, theta06]
             self.links = [T02, T04, T06]
 
+        # 指定角度を代入
         for i in range(0, len(self.q[0])):
             self.angles[i] = self.q[0][i]
 
@@ -175,38 +177,28 @@ class Kinematics():
 
 
     def FK(self): # 順運動学
-        print(self.angles[2])
-        print(self.links[2])
-        
-        self.q[0][2] = 1.57
         for i in range(0, len(self.q[0])):
-            self.angles[i] = self.q[0][i]
-        
-        # 失敗
-        print(self.angles[2])
-        print(self.links[2])
-        print(self.T11)
+            print(self.angles[i])
+            print(self.links[i])
 
-        # 失敗
-        self.theta11 = self.q[0][2]
-        print(self.theta11)
-        print(self.T11)
-        
-        # 成功
-        T = Ty(self.theta11, [0.0, 0.0, 0.0])
-        print(T)
+        for i in range(0, len(self.q[0])):
+            self.links[i] = self.T[i](self.angles[i], self.r[i])
+
+        for i in range(0, len(self.q[0])):
+            print(self.angles[i])
+            print(self.links[i])
 
         return self.q[0]
 
 
     def IK(self): # 逆運動学
+        print(self.links[2])
 
         return self.q[0]
 
 
 def main():
-    z = Kinematics(kinematics="FK", link_type="LR", jointsAngle=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-    print(z)
+    z = Kinematics(kinematics="FK", link_type="LR", jointsAngle=[0.0, 0.0, 1.57, 0.0, 0.0, 0.0])
 
 
 if __name__ == "__main__":
