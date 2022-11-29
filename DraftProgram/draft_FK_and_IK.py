@@ -33,7 +33,7 @@ def Tz(theta, vec):
 
 
 class Kinematics():
-    def __init__(self, kinematics, link_type, jointsAngle):
+    def __init__(self, link_type, jointsAngle):
         # 各関節の同次変換行列（ID別）
         # protoファイルに記述されている情報からして、関節が持つ座標系は、全て共通しているわけではない。xyzもあれば、zxyもある。
         # しかし結局、出力は方向を持たない只の関節角度値だけである。
@@ -170,25 +170,25 @@ class Kinematics():
         for i in range(0, len(self.q[0])):
             self.angles[i] = self.q[0][i]
 
-        if(kinematics == "FK"):
-            Kinematics.FK(self)
-        elif(kinematics == "IK"):
-            Kinematics.IK(self)
-
 
     def FK(self): # 順運動学
-        for i in range(0, len(self.q[0])):
-            print(self.angles[i])
-            print(self.links[i])
+        # for i in range(0, len(self.q[0])):  # debug: 表示
+        #     print(self.angles[i])
+        #     print(self.links[i])
 
-        for i in range(0, len(self.q[0])):
+        for i in range(0, len(self.q[0])):  # 各関節の同次変換行列を現在の各関節角度で更新
             self.links[i] = self.T[i](self.angles[i], self.r[i])
 
-        for i in range(0, len(self.q[0])):
-            print(self.angles[i])
-            print(self.links[i])
+        #  順運動学解の算出（各同次変換行列の内積から同次変換行列を算出）
+        T_now = np.dot(self.links[0], np.dot(self.links[1], np.dot(self.links[2], np.dot(self.links[3], np.dot(self.links[4], self.links[5])))))
 
-        return self.q[0]
+        # for i in range(0, len(self.q[0])):  # debug: 表示
+        #     print(self.angles[i])
+        #     print(self.links[i])
+
+        # print(T_now)
+
+        return T_now
 
 
     def IK(self): # 逆運動学
@@ -198,8 +198,12 @@ class Kinematics():
 
 
 def main():
-    z = Kinematics(kinematics="FK", link_type="LR", jointsAngle=[0.0, 0.0, 1.57, 0.0, 0.0, 0.0])
-
+    rad = 90*np.pi/180
+    # z = Kinematics(kinematics="FK", link_type="LR", jointsAngle=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+    z = Kinematics.FK(self=Kinematics(link_type="LR", jointsAngle=[0.0, 0.0, -rad, 0.0, 0.0, 0.0]))
+    print(rad)
+    print("result: \n", z)
+    
 
 if __name__ == "__main__":
     main()
