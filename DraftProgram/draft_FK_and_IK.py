@@ -199,9 +199,14 @@ class Kinematics():
 
 def main():
     rad = 90*np.pi/180
-    # z = Kinematics(kinematics="FK", link_type="LR", jointsAngle=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-    z = Kinematics.FK(self=Kinematics(link_type="LR", jointsAngle=[0.0, 0.0, -rad, 0.0, 0.0, 0.0]))
-    print(rad)
+    jointsAngle = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    z = Kinematics.FK(self=Kinematics(link_type="LR", jointsAngle=jointsAngle))
+    print(jointsAngle, "\n 脚付け根: [-0.005, 0.037, -0.1222], 脚長さ: [0.0, 0.0, -0.186](足首〜足裏は無視) ")
+    print("result: \n", z, "\n")
+
+    jointsAngle = [0.0, 0.0, -rad, 0.0, 0.0, 0.0]
+    z = Kinematics.FK(self=Kinematics(link_type="LR", jointsAngle=jointsAngle))
+    print(jointsAngle, "\n 脚付け根: [-0.005, 0.037, -0.1222], 脚長さ: [0.0, 0.0, -0.186](足首〜足裏は無視) ")
     print("result: \n", z)
     
 
