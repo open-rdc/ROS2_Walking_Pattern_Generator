@@ -46,15 +46,15 @@ ik_q = np.array([0.0, 0.0, 0.0])
 ik_wa = fk_wa-p_w1
 
 # リンク長etc, 定数
-l_pitch = np.sqrt(ik_wa[0]**2 + ik_wa[2]**2)
+l_pitch = -1 * np.sqrt(ik_wa[0]**2 + ik_wa[2]**2)
 l_1 = -1 * np.sqrt((p_12[0] + p_23[0])**2 + (p_12[2] + p_23[2])**2)
 # l_1 = p_12[2] + p_23[2]
 l_2 = p_3a[2]
 
-l_roll = np.sqrt(ik_wa[1]**2 + ik_wa[2]**2)
+l_roll = -1 * np.sqrt(ik_wa[1]**2 + ik_wa[2]**2)
 
 # joint1 (pitch)
-ik_q[0] = np.arctan(ik_wa[0] / ik_wa[2]) + np.arccos((l_1**2 - l_2**2 + ik_wa[0]**2 +ik_wa[2]**2) / (2 * l_1 * np.sqrt(ik_wa[0]**2 + ik_wa[2]**2)))
+ik_q[0] = np.arctan(ik_wa[0] / ik_wa[2]) + np.arccos((l_1**2 - l_2**2 + ik_wa[0]**2 + ik_wa[2]**2) / (2 * l_1 * np.sqrt(ik_wa[0]**2 + ik_wa[2]**2)))
 
 # joint2 (roll)
 ik_q[1] = np.arctan(ik_wa[1] / ik_wa[2])
