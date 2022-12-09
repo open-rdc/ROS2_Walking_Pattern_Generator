@@ -1,0 +1,7 @@
+import: joint angles ->  [0. 0. 0.]
+export: target point ->  [ 0.016  0.082 -0.205]
+import: target point(joint1~end) ->  [ 0.016  0.    -0.205]
+export: joint angles(deg) ->  [-11.88865804  -0.          11.88865804]
+export: joint angles(rad) ->  [-0.20749623 -0.          0.20749623]
+import: joint angles ->  [-11.88865804  -0.          11.88865804]
+export: target point ->  [ 0.03131359  0.082      -0.20007362]
