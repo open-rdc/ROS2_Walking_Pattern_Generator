@@ -11,7 +11,7 @@ Robot
 - Neck: 19: DEF DNeck, x-y-z, axis (x0, y0, z1), anchor (x0, y-0, z0.051), line-213
 - - Head: 20: DEF DHead, x-y-z, axis (x-1, y0, z0), anchor ( = Neck), line-261
 - PelvYL: 8: DEF DPelvYL, x-y-z, axis (x0, y0, z-1), anchor (x-0.005, y0.037, z-0.1222), line-454
-- - PlevL: 10: DEF DPelvL, z-x-y, axis (x0, y0, z-1), anchor ( = PelvYL), line-500
+- - PelvL: 10: DEF DPelvL, z-x-y, axis (x0, y0, z-1), anchor ( = PelvYL), line-500
 - - - LegUpperL: 12: DEF DLegUpperL, z-x-y, axis (x-1, y0, z0), anchor ( = PelvYL), line-548
 - - - - LegLowerL: 14: DEF DLegLowerL, z-x-y, axis (x-1, y0, z0), anchor (x-0, y-0.093, z0), line-606
 - - - - - AnkleL: 16: DEF DAnkleL, z-x-y, axis (x1, y0, z0), anchor (x0, y-0.093, z0), line-652
