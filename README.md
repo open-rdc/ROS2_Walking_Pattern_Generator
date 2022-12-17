@@ -34,7 +34,7 @@ Walking Pattern Generator using ROS2 for Humanoid Robots<br>
 ・[cyberbotics, webots_ros2, GitHub](https://github.com/cyberbotics/webots_ros2)<br>
 ・[cyberbotics, webots_ros2 Wiki, GitHub](https://github.com/cyberbotics/webots_ros2/wiki)<br>
 ・[@Nek, ROS2導入＆レクチャー, Qiita](https://qiita.com/NeK/items/7ac0f4ec10d51dbca084)<br>
-　↑ 特にコードの記述の参考にさせていただいたサイト様
+　↑ 特にROS2のコードの記述の参考にさせていただいたサイト様
 <br>
 ・[オーム社, 梶田秀司, 『ヒューマノイドロボット（改訂２版）』](https://www.ohmsha.co.jp/book/9784274226021/)<br>
 　↑ 特に理論の参考にさせていただいた参考書
