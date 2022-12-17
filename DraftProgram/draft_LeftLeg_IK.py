@@ -75,7 +75,16 @@ R12 = Rx(Q1)
 R23 = Ry(Q2)
 R34 = Ry(Q3)
 R45 = Ry(Q4)
+R345 = Ry(Q2+Q3+Q4)
+R24 = Ry(Q2+Q3)
 R56 = Rx(Q5)
+
+print(Rw1)
+print(R12)
+print(R23)
+print(R34)
+print(R45)
+print(R56)
 
 Pw1 = np.matrix([[-0.005], [0.037], [-0.1222]])
 P12 = np.matrix([[0], [0], [0]])
@@ -85,7 +94,10 @@ P45 = np.matrix([[0], [0], [-0.093]])
 P56 = np.matrix([[0], [0], [0]])
 P6a = np.matrix([[0], [0], [0]])
 
-FK_result = Rw1@R12@R23@R34@R45@R56@P6a + Rw1@R12@R23@R34@R45@P56 + Rw1@R12@R23@R34@P45 + Rw1@R12@R23@P34 + Rw1@R12@P23 + Rw1@P12 + Pw1
-# FK_result = Rw1@R12@R23@R34@P45.T + Rw1@R12@R23@P34.T + Pw1.T
+# FK_result = Rw1 @ R12 @ R23 @ R34 @ R45 @ R56 @ P6a + Rw1 @ R12 @ R23 @ R34 @ R45 @ P56 + Rw1 @ R12 @ R23 @ R34 @ P45 + Rw1 @ R12 @ R23 @ P34 + Rw1 @ R12 @ P23 + Rw1 @ P12 + Pw1
+# FK_result = Rw1@R12@R23@R34@P45 + Rw1@R12@R23@P34 + Pw1
+FK_result = Rw1 @ R12 @ R24 @ P45 + Rw1 @ R12 @ R23 @ P34 + Pw1
+print(Rw1 @ R12 @ R24 @ P45, Rw1 @ R12 @ R23 @ P34)
+# FK_result = np.dot(Rw1, np.dot(R12, np.dot(R23, np.dot(R34, P45)))) + np.dot(Rw1, np.dot(R12, np.dot(R23, P34))) + Pw1
 
 print("FK_result: ", FK_result)
