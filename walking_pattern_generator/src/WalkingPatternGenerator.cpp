@@ -80,15 +80,15 @@ namespace walking_pattern_generator
                 motorValue[i] = 0;  // [rad]
 
                 if( (i == 2) or (i == 3) ) {  // 両肩（2: R, 3: L）
-                    // if(i == 2) motorValue[i] = 0.79;  // 0.79[rad] == 45[deg]
-                    // if(i == 3) motorValue[i] = -0.79;
+                    if(i == 2) motorValue[i] = 0.79;  // 0.79[rad] == 45[deg]
+                    if(i == 3) motorValue[i] = -0.79;
                     motor[i]->webots::Motor::setVelocity(0.5);
                     motor[i]->webots::Motor::setPosition(double(motorValue[i]));  // 単位: [rad]
                     continue;
                 }
                 else if( (i == 4) or (i == 5) ) {  // 両肘（4: R, 5: L）
-                    // if(i == 4) motorValue[i] = -1.57;  // 1.57[rad] == 90[deg]
-                    // if(i == 5) motorValue[i] = 1.57;
+                    if(i == 4) motorValue[i] = -1.57;  // 1.57[rad] == 90[deg]
+                    if(i == 5) motorValue[i] = 1.57;
                     motor[i]->webots::Motor::setVelocity(0.5);
                     motor[i]->webots::Motor::setPosition(double(motorValue[i]));  // 単位: [rad]
                     continue;
@@ -100,7 +100,7 @@ namespace walking_pattern_generator
                     continue;
                 }
                 else if(i == 19) {  // まっすぐ前を向かせる調整（Head）
-                    // motorValue[i] = 0.26;  // 0.26[rad] == 15[deg]
+                    motorValue[i] = 0.26;  // 0.26[rad] == 15[deg]
                     motor[i]->webots::Motor::setVelocity(0.5);
                     motor[i]->webots::Motor::setPosition(double(motorValue[i]));  // 単位: [rad]
                     continue;
