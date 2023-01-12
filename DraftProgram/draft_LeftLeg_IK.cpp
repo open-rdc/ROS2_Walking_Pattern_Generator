@@ -11,3 +11,8 @@ int main() {
     mat(1, 1) = mat(0, 0) + mat(0, 1);
     std::cout << mat << std::endl;
 }
+
+/*
+参考
+・https://qiita.com/yohm/items/a03006790dc1e54a87be
+*/
