@@ -37,19 +37,21 @@ Matrix3d IdentifyMatrix(void) {
          0, 0, 1;
     return(R);
 }
+
 double sign(double arg) {
     return((arg >= 0) - (arg < 0));
 }
+
 
 namespace Parameters {
     Matrix3d R_target;
     Vector3d P_target;
 
-    array<Vector3d, 6> P;
+    array<Vector3d, 7> P;
 
     array<float, 6> Q;
 
-    void set_Parameters() {
+    void set_Parameters(void) {
         // パラメータの正式な取得方法は、は他ファイルに記述してそれを読み込む、 他nodeから読み込む
         if(DEBUG == true) {
             Vector3d P_w1(-0.005, 0.037, -0.1222);
@@ -58,8 +60,9 @@ namespace Parameters {
             Vector3d P_34(0, 0, -0.093);
             Vector3d P_45(0, 0, -0.093);
             Vector3d P_56(0, 0, 0);
+            Vector3d P_6a(0, 0, 0);
 
-            P = {P_w1, P_12, P_23, P_34, P_45, P_56};
+            P = {P_w1, P_12, P_23, P_34, P_45, P_56, P_6a};
         }
         else if(DEBUG ==false) {
             // 正式な処理
@@ -67,10 +70,26 @@ namespace Parameters {
     }
 }
 
+
 namespace Kinematics {
     using namespace Parameters;
 
-    void IK() {
+    Vector3d FK(void) {
+        array<Matrix3d, 6> R;
+        R = {Rz(Q[0]), Rx(Q[1]), Ry(Q[2]), Ry(Q[3]), Ry(Q[4]), Rz(Q[5])};
+
+        return (
+            R[0] * R[1] * R[2] * R[3] * R[4] * R[5] * P[6] 
+            + R[0] * R[1] * R[2] * R[3] * R[4] * P[5]
+            + R[0] * R[1] * R[2] * R[3] * P[4]
+            + R[0] * R[1] * R[2] * P[3]
+            + R[0] * R[1] * P[2]
+            + R[0] * P[1]
+            + P[0]
+        );
+    }
+
+    void IK(void) {
         Vector3d P_16;
         P_16 = R_target.transpose() * (P[0] - P_target);
 
@@ -96,7 +115,8 @@ namespace Kinematics {
     }
 }
 
-int main() {
+
+int main(void) {
     using namespace Parameters;
 
     // 最初に、パラメータ設定を行う
@@ -116,14 +136,18 @@ int main() {
     }
 
     Kinematics::IK();
+    Vector3d result_FK;
+    result_FK = Kinematics::FK();
 
-    cout << "Target Point: " << P_target.transpose() << endl;
+    cout << "Target Points[m]: " << P_target.transpose() << endl; 
     cout << "Target Rotation-Matrix: \n" << R_target << endl;
     cout << "Result IK: Joint-Angles[rad]: ";
     for(const auto &el : Q) {
         cout << el << ", ";
     }
     cout << endl;
+    cout << "Result FK: Target Points[m]: " << result_FK.transpose() << endl;
+
 
     return(0);
 }
