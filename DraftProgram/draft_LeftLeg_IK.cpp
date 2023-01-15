@@ -3,6 +3,7 @@
 #include "Eigen/Dense"
 
 bool DEBUG = true;
+#define PI 3.141592
 
 using namespace Eigen;
 using namespace std;
@@ -36,7 +37,9 @@ Matrix3d IdentifyMatrix(void) {
          0, 0, 1;
     return(R);
 }
-
+double sign(double arg) {
+    return((arg >= 0) - (arg < 0));
+}
 
 namespace Parameters {
     Matrix3d R_target;
@@ -45,54 +48,83 @@ namespace Parameters {
     array<Vector3d, 6> P;
 
     array<float, 6> Q;
+
+    void set_Parameters() {
+        // パラメータの正式な取得方法は、は他ファイルに記述してそれを読み込む、 他nodeから読み込む
+        if(DEBUG == true) {
+            Vector3d P_w1(-0.005, 0.037, -0.1222);
+            Vector3d P_12(0, 0, 0);
+            Vector3d P_23(0, 0, 0);
+            Vector3d P_34(0, 0, -0.093);
+            Vector3d P_45(0, 0, -0.093);
+            Vector3d P_56(0, 0, 0);
+
+            P = {P_w1, P_12, P_23, P_34, P_45, P_56};
+        }
+        else if(DEBUG ==false) {
+            // 正式な処理
+        }
+    }
 }
-void set_Parameters() {
+
+namespace Kinematics {
     using namespace Parameters;
 
-    array<Vector3d, 6> P_list;
-    
-    // パラメータの正式な取得方法は、は他ファイルに記述してそれを読み込む、 他nodeから読み込む
-    if(DEBUG == true) {
-        R_target = IdentifyMatrix();
-        P_target << -0.005, 0.037, -0.1687;
+    void IK() {
+        Vector3d P_16;
+        P_16 = R_target.transpose() * (P[0] - P_target);
 
-        Vector3d P_w1(-0.005, 0.037, -0.1222);
-        Vector3d P_12(0, 0, 0);
-        Vector3d P_23(0, 0, 0);
-        Vector3d P_34(0, 0, -0.093);
-        Vector3d P_45(0, 0, -0.093);
-        Vector3d P_56(0, 0, 0);
+        double A, B, C;
+        A = abs(P[3](2));
+        B = abs(P[4](2));
+        C = sqrt(pow(P_16(0), 2) + pow(P_16(1), 2) + pow(P_16(2), 2));
 
-        P_list = {P_w1, P_12, P_23, P_34, P_45, P_56};
-    }
-    else if(DEBUG ==false) {
-        // 正式な処理
-    }
+        Q[3] = -1 * acos((pow(A, 2) + pow(B, 2) - pow(C, 2)) / (2 * A * B)) + PI;
+        
+        double alfa;
+        alfa = asin((A * sin(PI - Q[3])) / C);
 
-    for(int i = 0; i < P.size(); i++) {
-        P[i] = P_list[i];  // ココ、わざわざfor loopにする必要はない。まんま代入でイケるはず
+        Q[4] = -1 * atan2(P_16(0), sign(P_16(2)) * sqrt(pow(P_16(1), 2) + pow(P_16(2), 2))) - alfa;
+        Q[5] = atan2(P_16(1), P_16(2));
+
+        Matrix3d R_w3;
+        R_w3 = R_target * Rx(Q[5]).transpose() * Ry(Q[4]).transpose() * Ry(Q[3]).transpose();
+
+        Q[0] = atan2(-R_w3(0, 1), R_w3(1, 1));
+        Q[1] = atan2(R_w3(2, 1), -R_w3(0, 1) * sin(Q[0]) + R_w3(1, 1) * cos(Q[0]));
+        Q[2] = atan2(-R_w3(2, 0), R_w3(2, 2));
     }
 }
-
 
 int main() {
     using namespace Parameters;
 
+    // 最初に、パラメータ設定を行う
     bool SETUP;  // 他nodeからのフラグで決めたい
     if(DEBUG == true) {SETUP = true;}
     if(DEBUG == true || SETUP == true) {set_Parameters();}
 
-    array<float, 6> Q_list;
-    if(DEBUG == true) {Q_list = {0, 0, 0, 0, 0, 0};}
-    for(int i = 0; i < Q.size(); i++) {
-        Q[i] = Q_list[i];  // ココ、わざわざfor loopにする必要はない。まんま代入でイケるはず
+    if(DEBUG == true) {
+        Q = {0, 0, 0, 0, 0, 0};
+        R_target = IdentifyMatrix();
+        P_target << -0.005, 0.037, -0.1687;
+    }
+    else if(DEBUG ==false) {  // 他nodeからの情報を記録
+        Q = {0, 0, 0, 0, 0, 0};
+        R_target = IdentifyMatrix();
+        P_target << -0.005, 0.037, -0.1687;
     }
 
-    // cout << Rx(3.14) << endl;
-    // cout << Ry(3.14) << endl;
-    // cout << Rz(3.14) << endl;
+    Kinematics::IK();
 
-    cout << R_target << endl;
+    cout << "Target Point: " << P_target.transpose() << endl;
+    cout << "Target Rotation-Matrix: \n" << R_target << endl;
+    cout << "Result IK: Joint-Angles[rad]: ";
+    for(const auto &el : Q) {
+        cout << el << ", ";
+    }
+    cout << endl;
+
     return(0);
 }
 
