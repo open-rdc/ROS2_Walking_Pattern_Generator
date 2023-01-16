@@ -60,7 +60,7 @@ namespace Parameters {
 
     array<Vector3d, 7> P;
 
-    array<float, 6> Q;
+    array<double, 6> Q;
 
     void set_Parameters(void) {
         // パラメータの正式な取得方法は、は他ファイルに記述してそれを読み込む、 他nodeから読み込む
@@ -166,10 +166,7 @@ namespace walking_pattern_generator
         RCLCPP_INFO(Node->get_logger(), "Hello my mind...");
 
         // __pub = node->create_publisher<std_msgs::msg::String>("test", rclcpp::QoS(10));
-        
-        Q = {0, 0, 0, 0, 0, 0};
-        R_target = IdentifyMatrix();
-        P_target << -0.005, 0.037, -0.1687;
+
 
         // Supervisor
         // supervisor = Node->robot();
@@ -195,7 +192,7 @@ namespace walking_pattern_generator
         accelerometerValue = accelerometer->webots::Accelerometer::getValues();  // 毎stepで値を再取得せずとも、値は更新される。値を保持するためには、他変数にコピーする必要がある。
         gyroValue = gyro->webots::Gyro::getValues();  // 加速度センサ値と同様。
 
-        // 最初、Tポーズ
+        // 最初、Tポーズ  ここは、initの方に記述するのが良いと思う
         if(first_step){
             first_step = false;
             for(int i = 0; i < 20; i++){
@@ -234,6 +231,18 @@ namespace walking_pattern_generator
                     continue;
                 }
             }
+            set_Parameters();
+            Q = {0, 0, 0, 0, 0, 0};
+            R_target = IdentifyMatrix();
+            P_target << -0.005, 0.037, -0.2152;
+            Kinematics::IK();  // Q更新
+            cout << "\n" 
+                 << Q[0] << ", "
+                 << Q[1] << ", "
+                 << Q[2] << ", "
+                 << Q[3] << ", "
+                 << Q[4] << ", "
+                 << Q[5] << "\n" << endl;
         }
 
         // for(int i = 0; i < 20; i++){
@@ -241,13 +250,15 @@ namespace walking_pattern_generator
         // }
         // std::cout << std::endl;
 
-        Kinematics::IK();  // Q更新
-        motor[7]->webots::Motor::setPosition(Q[0]);
-        motor[9]->webots::Motor::setPosition(Q[1]);
-        motor[11]->webots::Motor::setPosition(Q[2]);
-        motor[13]->webots::Motor::setPosition(Q[3]);
-        motor[15]->webots::Motor::setPosition(Q[4]);
-        motor[17]->webots::Motor::setPosition(Q[5]);
+        if(first_step == false) {
+
+            motor[7]->webots::Motor::setPosition(-Q[0]);
+            motor[9]->webots::Motor::setPosition(-Q[1]);
+            motor[11]->webots::Motor::setPosition(-Q[2]);
+            motor[13]->webots::Motor::setPosition(-Q[3]);
+            motor[15]->webots::Motor::setPosition(Q[4]);
+            motor[17]->webots::Motor::setPosition(Q[5]);
+        }
         // 7, 9, 11, 13, 15, 17
 
         // RCLCPP_INFO(Node->get_logger(), "acc: [x: %F, y: %F, z: %F], gyro: [x: %F, y: %F, z: %F] ", 
