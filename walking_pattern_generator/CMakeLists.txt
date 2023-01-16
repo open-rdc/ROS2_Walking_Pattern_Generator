@@ -20,6 +20,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(webots_ros2_driver REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 # 以下、Plugin関連
 pluginlib_export_plugin_description_file(webots_ros2_driver walking_pattern_generator.xml)
@@ -32,6 +33,10 @@ add_library(
 
 target_include_directories(
   ${PROJECT_NAME}
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
+    $<INSTALL_INTERFACE:include>
   PRIVATE
   include
 )
@@ -50,6 +55,7 @@ install(TARGETS
 )
 ament_export_include_directories(
   include
+  ${EIGEN3_INCLUDE_DIR}
 )
 ament_export_libraries(
   ${PROJECT_NAME}
