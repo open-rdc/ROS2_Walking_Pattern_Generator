@@ -20,10 +20,11 @@ namespace walking_pattern_generator
     ) {
         std::vector<std::string> MotorsName = {"ShoulderR", "ShoulderL", "ArmUpperR", "ArmUpperL", "ArmLowerR", "ArmLowerL", "PelvYR", "PelvYL", "PelvR", "PelvL", "LegUpperR", "LegUpperL", "LegLowerR", "LegLowerL", "AnkleR", "AnkleL", "FootR", "FootL", "Neck", "Head"};
 
+        // debug
         if(MotorsName[0] != "ShoulderR"){ 
             std::cout << "ERROR!: MotorsName is fucking array!!" << std::endl; 
         }
-        std::string hoge = MotorsName[0] + "S";
+        std::string hoge = MotorsName[0] + "S";  // センサ名の配列ができていない
         if( hoge != "ShoulderRS"){
             std::cout << "ERROR!: MotorsName is fucking array.push_back()!!" << std::endl; 
         }
