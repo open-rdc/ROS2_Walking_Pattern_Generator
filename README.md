@@ -5,14 +5,16 @@ Walking Pattern Generator using ROS2 for Humanoid Robots<br>
 <br>
 
 ## Configuration Plan (Draft)
-・ROS2_to_Webots_Plugin<br>
-　・Get Robot(Sensors) Status (Publish Robot(Sensors) Status)
+* ROS2_Node<br>
+  * Walking-Pattern-Generator<br>
+  * Walking-Stabilization-Controller<br>
+  * CppPlugin<br>
+  * FKIK<br>
 <br>
-　・Set Robot(Sensors) Status (Subscribe Robot(Sensors) Status)<br>
-・ROS2_Node<br>
-　・Walking-Pattern-Generator<br>
-　・Gait-Stabilization-Controller<br>
-　・Calculator<br>
+
+![image](https://user-images.githubusercontent.com/91410662/218409060-1515cfde-39ba-43af-a07a-62a8140f8847.png)
+<div align="center">Configulation Plan</div>
+<br>
 <br>
 
 ## Robot Configulation
