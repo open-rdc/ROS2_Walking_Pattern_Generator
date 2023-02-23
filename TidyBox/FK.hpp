@@ -18,7 +18,7 @@ namespace Kinematics
       FKSrv(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
     
     private:
-      rclcpp::Service</*PackageName*/::srv::ToKinematics_msgs>::SharedPtr srv_ptr;
+      rclcpp::Service</*PackageName*/::srv::ToKinematics_msgs>::SharedPtr toKine_srv_ptr;
 
       void FK_SrvServer(
         const std::shared_ptr</*PackageName*/::srv::ToKinematics_msgs::Request> request,

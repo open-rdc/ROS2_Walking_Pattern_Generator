@@ -18,11 +18,11 @@ namespace webots_robot_handler
 
       void step() override;
 
-      void callback_res(rclcpp::Client</*PackageName*/::msg::ToWebotsRobotHandler_msgs>::SharedFuture future);
+      void callback_res(const rclcpp::Client</*PackageName*/::srv::ToWebotsRobotHandler_msgs>::SharedFuture future);
 
 
     private:
-      rclrpp::Client</*PackageName*/::msg::ToWebotsRobotHandler_msgs>::SharedPtr clnt_ptr;
+      rclrpp::Client</*PackageName*/::msg::ToWebotsRobotHandler_msgs>::SharedPtr toWRH_clnt_ptr;
       
       // WbDeviceTagで宣言して、getDeviceするのはcppでって感じ？
       WbDeviceTag motor[20];

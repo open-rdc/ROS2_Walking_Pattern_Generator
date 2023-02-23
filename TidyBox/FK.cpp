@@ -52,6 +52,6 @@ namespace Kinematics
   // Node Setting
   FKSrv(const rclcpp::NodeOptions& options = rclcpp::NodeOptions())
    : Node("FK", options) {
-    srv_ptr = this->create_service</*PackageName*/::srv::ToKinematics_msgs>(/**/);
+    toKine_srv_ptr = this->create_service</*PackageName*/::srv::ToKinematics_msgs>(/**/);
   }
 }
