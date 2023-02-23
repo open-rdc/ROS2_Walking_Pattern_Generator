@@ -5,6 +5,7 @@
 */
 
 #include "rclcpp/rclcpp.hpp"
+// #include "/*PackageName*//srv/ToKinematics_msgs.msg"
 
 #include "iostream"
 #include "cmath"
@@ -17,11 +18,11 @@ namespace Kinematics
       FKSrv(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
     
     private:
-      rclcpp::Service</*SrvMsg*/>::SharedPtr srv_ptr;
+      rclcpp::Service</*PackageName*/::srv::ToKinematics_msgs>::SharedPtr srv_ptr;
 
       void FK_SrvServer(
-        const std::shared_ptr</*自身で定義したSrvMsg*/::Request> request,
-        std::shared_ptr</*上に同じ*/::Response> response
+        const std::shared_ptr</*PackageName*/::srv::ToKinematics_msgs::Request> request,
+        std::shared_ptr</*PackageName*/::srv::ToKinematics_msgs::Response> response
       );
 
       const float pi = 3.141593;  // 四捨五入済み
@@ -31,9 +32,7 @@ namespace Kinematics
       Eigen::Matrix3d Rz(double rad = 0);
       Eigen::Matrix3d IdentifyMatrix(void);
 
-      double sign(double arg = 0);
-
-      Eigen::Matrix3d R_target_ptr;
+      Eigen::Matrix3d R_target;
       std::array<Eigen::Matrix3d, 6> R;
       Eigen::Vector3d P_target;
       std::array<Eigen::Vector3d, 7> P;

@@ -2,6 +2,7 @@
 #include "pluginlib/class_list_macros.hpp"
 
 #include "rclcpp/rclcpp.hpp"
+// #include "/*PackageName*//msg/ToWebotsRobotHandler_msgs.msg"
 /*
 #include <webots/robot.h>
 #include <webots/motor.h>
@@ -11,7 +12,22 @@
 
 namespace webots_robot_handler
 {
+  void init(
+    webots_ros2_driver::WebotsNode *node,
+    std::unordered_map<std::string, std::string> &parameters
+  ) {
+    // init
+  }
 
+  void callback_res(
+    rclcpp::Client</*PackageName*/::msg::ToWebotsRobotHandler_msgs>::SharedFuture future
+  ) {
+    // callback function
+  }
+
+  void step() {
+    // step
+  }
 }
 
 PLUGINLIB_EXPORT_CLASS (
