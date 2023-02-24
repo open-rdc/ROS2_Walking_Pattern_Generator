@@ -1,5 +1,5 @@
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msgs/string.hpp"
+#include "std_msgs/msg/string.hpp"
 // #include "/*PackageName*//msg/ToWalkingStabilizationController_msgs.msg"
 // #include "/*PackageName*//srv/ToKinematics_msgs.msg"
 
