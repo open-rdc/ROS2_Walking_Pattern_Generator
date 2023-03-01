@@ -5,7 +5,7 @@
 <br>
 
 ## Packages (draft)
-* WebotsRobotHandler: <br>
+* Webots_Robot_Handler: <br>
   webots_ros2のCppPluginになるPackage.<br>
   * WebotsRobotHandler.hpp<br>
   * WebotsRobotHandler.cpp<br>
@@ -13,7 +13,7 @@
   * package.xml<br>
 <br>
 
-* WalkingStabilizationController: <br>
+* Walking_Stabilization_Controller: <br>
   歩行を安定化させるための制御系。歩行安定化制御系。<br>
   * WalkingStabilizationController.hpp<br>
   * WalkingStabilizationController.cpp<br>
@@ -21,7 +21,7 @@
   * package.xml<br>
 <br>
 
-* WalkingPatternGenerator<br>
+* Walking_Pattern_Generator<br>
   歩行パターンを生成して、関節角度などを示す。<br>
   * WalkingPatternGenerator.hpp<br>
   * WalkingPatternGenerator.cpp<br>
@@ -41,7 +41,7 @@
   * package.xml<br>
 <br>
 
-* MsgsPackage: <br>
+* MsgsP_ackage: <br>
   messageファイルを定義するPackage.<br>
   * ToWebotsRobotHandler_msgs.msg: <br>
     * WebotsRobotHandlerとのService通信に使うmessage.<br>

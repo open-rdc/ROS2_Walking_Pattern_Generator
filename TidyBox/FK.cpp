@@ -1,6 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
-// #include "/*PackageName*//srv/ToKinematics_msgs.msg"
-// #include "/*PackageName*//FK.hpp"
+#include "Msgs_Package/srv/ToKinematics_msgs.msg"
+#include "Kinematics/FK.hpp"
 
 #include "iostream"
 #include "cmath"
@@ -43,8 +43,8 @@ namespace Kinematics
 
   // Service Server
   void FK_SrvServer(
-    const std::shared_ptr</*PackageName*/::srv::ToKinematics_msgs::Request> request,
-    std::shared_ptr</*PackageName*/::srv::ToKinematics_msgs::Response> response
+    const std::shared_ptr<Msgs_Package::srv::ToKinematics_msgs::Request> request,
+    std::shared_ptr<Msgs_Package::srv::ToKinematics_msgs::Response> response
   ) {
     //FK (ROBOTIS-OP2's Leg only)
   }
@@ -52,6 +52,6 @@ namespace Kinematics
   // Node Setting
   FKSrv(const rclcpp::NodeOptions& options = rclcpp::NodeOptions())
    : Node("FK", options) {
-    toKine_srv_ptr = this->create_service</*PackageName*/::srv::ToKinematics_msgs>(/**/);
+    toKine_srv_ptr = this->create_service<Msgs_Package::srv::ToKinematics_msgs>(/**/);
   }
 }
