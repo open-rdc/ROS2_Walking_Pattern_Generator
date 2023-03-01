@@ -1,7 +1,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
-// #include "Msgs_Package/msg/ToWalkingStabilizationController_msgs.msg"
-// #include "Msgs_Package/srv/ToKinematics_msgs.msg"
+#include "Msgs_Package/msg/ToWalkingStabilizationController_msgs.msg"
+#include "Msgs_Package/srv/ToKinematics_msgs.msg"
 #include "Walking_Pattern_Generator/WalkingPatternGenerator.hpp"
 
 namespace walking_pattern_generator

@@ -1,8 +1,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
-// #include "Msgs_Package/msg/ToWalkingStabilizationController_msgs.msg"
-// #include "Msgs_Package/srv/ToKinematics_msgs.msg"
-// #include "Msgs_Package/srv/ToWebotsRobotHandler_msgs.msg"
+#include "Msgs_Package/msg/ToWalkingStabilizationController_msgs.msg"
+#include "Msgs_Package/srv/ToKinematics_msgs.msg"
+#include "Msgs_Package/srv/ToWebotsRobotHandler_msgs.msg"
 #include "Walking_Stabilization_Controller/WalkingStabilizationController.hpp"
 
 namespace walking_stabilization_controller

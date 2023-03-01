@@ -41,6 +41,25 @@ namespace Kinematics
     return(R_z);
   }
 
+  void DEBUG_ParameterSetting() {
+    P_legL = {(-0.005, 0.037, -0.1222),
+         (0, 0, 0),
+         (0, 0, 0),
+         (0, 0, -0.093),
+         (0, 0, -0.093),
+         (0, 0, 0),
+         (0, 0, 0)
+    }
+    P_legR = {(-0.005, -0.037, -0.1222),
+         (0, 0, 0),
+         (0, 0, 0),
+         (0, 0, -0.093),
+         (0, 0, -0.093),
+         (0, 0, 0),
+         (0, 0, 0)
+    }
+  }
+
   // Service Server
   void FK_SrvServer(
     const std::shared_ptr<Msgs_Package::srv::ToKinematics_msgs::Request> request,
@@ -52,6 +71,7 @@ namespace Kinematics
   // Node Setting
   FKSrv(const rclcpp::NodeOptions& options = rclcpp::NodeOptions())
    : Node("FK", options) {
+    DEBUG_ParameterSetting();
     toKine_srv_ptr = this->create_service<Msgs_Package::srv::ToKinematics_msgs>(/**/);
   }
 }

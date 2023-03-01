@@ -33,9 +33,10 @@ namespace Kinematics
       Eigen::Matrix3d IdentifyMatrix(void);
 
       Eigen::Matrix3d R_target;
-      std::array<Eigen::Matrix3d, 6> R;
+      std::array<Eigen::Matrix3d, 6> R_leg;
       Eigen::Vector3d P_target;
-      std::array<Eigen::Vector3d, 7> P;
-      std::array<float, 6> rad;
+      std::array<Eigen::Vector3d, 7> P_legR;
+      std::array<Eigen::Vector3d, 7> P_legL;
+      std::array<float, 6> rad_leg;
   };
 }
