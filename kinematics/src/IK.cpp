@@ -1,5 +1,5 @@
 #include "rclcpp/rclcpp.hpp"
-#include "Msgs_Package/srv/ToKinematics_msgs.msg"
+#include "msgs_package/srv/to_kinematics_message.hpp"
 #include "Kinematics/IK.hpp"
 
 #include "iostream"
@@ -47,8 +47,8 @@ namespace Kinematics
 
   // Service Server
   void IK_SrvServer(
-    const std::shared_ptr<Msgs_Package::srv::ToKinematics_msgs::Request> request,
-    std::shared_ptr<Msgs_Package::srv::ToKinematics_msgs::Response> response
+    const std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Request> request,
+    std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Response> response
   ) {
     //IK (ROBOTIS-OP2's Leg only)
   }
@@ -56,6 +56,6 @@ namespace Kinematics
   // Node Setting
   IKSrv(const rclcpp::NodeOptions& options = rclcpp::NodeOptions())
    : Node("IK", options) {
-    toKine_srv_ptr = this->create_service<Msgs_Package::srv::ToKinematics_msgs>(/**/);
+    toKine_srv_ptr = this->create_service<msgs_package::srv::ToKinematicsMessage>(/**/);
   }
 }

@@ -2,7 +2,7 @@
 #include "pluginlib/class_list_macros.hpp"
 
 #include "rclcpp/rclcpp.hpp"
-#include "Msgs_Package/msg/ToWebotsRobotHandler_msgs.msg"
+#include "msgs_package/srv/to_webots_robot_handler_message.hpp"
 /*
 #include <webots/robot.h>
 #include <webots/motor.h>
@@ -20,7 +20,7 @@ namespace webots_robot_handler
   }
 
   void callback_res(
-    rclcpp::Client<Msgs_Package::msg::ToWebotsRobotHandler_msgs>::SharedFuture future
+    rclcpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedFuture future
   ) {
     // callback function
   }

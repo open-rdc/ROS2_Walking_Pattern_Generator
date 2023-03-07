@@ -5,7 +5,7 @@
 
 #include "webots_ros2_driver/PluginInterface.hpp"
 #include "webots_ros2_driver/WebotsNode.hpp"
-#include "Msgs_Package/msg/ToWebotsRobotHandler_msgs.msg"
+#include "msgs_package/srv/to_webots_robot_handler_message.hpp"
 
 namespace webots_robot_handler
 {
@@ -18,11 +18,11 @@ namespace webots_robot_handler
 
       void step() override;
 
-      void callback_res(const rclcpp::Client<Msgs_Package::srv::ToWebotsRobotHandler_msgs>::SharedFuture future);
+      void callback_res(const rclcpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedFuture future);
 
 
     private:
-      rclrpp::Client<Msgs_Package::msg::ToWebotsRobotHandler_msgs>::SharedPtr toWRH_clnt_ptr;
+      rclrpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedPtr toWRH_clnt_ptr;
       
       // WbDeviceTagで宣言して、getDeviceするのはcppでって感じ？
       WbDeviceTag motor[20];

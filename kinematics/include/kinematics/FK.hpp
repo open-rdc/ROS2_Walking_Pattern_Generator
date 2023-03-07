@@ -5,7 +5,7 @@
 */
 
 #include "rclcpp/rclcpp.hpp"
-#include "Msgs_Package/srv/ToKinematics_msgs.msg"
+#include "msgs_package/srv/to_kinematics_message.hpp"
 
 #include "iostream"
 #include "cmath"
@@ -18,11 +18,11 @@ namespace Kinematics
       FKSrv(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
     
     private:
-      rclcpp::Service<Msgs_Package::srv::ToKinematics_msgs>::SharedPtr toKine_srv_ptr;
+      rclcpp::Service<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_srv_ptr;
 
       void FK_SrvServer(
-        const std::shared_ptr<Msgs_Package::srv::ToKinematics_msgs::Request> request,
-        std::shared_ptr<Msgs_Package::srv::ToKinematics_msgs::Response> response
+        const std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Request> request,
+        std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Response> response
       );
 
       const float pi = 3.141593;  // 四捨五入済み
