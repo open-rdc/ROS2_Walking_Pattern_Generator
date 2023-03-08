@@ -37,6 +37,6 @@ namespace Kinematics
       Eigen::Vector3d P_target;
       std::array<Eigen::Vector3d, 7> P_legR;
       std::array<Eigen::Vector3d, 7> P_legL;
-      std::array<float, 6> rad_leg;
+      std::array<double, 6> rad_leg;
   };
 }

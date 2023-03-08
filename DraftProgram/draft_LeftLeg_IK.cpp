@@ -76,7 +76,7 @@ namespace Kinematics {
 
     Vector3d FK(void) {
         array<Matrix3d, 6> R;
-        R = {Rz(Q[0]), Rx(Q[1]), Ry(Q[2]), Ry(Q[3]), Ry(Q[4]), Rz(Q[5])};
+        R = {Rz(Q[0]), Rx(Q[1]), Ry(Q[2]), Ry(Q[3]), Ry(Q[4]), Rx(Q[5])};
 
         return (
             R[0] * R[1] * R[2] * R[3] * R[4] * R[5] * P[6] 
