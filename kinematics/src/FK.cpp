@@ -6,8 +6,6 @@
 #include "cmath"
 #include "Eigen/Dense"
 
-#include <string>
-
 namespace Kinematics
 {
   using namespace Eigen;
@@ -42,7 +40,7 @@ namespace Kinematics
     return(R_z);
   }
 
-// DEBUG===
+// DEBUG===/*
   void FKSrv::DEBUG_ParameterSetting() {
     P_legL = {
         Vector3d(-0.005, 0.037, -0.1222),
@@ -63,39 +61,46 @@ namespace Kinematics
         Vector3d(0, 0, 0)
     };
   }
-// DEBUG===
+// DEBUG===*/
 
   // Service Server
   void FKSrv::FK_SrvServer(
     const std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Request> request,
     std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Response> response
   ) {
-    // DEBUG=====
-    rad_leg = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};  // requestから受け取りたい
-    std::string LorR_CF("LR");  // requestから受け取りたい。LR = Leg_Right, LL = Leg_Left, AR = Arm_Right, AL = Arm_Left.
-    Vector3d FK_result;
-    // DEBUG=====
+    // DEBUG=====/*
+    Q_legR = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};  // requestから受け取りたい
+    Q_legL = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    // DEBUG=====*/
 
-    R_leg = {Rz(rad_leg[0]), Rx(rad_leg[1]), Ry(rad_leg[2]), Ry(rad_leg[3]), Ry(rad_leg[4]), Rx(rad_leg[5])};
+    Vector3d FK_resultR;
+    Vector3d FK_resultL;
 
-    if(LorR_CF == "LR") {
-      FK_result = R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * R_leg[4] * R_leg[5] * P_legR[6]
-                  + R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * R_leg[4] * P_legR[5]
-                  + R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * P_legR[4]
-                  + R_leg[0] * R_leg[1] * R_leg[2] * P_legR[3]
-                  + R_leg[0] * R_leg[1] * P_legR[2]
-                  + R_leg[0] * P_legR[1]
-                  + P_legR[0];
-    } 
-    else if(LorR_CF == "LL") {
-      FK_result = R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * R_leg[4] * R_leg[5] * P_legL[6]
-                  + R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * R_leg[4] * P_legL[5]
-                  + R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * P_legL[4]
-                  + R_leg[0] * R_leg[1] * R_leg[2] * P_legL[3]
-                  + R_leg[0] * R_leg[1] * P_legL[2]
-                  + R_leg[0] * P_legL[1]
-                  + P_legL[0];
-    }
+    Q_legR = request->q_target_r;
+    Q_legL = request->q_target_l;
+
+    R_legR = {Rz(Q_legR[0]), Rx(Q_legR[1]), Ry(Q_legR[2]), Ry(Q_legR[3]), Ry(Q_legR[4]), Rx(Q_legR[5])};
+    R_legL = {Rz(Q_legL[0]), Rx(Q_legL[1]), Ry(Q_legL[2]), Ry(Q_legL[3]), Ry(Q_legL[4]), Rx(Q_legL[5])};
+
+
+    FK_resultR = R_legR[0] * R_legR[1] * R_legR[2] * R_legR[3] * R_legR[4] * R_legR[5] * P_legR[6]
+               + R_legR[0] * R_legR[1] * R_legR[2] * R_legR[3] * R_legR[4] * P_legR[5]
+               + R_legR[0] * R_legR[1] * R_legR[2] * R_legR[3] * P_legR[4]
+               + R_legR[0] * R_legR[1] * R_legR[2] * P_legR[3]
+               + R_legR[0] * R_legR[1] * P_legR[2]
+               + R_legR[0] * P_legR[1]
+               + P_legR[0];
+     
+    FK_resultL = R_legL[0] * R_legL[1] * R_legL[2] * R_legL[3] * R_legL[4] * R_legL[5] * P_legL[6]
+               + R_legL[0] * R_legL[1] * R_legL[2] * R_legL[3] * R_legL[4] * P_legL[5]
+               + R_legL[0] * R_legL[1] * R_legL[2] * R_legL[3] * P_legL[4]
+               + R_legL[0] * R_legL[1] * R_legL[2] * P_legL[3]
+               + R_legL[0] * R_legL[1] * P_legL[2]
+               + R_legL[0] * P_legL[1]
+               + P_legL[0];
+    
+    response->q_result_r = {FK_resultR[0], FK_resultR[1], FK_resultR[2]};
+    response->q_result_l = {FK_resultL[0], FK_resultL[1], FK_resultL[2]};
   }
 
   // Node Setting
@@ -104,9 +109,9 @@ namespace Kinematics
   ) : Node("FK", options) {
     using namespace std::placeholders;
 
-// DEBUG===
+// DEBUG===/*
     DEBUG_ParameterSetting();
-// DEBUG===
+// DEBUG===*/
     
     toKine_srv_ptr = this->create_service<msgs_package::srv::ToKinematicsMessage>(
       "FK_SrvServer", 

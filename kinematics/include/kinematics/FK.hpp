@@ -32,15 +32,15 @@ namespace Kinematics
 
       const float pi = 3.141593;  // 四捨五入済み
 
-      Eigen::Matrix3d R_target;
-      std::array<Eigen::Matrix3d, 6> R_leg;
-      Eigen::Vector3d P_target;
+      std::array<Eigen::Matrix3d, 6> R_legR;
       std::array<Eigen::Vector3d, 7> P_legR;
+      std::array<Eigen::Matrix3d, 6> R_legL;
       std::array<Eigen::Vector3d, 7> P_legL;
-      std::array<double, 6> rad_leg;
+      std::array<double, 6> Q_legR;
+      std::array<double, 6> Q_legL;
 
-// DEBUG===
+// DEBUG===/*
       void DEBUG_ParameterSetting(void);
-// DEBUG===
+// DEBUG===*/
   };
 }
