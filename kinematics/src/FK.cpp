@@ -99,8 +99,10 @@ namespace Kinematics
                + R_legL[0] * P_legL[1]
                + P_legL[0];
     
-    response->q_result_r = {FK_resultR[0], FK_resultR[1], FK_resultR[2]};
-    response->q_result_l = {FK_resultL[0], FK_resultL[1], FK_resultL[2]};
+    response->p_result_r = {FK_resultR[0], FK_resultR[1], FK_resultR[2]};
+    response->p_result_l = {FK_resultL[0], FK_resultL[1], FK_resultL[2]};
+
+    RCLCPP_INFO(this->get_logger(), "P Result: R -> {}, L -> {}", response->p_result_r, response->p_result_l);
   }
 
   // Node Setting
