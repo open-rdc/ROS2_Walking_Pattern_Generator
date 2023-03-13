@@ -22,7 +22,7 @@ namespace webots_robot_handler
 
 
     private:
-      rclrpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedPtr toWRH_clnt_ptr;
+      rclcpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedPtr toWRH_clnt_ptr;
       
       // WbDeviceTagで宣言して、getDeviceするのはcppでって感じ？
       WbDeviceTag motor[20];
@@ -35,7 +35,7 @@ namespace webots_robot_handler
       const double *accelerometerValue;
       const double *gyroValue;
 
-  }
+  };
 }
 
 #endif

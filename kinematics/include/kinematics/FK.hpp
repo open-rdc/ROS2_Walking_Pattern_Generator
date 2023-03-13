@@ -18,19 +18,19 @@ namespace Kinematics
       FKSrv(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
     
     private:
-      rclcpp::Service<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_srv_ptr;
-
       void FK_SrvServer(
         const std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Request> request,
         std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Response> response
       );
 
-      const float pi = 3.141593;  // 四捨五入済み
-
       Eigen::Matrix3d Rx(double rad = 0);
       Eigen::Matrix3d Ry(double rad = 0);
       Eigen::Matrix3d Rz(double rad = 0);
       Eigen::Matrix3d IdentifyMatrix(void);
+
+      rclcpp::Service<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_srv_ptr;
+
+      const float pi = 3.141593;  // 四捨五入済み
 
       Eigen::Matrix3d R_target;
       std::array<Eigen::Matrix3d, 6> R_leg;
@@ -38,5 +38,9 @@ namespace Kinematics
       std::array<Eigen::Vector3d, 7> P_legR;
       std::array<Eigen::Vector3d, 7> P_legL;
       std::array<double, 6> rad_leg;
+
+// DEBUG===
+      void DEBUG_ParameterSetting(void);
+// DEBUG===
   };
 }

@@ -1,4 +1,4 @@
-#include "Webots_Robot_Handler/WebotsRobotHandler.hpp"
+#include "webots_robot_handler/WebotsRobotHandler.hpp"
 #include "pluginlib/class_list_macros.hpp"
 
 #include "rclcpp/rclcpp.hpp"
@@ -12,20 +12,20 @@
 
 namespace webots_robot_handler
 {
-  void init(
+  void WebotsRobotHandler::init(
     webots_ros2_driver::WebotsNode *node,
     std::unordered_map<std::string, std::string> &parameters
   ) {
     // init
   }
 
-  void callback_res(
+  void WebotsRobotHandler::callback_res(
     rclcpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedFuture future
   ) {
     // callback function
   }
 
-  void step() {
+  void WebotsRobotHandler::step() {
     // step
   }
 }

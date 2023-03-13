@@ -7,7 +7,11 @@
             },
             "includePath": [
                 "/opt/ros/humble/include/**",
-                "/home/xubu22/WPJ_ros2_ws/**",
+                "/home/xubu22/WPJ_ros2_ws/src/walking_pattern_generator/include/**",
+                "/home/xubu22/WPJ_ros2_ws/src/walking_stabilization_controller/include/**",
+                "/home/xubu22/WPJ_ros2_ws/src/kinematics/include/**",
+                "/home/xubu22/WPJ_ros2_ws/src/webots_robot_handler/include/**",
+                "/home/xubu22/WPJ_ros2_ws/install/msgs_package/include/**",
                 "/usr/include/**",
                 "/usr/local/webots/include/**"
             ],
