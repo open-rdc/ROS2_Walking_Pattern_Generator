@@ -11,7 +11,7 @@
 #include "cmath"
 #include "Eigen/Dense"
 
-namespace Kinematics
+namespace kinematics
 {
   class IKSrv : public rclcpp::Node {
     public:

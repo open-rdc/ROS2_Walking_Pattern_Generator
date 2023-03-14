@@ -6,7 +6,7 @@
 #include "cmath"
 #include "Eigen/Dense"
 
-namespace Kinematics
+namespace kinematics
 {
   using namespace Eigen;
 
@@ -18,21 +18,21 @@ namespace Kinematics
          0, 0, 1;
     return(I);
   }
-  Matrix3d FKSrv::Rx(double rad = 0) {
+  Matrix3d FKSrv::Rx(double rad) {
     Matrix3d R_x;
     R_x << 1,        0,         0,
            0, cos(rad), -sin(rad),
            0, sin(rad),  cos(rad);
     return(R_x);
   }
-  Matrix3d FKSrv::Ry(double rad = 0) {
+  Matrix3d FKSrv::Ry(double rad) {
     Matrix3d R_y;
     R_y <<  cos(rad), 0, sin(rad),
                    0, 1,        0,
            -sin(rad), 0, cos(rad);
     return(R_y);
   }
-  Matrix3d FKSrv::Rz(double rad = 0) {
+  Matrix3d FKSrv::Rz(double rad) {
     Matrix3d R_z;
     R_z << cos(rad), -sin(rad), 0,
            sin(rad),  cos(rad), 0,
@@ -102,12 +102,12 @@ namespace Kinematics
     response->p_result_r = {FK_resultR[0], FK_resultR[1], FK_resultR[2]};
     response->p_result_l = {FK_resultL[0], FK_resultL[1], FK_resultL[2]};
 
-    RCLCPP_INFO(this->get_logger(), "P Result: R -> {}, L -> {}", response->p_result_r, response->p_result_l);
+    // RCLCPP_INFO(this->get_logger(), "P Result: R -> {}, L -> {}", response->p_result_r, response->p_result_l);
   }
 
   // Node Setting
   FKSrv::FKSrv(
-    const rclcpp::NodeOptions& options = rclcpp::NodeOptions()
+    const rclcpp::NodeOptions& options
   ) : Node("FK", options) {
     using namespace std::placeholders;
 

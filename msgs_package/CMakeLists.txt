@@ -22,7 +22,7 @@ find_package(rosidl_default_generators REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-rosidl_generate_interfaces(${PROJECT_NAME}
+rosidl_generate_interfaces(msgs_package
   "msg/ToWalkingStabilizationControllerMessage.msg"
   "srv/ToKinematicsMessage.srv"
   "srv/ToWebotsRobotHandlerMessage.srv"

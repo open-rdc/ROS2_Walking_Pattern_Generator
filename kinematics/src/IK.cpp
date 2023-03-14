@@ -6,7 +6,7 @@
 #include "cmath"
 #include "Eigen/Dense"
 
-namespace Kinematics
+namespace kinematics
 {
   using namespace Eigen;
 
