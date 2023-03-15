@@ -40,6 +40,21 @@ namespace kinematics
     return(R_z);
   }
 
+  Vector3d FKSrv::FK(
+    std::array<Eigen::Matrix3d, 6> R_leg,
+    std::array<Eigen::Vector3d, 7> P_leg
+  ) {
+    return (
+        R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * R_leg[4] * R_leg[5] * P_leg[6]
+      + R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * R_leg[4] * P_leg[5]
+      + R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * P_leg[4]
+      + R_leg[0] * R_leg[1] * R_leg[2] * P_leg[3]
+      + R_leg[0] * R_leg[1] * P_leg[2]
+      + R_leg[0] * P_leg[1]
+      + P_leg[0]
+    );
+  }
+
 // DEBUG===/*
   void FKSrv::DEBUG_ParameterSetting() {
     P_legL = {
@@ -73,9 +88,6 @@ namespace kinematics
     Q_legL = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     // DEBUG=====*/
 
-    Vector3d FK_resultR;
-    Vector3d FK_resultL;
-
     Q_legR = request->q_target_r;
     Q_legL = request->q_target_l;
 
@@ -83,21 +95,8 @@ namespace kinematics
     R_legL = {Rz(Q_legL[0]), Rx(Q_legL[1]), Ry(Q_legL[2]), Ry(Q_legL[3]), Ry(Q_legL[4]), Rx(Q_legL[5])};
 
 
-    FK_resultR = R_legR[0] * R_legR[1] * R_legR[2] * R_legR[3] * R_legR[4] * R_legR[5] * P_legR[6]
-               + R_legR[0] * R_legR[1] * R_legR[2] * R_legR[3] * R_legR[4] * P_legR[5]
-               + R_legR[0] * R_legR[1] * R_legR[2] * R_legR[3] * P_legR[4]
-               + R_legR[0] * R_legR[1] * R_legR[2] * P_legR[3]
-               + R_legR[0] * R_legR[1] * P_legR[2]
-               + R_legR[0] * P_legR[1]
-               + P_legR[0];
-     
-    FK_resultL = R_legL[0] * R_legL[1] * R_legL[2] * R_legL[3] * R_legL[4] * R_legL[5] * P_legL[6]
-               + R_legL[0] * R_legL[1] * R_legL[2] * R_legL[3] * R_legL[4] * P_legL[5]
-               + R_legL[0] * R_legL[1] * R_legL[2] * R_legL[3] * P_legL[4]
-               + R_legL[0] * R_legL[1] * R_legL[2] * P_legL[3]
-               + R_legL[0] * R_legL[1] * P_legL[2]
-               + R_legL[0] * P_legL[1]
-               + P_legL[0];
+    FK_resultR = FK(R_legR, P_legR);
+    FK_resultL = FK(R_legL, P_legL);
     
     response->p_result_r = {FK_resultR[0], FK_resultR[1], FK_resultR[2]};
     response->p_result_l = {FK_resultL[0], FK_resultL[1], FK_resultL[2]};

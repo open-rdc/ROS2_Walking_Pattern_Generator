@@ -28,6 +28,11 @@ namespace kinematics
       Eigen::Matrix3d Rz(double rad = 0);
       Eigen::Matrix3d IdentifyMatrix(void);
 
+      Eigen::Vector3d FK(
+        std::array<Eigen::Matrix3d, 6> R_leg,
+        std::array<Eigen::Vector3d, 7> P_leg
+      );
+
       rclcpp::Service<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_srv_ptr;
 
       const float pi = 3.141593;  // 四捨五入済み
@@ -38,6 +43,9 @@ namespace kinematics
       std::array<Eigen::Vector3d, 7> P_legL;
       std::array<double, 6> Q_legR;
       std::array<double, 6> Q_legL;
+
+      Eigen::Vector3d FK_resultR;
+      Eigen::Vector3d FK_resultL;
 
 // DEBUG===/*
       void DEBUG_ParameterSetting(void);
