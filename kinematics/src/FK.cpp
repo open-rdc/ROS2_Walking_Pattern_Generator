@@ -107,15 +107,17 @@ namespace kinematics
   // Node Setting
   FKSrv::FKSrv(
     const rclcpp::NodeOptions& options
-  ) : Node("FK", options) {
+  ) : Node("FK_SrvServer", options) {
     using namespace std::placeholders;
+
+    RCLCPP_INFO(this->get_logger(), "Start up FK_SrvServer. Hello FK_SrvServer!!");
 
 // DEBUG===/*
     DEBUG_ParameterSetting();
 // DEBUG===*/
     
     toKine_srv_ptr = this->create_service<msgs_package::srv::ToKinematicsMessage>(
-      "FK_SrvServer", 
+      "FK", 
       std::bind(&FKSrv::FK_SrvServer, this, _1, _2)
     );
   }

@@ -131,15 +131,17 @@ namespace kinematics
   // Node Setting
   IKSrv::IKSrv(
     const rclcpp::NodeOptions& options
-  ) : Node("IK", options) {
+  ) : Node("IK_SrvServer", options) {
     using namespace std::placeholders;
+
+    RCLCPP_INFO(this->get_logger(), "Start up IK_SrvServer. Hello IK_SrvServer!!");
 
 // DEBUG===/*
     DEBUG_ParameterSetting();
 // DEBUG===*/
 
     toKine_srv_ptr = this->create_service<msgs_package::srv::ToKinematicsMessage>(
-      "IK_SrvServer",
+      "IK",
       std::bind(&IKSrv::IK_SrvServer, this, _1, _2)
     );
   }
