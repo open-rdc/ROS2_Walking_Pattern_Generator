@@ -44,6 +44,23 @@ namespace kinematics
     return((arg >= 0) - (arg < 0));  // result 1 or -1 (true == 1, false == 0)
   }
 
+  Vector3d IKSrv::Array2Vector(std::array<double, 3> array) {
+    return {array[0], array[1], array[2]};
+  }
+  Matrix3d IKSrv::Array2Matrix(std::array<double, 9> array) {
+    return {array[0], array[1], array[2],
+            array[3], array[4], array[5],
+            array[6], array[7], array[8]};
+  }
+
+  //IK (ROBOTIS-OP2's Leg only)
+  std::array<double, 6> IK(
+    Eigen::Vector3d P_target_leg,
+    Eigen::Matrix3d R_target_leg
+  ) {
+
+  }
+
 // DEBUG===/*
   void IKSrv::DEBUG_ParameterSetting() {
     P_legL = {
@@ -65,13 +82,20 @@ namespace kinematics
         Vector3d(0, 0, 0)
     };
   }
+// DEBUG=====*/
 
   // Service Server
   void IKSrv::IK_SrvServer(
     const std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Request> request,
     std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Response> response
   ) {
-    //IK (ROBOTIS-OP2's Leg only)
+    P_target_legR = Array2Vector(request->p_target_r);
+    R_target_legR = Array2Matrix(request->r_target_r);
+    P_target_legL = Array2Vector(request->p_target_l);
+    R_target_legL = Array2Matrix(request->r_target_l);
+
+    IK_resultR = IK(P_target_legR, R_target_legR);
+    IK_resultL = IK(P_target_legL, R_target_legL);
   }
 
   // Node Setting

@@ -28,14 +28,15 @@ namespace kinematics
       Eigen::Matrix3d Rz(double rad = 0);
       Eigen::Matrix3d IdentifyMatrix(void);
 
+      double sign(double arg = 0);
+
+      Eigen::Vector3d Array2Vector(std::array<double, 3> array);
+      Eigen::Matrix3d Array2Matrix(std::array<double, 9> array);
+
       std::array<double, 6> IK(
-        std::array<Eigen::Matrix3d, 6> R_leg,
-        std::array<double, 6> Q_leg,
         Eigen::Vector3d P_target_leg,
         Eigen::Matrix3d R_target_leg
       );
-
-      double sign(double arg = 0);
 
       rclcpp::Service<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_srv_ptr;
 
@@ -52,6 +53,9 @@ namespace kinematics
       Eigen::Matrix3d R_target_legR;
       Eigen::Vector3d P_target_legL;
       Eigen::Matrix3d R_target_legL;
+
+      std::array<double, 6> IK_resultR;
+      std::array<double, 6> IK_resultL;
 
 // DEBUG===/*
       void DEBUG_ParameterSetting(void);
