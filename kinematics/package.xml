@@ -3,9 +3,9 @@
 <package format="3">
   <name>kinematics</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="yuu5364yuu@gmail.com">ubuntu20-4-ros2</maintainer>
-  <license>TODO: License declaration</license>
+  <description>Kinematics definition</description>
+  <maintainer email="yuu5364yuu@gmail.com">Yusuke Yamasaki</maintainer>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

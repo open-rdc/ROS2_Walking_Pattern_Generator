@@ -3,14 +3,16 @@
 <package format="3">
   <name>walking_pattern_generator</name>
   <version>0.0.0</version>
-  <description>Humanoid robot's walking_pattern_generator definition</description>
+  <description>(Under Construction...) Walking pattern generator for humanoid robots. Used robot is ROBOTIS OP2.</description>
   <maintainer email="yuu5364yuu@gmail.com">Yusuke Yamasaki</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>rclcpp</depend>
-  <depend>msgs_package</depend>
+  <depend>webots_ros2_driver</depend>
+  <depend>pluginlib</depend>
+  <depend>rclcpp_components</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

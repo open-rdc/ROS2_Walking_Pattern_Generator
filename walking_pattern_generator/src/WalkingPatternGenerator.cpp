@@ -6,7 +6,6 @@
 
 namespace walking_pattern_generator
 {
-  
   void WalkingPatternGenerator::callback_res(
     const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future
   ) {
@@ -14,8 +13,10 @@ namespace walking_pattern_generator
   }
 
   WalkingPatternGenerator::WalkingPatternGenerator(
-    const rclcpp::NodeOptions &options = rclcpp::NodeOptions()
-  ) {
+    const rclcpp::NodeOptions &options
+  ) : Node("WalkingPatternGenerator", options) {
+
+    RCLCPP_INFO(this->get_logger(), "Start up WalkingPatternGenerator. Hello WalkingPatternGenerator!!");
     // walking_pattern_generator
   }
 }
