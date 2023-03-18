@@ -34,6 +34,7 @@ namespace kinematics
       Eigen::Matrix3d Array2Matrix(std::array<double, 9> array);
 
       std::array<double, 6> IK(
+        std::array<Eigen::Vector3d, 7> P_leg,
         Eigen::Vector3d P_target_leg,
         Eigen::Matrix3d R_target_leg
       );

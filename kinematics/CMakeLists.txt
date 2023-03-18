@@ -37,18 +37,26 @@ target_include_directories(fk_srv
     include
 )
 
-# add_executable(ik_srv
-#   src/IK.cpp
-#   src/IK_main.cpp
-# )
-# ament_target_dependencies(ik_srv
-#   rclcpp
-#   msgs_package
-# )
+add_executable(ik_srv
+  src/IK.cpp
+  src/IK_main.cpp
+)
+ament_target_dependencies(ik_srv
+  rclcpp
+  msgs_package
+)
+target_include_directories(ik_srv
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
+    $<INSTALL_INTERFACE:include>
+  PRIVATE
+    include
+)
 
 install(TARGETS
   fk_srv
-  # ik_srv
+  ik_srv
   DESTINATION lib/${PROJECT_NAME}
 )
 

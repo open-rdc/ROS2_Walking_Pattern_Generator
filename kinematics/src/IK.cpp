@@ -48,17 +48,44 @@ namespace kinematics
     return {array[0], array[1], array[2]};
   }
   Matrix3d IKSrv::Array2Matrix(std::array<double, 9> array) {
-    return {array[0], array[1], array[2],
-            array[3], array[4], array[5],
-            array[6], array[7], array[8]};
+    Matrix3d R;
+    R << array[0], array[1], array[2],
+         array[3], array[4], array[5],
+         array[6], array[7], array[8];
+    return R;
   }
 
   //IK (ROBOTIS-OP2's Leg only)
-  std::array<double, 6> IK(
+  std::array<double, 6> IKSrv::IK(
+    std::array<Eigen::Vector3d, 7> P_leg,
     Eigen::Vector3d P_target_leg,
     Eigen::Matrix3d R_target_leg
   ) {
+    std::array<double, 6> Q;
+    Vector3d P_target_leg_zhip2end;
+    P_target_leg_zhip2end = R_target_leg.transpose() * (P_leg[0] - P_target_leg);
 
+    double a, b, c;
+    a = abs(P_leg[3](2));
+    b = abs(P_leg[4](2));
+    c = sqrt(pow(P_target_leg_zhip2end(0), 2) + pow(P_target_leg_zhip2end(1), 2) + pow(P_target_leg_zhip2end(2), 2));  // pow(A, B) == A^B =- AのB乗
+
+    Q[3] = -1 * acos((pow(a, 2) + pow(b, 2) - pow(c, 2)) / (2 * a * b)) + pi;
+
+    double d;
+    d = asin((a * sin(pi - Q[3])) / c);
+
+    Q[4] = -1 * atan2(P_target_leg_zhip2end(0), sign(P_target_leg_zhip2end(2)) * sqrt(pow(P_target_leg_zhip2end(1), 2) + pow(P_target_leg_zhip2end(2), 2))) - d;
+    Q[5] = atan2(P_target_leg_zhip2end(1), P_target_leg_zhip2end(2));
+
+    Matrix3d R_target_leg_begin2yhip;
+    R_target_leg_begin2yhip = R_target_leg * Rx(Q[5]).transpose() * Ry(Q[4]).transpose() * Ry(Q[3]).transpose();
+
+    Q[0] = atan2(-R_target_leg_begin2yhip(0, 1), R_target_leg_begin2yhip(1, 1));
+    Q[1] = atan2(R_target_leg_begin2yhip(2, 1), -R_target_leg_begin2yhip(0, 1) * sin(Q[0]) + R_target_leg_begin2yhip(1, 1) * cos(Q[0]));
+    Q[2] = atan2(-R_target_leg_begin2yhip(2, 0), R_target_leg_begin2yhip(2, 2));
+
+    return Q;
   }
 
 // DEBUG===/*
@@ -94,8 +121,11 @@ namespace kinematics
     P_target_legL = Array2Vector(request->p_target_l);
     R_target_legL = Array2Matrix(request->r_target_l);
 
-    IK_resultR = IK(P_target_legR, R_target_legR);
-    IK_resultL = IK(P_target_legL, R_target_legL);
+    IK_resultR = IK(P_legR, P_target_legR, R_target_legR);
+    IK_resultL = IK(P_legL, P_target_legL, R_target_legL);
+
+    response->q_result_r = IK_resultR;
+    response->q_result_l = IK_resultL;
   }
 
   // Node Setting
