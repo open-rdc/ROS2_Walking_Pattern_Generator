@@ -14,20 +14,20 @@ namespace walking_pattern_generator
     const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future
   ) {
     // DEBUG=====/*
-    std::cout << "RESPONSE: \n" 
-              << "__P_result_R: ";
+    std::cout << "RESPONSE" 
+              << "\n" << "__P_result_R: ";
     std::copy(std::begin(future.get()->p_result_r), 
               std::end(future.get()->p_result_r), 
               std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "__P_result_L: ";
+    std::cout << "\n" << "__P_result_L: ";
     std::copy(std::begin(future.get()->p_result_l), 
               std::end(future.get()->p_result_l), 
               std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "__Q_result_R: ";
+    std::cout << "\n" << "__Q_result_R: ";
     std::copy(std::begin(future.get()->q_result_r), 
               std::end(future.get()->q_result_r), 
               std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "__Q_result_L: ";
+    std::cout << "\n" << "__Q_result_L: ";
     std::copy(std::begin(future.get()->q_result_l), 
               std::end(future.get()->q_result_l), 
               std::ostream_iterator<double>(std::cout, " "));
