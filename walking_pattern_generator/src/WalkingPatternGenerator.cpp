@@ -41,36 +41,37 @@ namespace walking_pattern_generator
 
     RCLCPP_INFO(this->get_logger(), "Start up WalkingPatternGenerator. Hello WalkingPatternGenerator!!");
     
-    toKine_FK_clnt = this->create_client<msgs_package::srv::ToKinematicsMessage>("FK");
+    toKine_IK_clnt = this->create_client<msgs_package::srv::ToKinematicsMessage>("IK");
 
-    while(!toKine_FK_clnt->wait_for_service(1s)) {
+    while(!toKine_IK_clnt->wait_for_service(1s)) {
       if(!rclcpp::ok()) {
-        RCLCPP_ERROR(this->get_logger(), "ERROR!!: FK service is dead.");
+        RCLCPP_ERROR(this->get_logger(), "ERROR!!: IK service is dead.");
         return;
       }
-      RCLCPP_INFO(this->get_logger(), "Waiting for FK service...");
+      RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
     }
 
   auto toKine_FK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
+  auto toKine_IK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
 
   // DEBUG=====/*
-  // FK_request
-  toKine_FK_req->q_target_r = {0, 0, 0, 0, 0, 0};
-  toKine_FK_req->q_target_l = {0, 0, 0, 0, 0, 0};
+  // IK_request
+  toKine_IK_req->q_target_r = {0, 0, 0, 0, 0, 0};  // [rad]
+  toKine_IK_req->q_target_l = {0, 0, 0, 0, 0, 0};  // [rad]
 
   // IK_request
-  toKine_FK_req->r_target_r = {0, 0, 0,
-                               0, 0, 0,
-                               0, 0, 0};
-  toKine_FK_req->p_target_r = {0, 0, 0};
-  toKine_FK_req->r_target_l = {0, 0, 0,
-                               0, 0, 0,
-                               0, 0, 0};
-  toKine_FK_req->p_target_l = {0, 0, 0};
+  toKine_IK_req->r_target_r = {1, 0, 0,
+                               0, 1, 0,
+                               0, 0, 1};
+  toKine_IK_req->p_target_r = {0, 0, 0};  // [m]
+  toKine_IK_req->r_target_l = {1, 0, 0,
+                               0, 1, 0,
+                               0, 0, 1};
+  toKine_IK_req->p_target_l = {0, 0, 0};  // [m]
   // DEBUG=====*/
 
-  auto toKine_FK_res = toKine_FK_clnt->async_send_request(
-    toKine_FK_req, 
+  auto toKine_IK_res = toKine_IK_clnt->async_send_request(
+    toKine_IK_req, 
     std::bind(&WalkingPatternGenerator::callback_res, this, _1)
   );
   }
