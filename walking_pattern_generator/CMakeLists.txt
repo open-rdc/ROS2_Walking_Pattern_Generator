@@ -22,7 +22,7 @@ find_package(msgs_package REQUIRED)
 
 add_executable(walking_pattern_generator
   src/WalkingPatternGenerator.cpp
-  src/WalkingPatterngenerator_main.cpp
+  src/WalkingPatternGenerator_main.cpp
 )
 ament_target_dependencies(walking_pattern_generator
   rclcpp
