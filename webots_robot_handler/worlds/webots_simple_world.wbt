@@ -1,0 +1,26 @@
+#VRML_SIM R2023a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/floors/protos/Floor.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/RobotisOp2.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.13419524520586362 -0.033585038522204805 0.990385622548914 3.561959280293347
+  position 1.1874580812309212 0.5930131516182624 0.483741794041867
+}
+TexturedBackground {
+  texture "mars"
+}
+TexturedBackgroundLight {
+  texture "mars"
+}
+Floor {
+}
+DEF ROBOTIS_OP2 RobotisOp2 {
+  name "ROBOTIS_OP2"
+  controller "<extern>"
+  supervisor TRUE
+}
