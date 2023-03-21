@@ -32,8 +32,8 @@ namespace webots_robot_handler
 
       float motorValue[20];
       float positionSensorValue[20];
-      const double *accelerometerValue;
-      const double *gyroValue;
+      const double accelerometerValue;
+      const double gyroValue;
 
   };
 }

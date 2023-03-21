@@ -3,12 +3,15 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "msgs_package/srv/to_webots_robot_handler_message.hpp"
-/*
+
 #include <webots/robot.h>
 #include <webots/motor.h>
+/*
 ・・・　cのヘッダでも、cppのヘッダでも、どっちでも良いと思う。
         ヘッダファイルのほうでは、WbDeviceTagで宣言して、getDeviceするのはこっちって感じ？
 */
+
+using namespace std::placeholders;
 
 namespace webots_robot_handler
 {
@@ -16,7 +19,7 @@ namespace webots_robot_handler
     webots_ros2_driver::WebotsNode *node,
     std::unordered_map<std::string, std::string> &parameters
   ) {
-    // init
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Start up WebotsRobotHandler. Hello WebotsRobotHandler!!");
   }
 
   void WebotsRobotHandler::callback_res(
