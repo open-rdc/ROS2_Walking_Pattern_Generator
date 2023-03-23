@@ -22,18 +22,20 @@ namespace webots_robot_handler
 
 
     private:
-      rclcpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedPtr toWRH_clnt;
+      webots_ros2_driver::WebotsNode *node_;
+
+      rclcpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedPtr toWRH_clnt_;
       
       // WbDeviceTagで宣言して、getDeviceするのはcppでって感じ？
-      WbDeviceTag motor[20];
-      WbDeviceTag positionSensor[20];
-      WbDeviceTag gyro;
-      WbDeviceTag accelerometer;
+      WbDeviceTag motor_[20];
+      WbDeviceTag positionSensor_[20];
+      WbDeviceTag gyro_;
+      WbDeviceTag accelerometer_;
 
-      float motorValue[20];
-      float positionSensorValue[20];
-      const double accelerometerValue;
-      const double gyroValue;
+      double motorValue_[20];
+      double positionSensorValue_[20];
+      const double *accelerometerValue_;
+      const double *gyroValue_;
 
   };
 }

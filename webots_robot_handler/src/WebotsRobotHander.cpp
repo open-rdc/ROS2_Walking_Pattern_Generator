@@ -24,16 +24,18 @@ namespace webots_robot_handler
     webots_ros2_driver::WebotsNode *node,
     std::unordered_map<std::string, std::string> &parameters
   ) {
+    node_ = node;
+
     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Start up WebotsRobotHandler. Hello WebotsRobotHandler!!");
 
-    toWRH_clnt = node->create_client<msgs_package::srv::ToWebotsRobotHandlerMessage>("FB_StabilizationController");
+    toWRH_clnt_ = node_->create_client<msgs_package::srv::ToWebotsRobotHandlerMessage>("FB_StabilizationController");
 
-    while(!toWRH_clnt->wait_for_service(1s)) {
+    while(!toWRH_clnt_->wait_for_service(1s)) {
       if(!rclcpp::ok()) {
-        RCLCPP_ERROR(node->get_logger(), "ERROR!!: FB_StabilizationController service is dead.");
+        RCLCPP_ERROR(node_->get_logger(), "ERROR!!: FB_StabilizationController service is dead.");
         return;
       }
-      RCLCPP_INFO(node->get_logger(), "Waiting for FB_StabilizationController service...");
+      RCLCPP_INFO(node_->get_logger(), "Waiting for FB_StabilizationController service...");
     }
 
     auto toWRH_req = std::make_shared<msgs_package::srv::ToWebotsRobotHandlerMessage::Request>();
@@ -41,15 +43,24 @@ namespace webots_robot_handler
     std::array<const char*, 20> motors_name = {("ShoulderR"), ("ShoulderL"), ("ArmUpperR"), ("ArmUpperL"), ("ArmLowerR"), ("ArmLowerL"), ("PelvYR"), ("PelvYL"), ("PelvR"), ("PelvL"), ("LegUpperR"), ("LegUpperL"), ("LegLowerR"), ("LegLowerL"), ("AnkleR"), ("AnkleL"), ("FootR"), ("FootL"), ("Neck"), ("Head")};
 
     char* S = "S";
-    for(int i = 0; i < 20; i++) {
-      motor[i] = wb_robot_get_device(motors_name[i]);
-      positionSensor[i] = wb_robot_get_device(motors_name[i] + *S);
-      wb_position_sensor_enable(positionSensor[i], 100);
+    for(int i = 0; i < 20; i++) {  // get motors & position_sensors
+      motor_[i] = wb_robot_get_device(motors_name[i]);
+      positionSensor_[i] = wb_robot_get_device(motors_name[i] + *S);
+      wb_position_sensor_enable(positionSensor_[i], 100);
     }
-    accelerometer = wb_robot_get_device("Accelerometer");
-    wb_accelerometer_enable(accelerometer, 100);
-    gyro = wb_robot_get_device("Gyro");
-    wb_gyro_enable(gyro, 100);
+    accelerometer_ = wb_robot_get_device("Accelerometer");
+    wb_accelerometer_enable(accelerometer_, 100);  // enable & sampling_period: 100[ms]
+    gyro_ = wb_robot_get_device("Gyro");
+    wb_gyro_enable(gyro_, 100);
+
+    for(int i = 0; i < 20; i++) {
+      motorValue_[i] = 0;
+      positionSensorValue_[i] = 0;
+
+    
+    }
+
+    RCLCPP_INFO(node_->get_logger(), "Finish init, Start step.");
   }
 
   void WebotsRobotHandler::callback_res(
@@ -59,7 +70,13 @@ namespace webots_robot_handler
   }
 
   void WebotsRobotHandler::step() {
-    // step
+    RCLCPP_INFO(node_->get_logger(), "step...");
+
+    for(int i = 0; i < 20; i++) {
+      positionSensorValue_[i] = wb_position_sensor_get_value(positionSensor_[i]);
+    }
+    accelerometerValue_ = wb_accelerometer_get_values(accelerometer_);
+    gyroValue_ = wb_gyro_get_values(gyro_);
   }
 }
 
