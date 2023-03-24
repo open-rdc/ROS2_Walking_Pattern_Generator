@@ -11,12 +11,13 @@
 #include <webots/position_sensor.h>
 #include <webots/accelerometer.h>
 #include <webots/gyro.h>
-/*
-・・・　cのヘッダでも、cppのヘッダでも、どっちでも良いと思う。
-        ヘッダファイルのほうでは、WbDeviceTagで宣言して、getDeviceするのはこっちって感じ？
-*/
+
+
+
 using namespace std::chrono_literals;
 using namespace std::placeholders;
+
+
 
 namespace webots_robot_handler
 {
@@ -30,13 +31,13 @@ namespace webots_robot_handler
 
     toWRH_clnt_ = node_->create_client<msgs_package::srv::ToWebotsRobotHandlerMessage>("FB_StabilizationController");
 
-    while(!toWRH_clnt_->wait_for_service(1s)) {
-      if(!rclcpp::ok()) {
-        RCLCPP_ERROR(node_->get_logger(), "ERROR!!: FB_StabilizationController service is dead.");
-        return;
-      }
-      RCLCPP_INFO(node_->get_logger(), "Waiting for FB_StabilizationController service...");
-    }
+    // while(!toWRH_clnt_->wait_for_service(1s)) {
+    //   if(!rclcpp::ok()) {
+    //     RCLCPP_ERROR(node_->get_logger(), "ERROR!!: FB_StabilizationController service is dead.");
+    //     return;
+    //   }
+    //   RCLCPP_INFO(node_->get_logger(), "Waiting for FB_StabilizationController service...");
+    // }
 
     auto toWRH_req = std::make_shared<msgs_package::srv::ToWebotsRobotHandlerMessage::Request>();
 
@@ -53,15 +54,19 @@ namespace webots_robot_handler
     gyro_ = wb_robot_get_device("Gyro");
     wb_gyro_enable(gyro_, 100);
 
-    for(int i = 0; i < 20; i++) {
-      motorValue_[i] = 0;
-      positionSensorValue_[i] = 0;
-
-    
+    RCLCPP_INFO(node_->get_logger(), "Set init joints_angle.");
+    std::array<const double, 20> initJointAng = {0, 0, 0.79, -0.79, -1.57, 1.57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.26};  // init motors ang [rad] 
+    for(int i = 0; i < 20; i++) {  // set init position & value
+      setJointAng_[i] = 0;  // いる？
+      setJointVel_[i] = 0;
+      getJointAng_[i] = 0;
+      wb_motor_set_position(motor_[i], initJointAng[i]);
+      wb_motor_set_velocity(motor_[i], 0.25);
     }
 
     RCLCPP_INFO(node_->get_logger(), "Finish init, Start step.");
   }
+
 
   void WebotsRobotHandler::callback_res(
     rclcpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedFuture future
@@ -69,16 +74,19 @@ namespace webots_robot_handler
     // callback function
   }
 
+
   void WebotsRobotHandler::step() {
     RCLCPP_INFO(node_->get_logger(), "step...");
 
     for(int i = 0; i < 20; i++) {
-      positionSensorValue_[i] = wb_position_sensor_get_value(positionSensor_[i]);
+      getJointAng_[i] = wb_position_sensor_get_value(positionSensor_[i]);
     }
     accelerometerValue_ = wb_accelerometer_get_values(accelerometer_);
     gyroValue_ = wb_gyro_get_values(gyro_);
   }
 }
+
+
 
 PLUGINLIB_EXPORT_CLASS (
   webots_robot_handler::WebotsRobotHandler,

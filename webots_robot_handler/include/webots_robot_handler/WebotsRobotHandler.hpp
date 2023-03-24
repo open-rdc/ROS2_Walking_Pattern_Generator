@@ -32,8 +32,9 @@ namespace webots_robot_handler
       WbDeviceTag gyro_;
       WbDeviceTag accelerometer_;
 
-      double motorValue_[20];
-      double positionSensorValue_[20];
+      double setJointAng_[20];  // いる？
+      double setJointVel_[20];
+      double getJointAng_[20];
       const double *accelerometerValue_;
       const double *gyroValue_;
 

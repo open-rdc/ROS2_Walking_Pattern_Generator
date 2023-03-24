@@ -18,16 +18,22 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(msgs_package REQUIRED)
+find_package(Eigen3 REQUIRED)
 find_package(webots_ros2_driver REQUIRED)
 find_package(pluginlib REQUIRED)
-find_package(Eigen3 REQUIRED)
-find_package(msgs_packge REQUIRED)
 
 pluginlib_export_plugin_description_file(webots_ros2_driver webots_robot_handler.xml)
 
 add_library(${PROJECT_NAME}
   SHARED
   src/WebotsRobotHander.cpp
+)
+ament_target_dependencies(${PROJECT_NAME}
+  pluginlib
+  rclcpp
+  webots_ros2_driver
+  msgs_package
 )
 target_include_directories(${PROJECT_NAME}
   PUBLIC
@@ -36,11 +42,6 @@ target_include_directories(${PROJECT_NAME}
     $<INSTALL_INTERFACE:include>
   PRIVATE
     include
-)
-ament_target_dependencies(${PROJECT_NAME}
-  pluginlib
-  rclcpp
-  webots_ros2_driver
 )
 install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
@@ -53,13 +54,12 @@ ament_export_include_directories(
 )
 ament_export_libraries(${PROJECT_NAME})
 
-add_executable(hello_world src/hello_world.cpp)
-target_include_directories(hello_world PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-
-install(TARGETS hello_world
-  DESTINATION lib/${PROJECT_NAME})
+install(DIRECTORY
+  launch
+  worlds
+  resource
+  DESTINATION share/${PROJECT_NAME}/
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
