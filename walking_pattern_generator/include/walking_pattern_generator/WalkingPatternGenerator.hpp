@@ -1,5 +1,5 @@
 #include "rclcpp/rclcpp.hpp"
-// #include "msgs_package/msg/to_walking_stabilization_controller_message.hpp"
+#include "msgs_package/msg/to_walking_stabilization_controller_message.hpp"
 #include "msgs_package/srv/to_kinematics_message.hpp"
 
 namespace walking_pattern_generator
