@@ -9,10 +9,12 @@ namespace walking_stabilization_controller
   class WalkingStabilizationController : public rclcpp::Node {
     public:
       WalkingStabilizationController(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
+
     private:
-      rclcpp::Subscription<msgs_package::msg::ToWalkingStabilizationControllerMessage>::SharedPtr toWSC_sub_ptr;
-      rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_clnt_ptr;
-      rclcpp::Service<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedPtr toWRH_srv_ptr;
+      rclcpp::Subscription<msgs_package::msg::ToWalkingStabilizationControllerMessage>::SharedPtr toWSC_sub_;
+      rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_FK_clnt_;
+      rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_IK_clnt_;
+      rclcpp::Service<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedPtr toWRH_srv_;
 
       void callback_sub(const msgs_package::msg::ToWalkingStabilizationControllerMessage::SharedPtr sub_data);
       void callback_res(const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future);
