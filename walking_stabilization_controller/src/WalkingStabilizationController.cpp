@@ -1,4 +1,5 @@
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp/qos.hpp"
 #include "msgs_package/msg/to_walking_stabilization_controller_message.hpp"
 #include "msgs_package/srv/to_kinematics_message.hpp"
 #include "msgs_package/srv/to_webots_robot_handler_message.hpp"
@@ -64,7 +65,7 @@ namespace walking_stabilization_controller
     // walking_stabilization_controller service_server
 
     RCLCPP_INFO(this->get_logger(), "Start WSC_SrvServer");
-
+/*
     auto toKine_FK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage_Request>();
     auto toKine_IK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage_Request>();
 
@@ -89,7 +90,7 @@ namespace walking_stabilization_controller
     response->q_fix_l = Q_target_legL_;
     response->dq_fix_r = dQ_target_legR_;
     response->dq_fix_l = dQ_target_legL_;
-
+*/
     // response->q_fix_r = Q_result_legR_;
     // response->q_fix_l = Q_target_legL_;
     // response->dq_fix_r = dQ_result_legR_;
