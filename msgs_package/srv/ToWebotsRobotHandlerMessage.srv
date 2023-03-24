@@ -5,7 +5,7 @@ float64[3] gyro_now
 float64[6] q_now_r
 float64[6] q_now_l
 ---
-float64[3] q_fix_r  # [rad]
+float64[6] q_fix_r  # [rad]
 float64[6] dq_fix_r  # [rad/s]
-float64[3] q_fix_l  # [rad]
+float64[6] q_fix_l  # [rad]
 float64[6] dq_fix_l  # [rad/s]

@@ -126,6 +126,10 @@ namespace kinematics
 
     response->q_result_r = IK_resultR;
     response->q_result_l = IK_resultL;
+
+    // FK or IK check flag
+    response->p_result_r = {999, 999, 999};
+    response->p_result_l = {999, 999, 999};
   }
 
   // Node Setting

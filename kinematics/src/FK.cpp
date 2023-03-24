@@ -101,6 +101,10 @@ namespace kinematics
     response->p_result_r = {FK_resultR[0], FK_resultR[1], FK_resultR[2]};
     response->p_result_l = {FK_resultL[0], FK_resultL[1], FK_resultL[2]};
 
+    // FK or IK check flag
+    response->q_result_r = {999, 999, 999, 999, 999, 999};
+    response->q_result_l = {999, 999, 999, 999 ,999 ,999};
+
     // RCLCPP_INFO(this->get_logger(), "P Result: R -> {}, L -> {}", response->p_result_r, response->p_result_l);
   }
 

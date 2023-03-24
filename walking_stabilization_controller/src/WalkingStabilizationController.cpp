@@ -5,6 +5,9 @@
 #include "walking_stabilization_controller/WalkingStabilizationController.hpp"
 
 #include <chrono>
+#include "iostream"
+#include "cmath"
+#include "Eigen/Dense"
 
 using namespace std::chrono_literals;
 using namespace std::placeholders;
@@ -15,12 +18,43 @@ namespace walking_stabilization_controller
     const msgs_package::msg::ToWalkingStabilizationControllerMessage::SharedPtr sub_data
   ) {
     // to walking_pattern_generator
+
+    RCLCPP_INFO(this->get_logger(), "Start callback_sub");
+
+    P_target_legR_ = {sub_data->p_target_r[0], sub_data->p_target_r[1], sub_data->p_target_r[2]};
+    P_target_legL_ = {sub_data->p_target_l[0], sub_data->p_target_l[1], sub_data->p_target_l[2]};
+    Q_target_legR_ = sub_data->q_target_r;
+    Q_target_legL_ = sub_data->q_target_l;
+    dQ_target_legR_ = sub_data->dq_target_r;
+    dQ_target_legL_ = sub_data->dq_target_l;
+
+    RCLCPP_INFO(this->get_logger(), "Finish callback_sub");
   }
 
   void WalkingStabilizationController::callback_res(
     const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future
   ) {
     // to kinematics
+
+    RCLCPP_INFO(this->get_logger(), "Start callback_res");
+
+    // FK
+    if(future.get()->q_result_r[0] == 999) {  // check FK
+      P_target_legR_ = {future.get()->p_result_r[0], future.get()->p_result_r[1], future.get()->p_result_r[2]};
+      P_target_legL_ = {future.get()->p_result_l[0], future.get()->p_result_l[1], future.get()->p_result_l[2]};
+
+      RCLCPP_INFO(this->get_logger(), "Finish callback_res");
+      return;
+    }
+
+    // IK
+    if(future.get()->p_result_r[0] == 999) {  // check IK
+      Q_target_legR_ = {future.get()->q_result_r[0], future.get()->q_result_r[1], future.get()->q_result_r[2]};
+      Q_target_legL_ = {future.get()->q_result_l[0], future.get()->q_result_l[1], future.get()->q_result_l[2]};
+
+      RCLCPP_INFO(this->get_logger(), "Finish callback_res");
+      return;
+    }
   }
 
   void WalkingStabilizationController::WSC_SrvServer(
@@ -28,6 +62,45 @@ namespace walking_stabilization_controller
     std::shared_ptr<msgs_package::srv::ToWebotsRobotHandlerMessage::Response> response
   ) {
     // walking_stabilization_controller service_server
+
+    RCLCPP_INFO(this->get_logger(), "Start WSC_SrvServer");
+
+    auto toKine_FK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage_Request>();
+    auto toKine_IK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage_Request>();
+
+    toKine_FK_req->q_target_r = Q_target_legR_;
+    toKine_FK_req->q_target_l = Q_target_legL_;
+
+    toKine_IK_req->p_target_r = {P_target_legR_[0], P_target_legR_[1], P_target_legR_[2]};
+    toKine_IK_req->p_target_l = {P_target_legL_[0], P_target_legL_[1], P_target_legL_[2]};
+    toKine_IK_req->r_target_r = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+    toKine_IK_req->r_target_l = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+
+    auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
+      toKine_FK_req, 
+      std::bind(&WalkingStabilizationController::callback_res, this, _1)
+    );
+    auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
+      toKine_IK_req,
+      std::bind(&WalkingStabilizationController::callback_res, this, _1)
+    );
+
+    response->q_fix_r = Q_target_legR_;
+    response->q_fix_l = Q_target_legL_;
+    response->dq_fix_r = dQ_target_legR_;
+    response->dq_fix_l = dQ_target_legL_;
+
+    // response->q_fix_r = Q_result_legR_;
+    // response->q_fix_l = Q_target_legL_;
+    // response->dq_fix_r = dQ_result_legR_;
+    // response->dq_fix_l = dQ_target_legL_;
+
+    // response->q_fix_r = Q_fix_legR_;
+    // response->q_fix_l = Q_fix_legL_;
+    // response->dq_fix_r = dQ_fix_legR_;
+    // response->dq_fix_l = dQ_fix_legL_;
+
+    RCLCPP_INFO(this->get_logger(), "Finish WSC_SrvServer");
   }
 
   WalkingStabilizationController::WalkingStabilizationController(
