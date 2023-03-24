@@ -41,12 +41,11 @@ namespace webots_robot_handler
 
     auto toWRH_req = std::make_shared<msgs_package::srv::ToWebotsRobotHandlerMessage::Request>();
 
-    std::array<const char*, 20> motors_name = {("ShoulderR"), ("ShoulderL"), ("ArmUpperR"), ("ArmUpperL"), ("ArmLowerR"), ("ArmLowerL"), ("PelvYR"), ("PelvYL"), ("PelvR"), ("PelvL"), ("LegUpperR"), ("LegUpperL"), ("LegLowerR"), ("LegLowerL"), ("AnkleR"), ("AnkleL"), ("FootR"), ("FootL"), ("Neck"), ("Head")};
+    std::array<const std::string, 20> motors_name = {("ShoulderR"), ("ShoulderL"), ("ArmUpperR"), ("ArmUpperL"), ("ArmLowerR"), ("ArmLowerL"), ("PelvYR"), ("PelvYL"), ("PelvR"), ("PelvL"), ("LegUpperR"), ("LegUpperL"), ("LegLowerR"), ("LegLowerL"), ("AnkleR"), ("AnkleL"), ("FootR"), ("FootL"), ("Neck"), ("Head")};
 
-    char* S = "S";
     for(int i = 0; i < 20; i++) {  // get motors & position_sensors
-      motor_[i] = wb_robot_get_device(motors_name[i]);
-      positionSensor_[i] = wb_robot_get_device(motors_name[i] + *S);
+      motor_[i] = wb_robot_get_device(motors_name[i].c_str());
+      positionSensor_[i] = wb_robot_get_device((motors_name[i]+"S").c_str());
       wb_position_sensor_enable(positionSensor_[i], 100);
     }
     accelerometer_ = wb_robot_get_device("Accelerometer");
@@ -55,13 +54,14 @@ namespace webots_robot_handler
     wb_gyro_enable(gyro_, 100);
 
     RCLCPP_INFO(node_->get_logger(), "Set init joints_angle.");
-    std::array<const double, 20> initJointAng = {0, 0, 0.79, -0.79, -1.57, 1.57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.26};  // init motors ang [rad] 
+    std::array<const double, 20> initJointAng = {0, 0, 0.79, -0.79, -1.57, 1.57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.26};  // init joints ang [rad] 
+    std::array<const double, 20> initJointVel = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.5, 0.5};  // init joints vel [rad/s]
     for(int i = 0; i < 20; i++) {  // set init position & value
-      setJointAng_[i] = 0;  // いる？
-      setJointVel_[i] = 0;
+      setJointAng_[i] = initJointAng[i];  // いる？
+      setJointVel_[i] = initJointVel[i];
       getJointAng_[i] = 0;
       wb_motor_set_position(motor_[i], initJointAng[i]);
-      wb_motor_set_velocity(motor_[i], 0.25);
+      wb_motor_set_velocity(motor_[i], initJointVel[i]);
     }
 
     RCLCPP_INFO(node_->get_logger(), "Finish init, Start step.");
