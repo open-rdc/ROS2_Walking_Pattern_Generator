@@ -17,17 +17,31 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(msgs_package REQUIRED)
+find_package(Eigen3 REQUIRED)
 
-add_executable(hello_world src/hello_world.cpp)
-target_include_directories(hello_world PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
+add_executable(${PROJECT_NAME}
+  src/WalkingStabilizationController.cpp
+  src/WalkingStabilizationController_main.cpp
+)
+ament_target_dependencies(${PROJECT_NAME}
+  rclcpp
+  msgs_package
+)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
+    $<INSTALL_INTERFACE:include>
+  PRIVATE
+    include
+)
 
-install(TARGETS hello_world
-  DESTINATION lib/${PROJECT_NAME})
+install(TARGETS
+  ${PROJECT_NAME}
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

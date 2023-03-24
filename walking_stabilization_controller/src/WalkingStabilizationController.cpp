@@ -1,5 +1,4 @@
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
 #include "msgs_package/msg/to_walking_stabilization_controller_message.hpp"
 #include "msgs_package/srv/to_kinematics_message.hpp"
 #include "msgs_package/srv/to_webots_robot_handler_message.hpp"
@@ -40,20 +39,20 @@ namespace walking_stabilization_controller
     toKine_FK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>("FK");
     toKine_IK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>("IK");
 
-    while(!toKine_FK_clnt_->wait_for_service(1s)) {
-      if(!rclcpp::ok()) {
-        RCLCPP_ERROR(this->get_logger(), "ERROR!!: FK service is dead.");
-        return;
-      }
-      RCLCPP_INFO(this->get_logger(), "Waiting for FK service...");
-    }
-    while(!toKine_IK_clnt_->wait_for_service(1s)) {
-      if(!rclcpp::ok()) {
-        RCLCPP_ERROR(this->get_logger(), "ERROR!!: IK service is dead.");
-        return;
-      }
-      RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
-    }
+    // while(!toKine_FK_clnt_->wait_for_service(1s)) {
+    //   if(!rclcpp::ok()) {
+    //     RCLCPP_ERROR(this->get_logger(), "ERROR!!: FK service is dead.");
+    //     return;
+    //   }
+    //   RCLCPP_INFO(this->get_logger(), "Waiting for FK service...");
+    // }
+    // while(!toKine_IK_clnt_->wait_for_service(1s)) {
+    //   if(!rclcpp::ok()) {
+    //     RCLCPP_ERROR(this->get_logger(), "ERROR!!: IK service is dead.");
+    //     return;
+    //   }
+    //   RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
+    // }
 
     toWSC_sub_ = this->create_subscription<msgs_package::msg::ToWalkingStabilizationControllerMessage>("WalkingPattern", 
          rclcpp::QoS(10), 
