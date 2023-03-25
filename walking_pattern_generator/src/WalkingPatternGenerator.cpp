@@ -37,6 +37,8 @@ namespace walking_pattern_generator
   }
 
   void WalkingPatternGenerator::step_WPG_pub() {
+
+    RCLCPP_INFO(this->get_logger(), "step...");
 /*
     auto toKine_FK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
     auto toKine_IK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
@@ -103,7 +105,7 @@ namespace walking_pattern_generator
 */
 
     step_pub_ = this->create_wall_timer(
-      100ms,
+      1000ms,
       std::bind(&WalkingPatternGenerator::step_WPG_pub, this)
     );
   }
