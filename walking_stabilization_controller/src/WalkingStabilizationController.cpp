@@ -29,7 +29,14 @@ namespace walking_stabilization_controller
     dQ_target_legR_ = sub_data->dq_target_r;
     dQ_target_legL_ = sub_data->dq_target_l;
 
-    RCLCPP_INFO(this->get_logger(), "Finish callback_sub");
+    std::cout << P_target_legR_.transpose() << std::endl;
+    std::cout << P_target_legL_.transpose() << std::endl;
+    for(int i = 0; i < 6; i++){std::cout << Q_target_legR_[i];} std::cout << std::endl;
+    for(int i = 0; i < 6; i++){std::cout << Q_target_legL_[i];} std::cout << std::endl;
+    for(int i = 0; i < 6; i++){std::cout << dQ_target_legR_[i];} std::cout << std::endl;
+    for(int i = 0; i < 6; i++){std::cout << dQ_target_legL_[i];} std::cout << std::endl;
+
+    RCLCPP_INFO(this->get_logger(), "Finish callback_sub\n");
   }
 
   void WalkingStabilizationController::callback_res(
@@ -65,6 +72,13 @@ namespace walking_stabilization_controller
     // walking_stabilization_controller service_server
 
     RCLCPP_INFO(this->get_logger(), "Start WSC_SrvServer");
+// DEBUG
+    response->q_fix_r = request->q_now_r;
+    response->q_fix_l = request->q_now_l;
+    response->dq_fix_r = {9, 9, 9, 9, 9, 9};
+    response->dq_fix_l = {9, 9, 9, 9, 9, 9};
+// DEBUG
+
 /*
     auto toKine_FK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage_Request>();
     auto toKine_IK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage_Request>();

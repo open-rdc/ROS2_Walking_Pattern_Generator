@@ -66,14 +66,15 @@ namespace walking_pattern_generator
 */
     auto pub_msg = std::make_shared<msgs_package::msg::ToWalkingStabilizationControllerMessage>();
 
-    pub_msg->p_target_r = {0, 0, 0};
-    pub_msg->p_target_l = {0, 0, 0};
-    pub_msg->q_target_r = {0, 0, 0, 0, 0, 0};
-    pub_msg->q_target_l = {0, 0, 0, 0, 0, 0};
-    pub_msg->dq_target_r = {0, 0, 0, 0, 0, 0};
-    pub_msg->dq_target_l = {0, 0, 0, 0, 0, 0};
+    pub_msg->p_target_r = {1, 1, 1};
+    pub_msg->p_target_l = {2, 2, 2};
+    pub_msg->q_target_r = {3, 3, 3, 3, 3, 3};
+    pub_msg->q_target_l = {4, 4, 4, 4, 4, 4};
+    pub_msg->dq_target_r = {5, 5, 5, 5, 5, 5};
+    pub_msg->dq_target_l = {6, 6, 6, 6, 6, 6};
 
     toWSC_pub_->publish(*pub_msg);
+    RCLCPP_INFO(this->get_logger(), "Publish...");
   }
 
   WalkingPatternGenerator::WalkingPatternGenerator(
