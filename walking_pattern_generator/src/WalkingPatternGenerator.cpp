@@ -33,13 +33,18 @@ namespace walking_pattern_generator
               std::end(future.get()->q_result_l), 
               std::ostream_iterator<double>(std::cout, " "));
     std::cout << "\n" << std::endl;
+
+    p_target_r_ = future.get()->p_result_r;
+    p_target_l_ = future.get()->p_result_l;
+    q_target_r_ = future.get()->q_result_r;
+    q_target_l_ = future.get()->q_result_l;
     // DEBUG=====*/
   }
 
   void WalkingPatternGenerator::step_WPG_pub() {
 
     RCLCPP_INFO(this->get_logger(), "step...");
-/*
+
     auto toKine_FK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
     auto toKine_IK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
 
@@ -59,17 +64,21 @@ namespace walking_pattern_generator
     toKine_IK_req->p_target_l = {0, 0, 0};  // [m]
     // DEBUG=====
 
-    auto toKine_IK_res = toKine_IK_clnt->async_send_request(
+    auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
       toKine_IK_req, 
       std::bind(&WalkingPatternGenerator::callback_res, this, _1)
     );
-*/
+
     auto pub_msg = std::make_shared<msgs_package::msg::ToWalkingStabilizationControllerMessage>();
 
-    pub_msg->p_target_r = {1, 1, 1};
-    pub_msg->p_target_l = {2, 2, 2};
-    pub_msg->q_target_r = {3, 3, 3, 3, 3, 3};
-    pub_msg->q_target_l = {4, 4, 4, 4, 4, 4};
+    // pub_msg->p_target_r = {1, 1, 1};
+    // pub_msg->p_target_l = {2, 2, 2};
+    pub_msg->p_target_r = p_target_r_;
+    pub_msg->p_target_l = p_target_l_;
+    // pub_msg->q_target_r = {3, 3, 3, 3, 3, 3};
+    // pub_msg->q_target_l = {4, 4, 4, 4, 4, 4};
+    pub_msg->q_target_r = q_target_r_;
+    pub_msg->q_target_l = q_target_l_;
     pub_msg->dq_target_r = {5, 5, 5, 5, 5, 5};
     pub_msg->dq_target_l = {6, 6, 6, 6, 6, 6};
 
@@ -88,22 +97,22 @@ namespace walking_pattern_generator
 
     toWSC_pub_ = this->create_publisher<msgs_package::msg::ToWalkingStabilizationControllerMessage>("WalkingPattern", rclcpp::QoS(10));
     
-/*
-    while(!toKine_FK_clnt->wait_for_service(1s)) {
+
+    while(!toKine_FK_clnt_->wait_for_service(1s)) {
       if(!rclcpp::ok()) {
         RCLCPP_ERROR(this->get_logger(), "ERROR!!: FK service is dead.");
         return;
       }
       RCLCPP_INFO(this->get_logger(), "Waiting for FK service...");
     }
-    while(!toKine_IK_clnt->wait_for_service(1s)) {
+    while(!toKine_IK_clnt_->wait_for_service(1s)) {
       if(!rclcpp::ok()) {
         RCLCPP_ERROR(this->get_logger(), "ERROR!!: IK service is dead.");
         return;
       }
       RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
     }
-*/
+
 
     step_pub_ = this->create_wall_timer(
       1000ms,

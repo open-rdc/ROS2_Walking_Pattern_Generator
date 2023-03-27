@@ -13,6 +13,11 @@ namespace walking_pattern_generator
       rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_FK_clnt_;
       rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_IK_clnt_;
 
+      std::array<double, 3> p_target_r_;
+      std::array<double, 3> p_target_l_;
+      std::array<double, 6> q_target_r_;
+      std::array<double, 6> q_target_l_;
+
       rclcpp::TimerBase::SharedPtr step_pub_;
 
       void step_WPG_pub(void);
