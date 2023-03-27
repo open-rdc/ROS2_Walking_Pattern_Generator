@@ -31,15 +31,14 @@ namespace webots_robot_handler
 
     toWRH_clnt_ = node_->create_client<msgs_package::srv::ToWebotsRobotHandlerMessage>("FB_StabilizationController");
 
-    // while(!toWRH_clnt_->wait_for_service(1s)) {
-    //   if(!rclcpp::ok()) {
-    //     RCLCPP_ERROR(node_->get_logger(), "ERROR!!: FB_StabilizationController service is dead.");
-    //     return;
-    //   }
-    //   RCLCPP_INFO(node_->get_logger(), "Waiting for FB_StabilizationController service...");
-    // }
-
-    auto toWRH_req = std::make_shared<msgs_package::srv::ToWebotsRobotHandlerMessage::Request>();
+    // check service server
+    while(!toWRH_clnt_->wait_for_service(1s)) {
+      if(!rclcpp::ok()) {
+        RCLCPP_ERROR(node_->get_logger(), "ERROR!!: FB_StabilizationController service is dead.");
+        return;
+      }
+      RCLCPP_INFO(node_->get_logger(), "Waiting for FB_StabilizationController service...");
+    }
 
     std::array<const std::string, 20> motors_name = {("ShoulderR"), ("ShoulderL"), ("ArmUpperR"), ("ArmUpperL"), ("ArmLowerR"), ("ArmLowerL"), ("PelvYR"), ("PelvYL"), ("PelvR"), ("PelvL"), ("LegUpperR"), ("LegUpperL"), ("LegLowerR"), ("LegLowerL"), ("AnkleR"), ("AnkleL"), ("FootR"), ("FootL"), ("Neck"), ("Head")};
 
@@ -72,17 +71,51 @@ namespace webots_robot_handler
     rclcpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedFuture future
   ) {
     // callback function
+
+    std::cout << "RESPONSE"
+              << "\n" << "__Q_fix_R: ";
+    std::copy(std::begin(future.get()->q_fix_r),
+              std::end(future.get()->q_fix_r),
+              std::ostream_iterator<double>(std::cout, " "));
+    std::cout << "\n" << "__Q_fix_L: ";
+    std::copy(std::begin(future.get()->q_fix_l),
+              std::end(future.get()->q_fix_l),
+              std::ostream_iterator<double>(std::cout, " "));
+    std::cout << "\n" << "__dQ_fix_R: ";
+    std::copy(std::begin(future.get()->dq_fix_r),
+              std::end(future.get()->dq_fix_r),
+              std::ostream_iterator<double>(std::cout, " "));
+    std::cout << "\n" << "__dQ_fix_L: ";
+    std::copy(std::begin(future.get()->dq_fix_l),
+              std::end(future.get()->dq_fix_l),
+              std::ostream_iterator<double>(std::cout, " "));
+    std::cout << "\n" << std::endl;
   }
 
 
   void WebotsRobotHandler::step() {
     RCLCPP_INFO(node_->get_logger(), "step...");
 
+    // get sensor data
     for(int i = 0; i < 20; i++) {
       getJointAng_[i] = wb_position_sensor_get_value(positionSensor_[i]);
     }
     accelerometerValue_ = wb_accelerometer_get_values(accelerometer_);
     gyroValue_ = wb_gyro_get_values(gyro_);
+  
+    auto toWRH_req = std::make_shared<msgs_package::srv::ToWebotsRobotHandlerMessage::Request>();
+
+    // set request (WalkignStabilizationController)
+    toWRH_req->accelerometer_now = {accelerometerValue_[0], accelerometerValue_[1], accelerometerValue_[2]};
+    toWRH_req->gyro_now = {gyroValue_[0], gyroValue_[1], gyroValue_[2]};
+    toWRH_req->q_now_r = {getJointAng_[6], getJointAng_[8], getJointAng_[10], getJointAng_[12], getJointAng_[14], getJointAng_[16]};
+    toWRH_req->q_now_l = {getJointAng_[7], getJointAng_[9], getJointAng_[11], getJointAng_[13], getJointAng_[15], getJointAng_[17]};
+
+    // request service (WalkingStabilizationController)
+    toWRH_clnt_->async_send_request(
+      toWRH_req, 
+      std::bind(&WebotsRobotHandler::callback_res, this, _1)
+    );
   }
 }
 
