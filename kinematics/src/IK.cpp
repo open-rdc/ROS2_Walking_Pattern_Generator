@@ -148,5 +148,7 @@ namespace kinematics
       "IK",
       std::bind(&IKSrv::IK_SrvServer, this, _1, _2)
     );
+
+    RCLCPP_INFO(this->get_logger(), "Waiting FK Client...");
   }
 }
