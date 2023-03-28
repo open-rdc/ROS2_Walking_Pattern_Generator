@@ -6,14 +6,19 @@ Walking Pattern Generator using ROS2 for Humanoid Robots<br>
 
 ## Configuration Plan (Draft)
 * ROS2_Node<br>
-  * Walking-Pattern-Generator<br>
-  * Walking-Stabilization-Controller<br>
-  * CppPlugin<br>
-  * FKIK<br>
+  * WalkingPatternGenerator<br>
+  * WalkingStabilizationController<br>
+  * WebotsRobotHandler (= webots_ros2 C++ plugin)<br>
+  * FK<br>
+  * IK<br>
 <br>
 
 ![image](https://user-images.githubusercontent.com/91410662/218409060-1515cfde-39ba-43af-a07a-62a8140f8847.png)
 <div align="center">Configulation Plan</div>
+<br>
+
+![image](https://user-images.githubusercontent.com/91410662/228191771-cca5eb6a-7219-4a2e-819b-28e3249042ab.png)
+<div align="center">rqt_graph</div>
 <br>
 <br>
 
@@ -36,7 +41,7 @@ Walking Pattern Generator using ROS2 for Humanoid Robots<br>
 ・[cyberbotics, webots_ros2, GitHub](https://github.com/cyberbotics/webots_ros2)<br>
 ・[cyberbotics, webots_ros2 Wiki, GitHub](https://github.com/cyberbotics/webots_ros2/wiki)<br>
 ・[@Nek, ROS2導入＆レクチャー, Qiita](https://qiita.com/NeK/items/7ac0f4ec10d51dbca084)<br>
-　↑ 特にROS2のコードの記述の参考にさせていただいたサイト様
+　↑ 特にROS2のコードの記述の参考にさせていただいているサイト様
 <br>
 ・[オーム社, 梶田秀司, 『ヒューマノイドロボット（改訂２版）』](https://www.ohmsha.co.jp/book/9784274226021/)<br>
-　↑ 特に理論の参考にさせていただいた参考書
+　↑ 特に理論の参考にさせていただいている参考書
