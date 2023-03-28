@@ -46,23 +46,14 @@ namespace walking_stabilization_controller
 
     RCLCPP_INFO(this->get_logger(), "Start callback_res");
 
-    // FK
-    if(future.get()->q_result_r[0] == 999) {  // check FK
-      P_target_legR_ = {future.get()->p_result_r[0], future.get()->p_result_r[1], future.get()->p_result_r[2]};
-      P_target_legL_ = {future.get()->p_result_l[0], future.get()->p_result_l[1], future.get()->p_result_l[2]};
+    // FK, IKのresultをメンバ変数に記録。FK,IKそれぞれが求めない値（IK->p, FK->q）は、requestで与えた値と同値を返す。
+    P_target_legR_ = {future.get()->p_result_r[0], future.get()->p_result_r[1], future.get()->p_result_r[2]};
+    P_target_legL_ = {future.get()->p_result_l[0], future.get()->p_result_l[1], future.get()->p_result_l[2]};
+    Q_target_legR_ = {future.get()->q_result_r[0], future.get()->q_result_r[1], future.get()->q_result_r[2], future.get()->q_result_r[3], future.get()->q_result_r[4], future.get()->q_result_r[5]};
+    Q_target_legL_ = {future.get()->q_result_l[0], future.get()->q_result_l[1], future.get()->q_result_l[2], future.get()->q_result_l[3], future.get()->q_result_l[4], future.get()->q_result_l[5]};
 
-      RCLCPP_INFO(this->get_logger(), "Finish callback_res");
-      return;
-    }
-
-    // IK
-    if(future.get()->p_result_r[0] == 999) {  // check IK
-      Q_target_legR_ = {future.get()->q_result_r[0], future.get()->q_result_r[1], future.get()->q_result_r[2]};
-      Q_target_legL_ = {future.get()->q_result_l[0], future.get()->q_result_l[1], future.get()->q_result_l[2]};
-
-      RCLCPP_INFO(this->get_logger(), "Finish callback_res");
-      return;
-    }
+    RCLCPP_INFO(this->get_logger(), "Finish callback_res");
+    return;
   }
 
   void WalkingStabilizationController::WSC_SrvServer(
@@ -79,6 +70,21 @@ namespace walking_stabilization_controller
     // response->dq_fix_l = {9, 9, 9, 9, 9, 9};
 // DEBUG
 
+    if(P_target_legR_[0] == 999) {
+      RCLCPP_WARN(this->get_logger(), "WSC couldn't get subscription from WPG. All value are numeric 999.");
+
+      response->q_fix_r = Q_target_legR_;
+      response->q_fix_l = Q_target_legL_;
+      response->dq_fix_r = dQ_target_legR_;
+      response->dq_fix_l = dQ_target_legL_;
+      // response->q_fix_r = Q_fix_legR_;
+      // response->q_fix_l = Q_fix_legL_;
+      // response->dq_fix_r = dQ_fix_legR_;
+      // response->dq_fix_l = dQ_fix_legL_;
+
+      RCLCPP_INFO(this->get_logger(), "Finish WSC_SrvServer");
+      return;
+    }
 
     auto toKine_FK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage_Request>();
     auto toKine_IK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage_Request>();
@@ -95,10 +101,10 @@ namespace walking_stabilization_controller
       toKine_FK_req, 
       std::bind(&WalkingStabilizationController::callback_res, this, _1)
     );
-    auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
-      toKine_IK_req,
-      std::bind(&WalkingStabilizationController::callback_res, this, _1)
-    );
+    // auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
+    //   toKine_IK_req,
+    //   std::bind(&WalkingStabilizationController::callback_res, this, _1)
+    // );
 
     response->q_fix_r = Q_target_legR_;
     response->q_fix_l = Q_target_legL_;
@@ -149,6 +155,14 @@ namespace walking_stabilization_controller
       "FB_StabilizationController",
       std::bind(&WalkingStabilizationController::WSC_SrvServer, this, _1, _2)
     );
+
+    // init
+    P_target_legR_ = {999, 999, 999};
+    P_target_legL_ = {999, 999, 999};
+    Q_target_legR_ = {999, 999, 999, 999, 999, 999};
+    Q_target_legL_ = {999, 999, 999, 999, 999, 999};
+    dQ_target_legR_ = {999, 999, 999, 999, 999, 999};
+    dQ_target_legL_ = {999, 999, 999, 999, 999, 999};;
 
     RCLCPP_INFO(this->get_logger(), "Waiting request & publish ...");
   }

@@ -34,6 +34,7 @@ namespace walking_pattern_generator
               std::ostream_iterator<double>(std::cout, " "));
     std::cout << "\n" << std::endl;
 
+    // resultをメンバ変数に記録。FK,IKそれぞれが求めない値（IK->p, FK->q）は、requestで与えた値と同値を返す。
     p_target_r_ = future.get()->p_result_r;
     p_target_l_ = future.get()->p_result_l;
     q_target_r_ = future.get()->q_result_r;
@@ -49,9 +50,9 @@ namespace walking_pattern_generator
     auto toKine_IK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
 
     // DEBUG=====
-    // IK_request
-    toKine_IK_req->q_target_r = {0, 0, 0, 0, 0, 0};  // [rad]
-    toKine_IK_req->q_target_l = {0, 0, 0, 0, 0, 0};  // [rad]
+    // FK_request
+    toKine_FK_req->q_target_r = {0, 0, 0, 0, 0, 0};  // [rad]
+    toKine_FK_req->q_target_l = {0, 0, 0, 0, 0, 0};  // [rad]
 
     // IK_request
     toKine_IK_req->r_target_r = {1, 0, 0,
@@ -64,8 +65,8 @@ namespace walking_pattern_generator
     toKine_IK_req->p_target_l = {0, 0, 0};  // [m]
     // DEBUG=====
 
-    auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
-      toKine_IK_req, 
+    auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
+      toKine_FK_req, 
       std::bind(&WalkingPatternGenerator::callback_res, this, _1)
     );
 

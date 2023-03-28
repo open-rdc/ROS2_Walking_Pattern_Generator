@@ -84,8 +84,8 @@ namespace kinematics
     std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Response> response
   ) {
     // DEBUG=====/*
-    Q_legR = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};  // requestから受け取りたい
-    Q_legL = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    // Q_legR = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};  // requestから受け取りたい
+    // Q_legL = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     // DEBUG=====*/
 
     Q_legR = request->q_target_r;
@@ -102,8 +102,8 @@ namespace kinematics
     response->p_result_l = {FK_resultL[0], FK_resultL[1], FK_resultL[2]};
 
     // FK or IK check flag
-    response->q_result_r = {999, 999, 999, 999, 999, 999};
-    response->q_result_l = {999, 999, 999, 999 ,999 ,999};
+    response->q_result_r = request->q_target_r;
+    response->q_result_l = request->q_target_l;
 
     // RCLCPP_INFO(this->get_logger(), "P Result: R -> {}, L -> {}", response->p_result_r, response->p_result_l);
   }
