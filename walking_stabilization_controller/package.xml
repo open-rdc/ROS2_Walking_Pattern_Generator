@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>walking_pattern_generator</name>
+  <name>walking_stabilization_controller</name>
   <version>0.0.0</version>
-  <description>Humanoid robot's walking_pattern_generator definition</description>
-  <maintainer email="yuu5364yuu@gmail.com">Yusuke Yamasaki</maintainer>
-  <license>Apache License 2.0</license>
+  <description>TODO: Package description</description>
+  <maintainer email="yuu5364yuu@gmail.com">ubuntu20-4-ros2</maintainer>
+  <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

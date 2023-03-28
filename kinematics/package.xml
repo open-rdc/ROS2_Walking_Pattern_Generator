@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>walking_pattern_generator</name>
+  <name>kinematics</name>
   <version>0.0.0</version>
-  <description>Humanoid robot's walking_pattern_generator definition</description>
+  <description>Kinematics definition</description>
   <maintainer email="yuu5364yuu@gmail.com">Yusuke Yamasaki</maintainer>
   <license>Apache License 2.0</license>
 

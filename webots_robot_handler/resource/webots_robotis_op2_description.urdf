@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<robot name="ROBOTIS OP2">
+    <webots>
+        <plugin type="webots_robot_handler::WebotsRobotHandler" />
+    </webots>
+</robot>

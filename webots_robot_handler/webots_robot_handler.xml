@@ -1,0 +1,5 @@
+<library path="webots_robot_handler">
+  <class type="webots_robot_handler::WebotsRobotHandler" base_class_type="webots_ros2_driver::PluginInterface">
+    <description> Controller for robot in Webots</description>
+  </class>
+</library>
