@@ -9,6 +9,8 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <exec_depend>ros2launch</exec_depend>
+
   <depend>rclcpp</depend>
   <depend>msgs_package</depend>
   <depend>webots_ros2_driver</depend>
