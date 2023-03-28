@@ -1,6 +1,0 @@
-"static array" = float64[6] = "std::array<T, N>" (T: 有効な型, N: 要素数), R_target -> std::array<double, 6> (Eigen::Matrix3dの要素をこの型に移し替える必要がある)
-
-R_targetとP_targetは、IKで必須
-関節角度[rad]は、FKで必須
-RとPは、Parameterから読み込みたい。
-で、四肢すべてをKinematicsの方で保持しておきたい。四肢のRとPはFK,IK以外の一箇所でParameterServerから読み込んで、それをIncludeする形のほうが良いのではないか？それかSetup関数でも作っておいて、最初だけ（ライフサイクルなりフラグなりで判断？）それを読み込んで各nodeに定義しておくとか？
