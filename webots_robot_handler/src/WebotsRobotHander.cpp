@@ -93,10 +93,10 @@ namespace webots_robot_handler
     // std::cout << "\n" << std::endl;
 
     for(int i = 0; i < 6; i++) {
-      wb_motor_set_position(motorsTag_[jointNum_legR_[i]], future.get()->q_fix_r[jointNum_legR_[i]]);
-      wb_motor_set_velocity(motorsTag_[jointNum_legR_[i]], future.get()->dq_fix_r[jointNum_legR_[i]]);
-      wb_motor_set_position(motorsTag_[jointNum_legL_[i]], future.get()->q_fix_l[jointNum_legL_[i]]);
-      wb_motor_set_velocity(motorsTag_[jointNum_legL_[i]], future.get()->dq_fix_l[jointNum_legL_[i]]);
+      wb_motor_set_position(motorsTag_[jointNum_legR_[i]], future.get()->q_fix_r[i]);
+      wb_motor_set_velocity(motorsTag_[jointNum_legR_[i]], future.get()->dq_fix_r[i]);
+      wb_motor_set_position(motorsTag_[jointNum_legL_[i]], future.get()->q_fix_l[i]);
+      wb_motor_set_velocity(motorsTag_[jointNum_legL_[i]], future.get()->dq_fix_l[i]);
     }
   }
 
