@@ -51,8 +51,8 @@ namespace walking_pattern_generator
 
     // DEBUG=====
     // FK_request
-    toKine_FK_req->q_target_r = {0, 0, 0, 0, 0, 0};  // [rad]
-    toKine_FK_req->q_target_l = {0, 0, 0, 0, 0, 0};  // [rad]
+    toKine_FK_req->q_target_r = {0, 0, 0.785, 1.570, 0.785, 0};  // [rad]
+    toKine_FK_req->q_target_l = {0, 0, 0.785, 1.570, 0.785, 0};  // [rad]
 
     // IK_request
     toKine_IK_req->r_target_r = {1, 0, 0,
@@ -80,8 +80,8 @@ namespace walking_pattern_generator
     // pub_msg->q_target_l = {4, 4, 4, 4, 4, 4};
     pub_msg->q_target_r = q_target_r_;
     pub_msg->q_target_l = q_target_l_;
-    pub_msg->dq_target_r = {5, 5, 5, 5, 5, 5};
-    pub_msg->dq_target_l = {6, 6, 6, 6, 6, 6};
+    pub_msg->dq_target_r = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};
+    pub_msg->dq_target_l = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};
 
     toWSC_pub_->publish(*pub_msg);
     RCLCPP_INFO(this->get_logger(), "Publish...");

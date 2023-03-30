@@ -27,10 +27,10 @@ namespace webots_robot_handler
       rclcpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedPtr toWRH_clnt_;
       
       // WbDeviceTagで宣言して、getDeviceするのはcppでって感じ？
-      WbDeviceTag motor_[20];
-      WbDeviceTag positionSensor_[20];
-      WbDeviceTag gyro_;
-      WbDeviceTag accelerometer_;
+      WbDeviceTag motorsTag_[20];
+      WbDeviceTag positionSensorsTag_[20];
+      WbDeviceTag gyroTag_;
+      WbDeviceTag accelerometerTag_;
 
       double setJointAng_[20];  // いる？
       double setJointVel_[20];
@@ -38,6 +38,12 @@ namespace webots_robot_handler
       const double *accelerometerValue_;
       const double *gyroValue_;
 
+      // std::array<std::string, 20> motors_name;
+      std::array<int, 6> jointNum_legR_;
+      std::array<int, 6> jointNum_legL_;
+
+      // DEBUG
+      int count = 0;
   };
 }
 

@@ -40,28 +40,29 @@ namespace webots_robot_handler
       RCLCPP_INFO(node_->get_logger(), "Waiting for FB_StabilizationController service...");
     }
 
-    std::array<const std::string, 20> motors_name = {("ShoulderR"), ("ShoulderL"), ("ArmUpperR"), ("ArmUpperL"), ("ArmLowerR"), ("ArmLowerL"), ("PelvYR"), ("PelvYL"), ("PelvR"), ("PelvL"), ("LegUpperR"), ("LegUpperL"), ("LegLowerR"), ("LegLowerL"), ("AnkleR"), ("AnkleL"), ("FootR"), ("FootL"), ("Neck"), ("Head")};
+    std::array<std::string, 20> motors_name = {("ShoulderR"), ("ShoulderL"), ("ArmUpperR"), ("ArmUpperL"), ("ArmLowerR"), ("ArmLowerL"), ("PelvYR"), ("PelvYL"), ("PelvR"), ("PelvL"), ("LegUpperR"), ("LegUpperL"), ("LegLowerR"), ("LegLowerL"), ("AnkleR"), ("AnkleL"), ("FootR"), ("FootL"), ("Neck"), ("Head")};
 
     for(int i = 0; i < 20; i++) {  // get motors & position_sensors
-      motor_[i] = wb_robot_get_device(motors_name[i].c_str());
-      positionSensor_[i] = wb_robot_get_device((motors_name[i]+"S").c_str());
-      wb_position_sensor_enable(positionSensor_[i], 100);
+      motorsTag_[i] = wb_robot_get_device(motors_name[i].c_str());
+      positionSensorsTag_[i] = wb_robot_get_device((motors_name[i]+"S").c_str());
+      wb_position_sensor_enable(positionSensorsTag_[i], 100);
     }
-    accelerometer_ = wb_robot_get_device("Accelerometer");
-    wb_accelerometer_enable(accelerometer_, 100);  // enable & sampling_period: 100[ms]
-    gyro_ = wb_robot_get_device("Gyro");
-    wb_gyro_enable(gyro_, 100);
+    accelerometerTag_ = wb_robot_get_device("Accelerometer");
+    wb_accelerometer_enable(accelerometerTag_, 100);  // enable & sampling_period: 100[ms]
+    gyroTag_ = wb_robot_get_device("Gyro");
+    wb_gyro_enable(gyroTag_, 100);
 
     RCLCPP_INFO(node_->get_logger(), "Set init joints_angle.");
     std::array<const double, 20> initJointAng = {0, 0, 0.79, -0.79, -1.57, 1.57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.26};  // init joints ang [rad] 
     std::array<const double, 20> initJointVel = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.5, 0.5};  // init joints vel [rad/s]
     for(int i = 0; i < 20; i++) {  // set init position & value
-      setJointAng_[i] = initJointAng[i];  // いる？
-      setJointVel_[i] = initJointVel[i];
       getJointAng_[i] = 0;
-      wb_motor_set_position(motor_[i], initJointAng[i]);
-      wb_motor_set_velocity(motor_[i], initJointVel[i]);
+      wb_motor_set_position(motorsTag_[i], initJointAng[i]);
+      wb_motor_set_velocity(motorsTag_[i], initJointVel[i]);
     }
+
+    jointNum_legR_ = {6, 8, 10, 12, 14, 16};
+    jointNum_legL_ = {7, 9, 11, 13, 15, 17};
 
     RCLCPP_INFO(node_->get_logger(), "Finish init, Start step.");
   }
@@ -72,36 +73,48 @@ namespace webots_robot_handler
   ) {
     // callback function
 
-    std::cout << "RESPONSE"
-              << "\n" << "__Q_fix_R: ";
-    std::copy(std::begin(future.get()->q_fix_r),
-              std::end(future.get()->q_fix_r),
-              std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "\n" << "__Q_fix_L: ";
-    std::copy(std::begin(future.get()->q_fix_l),
-              std::end(future.get()->q_fix_l),
-              std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "\n" << "__dQ_fix_R: ";
-    std::copy(std::begin(future.get()->dq_fix_r),
-              std::end(future.get()->dq_fix_r),
-              std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "\n" << "__dQ_fix_L: ";
-    std::copy(std::begin(future.get()->dq_fix_l),
-              std::end(future.get()->dq_fix_l),
-              std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "\n" << std::endl;
+    // std::cout << "RESPONSE"
+    //           << "\n" << "__Q_fix_R: ";
+    // std::copy(std::begin(future.get()->q_fix_r),
+    //           std::end(future.get()->q_fix_r),
+    //           std::ostream_iterator<double>(std::cout, " "));
+    // std::cout << "\n" << "__Q_fix_L: ";
+    // std::copy(std::begin(future.get()->q_fix_l),
+    //           std::end(future.get()->q_fix_l),
+    //           std::ostream_iterator<double>(std::cout, " "));
+    // std::cout << "\n" << "__dQ_fix_R: ";
+    // std::copy(std::begin(future.get()->dq_fix_r),
+    //           std::end(future.get()->dq_fix_r),
+    //           std::ostream_iterator<double>(std::cout, " "));
+    // std::cout << "\n" << "__dQ_fix_L: ";
+    // std::copy(std::begin(future.get()->dq_fix_l),
+    //           std::end(future.get()->dq_fix_l),
+    //           std::ostream_iterator<double>(std::cout, " "));
+    // std::cout << "\n" << std::endl;
+
+    for(int i = 0; i < 6; i++) {
+      wb_motor_set_position(motorsTag_[jointNum_legR_[i]], future.get()->q_fix_r[jointNum_legR_[i]]);
+      wb_motor_set_velocity(motorsTag_[jointNum_legR_[i]], future.get()->dq_fix_r[jointNum_legR_[i]]);
+      wb_motor_set_position(motorsTag_[jointNum_legL_[i]], future.get()->q_fix_l[jointNum_legL_[i]]);
+      wb_motor_set_velocity(motorsTag_[jointNum_legL_[i]], future.get()->dq_fix_l[jointNum_legL_[i]]);
+    }
   }
 
 
   void WebotsRobotHandler::step() {
     RCLCPP_INFO(node_->get_logger(), "step...");
+    
+    // DEBUG
+    if(count < 300) { std::cout << count << std::endl; count++; }
+    else if(count >= 300) {
+
 
     // get sensor data
     for(int i = 0; i < 20; i++) {
-      getJointAng_[i] = wb_position_sensor_get_value(positionSensor_[i]);
+      getJointAng_[i] = wb_position_sensor_get_value(positionSensorsTag_[i]);
     }
-    accelerometerValue_ = wb_accelerometer_get_values(accelerometer_);
-    gyroValue_ = wb_gyro_get_values(gyro_);
+    accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);
+    gyroValue_ = wb_gyro_get_values(gyroTag_);
   
     auto toWRH_req = std::make_shared<msgs_package::srv::ToWebotsRobotHandlerMessage::Request>();
 
@@ -116,6 +129,10 @@ namespace webots_robot_handler
       toWRH_req, 
       std::bind(&WebotsRobotHandler::callback_res, this, _1)
     );
+
+  // DEBUG
+  }
+
   }
 }
 
