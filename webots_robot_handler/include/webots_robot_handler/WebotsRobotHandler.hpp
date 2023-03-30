@@ -41,6 +41,8 @@ namespace webots_robot_handler
       // std::array<std::string, 20> motors_name;
       std::array<int, 6> jointNum_legR_;
       std::array<int, 6> jointNum_legL_;
+      std::array<int, 6> jointAng_posi_or_nega_legR_;
+      std::array<int, 6> jointAng_posi_or_nega_legL_;
 
       // DEBUG
       int count = 0;

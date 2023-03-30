@@ -63,6 +63,8 @@ namespace webots_robot_handler
 
     jointNum_legR_ = {6, 8, 10, 12, 14, 16};
     jointNum_legL_ = {7, 9, 11, 13, 15, 17};
+    jointAng_posi_or_nega_legR_ = {-1, -1, -1, 1, 1, 1};
+    jointAng_posi_or_nega_legL_ = {-1, -1, 1, -1, -1, 1};
 
     RCLCPP_INFO(node_->get_logger(), "Finish init, Start step.");
   }
@@ -93,9 +95,9 @@ namespace webots_robot_handler
     // std::cout << "\n" << std::endl;
 
     for(int i = 0; i < 6; i++) {
-      wb_motor_set_position(motorsTag_[jointNum_legR_[i]], future.get()->q_fix_r[i]);
+      wb_motor_set_position(motorsTag_[jointNum_legR_[i]], future.get()->q_fix_r[i]*jointAng_posi_or_nega_legR_[i]);
       wb_motor_set_velocity(motorsTag_[jointNum_legR_[i]], future.get()->dq_fix_r[i]);
-      wb_motor_set_position(motorsTag_[jointNum_legL_[i]], future.get()->q_fix_l[i]);
+      wb_motor_set_position(motorsTag_[jointNum_legL_[i]], future.get()->q_fix_l[i]*jointAng_posi_or_nega_legL_[i]);
       wb_motor_set_velocity(motorsTag_[jointNum_legL_[i]], future.get()->dq_fix_l[i]);
     }
   }
