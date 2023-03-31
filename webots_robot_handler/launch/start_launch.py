@@ -3,7 +3,7 @@ import pathlib
 import launch
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
-from webots_ros2_driver.webots_launcher import WebotsLauncher, Ros2SupervisorLauncher
+from webots_ros2_driver.webots_launcher import WebotsLauncher
 
 def generate_launch_description():
   package_dir = get_package_share_directory("webots_robot_handler")
@@ -12,8 +12,8 @@ def generate_launch_description():
   # FK (kinematics)
   fk = Node(
     package = "kinematics",
-    namespace = "walking_controller",
-    executable = "fk_srv",
+    namespace = "walking_controller",  # 通信は、同namespace内でしか行えない
+    executable = "fk_srv",  # CMakeLists.txtのtarget_nameに合わせる
     output = "screen",
   )
 

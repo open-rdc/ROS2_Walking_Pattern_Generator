@@ -40,9 +40,9 @@ namespace webots_robot_handler
       RCLCPP_INFO(node_->get_logger(), "Waiting for FB_StabilizationController service...");
     }
 
-    std::array<std::string, 20> motors_name = {("ShoulderR"), ("ShoulderL"), ("ArmUpperR"), ("ArmUpperL"), ("ArmLowerR"), ("ArmLowerL"), ("PelvYR"), ("PelvYL"), ("PelvR"), ("PelvL"), ("LegUpperR"), ("LegUpperL"), ("LegLowerR"), ("LegLowerL"), ("AnkleR"), ("AnkleL"), ("FootR"), ("FootL"), ("Neck"), ("Head")};
+    std::array<const std::string, 20> motors_name = {("ShoulderR"), ("ShoulderL"), ("ArmUpperR"), ("ArmUpperL"), ("ArmLowerR"), ("ArmLowerL"), ("PelvYR"), ("PelvYL"), ("PelvR"), ("PelvL"), ("LegUpperR"), ("LegUpperL"), ("LegLowerR"), ("LegLowerL"), ("AnkleR"), ("AnkleL"), ("FootR"), ("FootL"), ("Neck"), ("Head")};
 
-    for(int i = 0; i < 20; i++) {  // get motors & position_sensors
+    for(int i = 0; i < 20; i++) {  // get motor tags & position_sensor tags
       motorsTag_[i] = wb_robot_get_device(motors_name[i].c_str());
       positionSensorsTag_[i] = wb_robot_get_device((motors_name[i]+"S").c_str());
       wb_position_sensor_enable(positionSensorsTag_[i], 100);
@@ -61,10 +61,10 @@ namespace webots_robot_handler
       wb_motor_set_velocity(motorsTag_[i], initJointVel[i]);
     }
 
-    jointNum_legR_ = {6, 8, 10, 12, 14, 16};
-    jointNum_legL_ = {7, 9, 11, 13, 15, 17};
-    jointAng_posi_or_nega_legR_ = {-1, -1, -1, 1, 1, 1};
-    jointAng_posi_or_nega_legL_ = {-1, -1, 1, -1, -1, 1};
+    jointNum_legR_ = {6, 8, 10, 12, 14, 16};  // joint numbers (motorsTag[20] & positionSensorsTag[20])(right leg)
+    jointNum_legL_ = {7, 9, 11, 13, 15, 17};  // joint numbers (motorsTag[20] & positionSensorsTag[20])(left leg)
+    jointAng_posi_or_nega_legR_ = {-1, -1, -1, 1, 1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
+    jointAng_posi_or_nega_legL_ = {-1, -1, 1, -1, -1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
 
     RCLCPP_INFO(node_->get_logger(), "Finish init, Start step.");
   }
@@ -94,6 +94,7 @@ namespace webots_robot_handler
     //           std::ostream_iterator<double>(std::cout, " "));
     // std::cout << "\n" << std::endl;
 
+    // set joints angle & velocity
     for(int i = 0; i < 6; i++) {
       wb_motor_set_position(motorsTag_[jointNum_legR_[i]], future.get()->q_fix_r[i]*jointAng_posi_or_nega_legR_[i]);
       wb_motor_set_velocity(motorsTag_[jointNum_legR_[i]], future.get()->dq_fix_r[i]);
@@ -107,6 +108,7 @@ namespace webots_robot_handler
     RCLCPP_INFO(node_->get_logger(), "step...");
     
     // DEBUG
+    // [DEBUG] wait until the inital movement is over.
     if(count < 300) { std::cout << count << std::endl; count++; }
     else if(count >= 300) {
 
@@ -133,7 +135,7 @@ namespace webots_robot_handler
     );
 
   // DEBUG
-  }
+    }
 
   }
 }
