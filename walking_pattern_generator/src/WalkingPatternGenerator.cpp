@@ -15,8 +15,8 @@ namespace walking_pattern_generator
     const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future
   ) {
     // DEBUG=====/*
-    std::cout << "RESPONSE" 
-              << "\n" << "__P_result_R: ";
+    RCLCPP_INFO(this->get_logger(), "RESPONSE: ");
+    std::cout << "__P_result_R: ";
     std::copy(std::begin(future.get()->p_result_r), 
               std::end(future.get()->p_result_r), 
               std::ostream_iterator<double>(std::cout, " "));
@@ -58,26 +58,45 @@ namespace walking_pattern_generator
     toKine_IK_req->r_target_r = {1, 0, 0,
                                 0, 1, 0,
                                 0, 0, 1};
-    toKine_IK_req->p_target_r = {0, 0, 0};  // [m]
+    toKine_IK_req->p_target_r = {-0.005, -0.037, -0.3082};  // [m]
     toKine_IK_req->r_target_l = {1, 0, 0,
                                 0, 1, 0,
                                 0, 0, 1};
-    toKine_IK_req->p_target_l = {0, 0, 0};  // [m]
+    toKine_IK_req->p_target_l = {-0.005, 0.037, -0.3082};  // [m]
     // DEBUG=====
 
+    // FK ERROR_Handling
+    for(int i = 0; i < (int)toKine_FK_req->p_target_r.size(); i++) {
+      if(
+        (std::abs(toKine_FK_req->q_target_r[i]) > 3.14) or
+        (std::abs(toKine_FK_req->q_target_l[i]) > 3.14)
+      ) { 
+        RCLCPP_ERROR(this->get_logger(), "FK_Request: Q_Target: Invalid Value!!");
+        return;
+      }
+    }
+    // IK ERROR_Handling
+    if(
+      (std::abs(toKine_IK_req->p_target_r[2]) > 0.3082)  // コレだと不完全。absがある意味がない。他方向のERROR処理も随時追加
+    ) {
+      RCLCPP_ERROR(this->get_logger(), "IK_Request: P_target: Invalid Value!!");
+    }
+
+    // 非同期の待ち状態。待ちつつも、以降のプログラムを実行。このまま（2023/4/1/17:06）だと、responseを受ける前にpublishしてしまう。= resを受け取るより先に以降のプログラムが実行済みになってしまう。ここは、responseを待つ、同期処理にすべき。responseのほうがpublishよりも、約2.4[ms]遅い。
     auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
       toKine_FK_req, 
       std::bind(&WalkingPatternGenerator::callback_res, this, _1)
     );
+    // auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
+    //   toKine_IK_req, 
+    //   std::bind(&WalkingPatternGenerator::callback_res, this, _1)
+    // );  
 
     auto pub_msg = std::make_shared<msgs_package::msg::ToWalkingStabilizationControllerMessage>();
 
-    // pub_msg->p_target_r = {1, 1, 1};
-    // pub_msg->p_target_l = {2, 2, 2};
+    // set pub_msg
     pub_msg->p_target_r = p_target_r_;
     pub_msg->p_target_l = p_target_l_;
-    // pub_msg->q_target_r = {3, 3, 3, 3, 3, 3};
-    // pub_msg->q_target_l = {4, 4, 4, 4, 4, 4};
     pub_msg->q_target_r = q_target_r_;
     pub_msg->q_target_l = q_target_l_;
     pub_msg->dq_target_r = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};
@@ -114,7 +133,7 @@ namespace walking_pattern_generator
       RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
     }
 
-
+    // Timer処理。指定の周期で指定の関数を実行
     step_pub_ = this->create_wall_timer(
       1000ms,
       std::bind(&WalkingPatternGenerator::step_WPG_pub, this)

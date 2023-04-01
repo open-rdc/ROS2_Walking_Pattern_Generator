@@ -55,28 +55,28 @@ namespace kinematics
     return R;
   }
 
-  //IK (ROBOTIS-OP2's Leg only)
+  //IK (ROBOTIS-OP2's Leg only. analytical method)
   std::array<double, 6> IKSrv::IK(
     std::array<Eigen::Vector3d, 7> P_leg,
     Eigen::Vector3d P_target_leg,
     Eigen::Matrix3d R_target_leg
   ) {
     std::array<double, 6> Q;
-    Vector3d P_target_leg_zhip2end;
-    P_target_leg_zhip2end = R_target_leg.transpose() * (P_leg[0] - P_target_leg);
+    Vector3d P_target_leg_hip2end;
+    P_target_leg_hip2end = R_target_leg.transpose() * (P_leg[0] - P_target_leg);
 
     double a, b, c;
     a = abs(P_leg[3](2));
     b = abs(P_leg[4](2));
-    c = sqrt(pow(P_target_leg_zhip2end(0), 2) + pow(P_target_leg_zhip2end(1), 2) + pow(P_target_leg_zhip2end(2), 2));  // pow(A, B) == A^B =- AのB乗
+    c = sqrt(pow(P_target_leg_hip2end(0), 2) + pow(P_target_leg_hip2end(1), 2) + pow(P_target_leg_hip2end(2), 2));  // pow(A, B) == A^B =- AのB乗
 
     Q[3] = -1 * acos((pow(a, 2) + pow(b, 2) - pow(c, 2)) / (2 * a * b)) + pi;
 
     double d;
     d = asin((a * sin(pi - Q[3])) / c);
 
-    Q[4] = -1 * atan2(P_target_leg_zhip2end(0), sign(P_target_leg_zhip2end(2)) * sqrt(pow(P_target_leg_zhip2end(1), 2) + pow(P_target_leg_zhip2end(2), 2))) - d;
-    Q[5] = atan2(P_target_leg_zhip2end(1), P_target_leg_zhip2end(2));
+    Q[4] = -1 * atan2(P_target_leg_hip2end(0), sign(P_target_leg_hip2end(2)) * sqrt(pow(P_target_leg_hip2end(1), 2) + pow(P_target_leg_hip2end(2), 2))) - d;
+    Q[5] = atan2(P_target_leg_hip2end(1), P_target_leg_hip2end(2));
 
     Matrix3d R_target_leg_begin2yhip;
     R_target_leg_begin2yhip = R_target_leg * Rx(Q[5]).transpose() * Ry(Q[4]).transpose() * Ry(Q[3]).transpose();
