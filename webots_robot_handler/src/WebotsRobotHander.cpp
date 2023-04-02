@@ -63,8 +63,8 @@ namespace webots_robot_handler
 
     jointNum_legR_ = {6, 8, 10, 12, 14, 16};  // joint numbers (motorsTag[20] & positionSensorsTag[20])(right leg)
     jointNum_legL_ = {7, 9, 11, 13, 15, 17};  // joint numbers (motorsTag[20] & positionSensorsTag[20])(left leg)
-    jointAng_posi_or_nega_legR_ = {-1, -1, -1, 1, 1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
-    jointAng_posi_or_nega_legL_ = {-1, -1, 1, -1, -1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
+    jointAng_posi_or_nega_legR_ = {-1, -1, 1, 1, -1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
+    jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
 
     RCLCPP_INFO(node_->get_logger(), "Finish init, Start step.");
   }
@@ -109,8 +109,8 @@ namespace webots_robot_handler
     
     // DEBUG
     // [DEBUG] wait until the inital movement is over.
-    if(count < 300) { std::cout << count << std::endl; count++; }
-    else if(count >= 300) {
+    if(count < 200) { std::cout << count << std::endl; count++; }
+    else if(count >= 200) {
 
 
     // get sensor data

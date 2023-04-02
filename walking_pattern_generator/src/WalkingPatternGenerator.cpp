@@ -151,15 +151,15 @@ namespace walking_pattern_generator
     check_ = false;
     step_counter_ = 0;
     // 逆運動学からJointAngleを導出する。回転行列もWalkingPatternで欲しい？
-    walking_pattern_P_R_[0] = {-0.005, -0.037, -0.2000};  // [m]
+    walking_pattern_P_R_[0] = {-0.005, -0.037, -0.300};  // [m]
     walking_pattern_P_R_[1] = {-0.005, -0.037, -0.3082};
     walking_pattern_P_L_[0] = {-0.005, 0.037, -0.3082};  // [m]
-    walking_pattern_P_L_[1] = {-0.005, 0.037, -0.2000};
+    walking_pattern_P_L_[1] = {-0.005, 0.037, -0.300};
     // jointVelも、逆動力学（？）で導出したい。
-    walking_pattern_jointVel_R_[0] = {1, 1, 1, 1, 1, 1};  // [rad/s]
-    walking_pattern_jointVel_R_[1] = {1, 1, 1, 1, 1, 1};
-    walking_pattern_jointVel_L_[0] = {1, 1, 1, 1, 1, 1};  // [rad/s]
-    walking_pattern_jointVel_L_[1] = {1, 1, 1, 1, 1, 1};
+    walking_pattern_jointVel_R_[0] = {2, 2, 2, 2.5, 0.5, 2};  // [rad/s]
+    walking_pattern_jointVel_R_[1] = {2, 2, 2, 2.5, 0.5, 2};
+    walking_pattern_jointVel_L_[0] = {2, 2, 2, 2.5, 0.5, 2};  // [rad/s]
+    walking_pattern_jointVel_L_[1] = {2, 2, 2, 2.5, 0.5, 2};
     // walking_pattern_jointVel_R_[0] = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};  // [rad/s]
     // walking_pattern_jointVel_R_[1] = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};
     // walking_pattern_jointVel_L_[0] = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};  // [rad/s]
@@ -167,7 +167,7 @@ namespace walking_pattern_generator
     
     // Timer処理。指定の周期で指定の関数を実行
     step_pub_ = this->create_wall_timer(
-      1000ms,
+      600ms,
       std::bind(&WalkingPatternGenerator::step_WPG_pub, this)
     );
   }
