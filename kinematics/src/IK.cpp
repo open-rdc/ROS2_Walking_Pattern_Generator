@@ -62,23 +62,23 @@ namespace kinematics
     Eigen::Matrix3d R_target_leg
   ) {
     std::array<double, 6> Q;
-    Vector3d P_target_leg_hip2end;
-    P_target_leg_hip2end = R_target_leg.transpose() * (P_leg[0] - P_target_leg);
+    Vector3d P_target_leg_zhip2end;  // 股関節(z軸関節)から末端まで
+    P_target_leg_zhip2end = R_target_leg.transpose() * (P_leg[0] - P_target_leg);
 
     double a, b, c;
     a = abs(P_leg[3](2));
     b = abs(P_leg[4](2));
-    c = sqrt(pow(P_target_leg_hip2end(0), 2) + pow(P_target_leg_hip2end(1), 2) + pow(P_target_leg_hip2end(2), 2));  // pow(A, B) == A^B =- AのB乗
+    c = sqrt(pow(P_target_leg_zhip2end(0), 2) + pow(P_target_leg_zhip2end(1), 2) + pow(P_target_leg_zhip2end(2), 2));  // pow(A, B) == A^B =- AのB乗
 
-    Q[3] = -1 * acos((pow(a, 2) + pow(b, 2) - pow(c, 2)) / (2 * a * b)) + pi;
+    Q[3] = -1 * acos((pow(a, 2) + pow(b, 2) - pow(c, 2)) / (2 * a * b)) + pi_;
 
     double d;
-    d = asin((a * sin(pi - Q[3])) / c);
+    d = asin((a * sin(pi_ - Q[3])) / c);
 
-    Q[4] = -1 * atan2(P_target_leg_hip2end(0), sign(P_target_leg_hip2end(2)) * sqrt(pow(P_target_leg_hip2end(1), 2) + pow(P_target_leg_hip2end(2), 2))) - d;
-    Q[5] = atan2(P_target_leg_hip2end(1), P_target_leg_hip2end(2));
+    Q[4] = -1 * atan2(P_target_leg_zhip2end(0), sign(P_target_leg_zhip2end(2)) * sqrt(pow(P_target_leg_zhip2end(1), 2) + pow(P_target_leg_zhip2end(2), 2))) - d;
+    Q[5] = atan2(P_target_leg_zhip2end(1), P_target_leg_zhip2end(2));
 
-    Matrix3d R_target_leg_begin2yhip;
+    Matrix3d R_target_leg_begin2yhip;  // 基準から股関節(y軸関節)まで
     R_target_leg_begin2yhip = R_target_leg * Rx(Q[5]).transpose() * Ry(Q[4]).transpose() * Ry(Q[3]).transpose();
 
     Q[0] = atan2(-R_target_leg_begin2yhip(0, 1), R_target_leg_begin2yhip(1, 1));
@@ -90,7 +90,7 @@ namespace kinematics
 
 // DEBUG===/*
   void IKSrv::DEBUG_ParameterSetting() {
-    P_legL = {
+    P_legL_ = {
         Vector3d(-0.005, 0.037, -0.1222),
         Vector3d(0, 0, 0),
         Vector3d(0, 0, 0),
@@ -99,7 +99,7 @@ namespace kinematics
         Vector3d(0, 0, 0),
         Vector3d(0, 0, 0)
     };
-    P_legR = {
+    P_legR_ = {
         Vector3d(-0.005, -0.037, -0.1222),
         Vector3d(0, 0, 0),
         Vector3d(0, 0, 0),
@@ -116,18 +116,15 @@ namespace kinematics
     const std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Request> request,
     std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Response> response
   ) {
-    P_target_legR = Array2Vector(request->p_target_r);
-    R_target_legR = Array2Matrix(request->r_target_r);
-    P_target_legL = Array2Vector(request->p_target_l);
-    R_target_legL = Array2Matrix(request->r_target_l);
+    // requestを記録（std::arrayからEigenに変換）
+    P_target_legR_ = Array2Vector(request->p_target_r);
+    R_target_legR_ = Array2Matrix(request->r_target_r);
+    P_target_legL_ = Array2Vector(request->p_target_l);
+    R_target_legL_ = Array2Matrix(request->r_target_l);
 
-    IK_resultR = IK(P_legR, P_target_legR, R_target_legR);
-    IK_resultL = IK(P_legL, P_target_legL, R_target_legL);
-
-    response->q_result_r = IK_resultR;
-    response->q_result_l = IK_resultL;
-
-    // FK or IK check flag
+    response->q_result_r = IK(P_legR_, P_target_legR_, R_target_legR_);
+    response->q_result_l = IK(P_legL_, P_target_legL_, R_target_legL_);
+    // IKで求めなかった値は、reqをそのままresに渡す
     response->p_result_r = request->p_target_r;
     response->p_result_l = request->p_target_l;
   }
@@ -144,7 +141,7 @@ namespace kinematics
     DEBUG_ParameterSetting();
 // DEBUG===*/
 
-    toKine_srv_ptr = this->create_service<msgs_package::srv::ToKinematicsMessage>(
+    toKine_srv_ = this->create_service<msgs_package::srv::ToKinematicsMessage>(
       "IK",
       std::bind(&IKSrv::IK_SrvServer, this, _1, _2)
     );

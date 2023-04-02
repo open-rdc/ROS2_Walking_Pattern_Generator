@@ -57,7 +57,7 @@ namespace kinematics
 
 // DEBUG===/*  脚の関節位置の読み込み。基準(0, 0, 0)は心臓の位置あたり
   void FKSrv::DEBUG_ParameterSetting() {
-    P_legL = {  // 左脚
+    P_legL_ = {  // 左脚
         Vector3d(-0.005, 0.037, -0.1222),
         Vector3d(0, 0, 0),
         Vector3d(0, 0, 0),
@@ -66,7 +66,7 @@ namespace kinematics
         Vector3d(0, 0, 0),
         Vector3d(0, 0, 0)
     };
-    P_legR = {  // 右脚
+    P_legR_ = {  // 右脚
         Vector3d(-0.005, -0.037, -0.1222),  // o(基準) -> 1
         Vector3d(0, 0, 0),  // 1 -> 2
         Vector3d(0, 0, 0),  // 2 -> 3
@@ -84,23 +84,23 @@ namespace kinematics
     std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Response> response
   ) {
     // DEBUG=====/*
-    // Q_legR = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};  // requestから受け取りたい
-    // Q_legL = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    // Q_legR_ = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};  // requestから受け取りたい
+    // Q_legL_ = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     // DEBUG=====*/
 
     // get values
-    Q_legR = request->q_target_r;
-    Q_legL = request->q_target_l;
-    R_legR = {Rz(Q_legR[0]), Rx(Q_legR[1]), Ry(Q_legR[2]), Ry(Q_legR[3]), Ry(Q_legR[4]), Rx(Q_legR[5])};
-    R_legL = {Rz(Q_legL[0]), Rx(Q_legL[1]), Ry(Q_legL[2]), Ry(Q_legL[3]), Ry(Q_legL[4]), Rx(Q_legL[5])};
+    Q_legR_ = request->q_target_r;
+    Q_legL_ = request->q_target_l;
+    R_legR_ = {Rz(Q_legR_[0]), Rx(Q_legR_[1]), Ry(Q_legR_[2]), Ry(Q_legR_[3]), Ry(Q_legR_[4]), Rx(Q_legR_[5])};
+    R_legL_ = {Rz(Q_legL_[0]), Rx(Q_legL_[1]), Ry(Q_legL_[2]), Ry(Q_legL_[3]), Ry(Q_legL_[4]), Rx(Q_legL_[5])};
 
     // function FK. get result
-    FK_resultR = FK(R_legR, P_legR);
-    FK_resultL = FK(R_legL, P_legL);
+    FK_resultR_ = FK(R_legR_, P_legR_);
+    FK_resultL_ = FK(R_legL_, P_legL_);
     
     // set response values
-    response->p_result_r = {FK_resultR[0], FK_resultR[1], FK_resultR[2]};
-    response->p_result_l = {FK_resultL[0], FK_resultL[1], FK_resultL[2]};
+    response->p_result_r = {FK_resultR_[0], FK_resultR_[1], FK_resultR_[2]};
+    response->p_result_l = {FK_resultL_[0], FK_resultL_[1], FK_resultL_[2]};
     response->q_result_r = request->q_target_r;  // FKで使わなかった値（変更なしの値）は、reqの値をそのまま返す
     response->q_result_l = request->q_target_l;
 
@@ -119,7 +119,7 @@ namespace kinematics
     DEBUG_ParameterSetting();
 // DEBUG===*/
     
-    toKine_srv_ptr = this->create_service<msgs_package::srv::ToKinematicsMessage>(
+    toKine_srv_ = this->create_service<msgs_package::srv::ToKinematicsMessage>(
       "FK", 
       std::bind(&FKSrv::FK_SrvServer, this, _1, _2)
     );

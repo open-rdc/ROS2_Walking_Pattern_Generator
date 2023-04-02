@@ -13,6 +13,7 @@ namespace walking_pattern_generator
       rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_FK_clnt_;
       rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_IK_clnt_;
 
+      // get FK, IK result. set publish data.
       std::array<double, 3> p_target_r_;
       std::array<double, 3> p_target_l_;
       std::array<double, 6> q_target_r_;
@@ -20,6 +21,7 @@ namespace walking_pattern_generator
 
       rclcpp::TimerBase::SharedPtr step_pub_;
 
+      // timer
       void step_WPG_pub(void);
 
       void callback_res(const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future);

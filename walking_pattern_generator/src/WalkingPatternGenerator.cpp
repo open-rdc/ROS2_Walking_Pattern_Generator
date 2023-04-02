@@ -6,8 +6,8 @@
 
 #include <chrono>
 
-using namespace std::chrono_literals;
-using namespace std::placeholders;
+using namespace std::chrono_literals;  // 周期の単位を書けるようにする（ex. 100ms）
+using namespace std::placeholders;  // bind()の第３引数etcを簡単にする（ex. _1）
 
 namespace walking_pattern_generator
 {

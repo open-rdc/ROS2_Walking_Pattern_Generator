@@ -40,24 +40,24 @@ namespace kinematics
       );
 
  
-      rclcpp::Service<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_srv_ptr;
+      rclcpp::Service<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_srv_;
 
-      const float pi = 3.141593;  // 四捨五入済み
+      const float pi_ = 3.141593;  // 四捨五入済み
 
-      std::array<Eigen::Matrix3d, 6> R_legR;
-      std::array<Eigen::Vector3d, 7> P_legR;
-      std::array<Eigen::Matrix3d, 6> R_legL;
-      std::array<Eigen::Vector3d, 7> P_legL;
-      std::array<double, 6> Q_legR;
-      std::array<double, 6> Q_legL;
+      std::array<Eigen::Matrix3d, 6> R_legR_;
+      std::array<Eigen::Vector3d, 7> P_legR_;
+      std::array<Eigen::Matrix3d, 6> R_legL_;
+      std::array<Eigen::Vector3d, 7> P_legL_;
+      std::array<double, 6> Q_legR_;
+      std::array<double, 6> Q_legL_;
 
-      Eigen::Vector3d P_target_legR;
-      Eigen::Matrix3d R_target_legR;
-      Eigen::Vector3d P_target_legL;
-      Eigen::Matrix3d R_target_legL;
+      Eigen::Vector3d P_target_legR_;
+      Eigen::Matrix3d R_target_legR_;
+      Eigen::Vector3d P_target_legL_;
+      Eigen::Matrix3d R_target_legL_;
 
-      std::array<double, 6> IK_resultR;
-      std::array<double, 6> IK_resultL;
+      // std::array<double, 6> IK_resultR_;  // 未使用
+      // std::array<double, 6> IK_resultL_;
 
 // DEBUG===/*
       void DEBUG_ParameterSetting(void);
