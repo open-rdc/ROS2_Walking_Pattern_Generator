@@ -33,13 +33,16 @@ namespace walking_pattern_generator
               std::end(future.get()->q_result_l), 
               std::ostream_iterator<double>(std::cout, " "));
     std::cout << "\n" << std::endl;
+    // DEBUG=====*/
 
     // resultをメンバ変数に記録。FK,IKそれぞれが求めない値（IK->p, FK->q）は、requestで与えた値と同値を返す。
     p_target_r_ = future.get()->p_result_r;
     p_target_l_ = future.get()->p_result_l;
     q_target_r_ = future.get()->q_result_r;
     q_target_l_ = future.get()->q_result_l;
-    // DEBUG=====*/
+    
+    step_counter_++;
+    check_ = true;
   }
 
   void WalkingPatternGenerator::step_WPG_pub() {
@@ -55,14 +58,22 @@ namespace walking_pattern_generator
     toKine_FK_req->q_target_l = {0, 0, 0.785, 1.570, 0.785, 0};  // [rad]
 
     // IK_request
+    // toKine_IK_req->r_target_r = {1, 0, 0,
+    //                             0, 1, 0,
+    //                             0, 0, 1};
+    // toKine_IK_req->p_target_r = {-0.005, -0.037, -0.3082};  // [m]
+    // toKine_IK_req->r_target_l = {1, 0, 0,
+    //                             0, 1, 0,
+    //                             0, 0, 1};
+    // toKine_IK_req->p_target_l = {-0.005, 0.037, -0.3082};  // [m]
     toKine_IK_req->r_target_r = {1, 0, 0,
                                 0, 1, 0,
                                 0, 0, 1};
-    toKine_IK_req->p_target_r = {-0.005, -0.037, -0.3082};  // [m]
+    toKine_IK_req->p_target_r = walking_pattern_P_R_[step_counter_%2];  // [m]
     toKine_IK_req->r_target_l = {1, 0, 0,
                                 0, 1, 0,
                                 0, 0, 1};
-    toKine_IK_req->p_target_l = {-0.005, 0.037, -0.3082};  // [m]
+    toKine_IK_req->p_target_l = walking_pattern_P_L_[step_counter_%2];  // [m]    
     // DEBUG=====
 
     // FK ERROR_Handling
@@ -82,15 +93,15 @@ namespace walking_pattern_generator
       RCLCPP_ERROR(this->get_logger(), "IK_Request: P_target: Invalid Value!!");
     }
 
-    // 非同期の待ち状態。待ちつつも、以降のプログラムを実行。このまま（2023/4/1/17:06）だと、responseを受ける前にpublishしてしまう。= resを受け取るより先に以降のプログラムが実行済みになってしまう。ここは、responseを待つ、同期処理にすべき。responseのほうがpublishよりも、約2.4[ms]遅い。
-    auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
-      toKine_FK_req, 
+    // 非同期の待ち状態。待ちつつも、以降のプログラムを実行。このまま（2023/4/1/17:06）だと、responseを受ける前にpublishしてしまう。= resを受け取るより先に以降のプログラムが実行済みになってしまう。ここは、responseを待つ、同期処理にすべき、なのだが、spin_until_future_complete()の引数でthis->...の箇所で、std::runtime_errorを吐いてくる。無理。responseのほうがpublishよりも、約2.4[ms]遅い。
+    // auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
+    //   toKine_FK_req, 
+    //   std::bind(&WalkingPatternGenerator::callback_res, this, _1)
+    // );
+    auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
+      toKine_IK_req, 
       std::bind(&WalkingPatternGenerator::callback_res, this, _1)
     );
-    // auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
-    //   toKine_IK_req, 
-    //   std::bind(&WalkingPatternGenerator::callback_res, this, _1)
-    // );  
 
     auto pub_msg = std::make_shared<msgs_package::msg::ToWalkingStabilizationControllerMessage>();
 
@@ -99,11 +110,15 @@ namespace walking_pattern_generator
     pub_msg->p_target_l = p_target_l_;
     pub_msg->q_target_r = q_target_r_;
     pub_msg->q_target_l = q_target_l_;
-    pub_msg->dq_target_r = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};
-    pub_msg->dq_target_l = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};
+    pub_msg->dq_target_r = walking_pattern_jointVel_R_[(step_counter_-1)%2];
+    pub_msg->dq_target_l = walking_pattern_jointVel_L_[(step_counter_-1)%2];
+    // pub_msg->dq_target_r = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};
+    // pub_msg->dq_target_l = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};
 
-    toWSC_pub_->publish(*pub_msg);
-    RCLCPP_INFO(this->get_logger(), "Publish...");
+    if(check_ == true) {
+      toWSC_pub_->publish(*pub_msg);
+      RCLCPP_INFO(this->get_logger(), "Publish...");
+    }
   }
 
   WalkingPatternGenerator::WalkingPatternGenerator(
@@ -111,13 +126,12 @@ namespace walking_pattern_generator
   ) : Node("WalkingPatternGenerator", options) {
 
     RCLCPP_INFO(this->get_logger(), "Start up WalkingPatternGenerator. Hello WalkingPatternGenerator!!");
-    
+
     toKine_FK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>("FK");
     toKine_IK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>("IK");
 
     toWSC_pub_ = this->create_publisher<msgs_package::msg::ToWalkingStabilizationControllerMessage>("WalkingPattern", rclcpp::QoS(10));
     
-
     while(!toKine_FK_clnt_->wait_for_service(1s)) {
       if(!rclcpp::ok()) {
         RCLCPP_ERROR(this->get_logger(), "ERROR!!: FK service is dead.");
@@ -133,6 +147,24 @@ namespace walking_pattern_generator
       RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
     }
 
+    // set inital counter value. set walking_pattern.
+    check_ = false;
+    step_counter_ = 0;
+    // 逆運動学からJointAngleを導出する。回転行列もWalkingPatternで欲しい？
+    walking_pattern_P_R_[0] = {-0.005, -0.037, -0.2000};  // [m]
+    walking_pattern_P_R_[1] = {-0.005, -0.037, -0.3082};
+    walking_pattern_P_L_[0] = {-0.005, 0.037, -0.3082};  // [m]
+    walking_pattern_P_L_[1] = {-0.005, 0.037, -0.2000};
+    // jointVelも、逆動力学（？）で導出したい。
+    walking_pattern_jointVel_R_[0] = {1, 1, 1, 1, 1, 1};  // [rad/s]
+    walking_pattern_jointVel_R_[1] = {1, 1, 1, 1, 1, 1};
+    walking_pattern_jointVel_L_[0] = {1, 1, 1, 1, 1, 1};  // [rad/s]
+    walking_pattern_jointVel_L_[1] = {1, 1, 1, 1, 1, 1};
+    // walking_pattern_jointVel_R_[0] = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};  // [rad/s]
+    // walking_pattern_jointVel_R_[1] = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};
+    // walking_pattern_jointVel_L_[0] = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};  // [rad/s]
+    // walking_pattern_jointVel_L_[1] = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};
+    
     // Timer処理。指定の周期で指定の関数を実行
     step_pub_ = this->create_wall_timer(
       1000ms,

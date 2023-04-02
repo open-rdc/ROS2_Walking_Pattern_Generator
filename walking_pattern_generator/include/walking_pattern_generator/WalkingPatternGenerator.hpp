@@ -19,9 +19,18 @@ namespace walking_pattern_generator
       std::array<double, 6> q_target_r_;
       std::array<double, 6> q_target_l_;
 
+      // timer
       rclcpp::TimerBase::SharedPtr step_pub_;
 
-      // timer
+      bool check_;
+      int step_counter_;
+      // 逆運動学からJointAngleを導出する
+      std::array<std::array<double, 3>, 2> walking_pattern_P_R_;
+      std::array<std::array<double, 3>, 2> walking_pattern_P_L_;
+      // jointVelも、逆動力学（？）で導出したい。
+      std::array<std::array<double, 6>, 2> walking_pattern_jointVel_R_;
+      std::array<std::array<double, 6>, 2> walking_pattern_jointVel_L_;
+
       void step_WPG_pub(void);
 
       void callback_res(const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future);
