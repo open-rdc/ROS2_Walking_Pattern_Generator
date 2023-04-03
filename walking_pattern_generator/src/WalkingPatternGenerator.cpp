@@ -156,10 +156,10 @@ namespace walking_pattern_generator
     walking_pattern_P_L_[0] = {-0.005, 0.037, -0.3082};  // [m]
     walking_pattern_P_L_[1] = {-0.005, 0.037, -0.300};
     // jointVelも、逆動力学（？）で導出したい。
-    walking_pattern_jointVel_R_[0] = {2, 2, 2, 2.5, 0.5, 2};  // [rad/s]
-    walking_pattern_jointVel_R_[1] = {2, 2, 2, 2.5, 0.5, 2};
-    walking_pattern_jointVel_L_[0] = {2, 2, 2, 2.5, 0.5, 2};  // [rad/s]
-    walking_pattern_jointVel_L_[1] = {2, 2, 2, 2.5, 0.5, 2};
+    walking_pattern_jointVel_R_[0] = {2, 2, 1.25, 2.5, 1.25, 2};  // [rad/s]
+    walking_pattern_jointVel_R_[1] = {2, 2, 1.25, 2.5, 1.25, 2};
+    walking_pattern_jointVel_L_[0] = {2, 2, 1.25, 2.5, 1.25, 2};  // [rad/s]
+    walking_pattern_jointVel_L_[1] = {2, 2, 1.25, 2.5, 1.25, 2};
     // walking_pattern_jointVel_R_[0] = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};  // [rad/s]
     // walking_pattern_jointVel_R_[1] = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};
     // walking_pattern_jointVel_L_[0] = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};  // [rad/s]
