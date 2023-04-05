@@ -83,11 +83,6 @@ namespace kinematics
     const std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Request> request,
     std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Response> response
   ) {
-    // DEBUG=====/*
-    // Q_legR_ = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};  // requestから受け取りたい
-    // Q_legL_ = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-    // DEBUG=====*/
-
     // get values
     Q_legR_ = request->q_target_r;
     Q_legL_ = request->q_target_l;
@@ -103,8 +98,6 @@ namespace kinematics
     response->p_result_l = {FK_resultL_[0], FK_resultL_[1], FK_resultL_[2]};
     response->q_result_r = request->q_target_r;  // FKで使わなかった値（変更なしの値）は、reqの値をそのまま返す
     response->q_result_l = request->q_target_l;
-
-    // RCLCPP_INFO(this->get_logger(), "P Result: R -> {}, L -> {}", response->p_result_r, response->p_result_l);
   }
 
   // Node Setting

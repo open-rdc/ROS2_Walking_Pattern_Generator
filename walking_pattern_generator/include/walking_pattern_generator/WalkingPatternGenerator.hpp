@@ -34,5 +34,9 @@ namespace walking_pattern_generator
       void step_WPG_pub(void);
 
       void callback_res(const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future);
+
+// DEBUG===/*
+      void DEBUG_ParameterSetting(void);
+// DEBUG===*/
   };
 }

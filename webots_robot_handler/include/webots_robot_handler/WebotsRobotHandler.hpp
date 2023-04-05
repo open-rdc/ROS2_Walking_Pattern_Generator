@@ -47,6 +47,13 @@ namespace webots_robot_handler
 
       // DEBUG
       int count = 0;
+// DEBUG===/*
+      void DEBUG_ParameterSetting(void);
+
+      std::array<std::string, 20> motors_name_;
+      std::array<double, 20> initJointAng_;
+      std::array<double, 20> initJointVel_;
+// DEBUG===*/
   };
 }
 

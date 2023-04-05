@@ -89,8 +89,12 @@ namespace walking_stabilization_controller
 
     toKine_IK_req->p_target_r = {P_target_legR_[0], P_target_legR_[1], P_target_legR_[2]};
     toKine_IK_req->p_target_l = {P_target_legL_[0], P_target_legL_[1], P_target_legL_[2]};
-    toKine_IK_req->r_target_r = {1, 0, 0, 0, 1, 0, 0, 0, 1};
-    toKine_IK_req->r_target_l = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+    toKine_IK_req->r_target_r = {1, 0, 0,
+                                 0, 1, 0,
+                                 0, 0, 1};
+    toKine_IK_req->r_target_l = {1, 0, 0, 
+                                 0, 1, 0,
+                                 0, 0, 1};
 
     auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
       toKine_FK_req, 

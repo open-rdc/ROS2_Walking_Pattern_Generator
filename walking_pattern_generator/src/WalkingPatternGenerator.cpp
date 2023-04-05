@@ -11,6 +11,19 @@ using namespace std::placeholders;  // bind()の第３引数etcを簡単にす�
 
 namespace walking_pattern_generator
 {
+  void WalkingPatternGenerator::DEBUG_ParameterSetting() {
+    // 逆運動学からJointAngleを導出する。回転行列もWalkingPatternで欲しい？
+    walking_pattern_P_R_[0] = {-0.005, -0.037, -0.300};  // [m]
+    walking_pattern_P_R_[1] = {-0.005, -0.037, -0.3082};
+    walking_pattern_P_L_[0] = {-0.005, 0.037, -0.3082};  // [m]
+    walking_pattern_P_L_[1] = {-0.005, 0.037, -0.300};
+    // jointVelも、逆動力学（？）で導出したい。
+    walking_pattern_jointVel_R_[0] = {2, 2, 1.25, 2.5, 1.25, 2};  // [rad/s]
+    walking_pattern_jointVel_R_[1] = {2, 2, 1.25, 2.5, 1.25, 2};
+    walking_pattern_jointVel_L_[0] = {2, 2, 1.25, 2.5, 1.25, 2};  // [rad/s]
+    walking_pattern_jointVel_L_[1] = {2, 2, 1.25, 2.5, 1.25, 2};
+  }
+
   void WalkingPatternGenerator::callback_res(
     const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future
   ) {
@@ -135,17 +148,10 @@ namespace walking_pattern_generator
 
     // set inital counter value. set walking_pattern.
     publish_ok_check_ = false;
-    step_counter_ = 0;
-    // 逆運動学からJointAngleを導出する。回転行列もWalkingPatternで欲しい？
-    walking_pattern_P_R_[0] = {-0.005, -0.037, -0.300};  // [m]
-    walking_pattern_P_R_[1] = {-0.005, -0.037, -0.3082};
-    walking_pattern_P_L_[0] = {-0.005, 0.037, -0.3082};  // [m]
-    walking_pattern_P_L_[1] = {-0.005, 0.037, -0.300};
-    // jointVelも、逆動力学（？）で導出したい。
-    walking_pattern_jointVel_R_[0] = {2, 2, 1.25, 2.5, 1.25, 2};  // [rad/s]
-    walking_pattern_jointVel_R_[1] = {2, 2, 1.25, 2.5, 1.25, 2};
-    walking_pattern_jointVel_L_[0] = {2, 2, 1.25, 2.5, 1.25, 2};  // [rad/s]
-    walking_pattern_jointVel_L_[1] = {2, 2, 1.25, 2.5, 1.25, 2};
+    step_counter_ = 0;  // %2をしている箇所があるが、これは２つの動作をloopするため
+
+    // DEBUG: parameter setting
+    WalkingPatternGenerator::DEBUG_ParameterSetting();
     
     // Timer処理。指定の周期で指定の関数を実行
     step_pub_ = this->create_wall_timer(

@@ -21,6 +21,17 @@ using namespace std::placeholders;
 
 namespace webots_robot_handler
 {
+  void WebotsRobotHandler::DEBUG_ParameterSetting() {
+    motors_name_ = {("ShoulderR"), ("ShoulderL"), ("ArmUpperR"), ("ArmUpperL"), ("ArmLowerR"), ("ArmLowerL"), ("PelvYR"), ("PelvYL"), ("PelvR"), ("PelvL"), ("LegUpperR"), ("LegUpperL"), ("LegLowerR"), ("LegLowerL"), ("AnkleR"), ("AnkleL"), ("FootR"), ("FootL"), ("Neck"), ("Head")};
+    initJointAng_ = {0, 0, 0.79, -0.79, -1.57, 1.57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.26};  // init joints ang [rad] 
+    initJointVel_ = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.5, 0.5};  // init joints vel [rad/s]
+
+    jointNum_legR_ = {6, 8, 10, 12, 14, 16};  // joint numbers (motorsTag[20] & positionSensorsTag[20])(right leg)
+    jointNum_legL_ = {7, 9, 11, 13, 15, 17};  // joint numbers (motorsTag[20] & positionSensorsTag[20])(left leg)
+    jointAng_posi_or_nega_legR_ = {-1, -1, 1, 1, -1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
+    jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
+  }
+
   void WebotsRobotHandler::init(
     webots_ros2_driver::WebotsNode *node,
     std::unordered_map<std::string, std::string> &parameters
@@ -40,11 +51,12 @@ namespace webots_robot_handler
       RCLCPP_INFO(node_->get_logger(), "Waiting for FB_StabilizationController service...");
     }
 
-    std::array<const std::string, 20> motors_name = {("ShoulderR"), ("ShoulderL"), ("ArmUpperR"), ("ArmUpperL"), ("ArmLowerR"), ("ArmLowerL"), ("PelvYR"), ("PelvYL"), ("PelvR"), ("PelvL"), ("LegUpperR"), ("LegUpperL"), ("LegLowerR"), ("LegLowerL"), ("AnkleR"), ("AnkleL"), ("FootR"), ("FootL"), ("Neck"), ("Head")};
+    // DEBUG parameter setting
+    DEBUG_ParameterSetting();
 
     for(int i = 0; i < 20; i++) {  // get motor tags & position_sensor tags
-      motorsTag_[i] = wb_robot_get_device(motors_name[i].c_str());
-      positionSensorsTag_[i] = wb_robot_get_device((motors_name[i]+"S").c_str());
+      motorsTag_[i] = wb_robot_get_device(motors_name_[i].c_str());
+      positionSensorsTag_[i] = wb_robot_get_device((motors_name_[i]+"S").c_str());
       wb_position_sensor_enable(positionSensorsTag_[i], 100);
     }
     accelerometerTag_ = wb_robot_get_device("Accelerometer");
@@ -53,18 +65,12 @@ namespace webots_robot_handler
     wb_gyro_enable(gyroTag_, 100);
 
     RCLCPP_INFO(node_->get_logger(), "Set init joints_angle.");
-    std::array<const double, 20> initJointAng = {0, 0, 0.79, -0.79, -1.57, 1.57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.26};  // init joints ang [rad] 
-    std::array<const double, 20> initJointVel = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.5, 0.5};  // init joints vel [rad/s]
+
     for(int i = 0; i < 20; i++) {  // set init position & value
       getJointAng_[i] = 0;
-      wb_motor_set_position(motorsTag_[i], initJointAng[i]);
-      wb_motor_set_velocity(motorsTag_[i], initJointVel[i]);
+      wb_motor_set_position(motorsTag_[i], initJointAng_[i]);
+      wb_motor_set_velocity(motorsTag_[i], initJointVel_[i]);
     }
-
-    jointNum_legR_ = {6, 8, 10, 12, 14, 16};  // joint numbers (motorsTag[20] & positionSensorsTag[20])(right leg)
-    jointNum_legL_ = {7, 9, 11, 13, 15, 17};  // joint numbers (motorsTag[20] & positionSensorsTag[20])(left leg)
-    jointAng_posi_or_nega_legR_ = {-1, -1, 1, 1, -1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
-    jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
 
     RCLCPP_INFO(node_->get_logger(), "Finish init, Start step.");
   }
