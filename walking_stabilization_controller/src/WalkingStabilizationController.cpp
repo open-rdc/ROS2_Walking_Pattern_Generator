@@ -52,6 +52,11 @@ namespace walking_stabilization_controller
     Q_target_legR_ = {future.get()->q_result_r[0], future.get()->q_result_r[1], future.get()->q_result_r[2], future.get()->q_result_r[3], future.get()->q_result_r[4], future.get()->q_result_r[5]};
     Q_target_legL_ = {future.get()->q_result_l[0], future.get()->q_result_l[1], future.get()->q_result_l[2], future.get()->q_result_l[3], future.get()->q_result_l[4], future.get()->q_result_l[5]};
 
+    Q_fix_legR_ = Q_target_legR_;
+    Q_fix_legL_ = Q_target_legL_;
+    dQ_fix_legR_ = dQ_target_legR_;
+    dQ_fix_legL_ = dQ_target_legL_;
+
     RCLCPP_INFO(this->get_logger(), "Finish callback_res");
     return;
   }
@@ -63,12 +68,6 @@ namespace walking_stabilization_controller
     // walking_stabilization_controller service_server
 
     RCLCPP_INFO(this->get_logger(), "Start WSC_SrvServer");
-// DEBUG
-    // response->q_fix_r = request->q_now_r;
-    // response->q_fix_l = request->q_now_l;
-    // response->dq_fix_r = {9, 9, 9, 9, 9, 9};
-    // response->dq_fix_l = {9, 9, 9, 9, 9, 9};
-// DEBUG
 
     if(P_target_legR_[0] == 999) {
       RCLCPP_WARN(this->get_logger(), "WSC couldn't get subscription from WPG. All value are numeric 999.");
@@ -77,10 +76,6 @@ namespace walking_stabilization_controller
       response->q_fix_l = Q_target_legL_;
       response->dq_fix_r = dQ_target_legR_;
       response->dq_fix_l = dQ_target_legL_;
-      // response->q_fix_r = Q_fix_legR_;
-      // response->q_fix_l = Q_fix_legL_;
-      // response->dq_fix_r = dQ_fix_legR_;
-      // response->dq_fix_l = dQ_fix_legL_;
 
       RCLCPP_INFO(this->get_logger(), "Finish WSC_SrvServer");
       return;
@@ -106,20 +101,10 @@ namespace walking_stabilization_controller
     //   std::bind(&WalkingStabilizationController::callback_res, this, _1)
     // );
 
-    response->q_fix_r = Q_target_legR_;
-    response->q_fix_l = Q_target_legL_;
-    response->dq_fix_r = dQ_target_legR_;
-    response->dq_fix_l = dQ_target_legL_;
-
-    // response->q_fix_r = Q_result_legR_;
-    // response->q_fix_l = Q_target_legL_;
-    // response->dq_fix_r = dQ_result_legR_;
-    // response->dq_fix_l = dQ_target_legL_;
-
-    // response->q_fix_r = Q_fix_legR_;
-    // response->q_fix_l = Q_fix_legL_;
-    // response->dq_fix_r = dQ_fix_legR_;
-    // response->dq_fix_l = dQ_fix_legL_;
+    response->q_fix_r = Q_fix_legR_;
+    response->q_fix_l = Q_fix_legL_;
+    response->dq_fix_r = dQ_fix_legR_;
+    response->dq_fix_l = dQ_fix_legL_;
 
     RCLCPP_INFO(this->get_logger(), "Finish WSC_SrvServer");
   }

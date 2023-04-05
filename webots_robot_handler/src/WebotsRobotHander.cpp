@@ -73,27 +73,6 @@ namespace webots_robot_handler
   void WebotsRobotHandler::callback_res(
     rclcpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedFuture future
   ) {
-    // callback function
-
-    // std::cout << "RESPONSE"
-    //           << "\n" << "__Q_fix_R: ";
-    // std::copy(std::begin(future.get()->q_fix_r),
-    //           std::end(future.get()->q_fix_r),
-    //           std::ostream_iterator<double>(std::cout, " "));
-    // std::cout << "\n" << "__Q_fix_L: ";
-    // std::copy(std::begin(future.get()->q_fix_l),
-    //           std::end(future.get()->q_fix_l),
-    //           std::ostream_iterator<double>(std::cout, " "));
-    // std::cout << "\n" << "__dQ_fix_R: ";
-    // std::copy(std::begin(future.get()->dq_fix_r),
-    //           std::end(future.get()->dq_fix_r),
-    //           std::ostream_iterator<double>(std::cout, " "));
-    // std::cout << "\n" << "__dQ_fix_L: ";
-    // std::copy(std::begin(future.get()->dq_fix_l),
-    //           std::end(future.get()->dq_fix_l),
-    //           std::ostream_iterator<double>(std::cout, " "));
-    // std::cout << "\n" << std::endl;
-
     // set joints angle & velocity
     for(int i = 0; i < 6; i++) {
       wb_motor_set_position(motorsTag_[jointNum_legR_[i]], future.get()->q_fix_r[i]*jointAng_posi_or_nega_legR_[i]);

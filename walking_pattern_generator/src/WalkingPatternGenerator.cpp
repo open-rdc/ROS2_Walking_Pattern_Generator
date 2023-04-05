@@ -42,7 +42,7 @@ namespace walking_pattern_generator
     q_target_l_ = future.get()->q_result_l;
     
     step_counter_++;
-    check_ = true;
+    publish_ok_check_ = true;
   }
 
   void WalkingPatternGenerator::step_WPG_pub() {
@@ -53,19 +53,6 @@ namespace walking_pattern_generator
     auto toKine_IK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
 
     // DEBUG=====
-    // FK_request
-    toKine_FK_req->q_target_r = {0, 0, 0.785, 1.570, 0.785, 0};  // [rad]
-    toKine_FK_req->q_target_l = {0, 0, 0.785, 1.570, 0.785, 0};  // [rad]
-
-    // IK_request
-    // toKine_IK_req->r_target_r = {1, 0, 0,
-    //                             0, 1, 0,
-    //                             0, 0, 1};
-    // toKine_IK_req->p_target_r = {-0.005, -0.037, -0.3082};  // [m]
-    // toKine_IK_req->r_target_l = {1, 0, 0,
-    //                             0, 1, 0,
-    //                             0, 0, 1};
-    // toKine_IK_req->p_target_l = {-0.005, 0.037, -0.3082};  // [m]
     toKine_IK_req->r_target_r = {1, 0, 0,
                                 0, 1, 0,
                                 0, 0, 1};
@@ -94,6 +81,7 @@ namespace walking_pattern_generator
     }
 
     // 非同期の待ち状態。待ちつつも、以降のプログラムを実行。このまま（2023/4/1/17:06）だと、responseを受ける前にpublishしてしまう。= resを受け取るより先に以降のプログラムが実行済みになってしまう。ここは、responseを待つ、同期処理にすべき、なのだが、spin_until_future_complete()の引数でthis->...の箇所で、std::runtime_errorを吐いてくる。無理。responseのほうがpublishよりも、約2.4[ms]遅い。
+
     // auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
     //   toKine_FK_req, 
     //   std::bind(&WalkingPatternGenerator::callback_res, this, _1)
@@ -112,10 +100,8 @@ namespace walking_pattern_generator
     pub_msg->q_target_l = q_target_l_;
     pub_msg->dq_target_r = walking_pattern_jointVel_R_[(step_counter_-1)%2];
     pub_msg->dq_target_l = walking_pattern_jointVel_L_[(step_counter_-1)%2];
-    // pub_msg->dq_target_r = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};
-    // pub_msg->dq_target_l = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};
 
-    if(check_ == true) {
+    if(publish_ok_check_ == true) {
       toWSC_pub_->publish(*pub_msg);
       RCLCPP_INFO(this->get_logger(), "Publish...");
     }
@@ -148,7 +134,7 @@ namespace walking_pattern_generator
     }
 
     // set inital counter value. set walking_pattern.
-    check_ = false;
+    publish_ok_check_ = false;
     step_counter_ = 0;
     // 逆運動学からJointAngleを導出する。回転行列もWalkingPatternで欲しい？
     walking_pattern_P_R_[0] = {-0.005, -0.037, -0.300};  // [m]
@@ -160,10 +146,6 @@ namespace walking_pattern_generator
     walking_pattern_jointVel_R_[1] = {2, 2, 1.25, 2.5, 1.25, 2};
     walking_pattern_jointVel_L_[0] = {2, 2, 1.25, 2.5, 1.25, 2};  // [rad/s]
     walking_pattern_jointVel_L_[1] = {2, 2, 1.25, 2.5, 1.25, 2};
-    // walking_pattern_jointVel_R_[0] = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};  // [rad/s]
-    // walking_pattern_jointVel_R_[1] = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};
-    // walking_pattern_jointVel_L_[0] = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};  // [rad/s]
-    // walking_pattern_jointVel_L_[1] = {0.5, 0.5, 0.25, 0.5, 0.25, 0.5};
     
     // Timer処理。指定の周期で指定の関数を実行
     step_pub_ = this->create_wall_timer(
