@@ -13,15 +13,17 @@ namespace walking_pattern_generator
 {
   void WalkingPatternGenerator::DEBUG_ParameterSetting() {
     // 逆運動学からJointAngleを導出する。回転行列もWalkingPatternで欲しい？
-    walking_pattern_P_R_[0] = {-0.005, -0.037, -0.300};  // [m]
-    walking_pattern_P_R_[1] = {-0.005, -0.037, -0.3082};
-    walking_pattern_P_L_[0] = {-0.005, 0.037, -0.3082};  // [m]
-    walking_pattern_P_L_[1] = {-0.005, 0.037, -0.300};
+    walking_pattern_P_R_[0] = {-0.005, -0.000, -0.3000};  // [m]
+    walking_pattern_P_R_[1] = {-0.005, -0.000, -0.3000};
+    walking_pattern_P_L_[0] = {-0.005, 0.072, -0.2800};  // [m]
+    walking_pattern_P_L_[1] = {-0.005, 0.072, -0.2800};
     // jointVelも、逆動力学（？）で導出したい。
-    walking_pattern_jointVel_R_[0] = {2, 2, 1.25, 2.5, 1.25, 2};  // [rad/s]
-    walking_pattern_jointVel_R_[1] = {2, 2, 1.25, 2.5, 1.25, 2};
-    walking_pattern_jointVel_L_[0] = {2, 2, 1.25, 2.5, 1.25, 2};  // [rad/s]
-    walking_pattern_jointVel_L_[1] = {2, 2, 1.25, 2.5, 1.25, 2};
+    walking_pattern_jointVel_R_[0] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
+    walking_pattern_jointVel_R_[1] = {1, 1, 0.5, 1, 0.5, 1};
+    walking_pattern_jointVel_L_[0] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
+    walking_pattern_jointVel_L_[1] = {1, 1, 0.5, 1, 0.5, 1};
+
+    loop_number_ = walking_pattern_P_R_.max_size();
   }
 
   void WalkingPatternGenerator::callback_res(
@@ -69,11 +71,12 @@ namespace walking_pattern_generator
     toKine_IK_req->r_target_r = {1, 0, 0,
                                 0, 1, 0,
                                 0, 0, 1};
-    toKine_IK_req->p_target_r = walking_pattern_P_R_[step_counter_%2];  // [m]
+    toKine_IK_req->p_target_r = walking_pattern_P_R_[step_counter_%loop_number_];  // [m]
     toKine_IK_req->r_target_l = {1, 0, 0,
                                 0, 1, 0,
                                 0, 0, 1};
-    toKine_IK_req->p_target_l = walking_pattern_P_L_[step_counter_%2];  // [m]    
+    toKine_IK_req->p_target_l = walking_pattern_P_L_[step_counter_%loop_number_
+    ];  // [m]    
     // DEBUG=====
 
     // FK ERROR_Handling
@@ -111,8 +114,8 @@ namespace walking_pattern_generator
     pub_msg->p_target_l = p_target_l_;
     pub_msg->q_target_r = q_target_r_;
     pub_msg->q_target_l = q_target_l_;
-    pub_msg->dq_target_r = walking_pattern_jointVel_R_[(step_counter_-1)%2];
-    pub_msg->dq_target_l = walking_pattern_jointVel_L_[(step_counter_-1)%2];
+    pub_msg->dq_target_r = walking_pattern_jointVel_R_[(step_counter_-1)%loop_number_];
+    pub_msg->dq_target_l = walking_pattern_jointVel_L_[(step_counter_-1)%loop_number_];
 
     if(publish_ok_check_ == true) {
       toWSC_pub_->publish(*pub_msg);

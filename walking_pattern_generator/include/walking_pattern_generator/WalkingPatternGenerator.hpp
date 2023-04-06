@@ -22,8 +22,10 @@ namespace walking_pattern_generator
       // timer
       rclcpp::TimerBase::SharedPtr step_pub_;
 
+      // PARAMETER
       bool publish_ok_check_;
       int step_counter_;
+      int loop_number_;
       // 逆運動学からJointAngleを導出する
       std::array<std::array<double, 3>, 2> walking_pattern_P_R_;
       std::array<std::array<double, 3>, 2> walking_pattern_P_L_;
