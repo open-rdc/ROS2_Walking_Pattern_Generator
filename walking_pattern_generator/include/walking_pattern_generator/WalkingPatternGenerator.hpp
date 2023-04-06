@@ -27,11 +27,11 @@ namespace walking_pattern_generator
       int step_counter_;
       int loop_number_;
       // 逆運動学からJointAngleを導出する
-      std::array<std::array<double, 3>, 2> walking_pattern_P_R_;
-      std::array<std::array<double, 3>, 2> walking_pattern_P_L_;
+      std::array<std::array<double, 3>, 4> walking_pattern_P_R_;
+      std::array<std::array<double, 3>, 4> walking_pattern_P_L_;
       // jointVelも、逆動力学（？）で導出したい。
-      std::array<std::array<double, 6>, 2> walking_pattern_jointVel_R_;
-      std::array<std::array<double, 6>, 2> walking_pattern_jointVel_L_;
+      std::array<std::array<double, 6>, 4> walking_pattern_jointVel_R_;
+      std::array<std::array<double, 6>, 4> walking_pattern_jointVel_L_;
 
       void step_WPG_pub(void);
 

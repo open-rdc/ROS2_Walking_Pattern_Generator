@@ -15,15 +15,27 @@ namespace walking_pattern_generator
     // 逆運動学からJointAngleを導出する。回転行列もWalkingPatternで欲しい？
     walking_pattern_P_R_[0] = {-0.005, -0.000, -0.3000};  // [m]
     walking_pattern_P_R_[1] = {-0.005, -0.000, -0.3000};
+    walking_pattern_P_R_[2] = {-0.005, -0.072, -0.2800};  // [m]
+    walking_pattern_P_R_[3] = {-0.005, -0.072, -0.2800};
+
     walking_pattern_P_L_[0] = {-0.005, 0.072, -0.2800};  // [m]
     walking_pattern_P_L_[1] = {-0.005, 0.072, -0.2800};
+    walking_pattern_P_L_[2] = {-0.005, 0.000, -0.3000};  // [m]
+    walking_pattern_P_L_[3] = {-0.005, 0.000, -0.3000};
     // jointVelも、逆動力学（？）で導出したい。
-    walking_pattern_jointVel_R_[0] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
-    walking_pattern_jointVel_R_[1] = {1, 1, 0.5, 1, 0.5, 1};
-    walking_pattern_jointVel_L_[0] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
-    walking_pattern_jointVel_L_[1] = {1, 1, 0.5, 1, 0.5, 1};
+    walking_pattern_jointVel_R_[0] = {2, 2, 1, 2, 1, 2};  // [rad/s]
+    walking_pattern_jointVel_R_[1] = {2, 2, 1, 2, 1, 2};
+    walking_pattern_jointVel_R_[2] = {2, 2, 1, 2, 1, 2};  // [rad/s]
+    walking_pattern_jointVel_R_[3] = {2, 2, 1, 2, 1, 2};
+    walking_pattern_jointVel_L_[0] = {2, 2, 1, 2, 1, 2};  // [rad/s]
+    walking_pattern_jointVel_L_[1] = {2, 2, 1, 2, 1, 2};
+    walking_pattern_jointVel_L_[2] = {2, 2, 1, 2, 1, 2};  // [rad/s]
+    walking_pattern_jointVel_L_[3] = {2, 2, 1, 2, 1, 2};
 
-    loop_number_ = walking_pattern_P_R_.max_size();
+    loop_number_ = walking_pattern_P_R_.max_size();  // 要素の最大数を返す
+    // while(rclcpp::ok()){
+    // std::cout << loop_number_ << std::endl;
+    // }
   }
 
   void WalkingPatternGenerator::callback_res(
@@ -134,24 +146,24 @@ namespace walking_pattern_generator
 
     toWSC_pub_ = this->create_publisher<msgs_package::msg::ToWalkingStabilizationControllerMessage>("WalkingPattern", rclcpp::QoS(10));
     
-    while(!toKine_FK_clnt_->wait_for_service(1s)) {
-      if(!rclcpp::ok()) {
-        RCLCPP_ERROR(this->get_logger(), "ERROR!!: FK service is dead.");
-        return;
-      }
-      RCLCPP_INFO(this->get_logger(), "Waiting for FK service...");
-    }
-    while(!toKine_IK_clnt_->wait_for_service(1s)) {
-      if(!rclcpp::ok()) {
-        RCLCPP_ERROR(this->get_logger(), "ERROR!!: IK service is dead.");
-        return;
-      }
-      RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
-    }
+    // while(!toKine_FK_clnt_->wait_for_service(1s)) {
+    //   if(!rclcpp::ok()) {
+    //     RCLCPP_ERROR(this->get_logger(), "ERROR!!: FK service is dead.");
+    //     return;
+    //   }
+    //   RCLCPP_INFO(this->get_logger(), "Waiting for FK service...");
+    // }
+    // while(!toKine_IK_clnt_->wait_for_service(1s)) {
+    //   if(!rclcpp::ok()) {
+    //     RCLCPP_ERROR(this->get_logger(), "ERROR!!: IK service is dead.");
+    //     return;
+    //   }
+    //   RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
+    // }
 
     // set inital counter value. set walking_pattern.
     publish_ok_check_ = false;
-    step_counter_ = 0;  // %2をしている箇所があるが、これは２つの動作をloopするため
+    step_counter_ = 0;
 
     // DEBUG: parameter setting
     WalkingPatternGenerator::DEBUG_ParameterSetting();
