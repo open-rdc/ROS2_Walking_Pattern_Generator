@@ -13,24 +13,24 @@ namespace walking_pattern_generator
 {
   void WalkingPatternGenerator::DEBUG_ParameterSetting() {
     // 逆運動学からJointAngleを導出する。回転行列もWalkingPatternで欲しい？
-    walking_pattern_P_R_[0] = {-0.005, -0.000, -0.3000};  // [m]
-    walking_pattern_P_R_[1] = {-0.005, -0.000, -0.3000};
-    walking_pattern_P_R_[2] = {-0.005, -0.072, -0.2800};  // [m]
-    walking_pattern_P_R_[3] = {-0.005, -0.072, -0.2800};
+    walking_pattern_P_R_[0] = {-0.01, -0.000, -0.3000};  // [m]
+    walking_pattern_P_R_[1] = {-0.01, -0.000, -0.3000};
+    walking_pattern_P_R_[2] = {0.01, -0.072, -0.2800};  // [m]
+    walking_pattern_P_R_[3] = {0.01, -0.072, -0.2800};
 
-    walking_pattern_P_L_[0] = {-0.005, 0.072, -0.2800};  // [m]
-    walking_pattern_P_L_[1] = {-0.005, 0.072, -0.2800};
-    walking_pattern_P_L_[2] = {-0.005, 0.000, -0.3000};  // [m]
-    walking_pattern_P_L_[3] = {-0.005, 0.000, -0.3000};
+    walking_pattern_P_L_[0] = {0.01, 0.072, -0.2800};  // [m]
+    walking_pattern_P_L_[1] = {0.01, 0.072, -0.2800};
+    walking_pattern_P_L_[2] = {-0.01, 0.000, -0.3000};  // [m]
+    walking_pattern_P_L_[3] = {-0.01, 0.000, -0.3000};
     // jointVelも、逆動力学（？）で導出したい。
-    walking_pattern_jointVel_R_[0] = {2, 2, 1, 2, 1, 2};  // [rad/s]
-    walking_pattern_jointVel_R_[1] = {2, 2, 1, 2, 1, 2};
-    walking_pattern_jointVel_R_[2] = {2, 2, 1, 2, 1, 2};  // [rad/s]
-    walking_pattern_jointVel_R_[3] = {2, 2, 1, 2, 1, 2};
-    walking_pattern_jointVel_L_[0] = {2, 2, 1, 2, 1, 2};  // [rad/s]
-    walking_pattern_jointVel_L_[1] = {2, 2, 1, 2, 1, 2};
-    walking_pattern_jointVel_L_[2] = {2, 2, 1, 2, 1, 2};  // [rad/s]
-    walking_pattern_jointVel_L_[3] = {2, 2, 1, 2, 1, 2};
+    walking_pattern_jointVel_R_[0] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
+    walking_pattern_jointVel_R_[1] = {1, 1, 0.5, 1, 0.5, 1};
+    walking_pattern_jointVel_R_[2] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
+    walking_pattern_jointVel_R_[3] = {1, 1, 0.5, 1, 0.5, 1};
+    walking_pattern_jointVel_L_[0] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
+    walking_pattern_jointVel_L_[1] = {1, 1, 0.5, 1, 0.5, 1};
+    walking_pattern_jointVel_L_[2] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
+    walking_pattern_jointVel_L_[3] = {1, 1, 0.5, 1, 0.5, 1};
 
     loop_number_ = walking_pattern_P_R_.max_size();  // 要素の最大数を返す
     // while(rclcpp::ok()){
@@ -108,7 +108,7 @@ namespace walking_pattern_generator
       RCLCPP_ERROR(this->get_logger(), "IK_Request: P_target: Invalid Value!!");
     }
 
-    // 非同期の待ち状態。待ちつつも、以降のプログラムを実行。このまま（2023/4/1/17:06）だと、responseを受ける前にpublishしてしまう。= resを受け取るより先に以降のプログラムが実行済みになってしまう。ここは、responseを待つ、同期処理にすべき、なのだが、spin_until_future_complete()の引数でthis->...の箇所で、std::runtime_errorを吐いてくる。無理。responseのほうがpublishよりも、約2.4[ms]遅い。
+    // 非同期の待ち状態。待ちつつも、以降のプログラムを実行。このまま（2023/4/1/17:06）だと、responseを受ける前にpublishしてしまう。= resを受け取るより先に以降のプログラムが実行済みになってしまう。ここは、responseを待つ、同期処理にすべき、なのだが、spin_until_future_complete()の引数でthis->...の箇所で、std::runtime_errorを吐いてくる。無理。responseのほうがpublishよりも、約2.4[ms]遅い。  => 強引だが、対策済み
 
     // auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
     //   toKine_FK_req, 
