@@ -12,15 +12,15 @@ namespace kinematics
 {
   static const rmw_qos_profile_t custom_qos_profile =
   {
-    RMW_QOS_POLICY_HISTORY_KEEP_LAST,
-    1,
-    RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
-    RMW_QOS_POLICY_DURABILITY_VOLATILE,
-    RMW_QOS_DEADLINE_DEFAULT,
-    RMW_QOS_LIFESPAN_DEFAULT,
-    RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
-    RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,
-    false
+    RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
+    1,  // History(keep_last) Depth
+    RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,  // Reliability: best_effort or reliable
+    RMW_QOS_POLICY_DURABILITY_VOLATILE,  // Durability: transient_local or volatile
+    RMW_QOS_DEADLINE_DEFAULT,  // Deadline: default or number
+    RMW_QOS_LIFESPAN_DEFAULT,  // Lifespan: default or number
+    RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,  // Liveliness: automatic or manual_by_topic
+    RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,  // Liveliness_LeaseDuration: default or number
+    false  // avoid_ros_namespace_conventions
   };
 
   using namespace Eigen;
