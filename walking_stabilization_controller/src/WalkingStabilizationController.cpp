@@ -1,5 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/qos.hpp"
+#include <rmw/qos_profiles.h>
 #include "msgs_package/msg/to_walking_stabilization_controller_message.hpp"
 #include "msgs_package/srv/to_kinematics_message.hpp"
 #include "msgs_package/srv/to_webots_robot_handler_message.hpp"
@@ -119,8 +120,14 @@ namespace walking_stabilization_controller
 
     RCLCPP_INFO(this->get_logger(), "Start up WalkingStabilizationController. Hello WalkingStabilizationController!!");
 
-    toKine_FK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>("FK");
-    toKine_IK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>("IK");
+    toKine_FK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>(
+      "FK",
+      rmw_qos_profile_sensor_data
+    );
+    toKine_IK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>(
+      "IK",
+      rmw_qos_profile_sensor_data
+    );
 
     while(!toKine_FK_clnt_->wait_for_service(1s)) {
       if(!rclcpp::ok()) {
@@ -137,12 +144,14 @@ namespace walking_stabilization_controller
       RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
     }
 
-    toWSC_sub_ = this->create_subscription<msgs_package::msg::ToWalkingStabilizationControllerMessage>("WalkingPattern", 
-         rclcpp::QoS(10), 
-         std::bind(&WalkingStabilizationController::callback_sub, this, _1));
+    toWSC_sub_ = this->create_subscription<msgs_package::msg::ToWalkingStabilizationControllerMessage>(
+      "WalkingPattern", 
+      rclcpp::QoS(rclcpp::SensorDataQoS()), 
+      std::bind(&WalkingStabilizationController::callback_sub, this, _1));
     toWRH_srv_ = this->create_service<msgs_package::srv::ToWebotsRobotHandlerMessage>(
       "FB_StabilizationController",
-      std::bind(&WalkingStabilizationController::WSC_SrvServer, this, _1, _2)
+      std::bind(&WalkingStabilizationController::WSC_SrvServer, this, _1, _2),
+      rmw_qos_profile_sensor_data
     );
 
     // init

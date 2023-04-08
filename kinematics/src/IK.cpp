@@ -1,4 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
+// #include "rclcpp/qos.hpp"
+#include <rmw/qos_profiles.h>
 #include "msgs_package/srv/to_kinematics_message.hpp"
 #include "kinematics/IK.hpp"
 
@@ -143,7 +145,8 @@ namespace kinematics
 
     toKine_srv_ = this->create_service<msgs_package::srv::ToKinematicsMessage>(
       "IK",
-      std::bind(&IKSrv::IK_SrvServer, this, _1, _2)
+      std::bind(&IKSrv::IK_SrvServer, this, _1, _2),
+      rmw_qos_profile_sensor_data
     );
 
     RCLCPP_INFO(this->get_logger(), "Waiting IK Client...");

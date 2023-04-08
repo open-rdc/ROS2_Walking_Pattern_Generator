@@ -1,4 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
+// #include "rclcpp/qos.hpp"
+#include <rmw/qos_profiles.h>
 #include "msgs_package/srv/to_kinematics_message.hpp"
 #include "kinematics/FK.hpp"
 
@@ -111,10 +113,11 @@ namespace kinematics
 // DEBUG===/*
     DEBUG_ParameterSetting();
 // DEBUG===*/
-    
+
     toKine_srv_ = this->create_service<msgs_package::srv::ToKinematicsMessage>(
       "FK", 
-      std::bind(&FKSrv::FK_SrvServer, this, _1, _2)
+      std::bind(&FKSrv::FK_SrvServer, this, _1, _2),
+      rmw_qos_profile_sensor_data
     );
 
     RCLCPP_INFO(this->get_logger(), "Waiting FK Client...");

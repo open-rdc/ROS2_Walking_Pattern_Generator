@@ -1,5 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/qos.hpp"
+#include <rmw/qos_profiles.h>
 #include "walking_pattern_generator/WalkingPatternGenerator.hpp"
 #include "msgs_package/msg/to_walking_stabilization_controller_message.hpp"
 #include "msgs_package/srv/to_kinematics_message.hpp"
@@ -141,25 +142,34 @@ namespace walking_pattern_generator
 
     RCLCPP_INFO(this->get_logger(), "Start up WalkingPatternGenerator. Hello WalkingPatternGenerator!!");
 
-    toKine_FK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>("FK");
-    toKine_IK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>("IK");
+    toKine_FK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>(
+      "FK", 
+      rmw_qos_profile_sensor_data
+    );
+    toKine_IK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>(
+      "IK",
+      rmw_qos_profile_sensor_data
+    );
 
-    toWSC_pub_ = this->create_publisher<msgs_package::msg::ToWalkingStabilizationControllerMessage>("WalkingPattern", rclcpp::QoS(10));
+    toWSC_pub_ = this->create_publisher<msgs_package::msg::ToWalkingStabilizationControllerMessage>(
+      "WalkingPattern",
+      rclcpp::QoS(rclcpp::SensorDataQoS())
+    );
     
-    // while(!toKine_FK_clnt_->wait_for_service(1s)) {
-    //   if(!rclcpp::ok()) {
-    //     RCLCPP_ERROR(this->get_logger(), "ERROR!!: FK service is dead.");
-    //     return;
-    //   }
-    //   RCLCPP_INFO(this->get_logger(), "Waiting for FK service...");
-    // }
-    // while(!toKine_IK_clnt_->wait_for_service(1s)) {
-    //   if(!rclcpp::ok()) {
-    //     RCLCPP_ERROR(this->get_logger(), "ERROR!!: IK service is dead.");
-    //     return;
-    //   }
-    //   RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
-    // }
+    while(!toKine_FK_clnt_->wait_for_service(1s)) {
+      if(!rclcpp::ok()) {
+        RCLCPP_ERROR(this->get_logger(), "ERROR!!: FK service is dead.");
+        return;
+      }
+      RCLCPP_INFO(this->get_logger(), "Waiting for FK service...");
+    }
+    while(!toKine_IK_clnt_->wait_for_service(1s)) {
+      if(!rclcpp::ok()) {
+        RCLCPP_ERROR(this->get_logger(), "ERROR!!: IK service is dead.");
+        return;
+      }
+      RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
+    }
 
     // set inital counter value. set walking_pattern.
     publish_ok_check_ = false;

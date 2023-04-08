@@ -2,6 +2,8 @@
 #include "pluginlib/class_list_macros.hpp"
 
 #include "rclcpp/rclcpp.hpp"
+// #include "rclcpp/qos.hpp"
+#include <rmw/qos_profiles.h>
 #include "iostream"
 #include <chrono>
 #include "msgs_package/srv/to_webots_robot_handler_message.hpp"
@@ -40,7 +42,10 @@ namespace webots_robot_handler
 
     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Start up WebotsRobotHandler. Hello WebotsRobotHandler!!");
 
-    toWRH_clnt_ = node_->create_client<msgs_package::srv::ToWebotsRobotHandlerMessage>("FB_StabilizationController");
+    toWRH_clnt_ = node_->create_client<msgs_package::srv::ToWebotsRobotHandlerMessage>(
+      "FB_StabilizationController",
+      rmw_qos_profile_sensor_data
+    );
 
     // check service server
     while(!toWRH_clnt_->wait_for_service(1s)) {
