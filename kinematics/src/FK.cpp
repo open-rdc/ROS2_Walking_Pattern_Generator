@@ -130,7 +130,7 @@ namespace kinematics
     toKine_srv_ = this->create_service<msgs_package::srv::ToKinematicsMessage>(
       "FK", 
       std::bind(&FKSrv::FK_SrvServer, this, _1, _2),
-      rmw_qos_profile_sensor_data
+      custom_qos_profile
     );
 
     RCLCPP_INFO(this->get_logger(), "Waiting FK Client...");

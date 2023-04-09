@@ -23,6 +23,19 @@ using namespace std::placeholders;
 
 namespace webots_robot_handler
 {
+  static const rmw_qos_profile_t custom_qos_profile =
+  {
+    RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
+    1,  // History(keep_last) Depth
+    RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,  // Reliability: best_effort or reliable
+    RMW_QOS_POLICY_DURABILITY_VOLATILE,  // Durability: transient_local or volatile
+    RMW_QOS_DEADLINE_DEFAULT,  // Deadline: default or number
+    RMW_QOS_LIFESPAN_DEFAULT,  // Lifespan: default or number
+    RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,  // Liveliness: automatic or manual_by_topic
+    RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,  // Liveliness_LeaseDuration: default or number
+    false  // avoid_ros_namespace_conventions
+  };
+
   void WebotsRobotHandler::DEBUG_ParameterSetting() {
     motors_name_ = {("ShoulderR"), ("ShoulderL"), ("ArmUpperR"), ("ArmUpperL"), ("ArmLowerR"), ("ArmLowerL"), ("PelvYR"), ("PelvYL"), ("PelvR"), ("PelvL"), ("LegUpperR"), ("LegUpperL"), ("LegLowerR"), ("LegLowerL"), ("AnkleR"), ("AnkleL"), ("FootR"), ("FootL"), ("Neck"), ("Head")};
     initJointAng_ = {0, 0, 0.79, -0.79, -1.57, 1.57, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.26};  // init joints ang [rad] 
@@ -44,7 +57,7 @@ namespace webots_robot_handler
 
     toWRH_clnt_ = node_->create_client<msgs_package::srv::ToWebotsRobotHandlerMessage>(
       "FB_StabilizationController",
-      rmw_qos_profile_sensor_data
+      custom_qos_profile
     );
 
     // check service server

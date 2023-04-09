@@ -12,6 +12,19 @@ using namespace std::placeholders;  // bind()の第３引数etcを簡単にす�
 
 namespace walking_pattern_generator
 {
+  static const rmw_qos_profile_t custom_qos_profile =
+  {
+    RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
+    1,  // History(keep_last) Depth
+    RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,  // Reliability: best_effort or reliable
+    RMW_QOS_POLICY_DURABILITY_VOLATILE,  // Durability: transient_local or volatile
+    RMW_QOS_DEADLINE_DEFAULT,  // Deadline: default or number
+    RMW_QOS_LIFESPAN_DEFAULT,  // Lifespan: default or number
+    RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,  // Liveliness: automatic or manual_by_topic
+    RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,  // Liveliness_LeaseDuration: default or number
+    false  // avoid_ros_namespace_conventions
+  };
+
   void WalkingPatternGenerator::DEBUG_ParameterSetting() {
     // 逆運動学からJointAngleを導出する。回転行列もWalkingPatternで欲しい？
     walking_pattern_P_R_[0] = {-0.01, -0.000, -0.3000};  // [m]
@@ -144,16 +157,16 @@ namespace walking_pattern_generator
 
     toKine_FK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>(
       "FK", 
-      rmw_qos_profile_sensor_data
+      custom_qos_profile
     );
     toKine_IK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>(
       "IK",
-      rmw_qos_profile_sensor_data
+      custom_qos_profile
     );
 
     toWSC_pub_ = this->create_publisher<msgs_package::msg::ToWalkingStabilizationControllerMessage>(
       "WalkingPattern",
-      rclcpp::QoS(rclcpp::SensorDataQoS())
+      rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile))
     );
     
     while(!toKine_FK_clnt_->wait_for_service(1s)) {

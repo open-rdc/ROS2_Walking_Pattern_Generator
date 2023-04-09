@@ -16,6 +16,19 @@ using namespace std::placeholders;
 
 namespace walking_stabilization_controller
 {
+  static const rmw_qos_profile_t custom_qos_profile =
+  {
+    RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
+    1,  // History(keep_last) Depth
+    RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,  // Reliability: best_effort or reliable
+    RMW_QOS_POLICY_DURABILITY_VOLATILE,  // Durability: transient_local or volatile
+    RMW_QOS_DEADLINE_DEFAULT,  // Deadline: default or number
+    RMW_QOS_LIFESPAN_DEFAULT,  // Lifespan: default or number
+    RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,  // Liveliness: automatic or manual_by_topic
+    RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,  // Liveliness_LeaseDuration: default or number
+    false  // avoid_ros_namespace_conventions
+  };
+
   void WalkingStabilizationController::callback_sub(
     const msgs_package::msg::ToWalkingStabilizationControllerMessage::SharedPtr sub_data
   ) {
@@ -122,11 +135,11 @@ namespace walking_stabilization_controller
 
     toKine_FK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>(
       "FK",
-      rmw_qos_profile_sensor_data
+      custom_qos_profile
     );
     toKine_IK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>(
       "IK",
-      rmw_qos_profile_sensor_data
+      custom_qos_profile
     );
 
     while(!toKine_FK_clnt_->wait_for_service(1s)) {
@@ -146,12 +159,12 @@ namespace walking_stabilization_controller
 
     toWSC_sub_ = this->create_subscription<msgs_package::msg::ToWalkingStabilizationControllerMessage>(
       "WalkingPattern", 
-      rclcpp::QoS(rclcpp::SensorDataQoS()), 
+      rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile)), 
       std::bind(&WalkingStabilizationController::callback_sub, this, _1));
     toWRH_srv_ = this->create_service<msgs_package::srv::ToWebotsRobotHandlerMessage>(
       "FB_StabilizationController",
       std::bind(&WalkingStabilizationController::WSC_SrvServer, this, _1, _2),
-      rmw_qos_profile_sensor_data
+      custom_qos_profile
     );
 
     // init

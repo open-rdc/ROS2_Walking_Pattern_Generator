@@ -10,6 +10,19 @@
 
 namespace kinematics
 {
+  static const rmw_qos_profile_t custom_qos_profile =
+  {
+    RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
+    1,  // History(keep_last) Depth
+    RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,  // Reliability: best_effort or reliable
+    RMW_QOS_POLICY_DURABILITY_VOLATILE,  // Durability: transient_local or volatile
+    RMW_QOS_DEADLINE_DEFAULT,  // Deadline: default or number
+    RMW_QOS_LIFESPAN_DEFAULT,  // Lifespan: default or number
+    RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,  // Liveliness: automatic or manual_by_topic
+    RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,  // Liveliness_LeaseDuration: default or number
+    false  // avoid_ros_namespace_conventions
+  };
+
   using namespace Eigen;
 
   // 3D Rotation Matrix
@@ -146,7 +159,7 @@ namespace kinematics
     toKine_srv_ = this->create_service<msgs_package::srv::ToKinematicsMessage>(
       "IK",
       std::bind(&IKSrv::IK_SrvServer, this, _1, _2),
-      rmw_qos_profile_sensor_data
+      custom_qos_profile
     );
 
     RCLCPP_INFO(this->get_logger(), "Waiting IK Client...");
