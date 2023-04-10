@@ -12,25 +12,28 @@ def generate_launch_description():
   # FK (kinematics)
   fk = Node(
     package = "kinematics",
-    namespace = "walking_controller",  # 通信は、同namespace内でしか行えない
+    # namespace = "walking_controller",  # 通信は、同namespace内でしか行えない
     executable = "fk_srv",  # CMakeLists.txtのtarget_nameに合わせる
     output = "screen",
+    parameters = [{'use_sim_time': True}]
   )
 
   # IK (kinematics)
   ik = Node(
     package = "kinematics",
-    namespace = "walking_controller",
+    # namespace = "walking_controller",
     executable = "ik_srv",
     output = "screen",
+    parameters = [{'use_sim_time': True}]
   )
 
   # walking_stabilization_controller
   walking_stabilization_controller = Node(
     package = "walking_stabilization_controller",
-    namespace = "walking_controller",
+    # namespace = "walking_controller",
     executable = "walking_stabilization_controller",
     output = "screen",
+    parameters = [{'use_sim_time': True}]
   )
 
   # webots world
@@ -41,21 +44,23 @@ def generate_launch_description():
   # webots_robot_handler (C++_plugin of webots_ros2_driver)
   robotis_op2_driver = Node(
     package = "webots_ros2_driver",
-    namespace = "walking_controller",
+    # namespace = "walking_controller",
     executable = "driver",
     output = "screen",
     additional_env = {"WEBOTS_CONTROLLER_URL": "ipc://1234/ROBOTIS_OP2"},
     parameters = [
-      {"robot_description": robot_description}
-    ],
+      {"robot_description": robot_description},
+      {'use_sim_time': True}
+    ]
   )
 
   # walking_pattern_generator
   walking_pattern_generator = Node(
     package = "walking_pattern_generator",
-    namespace = "walking_controller",
+    # namespace = "walking_controller",
     executable = "walking_pattern_generator",
     output = "screen",
+    parameters = [{'use_sim_time': True}]
   )
 
   return launch.LaunchDescription([
