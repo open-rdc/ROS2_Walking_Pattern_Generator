@@ -66,7 +66,7 @@ namespace webots_robot_handler
         RCLCPP_ERROR(node_->get_logger(), "ERROR!!: FB_StabilizationController service is dead.");
         return;
       }
-      RCLCPP_INFO(node_->get_logger(), "Waiting for FB_StabilizationController service...");
+      // RCLCPP_INFO(node_->get_logger(), "Waiting for FB_StabilizationController service...");
     }
 
     // DEBUG parameter setting
@@ -82,7 +82,7 @@ namespace webots_robot_handler
     gyroTag_ = wb_robot_get_device("Gyro");
     wb_gyro_enable(gyroTag_, 100);
 
-    RCLCPP_INFO(node_->get_logger(), "Set init joints_angle.");
+    // RCLCPP_INFO(node_->get_logger(), "Set init joints_angle.");
 
     for(int i = 0; i < 20; i++) {  // set init position & value
       getJointAng_[i] = 0;
@@ -90,7 +90,7 @@ namespace webots_robot_handler
       wb_motor_set_velocity(motorsTag_[i], initJointVel_[i]);
     }
 
-    RCLCPP_INFO(node_->get_logger(), "Finish init, Start step.");
+    // RCLCPP_INFO(node_->get_logger(), "Finish init, Start step.");
   }
 
 
@@ -108,11 +108,11 @@ namespace webots_robot_handler
 
 
   void WebotsRobotHandler::step() {
-    RCLCPP_INFO(node_->get_logger(), "step...");
+    // RCLCPP_INFO(node_->get_logger(), "step...");
     
     // DEBUG
     // [DEBUG] wait until the inital movement is over.
-    if(count < 200) { std::cout << count << std::endl; count++; }
+    if(count < 200) { /*std::cout << count << std::endl;*/ count++; }
     else if(count >= 200) {
 
 

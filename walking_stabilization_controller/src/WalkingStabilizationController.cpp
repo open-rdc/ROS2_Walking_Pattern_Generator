@@ -34,7 +34,7 @@ namespace walking_stabilization_controller
   ) {
     // to walking_pattern_generator
 
-    RCLCPP_INFO(this->get_logger(), "Start callback_sub");
+    // RCLCPP_INFO(this->get_logger(), "Start callback_sub");
 
     P_target_legR_ = {sub_data->p_target_r[0], sub_data->p_target_r[1], sub_data->p_target_r[2]};
     P_target_legL_ = {sub_data->p_target_l[0], sub_data->p_target_l[1], sub_data->p_target_l[2]};
@@ -43,14 +43,14 @@ namespace walking_stabilization_controller
     dQ_target_legR_ = sub_data->dq_target_r;
     dQ_target_legL_ = sub_data->dq_target_l;
 
-    std::cout << P_target_legR_.transpose() << std::endl;
-    std::cout << P_target_legL_.transpose() << std::endl;
-    for(int i = 0; i < 6; i++){std::cout << Q_target_legR_[i];} std::cout << std::endl;
-    for(int i = 0; i < 6; i++){std::cout << Q_target_legL_[i];} std::cout << std::endl;
-    for(int i = 0; i < 6; i++){std::cout << dQ_target_legR_[i];} std::cout << std::endl;
-    for(int i = 0; i < 6; i++){std::cout << dQ_target_legL_[i];} std::cout << std::endl;
+    // std::cout << P_target_legR_.transpose() << std::endl;
+    // std::cout << P_target_legL_.transpose() << std::endl;
+    // for(int i = 0; i < 6; i++){std::cout << Q_target_legR_[i];} std::cout << std::endl;
+    // for(int i = 0; i < 6; i++){std::cout << Q_target_legL_[i];} std::cout << std::endl;
+    // for(int i = 0; i < 6; i++){std::cout << dQ_target_legR_[i];} std::cout << std::endl;
+    // for(int i = 0; i < 6; i++){std::cout << dQ_target_legL_[i];} std::cout << std::endl;
 
-    RCLCPP_INFO(this->get_logger(), "Finish callback_sub\n");
+    // RCLCPP_INFO(this->get_logger(), "Finish callback_sub\n");
   }
 
   void WalkingStabilizationController::callback_res(
@@ -58,7 +58,7 @@ namespace walking_stabilization_controller
   ) {
     // to kinematics
 
-    RCLCPP_INFO(this->get_logger(), "Start callback_res");
+    // RCLCPP_INFO(this->get_logger(), "Start callback_res");
 
     // FK, IKのresultをメンバ変数に記録。FK,IKそれぞれが求めない値（IK->p, FK->q）は、requestで与えた値と同値を返す。
     P_target_legR_ = {future.get()->p_result_r[0], future.get()->p_result_r[1], future.get()->p_result_r[2]};
@@ -71,7 +71,7 @@ namespace walking_stabilization_controller
     dQ_fix_legR_ = dQ_target_legR_;
     dQ_fix_legL_ = dQ_target_legL_;
 
-    RCLCPP_INFO(this->get_logger(), "Finish callback_res");
+    // RCLCPP_INFO(this->get_logger(), "Finish callback_res");
     return;
   }
 
@@ -81,7 +81,7 @@ namespace walking_stabilization_controller
   ) {
     // walking_stabilization_controller service_server
 
-    RCLCPP_INFO(this->get_logger(), "Start WSC_SrvServer");
+    // RCLCPP_INFO(this->get_logger(), "Start WSC_SrvServer");
 
     if(P_target_legR_[0] == 999) {
       RCLCPP_WARN(this->get_logger(), "WSC couldn't get subscription from WPG. All value are numeric 999.");
@@ -91,7 +91,7 @@ namespace walking_stabilization_controller
       response->dq_fix_r = dQ_target_legR_;
       response->dq_fix_l = dQ_target_legL_;
 
-      RCLCPP_INFO(this->get_logger(), "Finish WSC_SrvServer");
+      // RCLCPP_INFO(this->get_logger(), "Finish WSC_SrvServer");
       return;
     }
 
@@ -124,14 +124,14 @@ namespace walking_stabilization_controller
     response->dq_fix_r = dQ_fix_legR_;
     response->dq_fix_l = dQ_fix_legL_;
 
-    RCLCPP_INFO(this->get_logger(), "Finish WSC_SrvServer");
+    // RCLCPP_INFO(this->get_logger(), "Finish WSC_SrvServer");
   }
 
   WalkingStabilizationController::WalkingStabilizationController(
     const rclcpp::NodeOptions &options
   ) : Node("WalkingStabilizationController", options) {
 
-    RCLCPP_INFO(this->get_logger(), "Start up WalkingStabilizationController. Hello WalkingStabilizationController!!");
+    // RCLCPP_INFO(this->get_logger(), "Start up WalkingStabilizationController. Hello WalkingStabilizationController!!");
 
     toKine_FK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>(
       "FK",
@@ -147,14 +147,14 @@ namespace walking_stabilization_controller
         RCLCPP_ERROR(this->get_logger(), "ERROR!!: FK service is dead.");
         return;
       }
-      RCLCPP_INFO(this->get_logger(), "Waiting for FK service...");
+      // RCLCPP_INFO(this->get_logger(), "Waiting for FK service...");
     }
     while(!toKine_IK_clnt_->wait_for_service(1s)) {
       if(!rclcpp::ok()) {
         RCLCPP_ERROR(this->get_logger(), "ERROR!!: IK service is dead.");
         return;
       }
-      RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
+      // RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
     }
 
     toWSC_sub_ = this->create_subscription<msgs_package::msg::ToWalkingStabilizationControllerMessage>(
@@ -175,6 +175,6 @@ namespace walking_stabilization_controller
     dQ_target_legR_ = {999, 999, 999, 999, 999, 999};
     dQ_target_legL_ = {999, 999, 999, 999, 999, 999};;
 
-    RCLCPP_INFO(this->get_logger(), "Waiting request & publish ...");
+    // RCLCPP_INFO(this->get_logger(), "Waiting request & publish ...");
   }
 }

@@ -56,24 +56,24 @@ namespace walking_pattern_generator
     const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future
   ) {
     // DEBUG=====/*
-    RCLCPP_INFO(this->get_logger(), "RESPONSE: ");
-    std::cout << "__P_result_R: ";
-    std::copy(std::begin(future.get()->p_result_r), 
-              std::end(future.get()->p_result_r), 
-              std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "\n" << "__P_result_L: ";
-    std::copy(std::begin(future.get()->p_result_l), 
-              std::end(future.get()->p_result_l), 
-              std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "\n" << "__Q_result_R: ";
-    std::copy(std::begin(future.get()->q_result_r), 
-              std::end(future.get()->q_result_r), 
-              std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "\n" << "__Q_result_L: ";
-    std::copy(std::begin(future.get()->q_result_l), 
-              std::end(future.get()->q_result_l), 
-              std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "\n" << std::endl;
+    // RCLCPP_INFO(this->get_logger(), "RESPONSE: ");
+    // std::cout << "__P_result_R: ";
+    // std::copy(std::begin(future.get()->p_result_r), 
+    //           std::end(future.get()->p_result_r), 
+    //           std::ostream_iterator<double>(std::cout, " "));
+    // std::cout << "\n" << "__P_result_L: ";
+    // std::copy(std::begin(future.get()->p_result_l), 
+    //           std::end(future.get()->p_result_l), 
+    //           std::ostream_iterator<double>(std::cout, " "));
+    // std::cout << "\n" << "__Q_result_R: ";
+    // std::copy(std::begin(future.get()->q_result_r), 
+    //           std::end(future.get()->q_result_r), 
+    //           std::ostream_iterator<double>(std::cout, " "));
+    // std::cout << "\n" << "__Q_result_L: ";
+    // std::copy(std::begin(future.get()->q_result_l), 
+    //           std::end(future.get()->q_result_l), 
+    //           std::ostream_iterator<double>(std::cout, " "));
+    // std::cout << "\n" << std::endl;
     // DEBUG=====*/
 
     // resultをメンバ変数に記録。FK,IKそれぞれが求めない値（IK->p, FK->q）は、requestで与えた値と同値を返す。
@@ -88,7 +88,7 @@ namespace walking_pattern_generator
 
   void WalkingPatternGenerator::step_WPG_pub() {
 
-    RCLCPP_INFO(this->get_logger(), "step...");
+    // RCLCPP_INFO(this->get_logger(), "step...");
 
     auto toKine_FK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
     auto toKine_IK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
@@ -145,7 +145,7 @@ namespace walking_pattern_generator
 
     if(publish_ok_check_ == true) {
       toWSC_pub_->publish(*pub_msg);
-      RCLCPP_INFO(this->get_logger(), "Publish...");
+      // RCLCPP_INFO(this->get_logger(), "Publish...");
     }
   }
 
@@ -153,7 +153,7 @@ namespace walking_pattern_generator
     const rclcpp::NodeOptions &options
   ) : Node("WalkingPatternGenerator", options) {
 
-    RCLCPP_INFO(this->get_logger(), "Start up WalkingPatternGenerator. Hello WalkingPatternGenerator!!");
+    // RCLCPP_INFO(this->get_logger(), "Start up WalkingPatternGenerator. Hello WalkingPatternGenerator!!");
 
     toKine_FK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>(
       "FK", 
@@ -174,14 +174,14 @@ namespace walking_pattern_generator
         RCLCPP_ERROR(this->get_logger(), "ERROR!!: FK service is dead.");
         return;
       }
-      RCLCPP_INFO(this->get_logger(), "Waiting for FK service...");
+      // RCLCPP_INFO(this->get_logger(), "Waiting for FK service...");
     }
     while(!toKine_IK_clnt_->wait_for_service(1s)) {
       if(!rclcpp::ok()) {
         RCLCPP_ERROR(this->get_logger(), "ERROR!!: IK service is dead.");
         return;
       }
-      RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
+      // RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
     }
 
     // set inital counter value. set walking_pattern.

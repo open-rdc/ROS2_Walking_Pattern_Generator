@@ -150,7 +150,7 @@ namespace kinematics
   ) : Node("IK_SrvServer", options) {
     using namespace std::placeholders;
 
-    RCLCPP_INFO(this->get_logger(), "Start up IK_SrvServer. Hello IK_SrvServer!!");
+    // RCLCPP_INFO(this->get_logger(), "Start up IK_SrvServer. Hello IK_SrvServer!!");
 
 // DEBUG===/*
     DEBUG_ParameterSetting();
@@ -162,6 +162,6 @@ namespace kinematics
       custom_qos_profile
     );
 
-    RCLCPP_INFO(this->get_logger(), "Waiting IK Client...");
+    // RCLCPP_INFO(this->get_logger(), "Waiting IK Client...");
   }
 }
