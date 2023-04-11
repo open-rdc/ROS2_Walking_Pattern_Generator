@@ -10,10 +10,10 @@
 
 namespace kinematics
 {
-  auto time = rclcpp::Clock{}.now().seconds();
-  auto time_max = time - time;
-  auto time_min = time + time;
-  int hoge = 4;
+  // auto time = rclcpp::Clock{}.now().seconds();
+  // auto time_max = time - time;
+  // auto time_min = time + time;
+  // int hoge = 4;
 
   static const rmw_qos_profile_t custom_qos_profile =
   {
@@ -136,7 +136,7 @@ namespace kinematics
     const std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Request> request,
     std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Response> response
   ) {
-    auto time = rclcpp::Clock{}.now().seconds();
+    // auto time = rclcpp::Clock{}.now().seconds();
 
     // requestを記録（std::arrayからEigenに変換）
     P_target_legR_ = Array2Vector(request->p_target_r);
@@ -150,15 +150,15 @@ namespace kinematics
     response->p_result_r = request->p_target_r;
     response->p_result_l = request->p_target_l;
 
-    auto time2 = rclcpp::Clock{}.now().seconds();
-    auto time_dev = time2 - time;
-    if(hoge > 4){
-      if(time_max < time_dev){time_max = time_dev;}
-      if(time_min > time_dev){time_min = time_dev;}
-      std::cout << "[FK]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
-    }
-    hoge++;
-    time = time2;
+    // auto time2 = rclcpp::Clock{}.now().seconds();
+    // auto time_dev = time2 - time;
+    // if(hoge > 4){
+    //   if(time_max < time_dev){time_max = time_dev;}
+    //   if(time_min > time_dev){time_min = time_dev;}
+    //   std::cout << "[FK]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
+    // }
+    // hoge++;
+    // time = time2;
   }
 
   // Node Setting

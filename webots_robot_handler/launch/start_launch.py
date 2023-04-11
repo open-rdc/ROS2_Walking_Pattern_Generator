@@ -8,6 +8,7 @@ from webots_ros2_driver.webots_launcher import WebotsLauncher
 def generate_launch_description():
   package_dir = get_package_share_directory("webots_robot_handler")
   robot_description = pathlib.Path(os.path.join(package_dir, 'resource', 'webots_robotis_op2_description.urdf')).read_text()
+  robotis_op2_ros2_control_params = os.path.join(package_dir, "resource", "robotis_op2_ros2_control.yaml")
 
   # FK (kinematics)
   fk = Node(
@@ -51,6 +52,7 @@ def generate_launch_description():
     parameters = [
       {"robot_description": robot_description},
       {'use_sim_time': True}
+      # robotis_op2_ros2_control_params
     ]
   )
 
@@ -63,7 +65,15 @@ def generate_launch_description():
     parameters = [{'use_sim_time': True}]
   )
 
+  # robot_state_publisher = Node(
+  #   package = "robot_state_publisher",
+  #   executable = "robot_state_publisher",
+  #   output = "screen", 
+  #   parameters = [{"robot_description": robot_description}]
+  # )
+
   return launch.LaunchDescription([
+    # robot_state_publisher,
     fk,
     ik,
     walking_stabilization_controller,
