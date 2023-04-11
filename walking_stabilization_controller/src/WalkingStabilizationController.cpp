@@ -124,14 +124,14 @@ namespace walking_stabilization_controller
                                  0, 0, 1};
 
     // RCLCPP_INFO(this->get_logger(), "Request to kinematics...");
-    auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
-      toKine_FK_req, 
-      std::bind(&WalkingStabilizationController::callback_res, this, _1)
-    );
-    // auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
-    //   toKine_IK_req,
+    // auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
+    //   toKine_FK_req, 
     //   std::bind(&WalkingStabilizationController::callback_res, this, _1)
     // );
+    auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
+      toKine_IK_req,
+      std::bind(&WalkingStabilizationController::callback_res, this, _1)
+    );
 
     response->q_fix_r = Q_fix_legR_;
     response->q_fix_l = Q_fix_legL_;
