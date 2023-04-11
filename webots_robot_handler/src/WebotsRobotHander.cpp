@@ -23,6 +23,11 @@ using namespace std::placeholders;
 
 namespace webots_robot_handler
 {
+  auto time = rclcpp::Clock{}.now().seconds();
+  auto time_max = time - time;
+  auto time_min = time + time;
+  int hoge = 0;
+
   static const rmw_qos_profile_t custom_qos_profile =
   {
     RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
@@ -53,7 +58,7 @@ namespace webots_robot_handler
   ) {
     node_ = node;
 
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Start up WebotsRobotHandler. Hello WebotsRobotHandler!!");
+    // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Start up WebotsRobotHandler. Hello WebotsRobotHandler!!");
 
     toWRH_clnt_ = node_->create_client<msgs_package::srv::ToWebotsRobotHandlerMessage>(
       "FB_StabilizationController",
@@ -105,8 +110,17 @@ namespace webots_robot_handler
       wb_motor_set_velocity(motorsTag_[jointNum_legL_[i]], future.get()->dq_fix_l[i]);
     }
 
-    RCLCPP_INFO(node_->get_logger(), "Response from WSC...");
-    RCLCPP_INFO(node_->get_logger(), "Set Robot Motion");
+    // RCLCPP_INFO(node_->get_logger(), time - rclcpp::Clock{}.now().seconds());
+    auto time2 = rclcpp::Clock{}.now().seconds();
+    if(hoge > 20){
+      auto time_dev = time2 - time;
+      if(time_max < time_dev){time_max = time_dev;}
+      if(time_min > time_dev){time_min = time_dev;}
+      std::cout << "[WebotsRobotHandler]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
+    }
+    hoge++;
+    time = time2;
+    // RCLCPP_INFO(node_->get_logger(), "Set Robot Motion");
   }
 
 
@@ -135,7 +149,7 @@ namespace webots_robot_handler
     toWRH_req->q_now_l = {getJointAng_[7], getJointAng_[9], getJointAng_[11], getJointAng_[13], getJointAng_[15], getJointAng_[17]};
 
     // request service (WalkingStabilizationController)
-    RCLCPP_INFO(node_->get_logger(), "Request to WSC...");
+    // RCLCPP_INFO(node_->get_logger(), "Request to WSC...");
     toWRH_clnt_->async_send_request(
       toWRH_req, 
       std::bind(&WebotsRobotHandler::callback_res, this, _1)

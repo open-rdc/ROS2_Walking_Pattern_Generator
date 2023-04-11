@@ -85,7 +85,7 @@ namespace walking_pattern_generator
     step_counter_++;
     publish_ok_check_ = true;
 
-    RCLCPP_INFO(this->get_logger(), "Response from kinematics...");
+    // RCLCPP_INFO(this->get_logger(), "Response from kinematics...");
   }
 
   void WalkingPatternGenerator::step_WPG_pub() {
@@ -129,7 +129,7 @@ namespace walking_pattern_generator
     //   toKine_FK_req, 
     //   std::bind(&WalkingPatternGenerator::callback_res, this, _1)
     // );
-    RCLCPP_INFO(this->get_logger(), "Request to kinematics...");
+    // RCLCPP_INFO(this->get_logger(), "Request to kinematics...");
     auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
       toKine_IK_req, 
       std::bind(&WalkingPatternGenerator::callback_res, this, _1)
@@ -147,7 +147,7 @@ namespace walking_pattern_generator
 
     if(publish_ok_check_ == true) {
       toWSC_pub_->publish(*pub_msg);
-      RCLCPP_INFO(this->get_logger(), "Published...");
+      // RCLCPP_INFO(this->get_logger(), "Published...");
     }
   }
 
