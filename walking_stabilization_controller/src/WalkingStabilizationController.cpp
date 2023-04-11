@@ -50,7 +50,7 @@ namespace walking_stabilization_controller
     // for(int i = 0; i < 6; i++){std::cout << dQ_target_legR_[i];} std::cout << std::endl;
     // for(int i = 0; i < 6; i++){std::cout << dQ_target_legL_[i];} std::cout << std::endl;
 
-    // RCLCPP_INFO(this->get_logger(), "Finish callback_sub\n");
+    RCLCPP_INFO(this->get_logger(), "Subscribed...\n");
   }
 
   void WalkingStabilizationController::callback_res(
@@ -71,7 +71,7 @@ namespace walking_stabilization_controller
     dQ_fix_legR_ = dQ_target_legR_;
     dQ_fix_legL_ = dQ_target_legL_;
 
-    // RCLCPP_INFO(this->get_logger(), "Finish callback_res");
+    RCLCPP_INFO(this->get_logger(), "Response from kinematics...");
     return;
   }
 
@@ -110,6 +110,7 @@ namespace walking_stabilization_controller
                                  0, 1, 0,
                                  0, 0, 1};
 
+    RCLCPP_INFO(this->get_logger(), "Request to kinematics...");
     auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
       toKine_FK_req, 
       std::bind(&WalkingStabilizationController::callback_res, this, _1)

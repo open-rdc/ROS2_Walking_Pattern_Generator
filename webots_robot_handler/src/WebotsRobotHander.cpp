@@ -104,6 +104,9 @@ namespace webots_robot_handler
       wb_motor_set_position(motorsTag_[jointNum_legL_[i]], future.get()->q_fix_l[i]*jointAng_posi_or_nega_legL_[i]);
       wb_motor_set_velocity(motorsTag_[jointNum_legL_[i]], future.get()->dq_fix_l[i]);
     }
+
+    RCLCPP_INFO(node_->get_logger(), "Response from WSC...");
+    RCLCPP_INFO(node_->get_logger(), "Set Robot Motion");
   }
 
 
@@ -132,6 +135,7 @@ namespace webots_robot_handler
     toWRH_req->q_now_l = {getJointAng_[7], getJointAng_[9], getJointAng_[11], getJointAng_[13], getJointAng_[15], getJointAng_[17]};
 
     // request service (WalkingStabilizationController)
+    RCLCPP_INFO(node_->get_logger(), "Request to WSC...");
     toWRH_clnt_->async_send_request(
       toWRH_req, 
       std::bind(&WebotsRobotHandler::callback_res, this, _1)
