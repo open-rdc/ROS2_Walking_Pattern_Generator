@@ -10,6 +10,10 @@
 
 namespace kinematics
 {
+  auto time = rclcpp::Clock{}.now().seconds();
+  auto time_max = time - time;
+  auto time_min = time + time;
+
   static const rmw_qos_profile_t custom_qos_profile =
   {
     RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
@@ -98,6 +102,7 @@ namespace kinematics
     const std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Request> request,
     std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Response> response
   ) {
+    auto time = rclcpp::Clock{}.now().seconds();
     // get values
     Q_legR_ = request->q_target_r;
     Q_legL_ = request->q_target_l;
@@ -113,6 +118,13 @@ namespace kinematics
     response->p_result_l = {FK_resultL_[0], FK_resultL_[1], FK_resultL_[2]};
     response->q_result_r = request->q_target_r;  // FKで使わなかった値（変更なしの値）は、reqの値をそのまま返す
     response->q_result_l = request->q_target_l;
+
+    auto time2 = rclcpp::Clock{}.now().seconds();
+    auto time_dev = time2 - time;
+    if(time_max < time_dev){time_max = time_dev;}
+    if(time_min > time_dev){time_min = time_dev;}
+    std::cout << "[FK]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
+    time = time2;
   }
 
   // Node Setting
