@@ -74,7 +74,8 @@ namespace walking_stabilization_controller
     Q_fix_legR_ = Q_target_legR_;
     Q_fix_legL_ = Q_target_legL_;
     dQ_fix_legR_ = dQ_target_legR_;
-    dQ_fix_legL_ = dQ_target_legL_;    // RCLCPP_INFO(this->get_logger(), "Response from kinematics...");
+    dQ_fix_legL_ = dQ_target_legL_;    
+    // RCLCPP_INFO(this->get_logger(), "Response from kinematics...");
 
     // auto time2 = rclcpp::Clock{}.now().seconds();
     // if(hoge > 20){
@@ -128,19 +129,19 @@ namespace walking_stabilization_controller
     //   toKine_FK_req, 
     //   std::bind(&WalkingStabilizationController::callback_res, this, _1)
     // );
-    auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
-      toKine_IK_req,
-      std::bind(&WalkingStabilizationController::callback_res, this, _1)
-    );
+    // auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
+    //   toKine_IK_req,
+    //   std::bind(&WalkingStabilizationController::callback_res, this, _1)
+    // );
 
-    response->q_fix_r = Q_fix_legR_;
-    response->q_fix_l = Q_fix_legL_;
-    response->dq_fix_r = dQ_fix_legR_;
-    response->dq_fix_l = dQ_fix_legL_;
-    // response->q_fix_r = Q_target_legR_;
-    // response->q_fix_l = Q_target_legL_;
-    // response->dq_fix_r = dQ_target_legR_;
-    // response->dq_fix_l = dQ_target_legL_;
+    // response->q_fix_r = Q_fix_legR_;
+    // response->q_fix_l = Q_fix_legL_;
+    // response->dq_fix_r = dQ_fix_legR_;
+    // response->dq_fix_l = dQ_fix_legL_;
+    response->q_fix_r = Q_target_legR_;
+    response->q_fix_l = Q_target_legL_;
+    response->dq_fix_r = dQ_target_legR_;
+    response->dq_fix_l = dQ_target_legL_;
 
     // RCLCPP_INFO(this->get_logger(), "Finish WSC_SrvServer");
   }

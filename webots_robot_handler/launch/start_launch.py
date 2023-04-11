@@ -8,7 +8,7 @@ from webots_ros2_driver.webots_launcher import WebotsLauncher
 def generate_launch_description():
   package_dir = get_package_share_directory("webots_robot_handler")
   robot_description = pathlib.Path(os.path.join(package_dir, 'resource', 'webots_robotis_op2_description.urdf')).read_text()
-  robotis_op2_ros2_control_params = os.path.join(package_dir, "resource", "robotis_op2_ros2_control.yaml")
+  # robotis_op2_ros2_control_params = os.path.join(package_dir, "resource", "robotis_op2_ros2_control.yaml")
 
   # FK (kinematics)
   fk = Node(
