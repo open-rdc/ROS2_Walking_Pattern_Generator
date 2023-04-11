@@ -12,10 +12,10 @@ using namespace std::placeholders;  // bind()の第３引数etcを簡単にす�
 
 namespace walking_pattern_generator
 {
-  auto time = rclcpp::Clock{}.now().seconds();
-  auto time_max = time - time;
-  auto time_min = time + time;
-  int hoge = 0;
+  // auto time = rclcpp::Clock{}.now().seconds();
+  // auto time_max = time - time;
+  // auto time_min = time + time;
+  // int hoge = 0;
 
   static const rmw_qos_profile_t custom_qos_profile =
   {
@@ -90,15 +90,15 @@ namespace walking_pattern_generator
     step_counter_++;
     publish_ok_check_ = true;
 
-    auto time2 = rclcpp::Clock{}.now().seconds();
-    if(hoge > 16){
-      auto time_dev = time2 - time;
-      if(time_max < time_dev){time_max = time_dev;}
-      if(time_min > time_dev){time_min = time_dev;}
-      std::cout << "[WalkingStabilizationController]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
-    }
-    hoge++;
-    time = time2;
+    // auto time2 = rclcpp::Clock{}.now().seconds();
+    // if(hoge > 16){
+    //   auto time_dev = time2 - time;
+    //   if(time_max < time_dev){time_max = time_dev;}
+    //   if(time_min > time_dev){time_min = time_dev;}
+    //   std::cout << "[WalkingStabilizationController]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
+    // }
+    // hoge++;
+    // time = time2;
   }
 
   void WalkingPatternGenerator::step_WPG_pub() {
