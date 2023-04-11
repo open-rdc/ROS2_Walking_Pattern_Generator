@@ -16,10 +16,10 @@ using namespace std::placeholders;
 
 namespace walking_stabilization_controller
 {
-  auto time = rclcpp::Clock{}.now().seconds();
-  auto time_max = time - time;
-  auto time_min = time + time;
-  int hoge = 0;
+  // auto time = rclcpp::Clock{}.now().seconds();
+  // auto time_max = time - time;
+  // auto time_min = time + time;
+  // int hoge = 0;
 
   static const rmw_qos_profile_t custom_qos_profile =
   {
@@ -74,17 +74,17 @@ namespace walking_stabilization_controller
     Q_fix_legR_ = Q_target_legR_;
     Q_fix_legL_ = Q_target_legL_;
     dQ_fix_legR_ = dQ_target_legR_;
-    dQ_fix_legL_ = dQ_target_legL_;
+    dQ_fix_legL_ = dQ_target_legL_;    // RCLCPP_INFO(this->get_logger(), "Response from kinematics...");
 
-    auto time2 = rclcpp::Clock{}.now().seconds();
-    if(hoge > 20){
-      auto time_dev = time2 - time;
-      if(time_max < time_dev){time_max = time_dev;}
-      if(time_min > time_dev){time_min = time_dev;}
-      std::cout << "[WalkingStabilizationController]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
-    }
-    hoge++;
-    time = time2;
+    // auto time2 = rclcpp::Clock{}.now().seconds();
+    // if(hoge > 20){
+    //   auto time_dev = time2 - time;
+    //   if(time_max < time_dev){time_max = time_dev;}
+    //   if(time_min > time_dev){time_min = time_dev;}
+    //   std::cout << "[WalkingStabilizationController]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
+    // }
+    // hoge++;
+    // time = time2;
     return;
   }
 
