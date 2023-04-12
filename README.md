@@ -4,6 +4,10 @@ Walking Pattern Generator using ROS2 for Humanoid Robots<br>
 (Under Construction...)<br>
 <br>
 
+活動を記録しているブログ<br>
+[odome, ロボット開発記録, はてなブログ](https://odome.hatenablog.com/)<br>
+
+
 ## 静歩行の実装
 現在のVersionでは、静歩行動作をシミュレーションすることができます。Development eviromentに環境を合わせた後、以下のコマンド群を実行すればできます。<br>
 
