@@ -11,11 +11,16 @@ Walking Pattern Generator using ROS2 for Humanoid Robots<br>
 * required package: [webots_ros2](https://github.com/cyberbotics/webots_ros2)<br> 
 
 ## Configuration Plan (Draft)
-* ROS2_Node<br>
-  * Walking-Pattern-Generator<br>
-  * Walking-Stabilization-Controller<br>
-  * CppPlugin<br>
-  * FKIK<br>
+* ROS_2_Package & Node<br>
+  * walking_pattern_generator<br>
+    * walking_pattern_generator node<br>
+  * walking_stabilization_controller<br>
+    * walking_stabilization_controller node<br>
+  * webots_robot_handler (webots_ros2 C++ plugin)<br>
+    * ROBOTIS OP 2 node (plugin)<br>
+  * kinematics<br>
+    * FK_SrvServer node<br>
+    * IK_SrvServer node<br>
 <br>
 
 ![image](https://user-images.githubusercontent.com/91410662/218409060-1515cfde-39ba-43af-a07a-62a8140f8847.png)
