@@ -4,6 +4,24 @@ Walking Pattern Generator using ROS2 for Humanoid Robots<br>
 (Under Construction...)<br>
 <br>
 
+## 静歩行の実装
+現在のVersionでは、静歩行動作をシミュレーションすることができます。Development eviromentに環境を合わせた後、以下のコマンド群を実行すればできます。<br>
+
+```bash
+mkdir -p ~/ros2_ws/src/
+cd ~/ros2_ws/src/
+git clone https://github.com/open-rdc/ROS2_Walking_Pattern_Generator.git
+cd ..
+colcon build --symlink-install
+. install/setup.bash
+ros2 launch webots_robot_handler start_launch.py
+```
+
+以下、静歩行シミュレーションの動画です。<br>
+
+https://user-images.githubusercontent.com/91410662/231434693-c9bd6288-f6b9-442e-affd-260f978284c8.mp4
+
+
 ## Development environment
 * OS: [Xubuntu 22.04](https://xubuntu.org/)<br>
 * ROS 2 Distribution: [Humble](https://docs.ros.org/en/humble/index.html)<br>
