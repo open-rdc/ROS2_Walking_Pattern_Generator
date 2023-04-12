@@ -21,6 +21,8 @@ find_package(rclcpp REQUIRED)
 find_package(msgs_package REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(webots_ros2_driver REQUIRED)
+# find_package(webots_ros2_control REQUIRED)
+# find_package(controller_manager REQUIRED)
 find_package(pluginlib REQUIRED)
 
 pluginlib_export_plugin_description_file(webots_ros2_driver webots_robot_handler.xml)
@@ -33,6 +35,8 @@ ament_target_dependencies(${PROJECT_NAME}
   pluginlib
   rclcpp
   webots_ros2_driver
+  # webots_ros2_control
+  # controller_manager
   msgs_package
 )
 target_include_directories(${PROJECT_NAME}

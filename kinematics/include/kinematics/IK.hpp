@@ -28,10 +28,10 @@ namespace kinematics
       Eigen::Matrix3d Rz(double rad = 0);
       Eigen::Matrix3d IdentifyMatrix(void);
 
-      double sign(double arg = 0);
+      double sign(double arg = 0);  // return 1 or -1 (argが>=0なら1, <0なら-1を返す)
 
-      Eigen::Vector3d Array2Vector(std::array<double, 3> array);
-      Eigen::Matrix3d Array2Matrix(std::array<double, 9> array);
+      Eigen::Vector3d Array2Vector(std::array<double, 3> array);  // std::array型をEigen::Vector3d型に変換（３次元）
+      Eigen::Matrix3d Array2Matrix(std::array<double, 9> array);  // std::array型をEigen::Matrix3d型に変換（3*3行列）
 
       std::array<double, 6> IK(
         std::array<Eigen::Vector3d, 7> P_leg,
@@ -39,24 +39,25 @@ namespace kinematics
         Eigen::Matrix3d R_target_leg
       );
 
-      rclcpp::Service<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_srv_ptr;
+ 
+      rclcpp::Service<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_srv_;
 
-      const float pi = 3.141593;  // 四捨五入済み
+      const float pi_ = 3.141593;  // 四捨五入済み
 
-      std::array<Eigen::Matrix3d, 6> R_legR;
-      std::array<Eigen::Vector3d, 7> P_legR;
-      std::array<Eigen::Matrix3d, 6> R_legL;
-      std::array<Eigen::Vector3d, 7> P_legL;
-      std::array<double, 6> Q_legR;
-      std::array<double, 6> Q_legL;
+      std::array<Eigen::Matrix3d, 6> R_legR_;
+      std::array<Eigen::Vector3d, 7> P_legR_;
+      std::array<Eigen::Matrix3d, 6> R_legL_;
+      std::array<Eigen::Vector3d, 7> P_legL_;
+      std::array<double, 6> Q_legR_;
+      std::array<double, 6> Q_legL_;
 
-      Eigen::Vector3d P_target_legR;
-      Eigen::Matrix3d R_target_legR;
-      Eigen::Vector3d P_target_legL;
-      Eigen::Matrix3d R_target_legL;
+      Eigen::Vector3d P_target_legR_;
+      Eigen::Matrix3d R_target_legR_;
+      Eigen::Vector3d P_target_legL_;
+      Eigen::Matrix3d R_target_legL_;
 
-      std::array<double, 6> IK_resultR;
-      std::array<double, 6> IK_resultL;
+      // std::array<double, 6> IK_resultR_;  // 未使用
+      // std::array<double, 6> IK_resultL_;
 
 // DEBUG===/*
       void DEBUG_ParameterSetting(void);

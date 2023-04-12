@@ -1,122 +1,214 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/qos.hpp"
+#include <rmw/qos_profiles.h>
 #include "walking_pattern_generator/WalkingPatternGenerator.hpp"
 #include "msgs_package/msg/to_walking_stabilization_controller_message.hpp"
 #include "msgs_package/srv/to_kinematics_message.hpp"
 
 #include <chrono>
 
-using namespace std::chrono_literals;
-using namespace std::placeholders;
+using namespace std::chrono_literals;  // 周期の単位を書けるようにする（ex. 100ms）
+using namespace std::placeholders;  // bind()の第３引数etcを簡単にする（ex. _1）
 
 namespace walking_pattern_generator
 {
+  // auto time = rclcpp::Clock{}.now().seconds();
+  // auto time_max = time - time;
+  // auto time_min = time + time;
+  // int hoge = 0;
+
+  static const rmw_qos_profile_t custom_qos_profile =
+  {
+    RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
+    1,  // History(keep_last) Depth
+    RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,  // Reliability: best_effort or reliable
+    RMW_QOS_POLICY_DURABILITY_VOLATILE,  // Durability: transient_local or volatile
+    RMW_QOS_DEADLINE_DEFAULT,  // Deadline: default or number
+    RMW_QOS_LIFESPAN_DEFAULT,  // Lifespan: default or number
+    RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,  // Liveliness: automatic or manual_by_topic
+    RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,  // Liveliness_LeaseDuration: default or number
+    false  // avoid_ros_namespace_conventions
+  };
+
+  void WalkingPatternGenerator::DEBUG_ParameterSetting() {
+    // 逆運動学からJointAngleを導出する。回転行列もWalkingPatternで欲しい？
+    walking_pattern_P_R_[0] = {-0.01, -0.000, -0.3000};  // [m]
+    walking_pattern_P_R_[1] = {-0.01, -0.000, -0.3000};
+    walking_pattern_P_R_[2] = {0.01, -0.072, -0.2800};  // [m]
+    walking_pattern_P_R_[3] = {0.01, -0.072, -0.2800};
+
+    walking_pattern_P_L_[0] = {0.01, 0.072, -0.2800};  // [m]
+    walking_pattern_P_L_[1] = {0.01, 0.072, -0.2800};
+    walking_pattern_P_L_[2] = {-0.01, 0.000, -0.3000};  // [m]
+    walking_pattern_P_L_[3] = {-0.01, 0.000, -0.3000};
+    // jointVelも、逆動力学（？）で導出したい。
+    walking_pattern_jointVel_R_[0] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
+    walking_pattern_jointVel_R_[1] = {1, 1, 0.5, 1, 0.5, 1};
+    walking_pattern_jointVel_R_[2] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
+    walking_pattern_jointVel_R_[3] = {1, 1, 0.5, 1, 0.5, 1};
+    walking_pattern_jointVel_L_[0] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
+    walking_pattern_jointVel_L_[1] = {1, 1, 0.5, 1, 0.5, 1};
+    walking_pattern_jointVel_L_[2] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
+    walking_pattern_jointVel_L_[3] = {1, 1, 0.5, 1, 0.5, 1};
+
+    loop_number_ = walking_pattern_P_R_.max_size();  // 要素の最大数を返す
+    // while(rclcpp::ok()){
+    // std::cout << loop_number_ << std::endl;
+    // }
+  }
+
   void WalkingPatternGenerator::callback_res(
     const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future
   ) {
     // DEBUG=====/*
-    std::cout << "RESPONSE" 
-              << "\n" << "__P_result_R: ";
-    std::copy(std::begin(future.get()->p_result_r), 
-              std::end(future.get()->p_result_r), 
-              std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "\n" << "__P_result_L: ";
-    std::copy(std::begin(future.get()->p_result_l), 
-              std::end(future.get()->p_result_l), 
-              std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "\n" << "__Q_result_R: ";
-    std::copy(std::begin(future.get()->q_result_r), 
-              std::end(future.get()->q_result_r), 
-              std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "\n" << "__Q_result_L: ";
-    std::copy(std::begin(future.get()->q_result_l), 
-              std::end(future.get()->q_result_l), 
-              std::ostream_iterator<double>(std::cout, " "));
-    std::cout << "\n" << std::endl;
+    // RCLCPP_INFO(this->get_logger(), "RESPONSE: ");
+    // std::cout << "__P_result_R: ";
+    // std::copy(std::begin(future.get()->p_result_r), 
+    //           std::end(future.get()->p_result_r), 
+    //           std::ostream_iterator<double>(std::cout, " "));
+    // std::cout << "\n" << "__P_result_L: ";
+    // std::copy(std::begin(future.get()->p_result_l), 
+    //           std::end(future.get()->p_result_l), 
+    //           std::ostream_iterator<double>(std::cout, " "));
+    // std::cout << "\n" << "__Q_result_R: ";
+    // std::copy(std::begin(future.get()->q_result_r), 
+    //           std::end(future.get()->q_result_r), 
+    //           std::ostream_iterator<double>(std::cout, " "));
+    // std::cout << "\n" << "__Q_result_L: ";
+    // std::copy(std::begin(future.get()->q_result_l), 
+    //           std::end(future.get()->q_result_l), 
+    //           std::ostream_iterator<double>(std::cout, " "));
+    // std::cout << "\n" << std::endl;
+    // DEBUG=====*/
 
     // resultをメンバ変数に記録。FK,IKそれぞれが求めない値（IK->p, FK->q）は、requestで与えた値と同値を返す。
     p_target_r_ = future.get()->p_result_r;
     p_target_l_ = future.get()->p_result_l;
     q_target_r_ = future.get()->q_result_r;
     q_target_l_ = future.get()->q_result_l;
-    // DEBUG=====*/
+    
+    step_counter_++;
+    publish_ok_check_ = true;
+
+    // auto time2 = rclcpp::Clock{}.now().seconds();
+    // if(hoge > 16){
+    //   auto time_dev = time2 - time;
+    //   if(time_max < time_dev){time_max = time_dev;}
+    //   if(time_min > time_dev){time_min = time_dev;}
+    //   std::cout << "[WalkingStabilizationController]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
+    // }
+    // hoge++;
+    // time = time2;
   }
 
   void WalkingPatternGenerator::step_WPG_pub() {
 
-    RCLCPP_INFO(this->get_logger(), "step...");
+    // RCLCPP_INFO(this->get_logger(), "step...");
 
     auto toKine_FK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
     auto toKine_IK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
 
     // DEBUG=====
-    // FK_request
-    toKine_FK_req->q_target_r = {0, 0, 0, 0, 0, 0};  // [rad]
-    toKine_FK_req->q_target_l = {0, 0, 0, 0, 0, 0};  // [rad]
-
-    // IK_request
     toKine_IK_req->r_target_r = {1, 0, 0,
                                 0, 1, 0,
                                 0, 0, 1};
-    toKine_IK_req->p_target_r = {0, 0, 0};  // [m]
+    toKine_IK_req->p_target_r = walking_pattern_P_R_[step_counter_%loop_number_];  // [m]
     toKine_IK_req->r_target_l = {1, 0, 0,
                                 0, 1, 0,
                                 0, 0, 1};
-    toKine_IK_req->p_target_l = {0, 0, 0};  // [m]
+    toKine_IK_req->p_target_l = walking_pattern_P_L_[step_counter_%loop_number_];  // [m]    
     // DEBUG=====
 
-    auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
-      toKine_FK_req, 
+    // FK ERROR_Handling
+    for(int i = 0; i < (int)toKine_FK_req->p_target_r.size(); i++) {
+      if(
+        (std::abs(toKine_FK_req->q_target_r[i]) > 3.14) or
+        (std::abs(toKine_FK_req->q_target_l[i]) > 3.14)
+      ) { 
+        RCLCPP_ERROR(this->get_logger(), "FK_Request: Q_Target: Invalid Value!!");
+        return;
+      }
+    }
+    // IK ERROR_Handling
+    if(
+      (std::abs(toKine_IK_req->p_target_r[2]) > 0.3082)  // コレだと不完全。absがある意味がない。他方向のERROR処理も随時追加
+    ) {
+      RCLCPP_ERROR(this->get_logger(), "IK_Request: P_target: Invalid Value!!");
+    }
+
+    // 非同期の待ち状態。待ちつつも、以降のプログラムを実行。このまま（2023/4/1/17:06）だと、responseを受ける前にpublishしてしまう。= resを受け取るより先に以降のプログラムが実行済みになってしまう。ここは、responseを待つ、同期処理にすべき、なのだが、spin_until_future_complete()の引数でthis->...の箇所で、std::runtime_errorを吐いてくる。無理。responseのほうがpublishよりも、約2.4[ms]遅い。  => 強引だが、対策済み
+
+    // auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
+    //   toKine_FK_req, 
+    //   std::bind(&WalkingPatternGenerator::callback_res, this, _1)
+    // );
+    // RCLCPP_INFO(this->get_logger(), "Request to kinematics...");
+    auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
+      toKine_IK_req, 
       std::bind(&WalkingPatternGenerator::callback_res, this, _1)
     );
 
     auto pub_msg = std::make_shared<msgs_package::msg::ToWalkingStabilizationControllerMessage>();
 
-    // pub_msg->p_target_r = {1, 1, 1};
-    // pub_msg->p_target_l = {2, 2, 2};
+    // set pub_msg
     pub_msg->p_target_r = p_target_r_;
     pub_msg->p_target_l = p_target_l_;
-    // pub_msg->q_target_r = {3, 3, 3, 3, 3, 3};
-    // pub_msg->q_target_l = {4, 4, 4, 4, 4, 4};
     pub_msg->q_target_r = q_target_r_;
     pub_msg->q_target_l = q_target_l_;
-    pub_msg->dq_target_r = {5, 5, 5, 5, 5, 5};
-    pub_msg->dq_target_l = {6, 6, 6, 6, 6, 6};
+    pub_msg->dq_target_r = walking_pattern_jointVel_R_[(step_counter_-1)%loop_number_];
+    pub_msg->dq_target_l = walking_pattern_jointVel_L_[(step_counter_-1)%loop_number_];
 
-    toWSC_pub_->publish(*pub_msg);
-    RCLCPP_INFO(this->get_logger(), "Publish...");
+    if(publish_ok_check_ == true) {
+      toWSC_pub_->publish(*pub_msg);
+      // RCLCPP_INFO(this->get_logger(), "Published...");
+    }
   }
 
   WalkingPatternGenerator::WalkingPatternGenerator(
     const rclcpp::NodeOptions &options
   ) : Node("WalkingPatternGenerator", options) {
 
-    RCLCPP_INFO(this->get_logger(), "Start up WalkingPatternGenerator. Hello WalkingPatternGenerator!!");
-    
-    toKine_FK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>("FK");
-    toKine_IK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>("IK");
+    // RCLCPP_INFO(this->get_logger(), "Start up WalkingPatternGenerator. Hello WalkingPatternGenerator!!");
 
-    toWSC_pub_ = this->create_publisher<msgs_package::msg::ToWalkingStabilizationControllerMessage>("WalkingPattern", rclcpp::QoS(10));
-    
+    toKine_FK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>(
+      "FK", 
+      custom_qos_profile
+    );
+    toKine_IK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>(
+      "IK",
+      custom_qos_profile
+    );
 
+    toWSC_pub_ = this->create_publisher<msgs_package::msg::ToWalkingStabilizationControllerMessage>(
+      "WalkingPattern",
+      rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile))
+    );
+    
     while(!toKine_FK_clnt_->wait_for_service(1s)) {
       if(!rclcpp::ok()) {
         RCLCPP_ERROR(this->get_logger(), "ERROR!!: FK service is dead.");
         return;
       }
-      RCLCPP_INFO(this->get_logger(), "Waiting for FK service...");
+      // RCLCPP_INFO(this->get_logger(), "Waiting for FK service...");
     }
     while(!toKine_IK_clnt_->wait_for_service(1s)) {
       if(!rclcpp::ok()) {
         RCLCPP_ERROR(this->get_logger(), "ERROR!!: IK service is dead.");
         return;
       }
-      RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
+      // RCLCPP_INFO(this->get_logger(), "Waiting for IK service...");
     }
 
+    // set inital counter value. set walking_pattern.
+    publish_ok_check_ = false;
+    step_counter_ = 0;
 
+    // DEBUG: parameter setting
+    WalkingPatternGenerator::DEBUG_ParameterSetting();
+    
+    // Timer処理。指定の周期で指定の関数を実行
     step_pub_ = this->create_wall_timer(
-      1000ms,
+      600ms,
       std::bind(&WalkingPatternGenerator::step_WPG_pub, this)
     );
   }

@@ -1,4 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
+// #include "rclcpp/qos.hpp"
+#include <rmw/types.h>
 #include "msgs_package/srv/to_kinematics_message.hpp"
 #include "kinematics/FK.hpp"
 
@@ -8,6 +10,23 @@
 
 namespace kinematics
 {
+  // auto time = rclcpp::Clock{}.now().seconds();
+  // auto time_max = time - time;
+  // auto time_min = time + time;
+
+  static const rmw_qos_profile_t custom_qos_profile =
+  {
+    RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
+    1,  // History(keep_last) Depth
+    RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,  // Reliability: best_effort or reliable
+    RMW_QOS_POLICY_DURABILITY_VOLATILE,  // Durability: transient_local or volatile
+    RMW_QOS_DEADLINE_DEFAULT,  // Deadline: default or number
+    RMW_QOS_LIFESPAN_DEFAULT,  // Lifespan: default or number
+    RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,  // Liveliness: automatic or manual_by_topic
+    RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,  // Liveliness_LeaseDuration: default or number
+    false  // avoid_ros_namespace_conventions
+  };
+
   using namespace Eigen;
 
   // 3D Rotation Matrix
@@ -55,9 +74,9 @@ namespace kinematics
     );
   }
 
-// DEBUG===/*
+// DEBUG===/*  脚の関節位置の読み込み。基準(0, 0, 0)は心臓の位置あたり
   void FKSrv::DEBUG_ParameterSetting() {
-    P_legL = {
+    P_legL_ = {  // 左脚
         Vector3d(-0.005, 0.037, -0.1222),
         Vector3d(0, 0, 0),
         Vector3d(0, 0, 0),
@@ -66,14 +85,14 @@ namespace kinematics
         Vector3d(0, 0, 0),
         Vector3d(0, 0, 0)
     };
-    P_legR = {
-        Vector3d(-0.005, -0.037, -0.1222),
-        Vector3d(0, 0, 0),
-        Vector3d(0, 0, 0),
-        Vector3d(0, 0, -0.093),
-        Vector3d(0, 0, -0.093),
-        Vector3d(0, 0, 0),
-        Vector3d(0, 0, 0)
+    P_legR_ = {  // 右脚
+        Vector3d(-0.005, -0.037, -0.1222),  // o(基準) -> 1
+        Vector3d(0, 0, 0),  // 1 -> 2
+        Vector3d(0, 0, 0),  // 2 -> 3
+        Vector3d(0, 0, -0.093),  // 3 -> 4
+        Vector3d(0, 0, -0.093),  // 4 -> 5
+        Vector3d(0, 0, 0),  // 5 -> 6
+        Vector3d(0, 0, 0)  // 6 -> a(足裏)
     };
   }
 // DEBUG===*/
@@ -83,29 +102,29 @@ namespace kinematics
     const std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Request> request,
     std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Response> response
   ) {
-    // DEBUG=====/*
-    // Q_legR = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};  // requestから受け取りたい
-    // Q_legL = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-    // DEBUG=====*/
+    // auto time = rclcpp::Clock{}.now().seconds();
+    // get values
+    Q_legR_ = request->q_target_r;
+    Q_legL_ = request->q_target_l;
+    R_legR_ = {Rz(Q_legR_[0]), Rx(Q_legR_[1]), Ry(Q_legR_[2]), Ry(Q_legR_[3]), Ry(Q_legR_[4]), Rx(Q_legR_[5])};
+    R_legL_ = {Rz(Q_legL_[0]), Rx(Q_legL_[1]), Ry(Q_legL_[2]), Ry(Q_legL_[3]), Ry(Q_legL_[4]), Rx(Q_legL_[5])};
 
-    Q_legR = request->q_target_r;
-    Q_legL = request->q_target_l;
-
-    R_legR = {Rz(Q_legR[0]), Rx(Q_legR[1]), Ry(Q_legR[2]), Ry(Q_legR[3]), Ry(Q_legR[4]), Rx(Q_legR[5])};
-    R_legL = {Rz(Q_legL[0]), Rx(Q_legL[1]), Ry(Q_legL[2]), Ry(Q_legL[3]), Ry(Q_legL[4]), Rx(Q_legL[5])};
-
-
-    FK_resultR = FK(R_legR, P_legR);
-    FK_resultL = FK(R_legL, P_legL);
+    // function FK. get result
+    FK_resultR_ = FK(R_legR_, P_legR_);
+    FK_resultL_ = FK(R_legL_, P_legL_);
     
-    response->p_result_r = {FK_resultR[0], FK_resultR[1], FK_resultR[2]};
-    response->p_result_l = {FK_resultL[0], FK_resultL[1], FK_resultL[2]};
-
-    // FK or IK check flag
-    response->q_result_r = request->q_target_r;
+    // set response values
+    response->p_result_r = {FK_resultR_[0], FK_resultR_[1], FK_resultR_[2]};
+    response->p_result_l = {FK_resultL_[0], FK_resultL_[1], FK_resultL_[2]};
+    response->q_result_r = request->q_target_r;  // FKで使わなかった値（変更なしの値）は、reqの値をそのまま返す
     response->q_result_l = request->q_target_l;
 
-    // RCLCPP_INFO(this->get_logger(), "P Result: R -> {}, L -> {}", response->p_result_r, response->p_result_l);
+    // auto time2 = rclcpp::Clock{}.now().seconds();
+    // auto time_dev = time2 - time;
+    // if(time_max < time_dev){time_max = time_dev;}
+    // if(time_min > time_dev){time_min = time_dev;}
+    // std::cout << "[FK]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
+    // time = time2;
   }
 
   // Node Setting
@@ -114,15 +133,18 @@ namespace kinematics
   ) : Node("FK_SrvServer", options) {
     using namespace std::placeholders;
 
-    RCLCPP_INFO(this->get_logger(), "Start up FK_SrvServer. Hello FK_SrvServer!!");
+    // RCLCPP_INFO(this->get_logger(), "Start up FK_SrvServer. Hello FK_SrvServer!!");
 
 // DEBUG===/*
     DEBUG_ParameterSetting();
 // DEBUG===*/
-    
-    toKine_srv_ptr = this->create_service<msgs_package::srv::ToKinematicsMessage>(
+
+    toKine_srv_ = this->create_service<msgs_package::srv::ToKinematicsMessage>(
       "FK", 
-      std::bind(&FKSrv::FK_SrvServer, this, _1, _2)
+      std::bind(&FKSrv::FK_SrvServer, this, _1, _2),
+      custom_qos_profile
     );
+
+    // RCLCPP_INFO(this->get_logger(), "Waiting FK Client...");
   }
 }

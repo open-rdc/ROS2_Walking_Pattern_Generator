@@ -4,13 +4,18 @@ Walking Pattern Generator using ROS2 for Humanoid Robots<br>
 (Under Construction...)<br>
 <br>
 
+## Development environment
+* OS: [Xubuntu 22.04](https://xubuntu.org/)<br>
+* ROS 2 Distribution: [Humble](https://docs.ros.org/en/humble/index.html)<br>
+* Simulator: [Webots R2023a](https://cyberbotics.com/)<br>
+* required package: [webots_ros2](https://github.com/cyberbotics/webots_ros2)<br> 
+
 ## Configuration Plan (Draft)
 * ROS2_Node<br>
-  * WalkingPatternGenerator<br>
-  * WalkingStabilizationController<br>
-  * WebotsRobotHandler (= webots_ros2 C++ plugin)<br>
-  * FK<br>
-  * IK<br>
+  * Walking-Pattern-Generator<br>
+  * Walking-Stabilization-Controller<br>
+  * CppPlugin<br>
+  * FKIK<br>
 <br>
 
 ![image](https://user-images.githubusercontent.com/91410662/218409060-1515cfde-39ba-43af-a07a-62a8140f8847.png)
@@ -23,17 +28,18 @@ Walking Pattern Generator using ROS2 for Humanoid Robots<br>
 <br>
 
 ## Robot Configulation
-・Used Robot: ROBOTIS OP2 ([official](https://e-shop.robotis.co.jp/product.php?id=14))<br>
-　・Webots simulation source data ([GitHub, cyberbotics, Webots, Darwin-op.proto](https://github.com/cyberbotics/webots/blob/master/projects/robots/robotis/darwin-op/protos/Darwin-op.proto
+* Used Robot: ROBOTIS OP2 ([official](https://e-shop.robotis.co.jp/product.php?id=14))<br>
+  * Webots simulation source data ([GitHub, cyberbotics, Webots, Darwin-op.proto](https://github.com/cyberbotics/webots/blob/master/projects/robots/robotis/darwin-op/protos/Darwin-op.proto
 ))<br>
-　　・Joint Status: [STATUS.txt](https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/blob/main/STATUS.txt)
+  * Joint Status: [STATUS.txt](https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/blob/main/STATUS.txt)
 <br>
-　・Webots User Guide ([ROBOTIS' Robotis OP2](https://cyberbotics.com/doc/guide/robotis-op2))
+
+  * Webots User Guide ([ROBOTIS' Robotis OP2](https://cyberbotics.com/doc/guide/robotis-op2))
 <br>
 <br>
 
 ## Reference
-・[Open Robotics, ROS 2 Documentation: Foxy](https://docs.ros.org/en/foxy/index.html)<br>
+・[Open Robotics, ROS 2 Documentation: Humble](https://docs.ros.org/en/humble/index.html)<br>
 ・[cyberbotics, Webots公式サイト](https://cyberbotics.com/)<br>
 ・[cyberbotics, Webots Reference Manual](https://cyberbotics.com/doc/reference/index)<br>
 ・[cyberbotics, Webots User Guide](https://cyberbotics.com/doc/guide/index)<br>
