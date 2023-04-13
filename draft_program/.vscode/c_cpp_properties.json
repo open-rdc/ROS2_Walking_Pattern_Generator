@@ -1,0 +1,25 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/xubu22/WPJ_ros2_ws/install/msgs_package/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/xubu22/WPJ_ros2_ws/src/kinematics/include/**",
+        "/home/xubu22/WPJ_ros2_ws/src/walking_pattern_generator/include/**",
+        "/home/xubu22/WPJ_ros2_ws/src/walking_stabilization_controller/include/**",
+        "/home/xubu22/WPJ_ros2_ws/src/webots_robot_handler/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}
