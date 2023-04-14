@@ -1,9 +1,3 @@
-/* MEMO
-ヘッダファイルは、Kinematicsで１つにまとめるのがBetterだと思う。ひとまず、別々で作成している。
-ヘッダファイルに限らず、複数serviceを1nodeでspinさせたりも考えられる。汚くなりそうだけども。
-あと、汎用的な関数（FK、IK、回転行列）は他cppとして作成して、ライブラリ化する方法は？
-*/
-
 #include "rclcpp/rclcpp.hpp"
 #include "msgs_package/srv/to_kinematics_message.hpp"
 

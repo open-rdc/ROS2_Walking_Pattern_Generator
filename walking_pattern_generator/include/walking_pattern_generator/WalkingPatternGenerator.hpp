@@ -29,7 +29,6 @@ namespace walking_pattern_generator
       // 逆運動学からJointAngleを導出する
       std::array<std::array<double, 3>, 4> walking_pattern_P_R_;
       std::array<std::array<double, 3>, 4> walking_pattern_P_L_;
-      // jointVelも、逆動力学（？）で導出したい。
       std::array<std::array<double, 6>, 4> walking_pattern_jointVel_R_;
       std::array<std::array<double, 6>, 4> walking_pattern_jointVel_L_;
 

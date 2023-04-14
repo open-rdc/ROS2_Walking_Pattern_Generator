@@ -2,7 +2,6 @@
 #include "pluginlib/class_list_macros.hpp"
 
 #include "rclcpp/rclcpp.hpp"
-// #include "rclcpp/qos.hpp"
 #include <rmw/qos_profiles.h>
 #include "iostream"
 #include <chrono>
@@ -15,10 +14,8 @@
 #include <webots/gyro.h>
 
 
-
 using namespace std::chrono_literals;
 using namespace std::placeholders;
-
 
 
 namespace webots_robot_handler
@@ -128,7 +125,6 @@ namespace webots_robot_handler
   void WebotsRobotHandler::step() {
     // RCLCPP_INFO(node_->get_logger(), "step...");
     
-    // DEBUG
     // [DEBUG] wait until the inital movement is over.
     if(count < 200) { /*std::cout << count << std::endl;*/ count++; }
     else if(count >= 200) {
@@ -143,25 +139,21 @@ namespace webots_robot_handler
   
     auto toWRH_req = std::make_shared<msgs_package::srv::ToWebotsRobotHandlerMessage::Request>();
 
-    // set request (WalkignStabilizationController)
     toWRH_req->accelerometer_now = {accelerometerValue_[0], accelerometerValue_[1], accelerometerValue_[2]};
     toWRH_req->gyro_now = {gyroValue_[0], gyroValue_[1], gyroValue_[2]};
     toWRH_req->q_now_r = {getJointAng_[6], getJointAng_[8], getJointAng_[10], getJointAng_[12], getJointAng_[14], getJointAng_[16]};
     toWRH_req->q_now_l = {getJointAng_[7], getJointAng_[9], getJointAng_[11], getJointAng_[13], getJointAng_[15], getJointAng_[17]};
 
-    // request service (WalkingStabilizationController)
     // RCLCPP_INFO(node_->get_logger(), "Request to WSC...");
     toWRH_clnt_->async_send_request(
       toWRH_req, 
       std::bind(&WebotsRobotHandler::callback_res, this, _1)
     );
 
-  // DEBUG
     }
 
   }
 }
-
 
 
 PLUGINLIB_EXPORT_CLASS (

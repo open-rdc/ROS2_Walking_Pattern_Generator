@@ -7,8 +7,8 @@
 
 #include <chrono>
 
-using namespace std::chrono_literals;  // 周期の単位を書けるようにする（ex. 100ms）
-using namespace std::placeholders;  // bind()の第３引数etcを簡単にする（ex. _1）
+using namespace std::chrono_literals; 
+using namespace std::placeholders;
 
 namespace walking_pattern_generator
 {
@@ -52,35 +52,11 @@ namespace walking_pattern_generator
     walking_pattern_jointVel_L_[3] = {1, 1, 0.5, 1, 0.5, 1};
 
     loop_number_ = walking_pattern_P_R_.max_size();  // 要素の最大数を返す
-    // while(rclcpp::ok()){
-    // std::cout << loop_number_ << std::endl;
-    // }
   }
 
   void WalkingPatternGenerator::callback_res(
     const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future
   ) {
-    // DEBUG=====/*
-    // RCLCPP_INFO(this->get_logger(), "RESPONSE: ");
-    // std::cout << "__P_result_R: ";
-    // std::copy(std::begin(future.get()->p_result_r), 
-    //           std::end(future.get()->p_result_r), 
-    //           std::ostream_iterator<double>(std::cout, " "));
-    // std::cout << "\n" << "__P_result_L: ";
-    // std::copy(std::begin(future.get()->p_result_l), 
-    //           std::end(future.get()->p_result_l), 
-    //           std::ostream_iterator<double>(std::cout, " "));
-    // std::cout << "\n" << "__Q_result_R: ";
-    // std::copy(std::begin(future.get()->q_result_r), 
-    //           std::end(future.get()->q_result_r), 
-    //           std::ostream_iterator<double>(std::cout, " "));
-    // std::cout << "\n" << "__Q_result_L: ";
-    // std::copy(std::begin(future.get()->q_result_l), 
-    //           std::end(future.get()->q_result_l), 
-    //           std::ostream_iterator<double>(std::cout, " "));
-    // std::cout << "\n" << std::endl;
-    // DEBUG=====*/
-
     // resultをメンバ変数に記録。FK,IKそれぞれが求めない値（IK->p, FK->q）は、requestで与えた値と同値を返す。
     p_target_r_ = future.get()->p_result_r;
     p_target_l_ = future.get()->p_result_l;
@@ -119,16 +95,6 @@ namespace walking_pattern_generator
     toKine_IK_req->p_target_l = walking_pattern_P_L_[step_counter_%loop_number_];  // [m]    
     // DEBUG=====
 
-    // FK ERROR_Handling
-    for(int i = 0; i < (int)toKine_FK_req->p_target_r.size(); i++) {
-      if(
-        (std::abs(toKine_FK_req->q_target_r[i]) > 3.14) or
-        (std::abs(toKine_FK_req->q_target_l[i]) > 3.14)
-      ) { 
-        RCLCPP_ERROR(this->get_logger(), "FK_Request: Q_Target: Invalid Value!!");
-        return;
-      }
-    }
     // IK ERROR_Handling
     if(
       (std::abs(toKine_IK_req->p_target_r[2]) > 0.3082)  // コレだと不完全。absがある意味がない。他方向のERROR処理も随時追加
@@ -136,12 +102,6 @@ namespace walking_pattern_generator
       RCLCPP_ERROR(this->get_logger(), "IK_Request: P_target: Invalid Value!!");
     }
 
-    // 非同期の待ち状態。待ちつつも、以降のプログラムを実行。このまま（2023/4/1/17:06）だと、responseを受ける前にpublishしてしまう。= resを受け取るより先に以降のプログラムが実行済みになってしまう。ここは、responseを待つ、同期処理にすべき、なのだが、spin_until_future_complete()の引数でthis->...の箇所で、std::runtime_errorを吐いてくる。無理。responseのほうがpublishよりも、約2.4[ms]遅い。  => 強引だが、対策済み
-
-    // auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
-    //   toKine_FK_req, 
-    //   std::bind(&WalkingPatternGenerator::callback_res, this, _1)
-    // );
     // RCLCPP_INFO(this->get_logger(), "Request to kinematics...");
     auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
       toKine_IK_req, 
@@ -184,13 +144,6 @@ namespace walking_pattern_generator
       rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile))
     );
     
-    while(!toKine_FK_clnt_->wait_for_service(1s)) {
-      if(!rclcpp::ok()) {
-        RCLCPP_ERROR(this->get_logger(), "ERROR!!: FK service is dead.");
-        return;
-      }
-      // RCLCPP_INFO(this->get_logger(), "Waiting for FK service...");
-    }
     while(!toKine_IK_clnt_->wait_for_service(1s)) {
       if(!rclcpp::ok()) {
         RCLCPP_ERROR(this->get_logger(), "ERROR!!: IK service is dead.");
@@ -205,8 +158,7 @@ namespace walking_pattern_generator
 
     // DEBUG: parameter setting
     WalkingPatternGenerator::DEBUG_ParameterSetting();
-    
-    // Timer処理。指定の周期で指定の関数を実行
+
     step_pub_ = this->create_wall_timer(
       600ms,
       std::bind(&WalkingPatternGenerator::step_WPG_pub, this)

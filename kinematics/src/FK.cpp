@@ -1,5 +1,4 @@
 #include "rclcpp/rclcpp.hpp"
-// #include "rclcpp/qos.hpp"
 #include <rmw/types.h>
 #include "msgs_package/srv/to_kinematics_message.hpp"
 #include "kinematics/FK.hpp"

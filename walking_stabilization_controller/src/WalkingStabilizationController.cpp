@@ -37,8 +37,6 @@ namespace walking_stabilization_controller
   void WalkingStabilizationController::callback_sub(
     const msgs_package::msg::ToWalkingStabilizationControllerMessage::SharedPtr sub_data
   ) {
-    // to walking_pattern_generator
-
     // RCLCPP_INFO(this->get_logger(), "Start callback_sub");
 
     P_target_legR_ = {sub_data->p_target_r[0], sub_data->p_target_r[1], sub_data->p_target_r[2]};
@@ -48,21 +46,12 @@ namespace walking_stabilization_controller
     dQ_target_legR_ = sub_data->dq_target_r;
     dQ_target_legL_ = sub_data->dq_target_l;
 
-    // std::cout << P_target_legR_.transpose() << std::endl;
-    // std::cout << P_target_legL_.transpose() << std::endl;
-    // for(int i = 0; i < 6; i++){std::cout << Q_target_legR_[i];} std::cout << std::endl;
-    // for(int i = 0; i < 6; i++){std::cout << Q_target_legL_[i];} std::cout << std::endl;
-    // for(int i = 0; i < 6; i++){std::cout << dQ_target_legR_[i];} std::cout << std::endl;
-    // for(int i = 0; i < 6; i++){std::cout << dQ_target_legL_[i];} std::cout << std::endl;
-
     // RCLCPP_INFO(this->get_logger(), "Subscribed...\n");
   }
 
   void WalkingStabilizationController::callback_res(
     const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future
   ) {
-    // to kinematics
-
     // RCLCPP_INFO(this->get_logger(), "Start callback_res");
 
     // FK, IKのresultをメンバ変数に記録。FK,IKそれぞれが求めない値（IK->p, FK->q）は、requestで与えた値と同値を返す。
@@ -93,8 +82,6 @@ namespace walking_stabilization_controller
     const std::shared_ptr<msgs_package::srv::ToWebotsRobotHandlerMessage::Request> request,
     std::shared_ptr<msgs_package::srv::ToWebotsRobotHandlerMessage::Response> response
   ) {
-    // walking_stabilization_controller service_server
-
     // RCLCPP_INFO(this->get_logger(), "Start WSC_SrvServer");
 
     if(P_target_legR_[0] == 999) {
