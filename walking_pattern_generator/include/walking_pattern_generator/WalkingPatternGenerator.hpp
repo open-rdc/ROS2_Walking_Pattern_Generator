@@ -1,6 +1,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "msgs_package/msg/to_walking_stabilization_controller_message.hpp"
 #include "msgs_package/srv/to_kinematics_message.hpp"
+#include "Eigen/Dense"
 
 namespace walking_pattern_generator
 {
@@ -10,7 +11,6 @@ namespace walking_pattern_generator
 
     private:
       rclcpp::Publisher<msgs_package::msg::ToWalkingStabilizationControllerMessage>::SharedPtr toWSC_pub_;
-      rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_FK_clnt_;
       rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_IK_clnt_;
 
       // get FK, IK result. set publish data.
@@ -35,6 +35,12 @@ namespace walking_pattern_generator
       void step_WPG_pub(void);
 
       void callback_res(const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future);
+
+      Eigen::MatrixXd JacobiMatrix_calc();
+      std::array<Eigen::Vector3d, 7> P_legR_;
+      std::array<Eigen::Vector3d, 7> P_legL_;
+      std::array<Eigen::Vector3d, 7> UniVec_legR_;
+      std::array<Eigen::Vector3d, 7> UniVec_legL_;
 
 // DEBUG===/*
       void DEBUG_ParameterSetting(void);

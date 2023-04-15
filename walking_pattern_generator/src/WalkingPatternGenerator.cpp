@@ -4,6 +4,7 @@
 #include "walking_pattern_generator/WalkingPatternGenerator.hpp"
 #include "msgs_package/msg/to_walking_stabilization_controller_message.hpp"
 #include "msgs_package/srv/to_kinematics_message.hpp"
+#include "Eigen/Dense"
 
 #include <chrono>
 
@@ -12,11 +13,6 @@ using namespace std::placeholders;
 
 namespace walking_pattern_generator
 {
-  // auto time = rclcpp::Clock{}.now().seconds();
-  // auto time_max = time - time;
-  // auto time_min = time + time;
-  // int hoge = 0;
-
   static const rmw_qos_profile_t custom_qos_profile =
   {
     RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
@@ -30,28 +26,33 @@ namespace walking_pattern_generator
     false  // avoid_ros_namespace_conventions
   };
 
+
+
+
   void WalkingPatternGenerator::DEBUG_ParameterSetting() {
-    // 逆運動学からJointAngleを導出する。回転行列もWalkingPatternで欲しい？
-    walking_pattern_P_R_[0] = {-0.01, -0.000, -0.3000};  // [m]
-    walking_pattern_P_R_[1] = {-0.01, -0.000, -0.3000};
-    walking_pattern_P_R_[2] = {0.01, -0.072, -0.2800};  // [m]
-    walking_pattern_P_R_[3] = {0.01, -0.072, -0.2800};
 
-    walking_pattern_P_L_[0] = {0.01, 0.072, -0.2800};  // [m]
-    walking_pattern_P_L_[1] = {0.01, 0.072, -0.2800};
-    walking_pattern_P_L_[2] = {-0.01, 0.000, -0.3000};  // [m]
-    walking_pattern_P_L_[3] = {-0.01, 0.000, -0.3000};
-    // jointVelも、逆動力学（？）で導出したい。
-    walking_pattern_jointVel_R_[0] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
-    walking_pattern_jointVel_R_[1] = {1, 1, 0.5, 1, 0.5, 1};
-    walking_pattern_jointVel_R_[2] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
-    walking_pattern_jointVel_R_[3] = {1, 1, 0.5, 1, 0.5, 1};
-    walking_pattern_jointVel_L_[0] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
-    walking_pattern_jointVel_L_[1] = {1, 1, 0.5, 1, 0.5, 1};
-    walking_pattern_jointVel_L_[2] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
-    walking_pattern_jointVel_L_[3] = {1, 1, 0.5, 1, 0.5, 1};
 
-    loop_number_ = walking_pattern_P_R_.max_size();  // 要素の最大数を返す
+    // // 逆運動学からJointAngleを導出する。回転行列もWalkingPatternで欲しい？
+    // walking_pattern_P_R_[0] = {-0.01, -0.000, -0.3000};  // [m]
+    // walking_pattern_P_R_[1] = {-0.01, -0.000, -0.3000};
+    // walking_pattern_P_R_[2] = {0.01, -0.072, -0.2800};  // [m]
+    // walking_pattern_P_R_[3] = {0.01, -0.072, -0.2800};
+
+    // walking_pattern_P_L_[0] = {0.01, 0.072, -0.2800};  // [m]
+    // walking_pattern_P_L_[1] = {0.01, 0.072, -0.2800};
+    // walking_pattern_P_L_[2] = {-0.01, 0.000, -0.3000};  // [m]
+    // walking_pattern_P_L_[3] = {-0.01, 0.000, -0.3000};
+    // // jointVelも、逆動力学（？）で導出したい。
+    // walking_pattern_jointVel_R_[0] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
+    // walking_pattern_jointVel_R_[1] = {1, 1, 0.5, 1, 0.5, 1};
+    // walking_pattern_jointVel_R_[2] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
+    // walking_pattern_jointVel_R_[3] = {1, 1, 0.5, 1, 0.5, 1};
+    // walking_pattern_jointVel_L_[0] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
+    // walking_pattern_jointVel_L_[1] = {1, 1, 0.5, 1, 0.5, 1};
+    // walking_pattern_jointVel_L_[2] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
+    // walking_pattern_jointVel_L_[3] = {1, 1, 0.5, 1, 0.5, 1};
+
+    // loop_number_ = walking_pattern_P_R_.max_size();  // 要素の最大数を返す
   }
 
   void WalkingPatternGenerator::callback_res(
@@ -63,37 +64,26 @@ namespace walking_pattern_generator
     q_target_r_ = future.get()->q_result_r;
     q_target_l_ = future.get()->q_result_l;
     
-    step_counter_++;
+    // step_counter_++;
     publish_ok_check_ = true;
-
-    // auto time2 = rclcpp::Clock{}.now().seconds();
-    // if(hoge > 16){
-    //   auto time_dev = time2 - time;
-    //   if(time_max < time_dev){time_max = time_dev;}
-    //   if(time_min > time_dev){time_min = time_dev;}
-    //   std::cout << "[WalkingStabilizationController]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
-    // }
-    // hoge++;
-    // time = time2;
   }
 
   void WalkingPatternGenerator::step_WPG_pub() {
 
     // RCLCPP_INFO(this->get_logger(), "step...");
 
-    auto toKine_FK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
     auto toKine_IK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
 
-    // DEBUG=====
-    toKine_IK_req->r_target_r = {1, 0, 0,
-                                0, 1, 0,
-                                0, 0, 1};
-    toKine_IK_req->p_target_r = walking_pattern_P_R_[step_counter_%loop_number_];  // [m]
-    toKine_IK_req->r_target_l = {1, 0, 0,
-                                0, 1, 0,
-                                0, 0, 1};
-    toKine_IK_req->p_target_l = walking_pattern_P_L_[step_counter_%loop_number_];  // [m]    
-    // DEBUG=====
+    // // DEBUG=====
+    // toKine_IK_req->r_target_r = {1, 0, 0,
+    //                             0, 1, 0,
+    //                             0, 0, 1};
+    // toKine_IK_req->p_target_r = walking_pattern_P_R_[step_counter_%loop_number_];  // [m]
+    // toKine_IK_req->r_target_l = {1, 0, 0,
+    //                             0, 1, 0,
+    //                             0, 0, 1};
+    // toKine_IK_req->p_target_l = walking_pattern_P_L_[step_counter_%loop_number_];  // [m]    
+    // // DEBUG=====
 
     // IK ERROR_Handling
     if(
@@ -110,18 +100,18 @@ namespace walking_pattern_generator
 
     auto pub_msg = std::make_shared<msgs_package::msg::ToWalkingStabilizationControllerMessage>();
 
-    // set pub_msg
-    pub_msg->p_target_r = p_target_r_;
-    pub_msg->p_target_l = p_target_l_;
-    pub_msg->q_target_r = q_target_r_;
-    pub_msg->q_target_l = q_target_l_;
-    pub_msg->dq_target_r = walking_pattern_jointVel_R_[(step_counter_-1)%loop_number_];
-    pub_msg->dq_target_l = walking_pattern_jointVel_L_[(step_counter_-1)%loop_number_];
+    // // set pub_msg
+    // pub_msg->p_target_r = p_target_r_;
+    // pub_msg->p_target_l = p_target_l_;
+    // pub_msg->q_target_r = q_target_r_;
+    // pub_msg->q_target_l = q_target_l_;
+    // pub_msg->dq_target_r = walking_pattern_jointVel_R_[(step_counter_-1)%loop_number_];
+    // pub_msg->dq_target_l = walking_pattern_jointVel_L_[(step_counter_-1)%loop_number_];
 
-    if(publish_ok_check_ == true) {
-      toWSC_pub_->publish(*pub_msg);
-      // RCLCPP_INFO(this->get_logger(), "Published...");
-    }
+    // if(publish_ok_check_ == true) {
+    //   toWSC_pub_->publish(*pub_msg);
+    //   // RCLCPP_INFO(this->get_logger(), "Published...");
+    // }
   }
 
   WalkingPatternGenerator::WalkingPatternGenerator(
@@ -130,10 +120,6 @@ namespace walking_pattern_generator
 
     // RCLCPP_INFO(this->get_logger(), "Start up WalkingPatternGenerator. Hello WalkingPatternGenerator!!");
 
-    toKine_FK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>(
-      "FK", 
-      custom_qos_profile
-    );
     toKine_IK_clnt_ = this->create_client<msgs_package::srv::ToKinematicsMessage>(
       "IK",
       custom_qos_profile

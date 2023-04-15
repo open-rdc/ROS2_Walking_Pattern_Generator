@@ -84,6 +84,8 @@ namespace walking_stabilization_controller
   ) {
     // RCLCPP_INFO(this->get_logger(), "Start WSC_SrvServer");
 
+    auto hoge = request;
+
     if(P_target_legR_[0] == 999) {
       RCLCPP_WARN(this->get_logger(), "WSC couldn't get subscription from WPG. All value are numeric 999.");
 
