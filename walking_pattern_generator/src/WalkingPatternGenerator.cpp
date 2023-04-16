@@ -85,8 +85,8 @@ namespace walking_pattern_generator
     // walking_pattern_jointVel_L_[3] = {1, 1, 0.5, 1, 0.5, 1};
 
     // loop_number_ = walking_pattern_P_R_.max_size();  // 要素の最大数を返す
-    Q_legR_ = {0, 0, 0, 0, 0, 0};
-    Q_legL_ = {0, 0, 0, 0, 0, 0};
+    Q_legR_ = {0, 0, 0, 1, 0, 0};
+    Q_legL_ = {0, 0, 0, 1, 0, 0};
   }
 
 
@@ -99,16 +99,21 @@ namespace walking_pattern_generator
     toKine_FK_req->q_target_r = Q_legR_;
     toKine_FK_req->q_target_l = Q_legL_;
 
-    for(int i = 0; i <= int(UnitVec_legR_.max_size()); i++) {
+    for(int i = 0; i < int(UnitVec_legR_.max_size()); i++) {
+      toKine_FK_req->fk_point = i;
+
       auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
         toKine_FK_req, 
         [this, i](const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future) {
           P_FK_legR_[i] = {future.get()->p_result_r[0], future.get()->p_result_r[1], future.get()->p_result_r[2]};
           P_FK_legL_[i] = {future.get()->p_result_l[0], future.get()->p_result_l[1], future.get()->p_result_l[2]};
-          std::cout << "legR: " << P_FK_legR_[i].transpose() << std::endl;
-          std::cout << "legL: " << P_FK_legL_[i].transpose() << std::endl;
         }
       );
+      rclcpp::spin_until_future_complete(this->get_node_base_interface(), toKine_FK_res);
+
+      std::cout << i << std::endl;
+      std::cout << "legR: " << P_FK_legR_[i].transpose() << std::endl;
+      std::cout << "legL: " << P_FK_legL_[i].transpose() << std::endl;
     }
 
     Vector3d P_legR = Vector3d::Zero(3);
@@ -255,6 +260,7 @@ namespace walking_pattern_generator
     std::cout << dq << "\n" << std::endl;
 
     return;
+    // DEBUG
 
     step_pub_ = this->create_wall_timer(
       600ms,
