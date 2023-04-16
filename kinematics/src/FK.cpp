@@ -60,17 +60,62 @@ namespace kinematics
 
   Vector3d FKSrv::FK(
     std::array<Eigen::Matrix3d, 6> R_leg,
-    std::array<Eigen::Vector3d, 7> P_leg
+    std::array<Eigen::Vector3d, 7> P_leg,
+    int point
   ) {
-    return (
-        R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * R_leg[4] * R_leg[5] * P_leg[6]
-      + R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * R_leg[4] * P_leg[5]
-      + R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * P_leg[4]
-      + R_leg[0] * R_leg[1] * R_leg[2] * P_leg[3]
-      + R_leg[0] * R_leg[1] * P_leg[2]
-      + R_leg[0] * P_leg[1]
-      + P_leg[0]
-    );
+    Vector3d fk_result;
+    switch(point) {
+      case 0:
+        fk_result = 
+            P_leg[0];
+        break;
+      case 1:
+        fk_result = 
+            R_leg[0] * P_leg[1]
+          + P_leg[0];
+        break;
+      case 2:
+        fk_result = 
+            R_leg[0] * R_leg[1] * P_leg[2]
+          + R_leg[0] * P_leg[1]
+          + P_leg[0];
+        break;
+      case 3:
+        fk_result = 
+            R_leg[0] * R_leg[1] * R_leg[2] * P_leg[3]
+          + R_leg[0] * R_leg[1] * P_leg[2]
+          + R_leg[0] * P_leg[1]
+          + P_leg[0];
+        break;
+      case 4:
+        fk_result = 
+            R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * P_leg[4]
+          + R_leg[0] * R_leg[1] * R_leg[2] * P_leg[3]
+          + R_leg[0] * R_leg[1] * P_leg[2]
+          + R_leg[0] * P_leg[1]
+          + P_leg[0];
+        break;
+      case 5:
+        fk_result = 
+            R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * R_leg[4] * P_leg[5]
+          + R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * P_leg[4]
+          + R_leg[0] * R_leg[1] * R_leg[2] * P_leg[3]
+          + R_leg[0] * R_leg[1] * P_leg[2]
+          + R_leg[0] * P_leg[1]
+          + P_leg[0];
+        break;
+      case 6:
+        fk_result = 
+            R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * R_leg[4] * R_leg[5] * P_leg[6]
+          + R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * R_leg[4] * P_leg[5]
+          + R_leg[0] * R_leg[1] * R_leg[2] * R_leg[3] * P_leg[4]
+          + R_leg[0] * R_leg[1] * R_leg[2] * P_leg[3]
+          + R_leg[0] * R_leg[1] * P_leg[2]
+          + R_leg[0] * P_leg[1]
+          + P_leg[0];
+        break;
+    }
+    return (fk_result);
   }
 
 // DEBUG===/*  脚の関節位置の読み込み。基準(0, 0, 0)は心臓の位置あたり
@@ -109,8 +154,8 @@ namespace kinematics
     R_legL_ = {Rz(Q_legL_[0]), Rx(Q_legL_[1]), Ry(Q_legL_[2]), Ry(Q_legL_[3]), Ry(Q_legL_[4]), Rx(Q_legL_[5])};
 
     // function FK. get result
-    FK_resultR_ = FK(R_legR_, P_legR_);
-    FK_resultL_ = FK(R_legL_, P_legL_);
+    FK_resultR_ = FK(R_legR_, P_legR_, request->fk_point);
+    FK_resultL_ = FK(R_legL_, P_legL_, request->fk_point);
     
     // set response values
     response->p_result_r = {FK_resultR_[0], FK_resultR_[1], FK_resultR_[2]};

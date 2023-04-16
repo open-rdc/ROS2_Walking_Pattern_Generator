@@ -24,7 +24,8 @@ namespace kinematics
 
       Eigen::Vector3d FK(
         std::array<Eigen::Matrix3d, 6> R_leg,
-        std::array<Eigen::Vector3d, 7> P_leg
+        std::array<Eigen::Vector3d, 7> P_leg,
+        int point
       );
 
       rclcpp::Service<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_srv_;

@@ -11,6 +11,7 @@ namespace walking_pattern_generator
 
     private:
       rclcpp::Publisher<msgs_package::msg::ToWalkingStabilizationControllerMessage>::SharedPtr toWSC_pub_;
+      rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_FK_clnt_;
       rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_IK_clnt_;
 
       // get FK, IK result. set publish data.
@@ -34,11 +35,16 @@ namespace walking_pattern_generator
 
       void step_WPG_pub(void);
 
-      void callback_res(const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future);
+      void callback_FK_res(const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future);
+      void callback_IK_res(const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future);
 
-      Eigen::MatrixXd JacobiMatrix_leg(std::array<Eigen::Vector3d, 7> P_leg, std::array<Eigen::Vector3d, 6> UniVec_leg);
-      std::array<Eigen::Vector3d, 7> P_legR_;
-      std::array<Eigen::Vector3d, 7> P_legL_;
+      void JacobiMatrix_leg(void);
+      Eigen::Matrix<double, 6, 6> Jacobi_legR_;
+      Eigen::Matrix<double, 6, 6> Jacobi_legL_;
+      std::array<Eigen::Vector3d, 6> P_FK_legR_;
+      std::array<Eigen::Vector3d, 6> P_FK_legL_;
+      std::array<double, 6> Q_legR_;
+      std::array<double, 6> Q_legL_;
       std::array<Eigen::Vector3d, 6> UnitVec_legR_;
       std::array<Eigen::Vector3d, 6> UnitVec_legL_;
 

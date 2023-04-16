@@ -1,5 +1,6 @@
 # req: WSC, WPJ <=> res: Kinematics
 
+int8 fk_point
 float64[9] r_target_r  
 float64[3] p_target_r  
 float64[6] q_target_r  
