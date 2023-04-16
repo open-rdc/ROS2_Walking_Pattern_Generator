@@ -10,6 +10,7 @@
 
 using namespace std::chrono_literals; 
 using namespace std::placeholders;
+using namespace Eigen;
 
 namespace walking_pattern_generator
 {
@@ -27,10 +28,45 @@ namespace walking_pattern_generator
   };
 
 
-
+  Eigen::MatrixXd WalkingPatternGenerator::JacobiMatrix_calc() {
+    
+  }
 
   void WalkingPatternGenerator::DEBUG_ParameterSetting() {
-
+    P_legR_ = {  // legR joint position
+        Vector3d(-0.005, -0.037, -0.1222),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, -0.093),
+        Vector3d(0, 0, -0.093),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, 0)
+    };
+    P_legL_ = {  // legL joint position
+        Vector3d(-0.005, 0.037, -0.1222),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, -0.093),
+        Vector3d(0, 0, -0.093),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, 0)
+    };
+    UniVec_legR_ = {  // legR joint unit vector
+      Vector3d(0, 0, 1),
+      Vector3d(1, 0, 0),
+      Vector3d(0, 1, 0),
+      Vector3d(0, 1, 0),
+      Vector3d(0, 1, 0),
+      Vector3d(1, 0, 0)
+    };
+    UniVec_legL_ = {  // legL joint unit vector
+      Vector3d(0, 0, 1),
+      Vector3d(1, 0, 0),
+      Vector3d(0, 1, 0),
+      Vector3d(0, 1, 0),
+      Vector3d(0, 1, 0),
+      Vector3d(1, 0, 0)      
+    };
 
     // // 逆運動学からJointAngleを導出する。回転行列もWalkingPatternで欲しい？
     // walking_pattern_P_R_[0] = {-0.01, -0.000, -0.3000};  // [m]
