@@ -36,11 +36,11 @@ namespace walking_pattern_generator
 
       void callback_res(const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future);
 
-      Eigen::MatrixXd JacobiMatrix_calc();
+      Eigen::MatrixXd JacobiMatrix_leg(std::array<Eigen::Vector3d, 7> P_leg, std::array<Eigen::Vector3d, 6> UniVec_leg);
       std::array<Eigen::Vector3d, 7> P_legR_;
       std::array<Eigen::Vector3d, 7> P_legL_;
-      std::array<Eigen::Vector3d, 6> UniVec_legR_;
-      std::array<Eigen::Vector3d, 6> UniVec_legL_;
+      std::array<Eigen::Vector3d, 6> UnitVec_legR_;
+      std::array<Eigen::Vector3d, 6> UnitVec_legL_;
 
 // DEBUG===/*
       void DEBUG_ParameterSetting(void);

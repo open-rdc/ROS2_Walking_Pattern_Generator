@@ -28,10 +28,6 @@ namespace walking_pattern_generator
   };
 
 
-  Eigen::MatrixXd WalkingPatternGenerator::JacobiMatrix_calc() {
-    
-  }
-
   void WalkingPatternGenerator::DEBUG_ParameterSetting() {
     P_legR_ = {  // legR joint position
         Vector3d(-0.005, -0.037, -0.1222),
@@ -51,7 +47,7 @@ namespace walking_pattern_generator
         Vector3d(0, 0, 0),
         Vector3d(0, 0, 0)
     };
-    UniVec_legR_ = {  // legR joint unit vector
+    UnitVec_legR_ = {  // legR joint unit vector
       Vector3d(0, 0, 1),
       Vector3d(1, 0, 0),
       Vector3d(0, 1, 0),
@@ -59,7 +55,7 @@ namespace walking_pattern_generator
       Vector3d(0, 1, 0),
       Vector3d(1, 0, 0)
     };
-    UniVec_legL_ = {  // legL joint unit vector
+    UnitVec_legL_ = {  // legL joint unit vector
       Vector3d(0, 0, 1),
       Vector3d(1, 0, 0),
       Vector3d(0, 1, 0),
@@ -90,6 +86,40 @@ namespace walking_pattern_generator
 
     // loop_number_ = walking_pattern_P_R_.max_size();  // 要素の最大数を返す
   }
+
+
+  MatrixXd WalkingPatternGenerator::JacobiMatrix_leg(std::array<Vector3d, 7> P_leg, std::array<Vector3d, 6> UnitVec_leg) {
+    MatrixXd Jacobi = MatrixXd::Zero(6, UnitVec_leg.max_size());
+
+    Vector3d P = Vector3d::Zero(3);
+    for(int tag = 0; tag < int(UnitVec_leg.max_size()); tag++) {
+      P += P_leg[tag];
+    }
+
+    Vector3d mat = Vector3d::Zero(3);
+    for(int tag = 0; tag < int(UnitVec_leg.max_size()); tag++) {
+      P -= P_leg[tag];
+      mat = UnitVec_leg[tag].cross(P);
+      if(abs(mat[0] + mat[1] + mat[2]) < 0.0000001) {
+        mat = Vector3d::Zero(3);
+      }
+       std::cout << "P: " << P.transpose() << std::endl;
+      std::cout << "mat: " << mat.transpose() << std::endl;
+      Jacobi(0, tag) = mat[0];
+      Jacobi(1, tag) = mat[1];
+      Jacobi(2, tag) = mat[2];
+      Jacobi(3, tag) = UnitVec_leg[tag][0];
+      Jacobi(4, tag) = UnitVec_leg[tag][1];
+      Jacobi(5, tag) = UnitVec_leg[tag][2];
+      // for(int i = 0; i < 3; i++) {
+      //   Jacobi(i, tag) = mat[i];
+      //   Jacobi(i+2, tag) = UnitVec_leg[tag][i];
+      // }
+    }
+    
+    return Jacobi;
+  }
+
 
   void WalkingPatternGenerator::callback_res(
     const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future
@@ -153,6 +183,10 @@ namespace walking_pattern_generator
   WalkingPatternGenerator::WalkingPatternGenerator(
     const rclcpp::NodeOptions &options
   ) : Node("WalkingPatternGenerator", options) {
+
+    DEBUG_ParameterSetting();
+    auto Jacobi = JacobiMatrix_leg(P_legR_, UnitVec_legR_);
+    std::cout << Jacobi << std::endl;
 
     // RCLCPP_INFO(this->get_logger(), "Start up WalkingPatternGenerator. Hello WalkingPatternGenerator!!");
 
