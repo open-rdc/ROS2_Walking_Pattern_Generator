@@ -103,18 +103,20 @@ namespace walking_pattern_generator
       if(abs(mat[0] + mat[1] + mat[2]) < 0.0000001) {
         mat = Vector3d::Zero(3);
       }
-       std::cout << "P: " << P.transpose() << std::endl;
-      std::cout << "mat: " << mat.transpose() << std::endl;
-      Jacobi(0, tag) = mat[0];
-      Jacobi(1, tag) = mat[1];
-      Jacobi(2, tag) = mat[2];
-      Jacobi(3, tag) = UnitVec_leg[tag][0];
-      Jacobi(4, tag) = UnitVec_leg[tag][1];
-      Jacobi(5, tag) = UnitVec_leg[tag][2];
-      // for(int i = 0; i < 3; i++) {
-      //   Jacobi(i, tag) = mat[i];
-      //   Jacobi(i+2, tag) = UnitVec_leg[tag][i];
-      // }
+
+      // std::cout << "P: " << P.transpose() << std::endl;
+      // std::cout << "mat: " << mat.transpose() << std::endl;
+      
+      // Jacobi(0, tag) = mat[0];
+      // Jacobi(1, tag) = mat[1];
+      // Jacobi(2, tag) = mat[2];
+      // Jacobi(3, tag) = UnitVec_leg[tag][0];
+      // Jacobi(4, tag) = UnitVec_leg[tag][1];
+      // Jacobi(5, tag) = UnitVec_leg[tag][2];
+      for(int i = 0; i < 3; i++) {
+        Jacobi(i, tag) = mat[i];
+        Jacobi(i+3, tag) = UnitVec_leg[tag][i];
+      }
     }
     
     return Jacobi;
