@@ -85,8 +85,8 @@ namespace walking_pattern_generator
     // walking_pattern_jointVel_L_[3] = {1, 1, 0.5, 1, 0.5, 1};
 
     // loop_number_ = walking_pattern_P_R_.max_size();  // 要素の最大数を返す
-    Q_legR_ = {0, 0, 0, 1, 0, 0};
-    Q_legL_ = {0, 0, 0, 1, 0, 0};
+    Q_legR_ = {0, 0, -3.14/4, 3.14/2, -3.14/4, 0};
+    Q_legL_ = {0, 0, -3.14/4, 3.14/2, -3.14/4, 0};
   }
 
 
@@ -115,27 +115,37 @@ namespace walking_pattern_generator
       std::cout << "legR: " << P_FK_legR_[i].transpose() << std::endl;
       std::cout << "legL: " << P_FK_legL_[i].transpose() << std::endl;
     }
+    std::cout << std::endl;
 
-    Vector3d P_legR = Vector3d::Zero(3);
-    Vector3d P_legL = Vector3d::Zero(3);
-    for(int tag = 0; tag < int(UnitVec_legR_.max_size()); tag++) {
-      P_legR += P_FK_legR_[tag];
-      P_legL += P_FK_legL_[tag];
-    }
+    Vector3d P_legR = P_FK_legR_[int(UnitVec_legR_.max_size())-1];
+    Vector3d P_legL = P_FK_legL_[int(UnitVec_legR_.max_size())-1];
+    
 
     Vector3d mat_legR = Vector3d::Zero(3);
     Vector3d mat_legL = Vector3d::Zero(3);
+    Vector3d pt_P_legR = Vector3d::Zero(3);
+    Vector3d pt_P_legL = Vector3d::Zero(3);
     for(int tag = 0; tag < int(UnitVec_legR_.max_size()); tag++) {
-      P_legR -= P_FK_legR_[tag];
-      P_legL -= P_FK_legL_[tag];
-      mat_legR = UnitVec_legR_[tag].cross(P_legR);
-      mat_legL = UnitVec_legL_[tag].cross(P_legL);
-
-      if(abs(mat_legR[0] + mat_legR[1] + mat_legR[2]) < 0.0000001) {
+      if(tag == int(UnitVec_legR_.max_size()-1)) {
         mat_legR = Vector3d::Zero(3);
-      }
-      if(abs(mat_legL[0] + mat_legL[1] + mat_legL[2]) < 0.0000001) {
         mat_legL = Vector3d::Zero(3);
+      }
+      else { 
+        pt_P_legR = P_legR - P_FK_legR_[tag];
+        pt_P_legL = P_legL - P_FK_legL_[tag];
+        std::cout << "pt_P_legR: " << pt_P_legR.transpose() << std::endl;
+        std::cout << "pt_P_legL: " << pt_P_legL.transpose() << std::endl;
+        mat_legR = UnitVec_legR_[tag].cross(pt_P_legR);
+        mat_legL = UnitVec_legL_[tag].cross(pt_P_legL);
+      }
+
+      for(int i = 0; i < 3; i++) {
+        if(abs(mat_legR[i]) < 0.000001) {
+          mat_legR[i] = 0;
+        }
+        if(abs(mat_legL[i]) < 0.000001) {
+          mat_legL[i] = 0;
+        }
       }
 
       for(int i = 0; i < 3; i++) {
@@ -253,11 +263,14 @@ namespace walking_pattern_generator
 
     std::cout << Jacobi_legR_ << "\n" << std::endl;
 
-    Vector<double, 6> v = {0.1, 0, 0, 0, 0, 0};
+    Vector<double, 6> v = {0, 0, 0.1, 0, 0, 0};
     std::cout << v << "\n" << std::endl;
-    auto dq = Jacobi_legR_.transpose() * v;
-    std::cout << Jacobi_legR_.transpose() << "\n" << std::endl;
-    std::cout << dq << "\n" << std::endl;
+    auto dq_legR = Jacobi_legR_.inverse() * v;
+    std::cout << Jacobi_legR_.inverse() << "\n" << std::endl;
+    std::cout << dq_legR << "\n" << std::endl;
+    auto dq_legL = Jacobi_legL_.inverse() * v;
+    std::cout << Jacobi_legL_.inverse() << "\n" << std::endl;
+    std::cout << dq_legL << "\n" << std::endl;
 
     return;
     // DEBUG
