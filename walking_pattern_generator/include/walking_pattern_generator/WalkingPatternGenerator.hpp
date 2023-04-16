@@ -35,16 +35,17 @@ namespace walking_pattern_generator
 
       void step_WPG_pub(void);
 
-      void callback_FK_res(const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future);
-      void callback_IK_res(const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future);
+      // Lamdaに移行
+      // void callback_FK_res(const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future);
+      // void callback_IK_res(const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future);
 
-      void JacobiMatrix_leg(void);
+      std::array<double, 6> Vector2Array(Eigen::Vector<double, 6> vector);
+
+      void JacobiMatrix_leg(std::array<double, 6> Q_legR, std::array<double, 6> Q_legL);
       Eigen::Matrix<double, 6, 6> Jacobi_legR_;
       Eigen::Matrix<double, 6, 6> Jacobi_legL_;
       std::array<Eigen::Vector3d, 6> P_FK_legR_;
       std::array<Eigen::Vector3d, 6> P_FK_legL_;
-      std::array<double, 6> Q_legR_;
-      std::array<double, 6> Q_legL_;
       std::array<Eigen::Vector3d, 6> UnitVec_legR_;
       std::array<Eigen::Vector3d, 6> UnitVec_legL_;
 

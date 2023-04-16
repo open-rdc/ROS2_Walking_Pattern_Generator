@@ -29,24 +29,6 @@ namespace walking_pattern_generator
 
 
   void WalkingPatternGenerator::DEBUG_ParameterSetting() {
-    // P_legR_ = {  // legR joint position
-    //     Vector3d(-0.005, -0.037, -0.1222),
-    //     Vector3d(0, 0, 0),
-    //     Vector3d(0, 0, 0),
-    //     Vector3d(0, 0, -0.093),
-    //     Vector3d(0, 0, -0.093),
-    //     Vector3d(0, 0, 0),
-    //     Vector3d(0, 0, 0)
-    // };
-    // P_legL_ = {  // legL joint position
-    //     Vector3d(-0.005, 0.037, -0.1222),
-    //     Vector3d(0, 0, 0),
-    //     Vector3d(0, 0, 0),
-    //     Vector3d(0, 0, -0.093),
-    //     Vector3d(0, 0, -0.093),
-    //     Vector3d(0, 0, 0),
-    //     Vector3d(0, 0, 0)
-    // };
     UnitVec_legR_ = {  // legR joint unit vector
       Vector3d(0, 0, 1),
       Vector3d(1, 0, 0),
@@ -64,40 +46,18 @@ namespace walking_pattern_generator
       Vector3d(1, 0, 0)      
     };
 
-    // // 逆運動学からJointAngleを導出する。回転行列もWalkingPatternで欲しい？
-    // walking_pattern_P_R_[0] = {-0.01, -0.000, -0.3000};  // [m]
-    // walking_pattern_P_R_[1] = {-0.01, -0.000, -0.3000};
-    // walking_pattern_P_R_[2] = {0.01, -0.072, -0.2800};  // [m]
-    // walking_pattern_P_R_[3] = {0.01, -0.072, -0.2800};
-
-    // walking_pattern_P_L_[0] = {0.01, 0.072, -0.2800};  // [m]
-    // walking_pattern_P_L_[1] = {0.01, 0.072, -0.2800};
-    // walking_pattern_P_L_[2] = {-0.01, 0.000, -0.3000};  // [m]
-    // walking_pattern_P_L_[3] = {-0.01, 0.000, -0.3000};
-    // // jointVelも、逆動力学（？）で導出したい。
-    // walking_pattern_jointVel_R_[0] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
-    // walking_pattern_jointVel_R_[1] = {1, 1, 0.5, 1, 0.5, 1};
-    // walking_pattern_jointVel_R_[2] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
-    // walking_pattern_jointVel_R_[3] = {1, 1, 0.5, 1, 0.5, 1};
-    // walking_pattern_jointVel_L_[0] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
-    // walking_pattern_jointVel_L_[1] = {1, 1, 0.5, 1, 0.5, 1};
-    // walking_pattern_jointVel_L_[2] = {1, 1, 0.5, 1, 0.5, 1};  // [rad/s]
-    // walking_pattern_jointVel_L_[3] = {1, 1, 0.5, 1, 0.5, 1};
-
     // loop_number_ = walking_pattern_P_R_.max_size();  // 要素の最大数を返す
-    Q_legR_ = {0, 0, -3.14/4, 3.14/2, -3.14/4, 0};
-    Q_legL_ = {0, 0, -3.14/4, 3.14/2, -3.14/4, 0};
   }
 
 
-  void WalkingPatternGenerator::JacobiMatrix_leg() {
+  void WalkingPatternGenerator::JacobiMatrix_leg(std::array<double, 6> Q_legR, std::array<double, 6> Q_legL) {
     Jacobi_legR_ = MatrixXd::Zero(6, UnitVec_legR_.max_size());
     Jacobi_legL_ = MatrixXd::Zero(6, UnitVec_legR_.max_size());
 
     auto toKine_FK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
 
-    toKine_FK_req->q_target_r = Q_legR_;
-    toKine_FK_req->q_target_l = Q_legL_;
+    toKine_FK_req->q_target_r = Q_legR;
+    toKine_FK_req->q_target_l = Q_legL;
 
     for(int i = 0; i < int(UnitVec_legR_.max_size()); i++) {
       toKine_FK_req->fk_point = i;
@@ -157,19 +117,23 @@ namespace walking_pattern_generator
     }
   }
 
-
-  void WalkingPatternGenerator::callback_IK_res(
-    const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future
-  ) {
-    // resultをメンバ変数に記録。FK,IKそれぞれが求めない値（IK->p, FK->q）は、requestで与えた値と同値を返す。
-    p_target_r_ = future.get()->p_result_r;
-    p_target_l_ = future.get()->p_result_l;
-    q_target_r_ = future.get()->q_result_r;
-    q_target_l_ = future.get()->q_result_l;
-    
-    // step_counter_++;
-    publish_ok_check_ = true;
+  std::array<double, 6> WalkingPatternGenerator::Vector2Array(Vector<double, 6> vector) {
+    return (std::array<double, 6>{vector[0], vector[1], vector[2], vector[3], vector[4], vector[5]});
   }
+
+
+  // void WalkingPatternGenerator::callback_IK_res(
+  //   const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future
+  // ) {
+  //   // resultをメンバ変数に記録。FK,IKそれぞれが求めない値（IK->p, FK->q）は、requestで与えた値と同値を返す。
+  //   p_target_r_ = future.get()->p_result_r;
+  //   p_target_l_ = future.get()->p_result_l;
+  //   q_target_r_ = future.get()->q_result_r;
+  //   q_target_l_ = future.get()->q_result_l;
+    
+  //   // step_counter_++;
+  //   publish_ok_check_ = true;
+  // }
 
   void WalkingPatternGenerator::step_WPG_pub() {
 
@@ -198,8 +162,29 @@ namespace walking_pattern_generator
     // RCLCPP_INFO(this->get_logger(), "Request to kinematics...");
     auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
       toKine_IK_req, 
-      std::bind(&WalkingPatternGenerator::callback_IK_res, this, _1)
+      // std::bind(&WalkingPatternGenerator::callback_IK_res, this, _1)
+      [this](const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future) {
+
+        // resultをメンバ変数に記録。FK,IKそれぞれが求めない値（IK->p, FK->q）は、requestで与えた値と同値を返す。
+        p_target_r_ = future.get()->p_result_r;
+        p_target_l_ = future.get()->p_result_l;
+        q_target_r_ = future.get()->q_result_r;
+        q_target_l_ = future.get()->q_result_l;
+        
+        // step_counter_++;
+        publish_ok_check_ = true;
+      }
     );
+
+    // get JacobiMatrix
+    WalkingPatternGenerator::JacobiMatrix_leg(q_target_r_, q_target_l_);
+
+    // DEBUG
+    Vector3d v_legR = {0, 0, 0.1, 0, 0, 0};  // 脚の末端の欲しい速度・角速度（符号を逆にしてやれば、基準点（＝胴体）の欲しい速度・角速度（な、はず））
+    Vector3d v_legL = {0, 0, 1.0, 0, 0, 0};
+
+    auto dq_target_r = Vector2Array(Jacobi_legR_.inverse() * v_legR);  // 各関節角速度を計算
+    auto dq_target_l = Vector2Array(Jacobi_legL_.inverse() * v_legL);
 
     auto pub_msg = std::make_shared<msgs_package::msg::ToWalkingStabilizationControllerMessage>();
 
@@ -208,8 +193,8 @@ namespace walking_pattern_generator
     // pub_msg->p_target_l = p_target_l_;
     // pub_msg->q_target_r = q_target_r_;
     // pub_msg->q_target_l = q_target_l_;
-    // pub_msg->dq_target_r = walking_pattern_jointVel_R_[(step_counter_-1)%loop_number_];
-    // pub_msg->dq_target_l = walking_pattern_jointVel_L_[(step_counter_-1)%loop_number_];
+    // pub_msg->dq_target_r = dq_target_r;
+    // pub_msg->dq_target_l = dq_target_l;
 
     // if(publish_ok_check_ == true) {
     //   toWSC_pub_->publish(*pub_msg);
@@ -259,21 +244,6 @@ namespace walking_pattern_generator
 
     // DEBUG: parameter setting
     WalkingPatternGenerator::DEBUG_ParameterSetting();
-    WalkingPatternGenerator::JacobiMatrix_leg();
-
-    std::cout << Jacobi_legR_ << "\n" << std::endl;
-
-    Vector<double, 6> v = {0, 0, 0.1, 0, 0, 0};
-    std::cout << v << "\n" << std::endl;
-    auto dq_legR = Jacobi_legR_.inverse() * v;
-    std::cout << Jacobi_legR_.inverse() << "\n" << std::endl;
-    std::cout << dq_legR << "\n" << std::endl;
-    auto dq_legL = Jacobi_legL_.inverse() * v;
-    std::cout << Jacobi_legL_.inverse() << "\n" << std::endl;
-    std::cout << dq_legL << "\n" << std::endl;
-
-    return;
-    // DEBUG
 
     step_pub_ = this->create_wall_timer(
       600ms,
