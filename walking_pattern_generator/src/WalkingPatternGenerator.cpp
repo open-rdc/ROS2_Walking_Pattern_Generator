@@ -71,9 +71,9 @@ namespace walking_pattern_generator
       );
       rclcpp::spin_until_future_complete(this->get_node_base_interface(), toKine_FK_res);
 
-      std::cout << i << std::endl;
-      std::cout << "legR: " << P_FK_legR_[i].transpose() << std::endl;
-      std::cout << "legL: " << P_FK_legL_[i].transpose() << std::endl;
+      // std::cout << i << std::endl;
+      // std::cout << "legR: " << P_FK_legR_[i].transpose() << std::endl;
+      // std::cout << "legL: " << P_FK_legL_[i].transpose() << std::endl;
     }
     std::cout << std::endl;
 
@@ -93,8 +93,8 @@ namespace walking_pattern_generator
       else { 
         pt_P_legR = P_legR - P_FK_legR_[tag];
         pt_P_legL = P_legL - P_FK_legL_[tag];
-        std::cout << "pt_P_legR: " << pt_P_legR.transpose() << std::endl;
-        std::cout << "pt_P_legL: " << pt_P_legL.transpose() << std::endl;
+        // std::cout << "pt_P_legR: " << pt_P_legR.transpose() << std::endl;
+        // std::cout << "pt_P_legL: " << pt_P_legL.transpose() << std::endl;
         mat_legR = UnitVec_legR_[tag].cross(pt_P_legR);
         mat_legL = UnitVec_legL_[tag].cross(pt_P_legL);
       }
@@ -181,25 +181,25 @@ namespace walking_pattern_generator
 
     // DEBUG
     Vector3d v_legR = {0, 0, 0.1, 0, 0, 0};  // 脚の末端の欲しい速度・角速度（符号を逆にしてやれば、基準点（＝胴体）の欲しい速度・角速度（な、はず））
-    Vector3d v_legL = {0, 0, 1.0, 0, 0, 0};
+    Vector3d v_legL = {0, 0, 1.0, 0, 0, 0};  // 遊脚は、符号が基準と同じ。支持脚は、符号が基準と逆。
 
     auto dq_target_r = Vector2Array(Jacobi_legR_.inverse() * v_legR);  // 各関節角速度を計算
     auto dq_target_l = Vector2Array(Jacobi_legL_.inverse() * v_legL);
 
     auto pub_msg = std::make_shared<msgs_package::msg::ToWalkingStabilizationControllerMessage>();
 
-    // // set pub_msg
-    // pub_msg->p_target_r = p_target_r_;
-    // pub_msg->p_target_l = p_target_l_;
-    // pub_msg->q_target_r = q_target_r_;
-    // pub_msg->q_target_l = q_target_l_;
-    // pub_msg->dq_target_r = dq_target_r;
-    // pub_msg->dq_target_l = dq_target_l;
+    // set pub_msg
+    pub_msg->p_target_r = p_target_r_;
+    pub_msg->p_target_l = p_target_l_;
+    pub_msg->q_target_r = q_target_r_;
+    pub_msg->q_target_l = q_target_l_;
+    pub_msg->dq_target_r = dq_target_r;
+    pub_msg->dq_target_l = dq_target_l;
 
-    // if(publish_ok_check_ == true) {
-    //   toWSC_pub_->publish(*pub_msg);
-    //   // RCLCPP_INFO(this->get_logger(), "Published...");
-    // }
+    if(publish_ok_check_ == true) {
+      toWSC_pub_->publish(*pub_msg);
+      // RCLCPP_INFO(this->get_logger(), "Published...");
+    }
   }
 
   WalkingPatternGenerator::WalkingPatternGenerator(
