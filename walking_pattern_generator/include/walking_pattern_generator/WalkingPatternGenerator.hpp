@@ -28,17 +28,26 @@ namespace walking_pattern_generator
       int step_counter_;
       int loop_number_;
       
+      // parameter 
       Eigen::Vector2d walking_pattern_init_com_;  // 初期重心位置(x, y)
-      Eigen::Vector2d walking_pattern_init_p_;  // 初期着地位置(x, y)
+      double init_com_z_;  // 必要？いらないはず。 一応、記録用。
+      // parameter
       Eigen::Matrix<double, 2, 5> walking_pattern_s_;  // 歩行パラメータ(x1~5, y1~5)
+      
+      // calc
+      Eigen::Vector2d walking_pattern_init_p_;  // 初期着地位置(x, y)
       Eigen::Vector2d walking_pattern_p_;  // 着地位置(x, y)
       Eigen::Vector2d walking_pattern_p_old_;  // １step前の着地位置(x, y)
+      
       Eigen::Vector2d walking_segment_;  // 歩行素片位置(x, y)
       Eigen::Vector2d walking_segment_vel_;  // 歩行素片速度(x, y)
+      
       Eigen::Vector2d walking_pattern_x_;  // n歩目の歩行状態のxの最終状態(x, dx)
       Eigen::Vector2d walking_pattern_y_;  // 上に同じ(y, dy)
+      
       Eigen::Vector2d walking_pattern_xi_;  // n歩目が始まる瞬間のxの重心位置と速度(x, dx)
       Eigen::Vector2d walking_pattern_yi_;  // 上に同じ(y, dy)
+      
       Eigen::Vector2d walking_pattern_target_x_;  // xの最終状態の目標値(x, dx)
       Eigen::Vector2d walking_pattern_target_y_;  // 上に同じ(y, dy)
 

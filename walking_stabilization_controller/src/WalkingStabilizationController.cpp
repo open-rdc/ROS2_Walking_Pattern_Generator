@@ -176,12 +176,12 @@ namespace walking_stabilization_controller
     );
 
     // init
-    P_target_legR_ = {999, 999, 999};
-    P_target_legL_ = {999, 999, 999};
-    Q_target_legR_ = {999, 999, 999, 999, 999, 999};
-    Q_target_legL_ = {999, 999, 999, 999, 999, 999};
-    dQ_target_legR_ = {999, 999, 999, 999, 999, 999};
-    dQ_target_legL_ = {999, 999, 999, 999, 999, 999};;
+    P_target_legR_ = {-0.005, -0.037, -0.294056};
+    P_target_legL_ = {-0.005, 0.037, -0.294056};
+    Q_target_legR_ = {0, 0, -3.14/8, 3.14/4, -3.14/8, 0};
+    Q_target_legL_ = {0, 0, -3.14/8, 3.14/4, -3.14/8, 0};
+    dQ_target_legR_ = {0, 0, 0, 0, 0, 0};
+    dQ_target_legL_ = {0, 0, 0, 0, 0, 0};
 
     // RCLCPP_INFO(this->get_logger(), "Waiting request & publish ...");
   }

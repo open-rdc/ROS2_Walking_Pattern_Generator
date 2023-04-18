@@ -46,6 +46,17 @@ namespace walking_pattern_generator
       Vector3d(1, 0, 0)      
     };
 
+      // 初期重心位置(x, y)
+      // Q(0, 0, -0.322497(-3.14/8), 0.784994(3.14/4), -0.392497(-3.14/8), 0)
+      // legR_y: -0.037, legL_y: 0.037, 間をy軸として、com_y: 0.0
+      walking_pattern_init_com_ << -0.005, 0.0;  
+      init_com_z_ = -0.294056;  // 必要？いらないはず。 一応、記録用。
+
+      // 歩行パラメータ(x1~5, y1~5)
+      walking_pattern_s_ << 0.00, 0.10, 0.10, 0.10, 0.00,  // x
+                            0.05, 0.05, 0.05, 0.05, 0.05   // y
+                        ;
+
     // loop_number_ = walking_pattern_P_R_.max_size();  // 要素の最大数を返す
   }
 
@@ -141,17 +152,6 @@ namespace walking_pattern_generator
 
     auto toKine_IK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
 
-    // // DEBUG=====
-    // toKine_IK_req->r_target_r = {1, 0, 0,
-    //                             0, 1, 0,
-    //                             0, 0, 1};
-    // toKine_IK_req->p_target_r = walking_pattern_P_R_[step_counter_%loop_number_];  // [m]
-    // toKine_IK_req->r_target_l = {1, 0, 0,
-    //                             0, 1, 0,
-    //                             0, 0, 1};
-    // toKine_IK_req->p_target_l = walking_pattern_P_L_[step_counter_%loop_number_];  // [m]    
-    // // DEBUG=====
-
     // IK ERROR_Handling
     if(
       (std::abs(toKine_IK_req->p_target_r[2]) > 0.3082)  // コレだと不完全。absがある意味がない。他方向のERROR処理も随時追加
@@ -175,31 +175,32 @@ namespace walking_pattern_generator
         publish_ok_check_ = true;
       }
     );
+    rclcpp::spin_until_future_complete(this->get_node_base_interface(), toKine_IK_res);
 
-    // get JacobiMatrix
-    WalkingPatternGenerator::JacobiMatrix_leg(q_target_r_, q_target_l_);
+    // // get JacobiMatrix
+    // WalkingPatternGenerator::JacobiMatrix_leg(q_target_r_, q_target_l_);
 
-    // DEBUG
-    Vector3d v_legR = {0, 0, 0.1, 0, 0, 0};  // 脚の末端の欲しい速度・角速度（符号を逆にしてやれば、基準点（＝胴体）の欲しい速度・角速度（な、はず））
-    Vector3d v_legL = {0, 0, 1.0, 0, 0, 0};  // 遊脚は、符号が基準と同じ。支持脚は、符号が基準と逆。
+    // // DEBUG
+    // Vector3d v_legR = {0, 0, 0.1, 0, 0, 0};  // 脚の末端の欲しい速度・角速度（符号を逆にしてやれば、基準点（＝胴体）の欲しい速度・角速度（な、はず））
+    // Vector3d v_legL = {0, 0, 1.0, 0, 0, 0};  // 遊脚は、符号が基準と同じ。支持脚は、符号が基準と逆。
 
-    auto dq_target_r = Vector2Array(Jacobi_legR_.inverse() * v_legR);  // 各関節角速度を計算
-    auto dq_target_l = Vector2Array(Jacobi_legL_.inverse() * v_legL);
+    // auto dq_target_r = Vector2Array(Jacobi_legR_.inverse() * v_legR);  // 各関節角速度を計算
+    // auto dq_target_l = Vector2Array(Jacobi_legL_.inverse() * v_legL);
 
-    auto pub_msg = std::make_shared<msgs_package::msg::ToWalkingStabilizationControllerMessage>();
+    // auto pub_msg = std::make_shared<msgs_package::msg::ToWalkingStabilizationControllerMessage>();
 
-    // set pub_msg
-    pub_msg->p_target_r = p_target_r_;
-    pub_msg->p_target_l = p_target_l_;
-    pub_msg->q_target_r = q_target_r_;
-    pub_msg->q_target_l = q_target_l_;
-    pub_msg->dq_target_r = dq_target_r;
-    pub_msg->dq_target_l = dq_target_l;
+    // // set pub_msg
+    // pub_msg->p_target_r = p_target_r_;
+    // pub_msg->p_target_l = p_target_l_;
+    // pub_msg->q_target_r = q_target_r_;
+    // pub_msg->q_target_l = q_target_l_;
+    // pub_msg->dq_target_r = dq_target_r;
+    // pub_msg->dq_target_l = dq_target_l;
 
-    if(publish_ok_check_ == true) {
-      toWSC_pub_->publish(*pub_msg);
-      // RCLCPP_INFO(this->get_logger(), "Published...");
-    }
+    // if(publish_ok_check_ == true) {
+    //   toWSC_pub_->publish(*pub_msg);
+    //   // RCLCPP_INFO(this->get_logger(), "Published...");
+    // }
   }
 
   WalkingPatternGenerator::WalkingPatternGenerator(
