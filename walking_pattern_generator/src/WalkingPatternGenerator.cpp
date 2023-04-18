@@ -28,6 +28,10 @@ namespace walking_pattern_generator
   };
 
 
+  double Tc;  // 時定数（sqrt(com_z/g)）
+  double C;  // cosh(t_sup_/Tc)
+  double S;  // sinh(t_sup_/Tc)
+
   void WalkingPatternGenerator::DEBUG_ParameterSetting() {
     UnitVec_legR_ = {  // legR joint unit vector
       Vector3d(0, 0, 1),
@@ -53,9 +57,13 @@ namespace walking_pattern_generator
       init_com_z_ = -0.294056;  // 必要？いらないはず。 一応、記録用。
 
       // 歩行パラメータ(x1~5, y1~5)
-      walking_pattern_s_ << 0.00, 0.10, 0.10, 0.10, 0.00,  // x
-                            0.05, 0.05, 0.05, 0.05, 0.05   // y
+      walking_pattern_s_ << 0.000, 0.100, 0.100, 0.100, 0.000,  // x
+                            0.072, 0.072, 0.072, 0.072, 0.072   // y
                         ;
+
+      t_sup_ = 600;
+      Tc = sqrt(init_com_z_ / 9.80665);
+      C = 0;
 
     // loop_number_ = walking_pattern_P_R_.max_size();  // 要素の最大数を返す
   }

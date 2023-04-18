@@ -33,11 +33,13 @@ namespace walking_pattern_generator
       double init_com_z_;  // 必要？いらないはず。 一応、記録用。
       // parameter
       Eigen::Matrix<double, 2, 5> walking_pattern_s_;  // 歩行パラメータ(x1~5, y1~5)
+      // parameter
+      int t_sup_;
       
       // calc
-      Eigen::Vector2d walking_pattern_init_p_;  // 初期着地位置(x, y)
-      Eigen::Vector2d walking_pattern_p_;  // 着地位置(x, y)
-      Eigen::Vector2d walking_pattern_p_old_;  // １step前の着地位置(x, y)
+      Eigen::Vector2d walking_pattern_init_global_p_;  // 初期着地位置(x, y)
+      Eigen::Vector2d walking_pattern_global_p_;  // 着地位置(x, y)
+      Eigen::Vector2d walking_pattern_global_p_pre_;  // １step前の着地位置(x, y)
       
       Eigen::Vector2d walking_segment_;  // 歩行素片位置(x, y)
       Eigen::Vector2d walking_segment_vel_;  // 歩行素片速度(x, y)
