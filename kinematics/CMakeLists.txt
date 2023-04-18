@@ -54,9 +54,43 @@ target_include_directories(ik_srv
     include
 )
 
+add_executable(fk_client
+  src/FK_client.cpp
+)
+ament_target_dependencies(fk_client
+  rclcpp
+  msgs_package
+)
+target_include_directories(ik_srv
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
+    $<INSTALL_INTERFACE:include>
+  PRIVATE
+    include
+)
+
+add_executable(ik_client
+  src/IK_client.cpp
+)
+ament_target_dependencies(ik_client
+  rclcpp
+  msgs_package
+)
+target_include_directories(ik_srv
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
+    $<INSTALL_INTERFACE:include>
+  PRIVATE
+    include
+)
+
 install(TARGETS
   fk_srv
   ik_srv
+  fk_client
+  ik_client
   DESTINATION lib/${PROJECT_NAME}
 )
 
