@@ -23,10 +23,10 @@ using namespace std::placeholders;
 
 namespace webots_robot_handler
 {
-  // auto time = rclcpp::Clock{}.now().seconds();
-  // auto time_max = time - time;
-  // auto time_min = time + time;
-  // int hoge = 0;
+  auto time = rclcpp::Clock{}.now().seconds();
+  auto time_max = time - time;
+  auto time_min = time + time;
+  int hoge = 0;
 
   static const rmw_qos_profile_t custom_qos_profile =
   {
@@ -112,21 +112,14 @@ namespace webots_robot_handler
     }
 
     // RCLCPP_INFO(node_->get_logger(), time - rclcpp::Clock{}.now().seconds());
-    // auto time2 = rclcpp::Clock{}.now().seconds();
-    // if(hoge > 20){
-    //   auto time_dev = time2 - time;
-    //   if(time_max < time_dev){time_max = time_dev;}
-    //   if(time_min > time_dev){time_min = time_dev;}
-    //   std::cout << "[WebotsRobotHandler]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
-    // }
-    // hoge++;
-    // time = time2;
     // RCLCPP_INFO(node_->get_logger(), "Set Robot Motion");
   }
 
 
   void WebotsRobotHandler::step() {
     // RCLCPP_INFO(node_->get_logger(), "step...");
+
+    time = rclcpp::Clock{}.now().seconds();
     
     // DEBUG
     // [DEBUG] wait until the inital movement is over.
@@ -155,6 +148,16 @@ namespace webots_robot_handler
       toWRH_req, 
       std::bind(&WebotsRobotHandler::callback_res, this, _1)
     );
+
+      auto time2 = rclcpp::Clock{}.now().seconds();
+      if(hoge > 20){
+        auto time_dev = time2 - time;
+        if(time_max < time_dev){time_max = time_dev;}
+        if(time_min > time_dev){time_min = time_dev;}
+        std::cout << "[WebotsRobotHandler]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
+      }
+      hoge++;
+      time = time2;
 
   // DEBUG
     }
