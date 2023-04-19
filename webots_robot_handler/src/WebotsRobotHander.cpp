@@ -113,44 +113,47 @@ namespace webots_robot_handler
 
     // RCLCPP_INFO(node_->get_logger(), time - rclcpp::Clock{}.now().seconds());
     // RCLCPP_INFO(node_->get_logger(), "Set Robot Motion");
+
+    
   }
 
 
   void WebotsRobotHandler::step() {
     // RCLCPP_INFO(node_->get_logger(), "step...");
+    // time = rclcpp::Clock{}.now().seconds();
+    // wb_robot_step(58);  // stepの大きさ = 50msぐらい
+    // wb_robot_step_begin(32*10);
 
-    time = rclcpp::Clock{}.now().seconds();
-    
     // DEBUG
     // [DEBUG] wait until the inital movement is over.
-    if(count < 200) { /*std::cout << count << std::endl;*/ count++; }
-    else if(count >= 200) {
+    if(count < 100) { /*std::cout << count << std::endl;*/ count++; }
+    else if(count >= 100) {
 
 
-    // get sensor data
-    for(int i = 0; i < 20; i++) {
-      getJointAng_[i] = wb_position_sensor_get_value(positionSensorsTag_[i]);
-    }
-    accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);
-    gyroValue_ = wb_gyro_get_values(gyroTag_);
-  
-    auto toWRH_req = std::make_shared<msgs_package::srv::ToWebotsRobotHandlerMessage::Request>();
+      // get sensor data
+      for(int i = 0; i < 20; i++) {
+        getJointAng_[i] = wb_position_sensor_get_value(positionSensorsTag_[i]);
+      }
+      accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);
+      gyroValue_ = wb_gyro_get_values(gyroTag_);
+    
+      auto toWRH_req = std::make_shared<msgs_package::srv::ToWebotsRobotHandlerMessage::Request>();
 
-    // set request (WalkignStabilizationController)
-    toWRH_req->accelerometer_now = {accelerometerValue_[0], accelerometerValue_[1], accelerometerValue_[2]};
-    toWRH_req->gyro_now = {gyroValue_[0], gyroValue_[1], gyroValue_[2]};
-    toWRH_req->q_now_r = {getJointAng_[6], getJointAng_[8], getJointAng_[10], getJointAng_[12], getJointAng_[14], getJointAng_[16]};
-    toWRH_req->q_now_l = {getJointAng_[7], getJointAng_[9], getJointAng_[11], getJointAng_[13], getJointAng_[15], getJointAng_[17]};
+      // set request (WalkignStabilizationController)
+      toWRH_req->accelerometer_now = {accelerometerValue_[0], accelerometerValue_[1], accelerometerValue_[2]};
+      toWRH_req->gyro_now = {gyroValue_[0], gyroValue_[1], gyroValue_[2]};
+      toWRH_req->q_now_r = {getJointAng_[6], getJointAng_[8], getJointAng_[10], getJointAng_[12], getJointAng_[14], getJointAng_[16]};
+      toWRH_req->q_now_l = {getJointAng_[7], getJointAng_[9], getJointAng_[11], getJointAng_[13], getJointAng_[15], getJointAng_[17]};
 
-    // request service (WalkingStabilizationController)
-    // RCLCPP_INFO(node_->get_logger(), "Request to WSC...");
-    toWRH_clnt_->async_send_request(
-      toWRH_req, 
-      std::bind(&WebotsRobotHandler::callback_res, this, _1)
-    );
+      // request service (WalkingStabilizationController)
+      // RCLCPP_INFO(node_->get_logger(), "Request to WSC...");
+      toWRH_clnt_->async_send_request(
+        toWRH_req, 
+        std::bind(&WebotsRobotHandler::callback_res, this, _1)
+      );
 
       auto time2 = rclcpp::Clock{}.now().seconds();
-      if(hoge > 20){
+      if(hoge > 1){
         auto time_dev = time2 - time;
         if(time_max < time_dev){time_max = time_dev;}
         if(time_min > time_dev){time_min = time_dev;}
@@ -161,6 +164,7 @@ namespace webots_robot_handler
 
   // DEBUG
     }
+    // wb_robot_step_end();
 
   }
 }
