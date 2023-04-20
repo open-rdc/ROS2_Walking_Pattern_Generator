@@ -63,7 +63,8 @@ namespace walking_pattern_generator
 
       t_sup_ = 600;
       Tc = sqrt(init_com_z_ / 9.80665);
-      C = 0;
+      C = std::cosh(t_sup_/Tc);
+      S = std::sinh(t_sup_/Tc);
 
     // loop_number_ = walking_pattern_P_R_.max_size();  // 要素の最大数を返す
   }
@@ -255,7 +256,7 @@ namespace walking_pattern_generator
     WalkingPatternGenerator::DEBUG_ParameterSetting();
 
     step_pub_ = this->create_wall_timer(
-      600ms,
+      std::chrono::milliseconds(t_sup_),  // t_sup_[ms]
       std::bind(&WalkingPatternGenerator::step_WPG_pub, this)
     );
   }

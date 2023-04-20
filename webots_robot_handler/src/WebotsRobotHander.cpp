@@ -134,27 +134,29 @@ namespace webots_robot_handler
     else if(count >= 200) {
 
 
-    // get sensor data
-    for(int i = 0; i < 20; i++) {
-      getJointAng_[i] = wb_position_sensor_get_value(positionSensorsTag_[i]);
+      // get sensor data
+      for(int i = 0; i < 20; i++) {
+        getJointAng_[i] = wb_position_sensor_get_value(positionSensorsTag_[i]);
+      }
+      accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);
+      gyroValue_ = wb_gyro_get_values(gyroTag_);
+    
+      auto toWRH_req = std::make_shared<msgs_package::srv::ToWebotsRobotHandlerMessage::Request>();
+
+      toWRH_req->accelerometer_now = {accelerometerValue_[0], accelerometerValue_[1], accelerometerValue_[2]};
+      toWRH_req->gyro_now = {gyroValue_[0], gyroValue_[1], gyroValue_[2]};
+      toWRH_req->q_now_r = {getJointAng_[6], getJointAng_[8], getJointAng_[10], getJointAng_[12], getJointAng_[14], getJointAng_[16]};
+      toWRH_req->q_now_l = {getJointAng_[7], getJointAng_[9], getJointAng_[11], getJointAng_[13], getJointAng_[15], getJointAng_[17]};
+
+      // RCLCPP_INFO(node_->get_logger(), "Request to WSC...");
+      toWRH_clnt_->async_send_request(
+        toWRH_req, 
+        std::bind(&WebotsRobotHandler::callback_res, this, _1)
+      );
+
     }
-    accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);
-    gyroValue_ = wb_gyro_get_values(gyroTag_);
-  
-    auto toWRH_req = std::make_shared<msgs_package::srv::ToWebotsRobotHandlerMessage::Request>();
 
-    toWRH_req->accelerometer_now = {accelerometerValue_[0], accelerometerValue_[1], accelerometerValue_[2]};
-    toWRH_req->gyro_now = {gyroValue_[0], gyroValue_[1], gyroValue_[2]};
-    toWRH_req->q_now_r = {getJointAng_[6], getJointAng_[8], getJointAng_[10], getJointAng_[12], getJointAng_[14], getJointAng_[16]};
-    toWRH_req->q_now_l = {getJointAng_[7], getJointAng_[9], getJointAng_[11], getJointAng_[13], getJointAng_[15], getJointAng_[17]};
-
-    // RCLCPP_INFO(node_->get_logger(), "Request to WSC...");
-    toWRH_clnt_->async_send_request(
-      toWRH_req, 
-      std::bind(&WebotsRobotHandler::callback_res, this, _1)
-    );
-
-    }
+    wb_robot_step(1);  // stepの動作周期を固定するために、掛かった処理時間 + a = WPGと同じ制御周期 となるようにしたい。
 
   }
 }
