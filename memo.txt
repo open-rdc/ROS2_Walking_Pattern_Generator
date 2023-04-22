@@ -2,4 +2,4 @@ WebotsRobotHandler の step の大きさが不定な理由
 　＝＞　Webots内のシミュレートの時間進行が、一定ではないから。大体、0.95~1.10倍の時間で進行している。ここを一定にできれば、 step の大きさも一定になるだろう。
 
 ロボットが転倒する理由
-　＝＞　step の 周期と、 WalkingPatternGenerator の周期のズレ。stepの大きさは、WorldInfoのbasicTimeStepで設定できる。ここの値によって、step の大きさも決まり、stepの大きさの平均値が、basicTimeStepとほぼ同じになる。stepの周期をWalkingPatternGeneratorの周期の倍数にしたり、結構小さくしないと、転倒する感じだと思う。歩行パターンを取得するタイミングによるのだと思う。wb_robot_step()では、まともに調整することができない。WorldInfoを直接いじったほうが良い。
+　＝＞　step の 周期と、 WalkingPatternGenerator の周期のズレ。stepの大きさは、WorldInfoのbasicTimeStepで設定できる。ここの値によって、step の大きさも決まり、stepの大きさの平均値が、basicTimeStepとほぼ同じになる。stepの周期をWalkingPatternGeneratorの周期の倍数（というより、１０の倍数？1/10, 1/100, ...）にしたり、結構小さくしないと、転倒する感じだと思う。歩行パターンを取得するタイミングによるのだと思う。wb_robot_step()では、まともに調整することができない。WorldInfoを直接いじったほうが良い。
