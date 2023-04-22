@@ -23,9 +23,12 @@ using namespace std::placeholders;
 
 namespace webots_robot_handler
 {
-  auto time = rclcpp::Clock{}.now().seconds();
+  // auto time = rclcpp::Clock{}.now().seconds();
+  auto time = std::chrono::system_clock().now();
   auto time_max = time - time;
-  auto time_min = time + time;
+  std::chrono::nanoseconds time_min = std::chrono::nanoseconds(9999999999999);
+  std::chrono::nanoseconds time_ave = std::chrono::nanoseconds(0);
+  std::chrono::nanoseconds time_add;
   int hoge = 0;
 
   static const rmw_qos_profile_t custom_qos_profile =
@@ -120,8 +123,7 @@ namespace webots_robot_handler
 
   void WebotsRobotHandler::step() {
     // RCLCPP_INFO(node_->get_logger(), "step...");
-    auto time_ho = rclcpp::Clock{}.now().seconds();
-    double time_dev; 
+    // auto time_ho = rclcpp::Clock{}.now().seconds();
     // wb_robot_step_begin(32*10);
 
     // DEBUG
@@ -157,17 +159,21 @@ namespace webots_robot_handler
   // DEBUG
     }
     // wb_robot_step_end();
-    auto time2 = rclcpp::Clock{}.now().seconds();
-    time_dev = time2 - time;
-    if(hoge > 1){
+    // auto time2 = rclcpp::Clock{}.now().seconds();
+    auto time2 = std::chrono::system_clock().now();
+    auto time_dev = time2 - time;
+    time_add += time_dev;
+    hoge++;
+    if(hoge > 0){
+      time_ave = time_add / hoge;
       if(time_max < time_dev){time_max = time_dev;}
       if(time_min > time_dev){time_min = time_dev;}
-      std::cout << "[WebotsRobotHandler]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
+      std::cout << "[WebotsRobotHandler]: " << time_dev.count() << "    max: " << time_max.count() << "    min: " << time_min.count() << "    ave: " << time_ave.count() << std::endl;
      }
-    hoge++;
     time = time2;
-    wb_robot_step(600);
+    // wb_robot_step(600);  // 600msに設定しても、600+処理時間+未知msとなり、610~660msの範囲で変動する。
 
+    // 処理時間は数十〜数ms。未知のover[ms]
     // if(time_dev*1000 >= 600) {
     //   std::cout << time_dev*1000 - 600 << std::endl;
     //   std::cout << 600 - (time_dev*1000 - 600) << std::endl;
