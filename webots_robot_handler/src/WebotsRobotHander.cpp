@@ -120,14 +120,14 @@ namespace webots_robot_handler
 
   void WebotsRobotHandler::step() {
     // RCLCPP_INFO(node_->get_logger(), "step...");
-    // time = rclcpp::Clock{}.now().seconds();
-    // wb_robot_step(58);  // stepの大きさ = 50msぐらい
+    auto time_ho = rclcpp::Clock{}.now().seconds();
+    double time_dev; 
     // wb_robot_step_begin(32*10);
 
     // DEBUG
     // [DEBUG] wait until the inital movement is over.
-    if(count < 100) { /*std::cout << count << std::endl;*/ count++; }
-    else if(count >= 100) {
+    if(count < 2) { /*std::cout << count << std::endl;*/ count++; }
+    else if(count >= 2) {
 
 
       // get sensor data
@@ -147,24 +147,36 @@ namespace webots_robot_handler
 
       // request service (WalkingStabilizationController)
       // RCLCPP_INFO(node_->get_logger(), "Request to WSC...");
-      toWRH_clnt_->async_send_request(
+      auto res = toWRH_clnt_->async_send_request(
         toWRH_req, 
         std::bind(&WebotsRobotHandler::callback_res, this, _1)
       );
+      rclcpp::spin_until_future_complete(node_->get_node_base_interface(), res);
 
-      auto time2 = rclcpp::Clock{}.now().seconds();
-      if(hoge > 1){
-        auto time_dev = time2 - time;
-        if(time_max < time_dev){time_max = time_dev;}
-        if(time_min > time_dev){time_min = time_dev;}
-        std::cout << "[WebotsRobotHandler]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
-      }
-      hoge++;
-      time = time2;
 
   // DEBUG
     }
     // wb_robot_step_end();
+    auto time2 = rclcpp::Clock{}.now().seconds();
+    time_dev = time2 - time;
+    if(hoge > 1){
+      if(time_max < time_dev){time_max = time_dev;}
+      if(time_min > time_dev){time_min = time_dev;}
+      std::cout << "[WebotsRobotHandler]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
+     }
+    hoge++;
+    time = time2;
+    wb_robot_step(600);
+
+    // if(time_dev*1000 >= 600) {
+    //   std::cout << time_dev*1000 - 600 << std::endl;
+    //   std::cout << 600 - (time_dev*1000 - 600) << std::endl;
+    //   wb_robot_step(600 - (time_dev*1000 - 600));  // stepの大きさ = 50msぐらい    
+    // }
+    // else if(time_dev*1000 < 600) {
+    //   wb_robot_step(time_dev*1000);  // stepの大きさ = 50msぐらい  
+    // }
+
 
   }
 }
