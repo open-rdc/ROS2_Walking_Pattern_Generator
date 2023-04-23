@@ -39,7 +39,7 @@ namespace walking_stabilization_controller
   ) {
     // to walking_pattern_generator
 
-    // RCLCPP_INFO(this->get_logger(), "Start callback_sub");
+    RCLCPP_INFO(this->get_logger(), "Start callback_sub");
 
     P_target_legR_ = {sub_data->p_target_r[0], sub_data->p_target_r[1], sub_data->p_target_r[2]};
     P_target_legL_ = {sub_data->p_target_l[0], sub_data->p_target_l[1], sub_data->p_target_l[2]};
@@ -55,7 +55,7 @@ namespace walking_stabilization_controller
     // for(int i = 0; i < 6; i++){std::cout << dQ_target_legR_[i];} std::cout << std::endl;
     // for(int i = 0; i < 6; i++){std::cout << dQ_target_legL_[i];} std::cout << std::endl;
 
-    // RCLCPP_INFO(this->get_logger(), "Subscribed...\n");
+    RCLCPP_INFO(this->get_logger(), "Finish callback_sub\n");
   }
 
   void WalkingStabilizationController::callback_res(
@@ -63,29 +63,31 @@ namespace walking_stabilization_controller
   ) {
     // to kinematics
 
-    // RCLCPP_INFO(this->get_logger(), "Start callback_res");
+    // // RCLCPP_INFO(this->get_logger(), "Start callback_res");
 
-    // FK, IKのresultをメンバ変数に記録。FK,IKそれぞれが求めない値（IK->p, FK->q）は、requestで与えた値と同値を返す。
-    P_target_legR_ = {future.get()->p_result_r[0], future.get()->p_result_r[1], future.get()->p_result_r[2]};
-    P_target_legL_ = {future.get()->p_result_l[0], future.get()->p_result_l[1], future.get()->p_result_l[2]};
-    Q_target_legR_ = {future.get()->q_result_r[0], future.get()->q_result_r[1], future.get()->q_result_r[2], future.get()->q_result_r[3], future.get()->q_result_r[4], future.get()->q_result_r[5]};
-    Q_target_legL_ = {future.get()->q_result_l[0], future.get()->q_result_l[1], future.get()->q_result_l[2], future.get()->q_result_l[3], future.get()->q_result_l[4], future.get()->q_result_l[5]};
+    // // FK, IKのresultをメンバ変数に記録。FK,IKそれぞれが求めない値（IK->p, FK->q）は、requestで与えた値と同値を返す。
+    // P_target_legR_ = {future.get()->p_result_r[0], future.get()->p_result_r[1], future.get()->p_result_r[2]};
+    // P_target_legL_ = {future.get()->p_result_l[0], future.get()->p_result_l[1], future.get()->p_result_l[2]};
+    // Q_target_legR_ = {future.get()->q_result_r[0], future.get()->q_result_r[1], future.get()->q_result_r[2], future.get()->q_result_r[3], future.get()->q_result_r[4], future.get()->q_result_r[5]};
+    // Q_target_legL_ = {future.get()->q_result_l[0], future.get()->q_result_l[1], future.get()->q_result_l[2], future.get()->q_result_l[3], future.get()->q_result_l[4], future.get()->q_result_l[5]};
 
-    Q_fix_legR_ = Q_target_legR_;
-    Q_fix_legL_ = Q_target_legL_;
-    dQ_fix_legR_ = dQ_target_legR_;
-    dQ_fix_legL_ = dQ_target_legL_;    
-    // RCLCPP_INFO(this->get_logger(), "Response from kinematics...");
+    // Q_fix_legR_ = Q_target_legR_;
+    // Q_fix_legL_ = Q_target_legL_;
+    // dQ_fix_legR_ = dQ_target_legR_;
+    // dQ_fix_legL_ = dQ_target_legL_;    
+    // // RCLCPP_INFO(this->get_logger(), "Response from kinematics...");
 
-    // auto time2 = rclcpp::Clock{}.now().seconds();
-    // if(hoge > 20){
-    //   auto time_dev = time2 - time;
-    //   if(time_max < time_dev){time_max = time_dev;}
-    //   if(time_min > time_dev){time_min = time_dev;}
-    //   std::cout << "[WalkingStabilizationController]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
-    // }
-    // hoge++;
-    // time = time2;
+    // // auto time2 = rclcpp::Clock{}.now().seconds();
+    // // if(hoge > 20){
+    // //   auto time_dev = time2 - time;
+    // //   if(time_max < time_dev){time_max = time_dev;}
+    // //   if(time_min > time_dev){time_min = time_dev;}
+    // //   std::cout << "[WalkingStabilizationController]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
+    // // }
+    // // hoge++;
+    // // time = time2;
+    // // RCLCPP_INFO(this->get_logger(), "Finish callback_res\n");
+
     return;
   }
 
@@ -95,7 +97,7 @@ namespace walking_stabilization_controller
   ) {
     // walking_stabilization_controller service_server
 
-    // RCLCPP_INFO(this->get_logger(), "Start WSC_SrvServer");
+    RCLCPP_INFO(this->get_logger(), "Start WSC_SrvServer");
 
     if(P_target_legR_[0] == 999) {
       RCLCPP_WARN(this->get_logger(), "WSC couldn't get subscription from WPG. All value are numeric 999.");
@@ -105,7 +107,7 @@ namespace walking_stabilization_controller
       response->dq_fix_r = dQ_target_legR_;
       response->dq_fix_l = dQ_target_legL_;
 
-      // RCLCPP_INFO(this->get_logger(), "Finish WSC_SrvServer");
+
       return;
     }
 
@@ -129,10 +131,36 @@ namespace walking_stabilization_controller
     //   toKine_FK_req, 
     //   std::bind(&WalkingStabilizationController::callback_res, this, _1)
     // );
-    // auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
-    //   toKine_IK_req,
-    //   std::bind(&WalkingStabilizationController::callback_res, this, _1)
-    // );
+    auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
+      toKine_FK_req,
+      [this](const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future) {
+        // RCLCPP_INFO(this->get_logger(), "Start callback_res");
+
+        // FK, IKのresultをメンバ変数に記録。FK,IKそれぞれが求めない値（IK->p, FK->q）は、requestで与えた値と同値を返す。
+        P_target_legR_ = {future.get()->p_result_r[0], future.get()->p_result_r[1], future.get()->p_result_r[2]};
+        P_target_legL_ = {future.get()->p_result_l[0], future.get()->p_result_l[1], future.get()->p_result_l[2]};
+        Q_target_legR_ = {future.get()->q_result_r[0], future.get()->q_result_r[1], future.get()->q_result_r[2], future.get()->q_result_r[3], future.get()->q_result_r[4], future.get()->q_result_r[5]};
+        Q_target_legL_ = {future.get()->q_result_l[0], future.get()->q_result_l[1], future.get()->q_result_l[2], future.get()->q_result_l[3], future.get()->q_result_l[4], future.get()->q_result_l[5]};
+
+        Q_fix_legR_ = Q_target_legR_;
+        Q_fix_legL_ = Q_target_legL_;
+        dQ_fix_legR_ = dQ_target_legR_;
+        dQ_fix_legL_ = dQ_target_legL_;    
+        // RCLCPP_INFO(this->get_logger(), "Response from kinematics...");
+
+        // auto time2 = rclcpp::Clock{}.now().seconds();
+        // if(hoge > 20){
+        //   auto time_dev = time2 - time;
+        //   if(time_max < time_dev){time_max = time_dev;}
+        //   if(time_min > time_dev){time_min = time_dev;}
+        //   std::cout << "[WalkingStabilizationController]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
+        // }
+        // hoge++;
+        // time = time2;
+        // RCLCPP_INFO(this->get_logger(), "Finish callback_res\n");
+      }
+    );
+    // rclcpp::spin_until_future_complete(this->get_node_base_interface(), toKine_FK_res);
 
     // response->q_fix_r = Q_fix_legR_;
     // response->q_fix_l = Q_fix_legL_;
@@ -143,7 +171,7 @@ namespace walking_stabilization_controller
     response->dq_fix_r = dQ_target_legR_;
     response->dq_fix_l = dQ_target_legL_;
 
-    // RCLCPP_INFO(this->get_logger(), "Finish WSC_SrvServer");
+    RCLCPP_INFO(this->get_logger(), "Finish WSC_SrvServer");
   }
 
   WalkingStabilizationController::WalkingStabilizationController(
@@ -179,7 +207,8 @@ namespace walking_stabilization_controller
     toWSC_sub_ = this->create_subscription<msgs_package::msg::ToWalkingStabilizationControllerMessage>(
       "WalkingPattern", 
       rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile)), 
-      std::bind(&WalkingStabilizationController::callback_sub, this, _1));
+      std::bind(&WalkingStabilizationController::callback_sub, this, _1)
+    );
     toWRH_srv_ = this->create_service<msgs_package::srv::ToWebotsRobotHandlerMessage>(
       "FB_StabilizationController",
       std::bind(&WalkingStabilizationController::WSC_SrvServer, this, _1, _2),
@@ -187,12 +216,12 @@ namespace walking_stabilization_controller
     );
 
     // init
-    P_target_legR_ = {999, 999, 999};
-    P_target_legL_ = {999, 999, 999};
-    Q_target_legR_ = {999, 999, 999, 999, 999, 999};
-    Q_target_legL_ = {999, 999, 999, 999, 999, 999};
-    dQ_target_legR_ = {999, 999, 999, 999, 999, 999};
-    dQ_target_legL_ = {999, 999, 999, 999, 999, 999};;
+    P_target_legR_ = {0, 0, 0};
+    P_target_legL_ = {0, 0, 0};
+    Q_target_legR_ = {0, 0, 0, 0, 0, 0};
+    Q_target_legL_ = {0, 0, 0, 0, 0, 0};
+    dQ_target_legR_ = {0, 0, 0, 0, 0, 0};
+    dQ_target_legL_ = {0, 0, 0, 0, 0, 0};;
 
     // RCLCPP_INFO(this->get_logger(), "Waiting request & publish ...");
   }

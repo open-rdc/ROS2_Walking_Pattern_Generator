@@ -136,6 +136,8 @@ namespace kinematics
     const std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Request> request,
     std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Response> response
   ) {
+    // RCLCPP_INFO(this->get_logger(), "IK_SrvServer");
+
     // time = rclcpp::Clock{}.now().seconds();
     // auto time = rclcpp::Clock{}.now().seconds();
 

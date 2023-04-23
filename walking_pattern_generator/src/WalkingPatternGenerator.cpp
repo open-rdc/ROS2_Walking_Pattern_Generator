@@ -103,7 +103,7 @@ namespace walking_pattern_generator
 
   void WalkingPatternGenerator::step_WPG_pub() {
 
-    // RCLCPP_INFO(this->get_logger(), "step...");
+    // RCLCPP_INFO(this->get_logger(), "Start step...");
 
     auto toKine_FK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
     auto toKine_IK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
@@ -147,6 +147,8 @@ namespace walking_pattern_generator
       toKine_IK_req, 
       std::bind(&WalkingPatternGenerator::callback_res, this, _1)
     );
+    // rclcpp::spin_until_future_complete(this->get_node_base_interface(), toKine_IK_res);
+
 
     auto pub_msg = std::make_shared<msgs_package::msg::ToWalkingStabilizationControllerMessage>();
 
