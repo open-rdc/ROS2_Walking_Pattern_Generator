@@ -55,7 +55,7 @@ namespace walking_stabilization_controller
     // for(int i = 0; i < 6; i++){std::cout << dQ_target_legR_[i];} std::cout << std::endl;
     // for(int i = 0; i < 6; i++){std::cout << dQ_target_legL_[i];} std::cout << std::endl;
 
-    RCLCPP_INFO(this->get_logger(), "Finish callback_sub\n");
+    RCLCPP_INFO(this->get_logger(), "Finish callback_sub");
   }
 
   void WalkingStabilizationController::callback_res(
@@ -171,7 +171,7 @@ namespace walking_stabilization_controller
     response->dq_fix_r = dQ_target_legR_;
     response->dq_fix_l = dQ_target_legL_;
 
-    RCLCPP_INFO(this->get_logger(), "Finish WSC_SrvServer");
+    RCLCPP_INFO(this->get_logger(), "Finish WSC_SrvServer\n");
   }
 
   WalkingStabilizationController::WalkingStabilizationController(
