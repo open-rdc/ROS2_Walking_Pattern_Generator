@@ -30,8 +30,8 @@ https://user-images.githubusercontent.com/91410662/231434693-c9bd6288-f6b9-442e-
 
 ## Configuration Plan (Draft)
 * ROS_2_Package & Node<br>
-  * biped_controller<br>
-    * biped_controller node<br>
+  * robot_manager<br>
+    * robot_manager node<br>
   * walking_pattern_generator<br>
     * walking_pattern_generator node<br>
   * walking_stabilization_controller<br>
