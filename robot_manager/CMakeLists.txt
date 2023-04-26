@@ -11,13 +11,13 @@ find_package(ament_cmake REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-add_executable(biped_controller src/biped_controller.cpp)
-target_include_directories(biped_controller PUBLIC
+add_executable(robot_manager src/robot_manager.cpp)
+target_include_directories(robot_manager PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-target_compile_features(biped_controller PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+target_compile_features(robot_manager PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
-install(TARGETS biped_controller
+install(TARGETS robot_manager
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
