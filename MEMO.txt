@@ -1,0 +1,28 @@
+MEMO
+
+<message_file plan>
+Service 1 (sync) : Feedback.srv
+  Request
+    now_accelerometer
+    now_gyro
+    now_joint_angles [rad]
+  Response
+    command_joint_angles [rad]
+    command_joint_angles_velocity [rad/s]
+Service 2 (sync) : WalkingPattern.srv
+  Request
+    none ? (step_number ?)
+  Response
+    target_joint_angles [rad]
+    target_joint_angles_velocity [rad/s]
+Service 3 (sync) : WalkingStabilization.srv
+  Request
+    target_joint_angles [rad]
+    target_joint_angles_velocity [rad/s]
+    now_accelerometer
+    now_gyro
+    now_joint_angles
+  Reponse
+    command_joint_angles [rad]
+    command_joint_angles_velocity [rad/s]
+
