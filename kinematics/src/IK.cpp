@@ -1,7 +1,4 @@
 #include "rclcpp/rclcpp.hpp"
-// #include "rclcpp/qos.hpp"
-#include <rmw/qos_profiles.h>
-#include "msgs_package/srv/to_kinematics_message.hpp"
 #include "kinematics/IK.hpp"
 
 #include "iostream"
@@ -13,46 +10,32 @@ namespace kinematics
   // auto time = rclcpp::Clock{}.now().seconds();
   // auto time_max = time - time;
   // auto time_min = time + time;
-  // int hoge = 4;
-
-  static const rmw_qos_profile_t custom_qos_profile =
-  {
-    RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
-    1,  // History(keep_last) Depth
-    RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,  // Reliability: best_effort or reliable
-    RMW_QOS_POLICY_DURABILITY_VOLATILE,  // Durability: transient_local or volatile
-    RMW_QOS_DEADLINE_DEFAULT,  // Deadline: default or number
-    RMW_QOS_LIFESPAN_DEFAULT,  // Lifespan: default or number
-    RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,  // Liveliness: automatic or manual_by_topic
-    RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,  // Liveliness_LeaseDuration: default or number
-    false  // avoid_ros_namespace_conventions
-  };
 
   using namespace Eigen;
 
   // 3D Rotation Matrix
-  Matrix3d IKSrv::IdentifyMatrix() {
+  Matrix3d IK_lib::IdentifyMatrix() {
     Matrix3d I;
     I << 1, 0, 0,
          0, 1, 0,
          0, 0, 1;
     return(I);
   }
-  Matrix3d IKSrv::Rx(double rad) {
+  Matrix3d IK_lib::Rx(double rad) {
     Matrix3d R_x;
     R_x << 1,        0,         0,
            0, cos(rad), -sin(rad),
            0, sin(rad),  cos(rad);
     return(R_x);
   }
-  Matrix3d IKSrv::Ry(double rad) {
+  Matrix3d IK_lib::Ry(double rad) {
     Matrix3d R_y;
     R_y <<  cos(rad), 0, sin(rad),
                    0, 1,        0,
            -sin(rad), 0, cos(rad);
     return(R_y);
   }
-  Matrix3d IKSrv::Rz(double rad) {
+  Matrix3d IK_lib::Rz(double rad) {
     Matrix3d R_z;
     R_z << cos(rad), -sin(rad), 0,
            sin(rad),  cos(rad), 0,
@@ -60,14 +43,14 @@ namespace kinematics
     return(R_z);
   }
 
-  double IKSrv::sign(double arg) {
+  double IK_lib::sign(double arg) {
     return((arg >= 0) - (arg < 0));  // result 1 or -1 (true == 1, false == 0)
   }
 
-  Vector3d IKSrv::Array2Vector(std::array<double, 3> array) {
+  Vector3d IK_lib::Array2Vector(std::array<double, 3> array) {
     return {array[0], array[1], array[2]};
   }
-  Matrix3d IKSrv::Array2Matrix(std::array<double, 9> array) {
+  Matrix3d IK_lib::Array2Matrix(std::array<double, 9> array) {
     Matrix3d R;
     R << array[0], array[1], array[2],
          array[3], array[4], array[5],
@@ -76,7 +59,7 @@ namespace kinematics
   }
 
   //IK (ROBOTIS-OP2's Leg only. analytical method)
-  std::array<double, 6> IKSrv::IK(
+  std::array<double, 6> IK_lib::IK(
     std::array<Eigen::Vector3d, 7> P_leg,
     Eigen::Vector3d P_target_leg,
     Eigen::Matrix3d R_target_leg
@@ -109,7 +92,7 @@ namespace kinematics
   }
 
 // DEBUG===/*
-  void IKSrv::DEBUG_ParameterSetting() {
+  void IK_lib::DEBUG_ParameterSetting() {
     P_legL_ = {
         Vector3d(-0.005, 0.037, -0.1222),
         Vector3d(0, 0, 0),
@@ -131,55 +114,15 @@ namespace kinematics
   }
 // DEBUG=====*/
 
-  // Service Server
-  void IKSrv::IK_SrvServer(
-    const std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Request> request,
-    std::shared_ptr<msgs_package::srv::ToKinematicsMessage::Response> response
-  ) {
-    // time = rclcpp::Clock{}.now().seconds();
-    // auto time = rclcpp::Clock{}.now().seconds();
-
-    // requestを記録（std::arrayからEigenに変換）
-    P_target_legR_ = Array2Vector(request->p_target_r);
-    R_target_legR_ = Array2Matrix(request->r_target_r);
-    P_target_legL_ = Array2Vector(request->p_target_l);
-    R_target_legL_ = Array2Matrix(request->r_target_l);
-
-    response->q_result_r = IK(P_legR_, P_target_legR_, R_target_legR_);
-    response->q_result_l = IK(P_legL_, P_target_legL_, R_target_legL_);
-    // IKで求めなかった値は、reqをそのままresに渡す
-    response->p_result_r = request->p_target_r;
-    response->p_result_l = request->p_target_l;
-
-    // auto time2 = rclcpp::Clock{}.now().seconds();
-    // auto time_dev = time2 - time;
-    // if(hoge > 20){
-    //   if(time_max < time_dev){time_max = time_dev;}
-    //   if(time_min > time_dev){time_min = time_dev;}
-    //   std::cout << "[FK]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
-    // }
-    // hoge++;
-    // time = time2;
-  }
-
   // Node Setting
-  IKSrv::IKSrv(
+  IK_lib::IK_lib(
     const rclcpp::NodeOptions& options
   ) : Node("IK_SrvServer", options) {
     using namespace std::placeholders;
-
-    // RCLCPP_INFO(this->get_logger(), "Start up IK_SrvServer. Hello IK_SrvServer!!");
 
 // DEBUG===/*
     DEBUG_ParameterSetting();
 // DEBUG===*/
 
-    toKine_srv_ = this->create_service<msgs_package::srv::ToKinematicsMessage>(
-      "IK",
-      std::bind(&IKSrv::IK_SrvServer, this, _1, _2),
-      custom_qos_profile
-    );
-
-    // RCLCPP_INFO(this->get_logger(), "Waiting IK Client...");
   }
 }
