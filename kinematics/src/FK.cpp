@@ -14,28 +14,28 @@ namespace kinematics
   using namespace Eigen;
 
   // 3D Rotation Matrix
-  Matrix3d FK_lib::IdentifyMatrix() {
+  Matrix3d FK::IdentifyMatrix() {
     Matrix3d I;
     I << 1, 0, 0,
          0, 1, 0,
          0, 0, 1;
     return(I);
   }
-  Matrix3d FK_lib::Rx(double rad) {
+  Matrix3d FK::Rx(double rad) {
     Matrix3d R_x;
     R_x << 1,        0,         0,
            0, cos(rad), -sin(rad),
            0, sin(rad),  cos(rad);
     return(R_x);
   }
-  Matrix3d FK_lib::Ry(double rad) {
+  Matrix3d FK::Ry(double rad) {
     Matrix3d R_y;
     R_y <<  cos(rad), 0, sin(rad),
                    0, 1,        0,
            -sin(rad), 0, cos(rad);
     return(R_y);
   }
-  Matrix3d FK_lib::Rz(double rad) {
+  Matrix3d FK::Rz(double rad) {
     Matrix3d R_z;
     R_z << cos(rad), -sin(rad), 0,
            sin(rad),  cos(rad), 0,
@@ -43,7 +43,7 @@ namespace kinematics
     return(R_z);
   }
 
-  Vector3d FK_lib::FK(
+  Vector3d FK::FK_calc(
     std::array<Eigen::Matrix3d, 6> R_leg,
     std::array<Eigen::Vector3d, 7> P_leg
   ) {
@@ -59,7 +59,7 @@ namespace kinematics
   }
 
 // DEBUG===/*  脚の関節位置の読み込み。基準(0, 0, 0)は心臓の位置あたり
-  void FK_lib::DEBUG_ParameterSetting() {
+  void FK::DEBUG_ParameterSetting() {
     P_legL_ = {  // 左脚
         Vector3d(-0.005, 0.037, -0.1222),
         Vector3d(0, 0, 0),
@@ -82,7 +82,7 @@ namespace kinematics
 // DEBUG===*/
 
   // Node Setting
-  FK_lib::FK_lib(
+  FK::FK(
     const rclcpp::NodeOptions& options
   ) : Node("FK_SrvServer", options) {
     using namespace std::placeholders;

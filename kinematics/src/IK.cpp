@@ -14,28 +14,28 @@ namespace kinematics
   using namespace Eigen;
 
   // 3D Rotation Matrix
-  Matrix3d IK_lib::IdentifyMatrix() {
+  Matrix3d IK::IdentifyMatrix() {
     Matrix3d I;
     I << 1, 0, 0,
          0, 1, 0,
          0, 0, 1;
     return(I);
   }
-  Matrix3d IK_lib::Rx(double rad) {
+  Matrix3d IK::Rx(double rad) {
     Matrix3d R_x;
     R_x << 1,        0,         0,
            0, cos(rad), -sin(rad),
            0, sin(rad),  cos(rad);
     return(R_x);
   }
-  Matrix3d IK_lib::Ry(double rad) {
+  Matrix3d IK::Ry(double rad) {
     Matrix3d R_y;
     R_y <<  cos(rad), 0, sin(rad),
                    0, 1,        0,
            -sin(rad), 0, cos(rad);
     return(R_y);
   }
-  Matrix3d IK_lib::Rz(double rad) {
+  Matrix3d IK::Rz(double rad) {
     Matrix3d R_z;
     R_z << cos(rad), -sin(rad), 0,
            sin(rad),  cos(rad), 0,
@@ -43,14 +43,14 @@ namespace kinematics
     return(R_z);
   }
 
-  double IK_lib::sign(double arg) {
+  double IK::sign(double arg) {
     return((arg >= 0) - (arg < 0));  // result 1 or -1 (true == 1, false == 0)
   }
 
-  Vector3d IK_lib::Array2Vector(std::array<double, 3> array) {
+  Vector3d IK::Array2Vector(std::array<double, 3> array) {
     return {array[0], array[1], array[2]};
   }
-  Matrix3d IK_lib::Array2Matrix(std::array<double, 9> array) {
+  Matrix3d IK::Array2Matrix(std::array<double, 9> array) {
     Matrix3d R;
     R << array[0], array[1], array[2],
          array[3], array[4], array[5],
@@ -59,7 +59,7 @@ namespace kinematics
   }
 
   //IK (ROBOTIS-OP2's Leg only. analytical method)
-  std::array<double, 6> IK_lib::IK(
+  std::array<double, 6> IK::IK_calc(
     std::array<Eigen::Vector3d, 7> P_leg,
     Eigen::Vector3d P_target_leg,
     Eigen::Matrix3d R_target_leg
@@ -92,7 +92,7 @@ namespace kinematics
   }
 
 // DEBUG===/*
-  void IK_lib::DEBUG_ParameterSetting() {
+  void IK::DEBUG_ParameterSetting() {
     P_legL_ = {
         Vector3d(-0.005, 0.037, -0.1222),
         Vector3d(0, 0, 0),
@@ -115,7 +115,7 @@ namespace kinematics
 // DEBUG=====*/
 
   // Node Setting
-  IK_lib::IK_lib(
+  IK::IK(
     const rclcpp::NodeOptions& options
   ) : Node("IK_SrvServer", options) {
     using namespace std::placeholders;

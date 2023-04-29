@@ -6,9 +6,9 @@
 
 namespace kinematics
 {
-  class FK_lib : public rclcpp::Node {
+  class FK : public rclcpp::Node {
     public:
-      FK_lib(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+      FK(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
     
     private:
       Eigen::Matrix3d Rx(double rad = 0);
@@ -16,7 +16,7 @@ namespace kinematics
       Eigen::Matrix3d Rz(double rad = 0);
       Eigen::Matrix3d IdentifyMatrix(void);
 
-      Eigen::Vector3d FK(
+      Eigen::Vector3d FK_calc(
         std::array<Eigen::Matrix3d, 6> R_leg,
         std::array<Eigen::Vector3d, 7> P_leg
       );

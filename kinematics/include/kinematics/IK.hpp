@@ -6,9 +6,9 @@
 
 namespace kinematics
 {
-  class IK_lib : public rclcpp::Node {
+  class IK : public rclcpp::Node {
     public:
-      IK_lib(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+      IK(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
     
     private:
       Eigen::Matrix3d Rx(double rad = 0);
@@ -21,7 +21,7 @@ namespace kinematics
       Eigen::Vector3d Array2Vector(std::array<double, 3> array);  // std::array型をEigen::Vector3d型に変換（３次元）
       Eigen::Matrix3d Array2Matrix(std::array<double, 9> array);  // std::array型をEigen::Matrix3d型に変換（3*3行列）
 
-      std::array<double, 6> IK(
+      std::array<double, 6> IK_calc(
         std::array<Eigen::Vector3d, 7> P_leg,
         Eigen::Vector3d P_target_leg,
         Eigen::Matrix3d R_target_leg
