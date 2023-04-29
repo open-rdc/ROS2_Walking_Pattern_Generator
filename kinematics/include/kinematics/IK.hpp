@@ -1,19 +1,18 @@
 #ifndef KINEMATICS__IK_HPP_
 #define KINEMATICS__IK_HPP_
 
+#include "rclcpp/rclcpp.hpp"
 #include "kinematics/visibility_control.h"
 
 namespace kinematics
 {
+  class IK : public rclcpp::Node {
+    public:
+      IK(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+  
+  
+  };
 
-class Ik
-{
-public:
-  Ik();
+}  
 
-  virtual ~Ik();
-};
-
-}  // namespace kinematics
-
-#endif  // KINEMATICS__IK_HPP_
+#endif 
