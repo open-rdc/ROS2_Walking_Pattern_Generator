@@ -141,37 +141,12 @@ namespace walking_pattern_generator
     return (std::array<double, 6>{vector[0], vector[1], vector[2], vector[3], vector[4], vector[5]});
   }
 
-
-  // void WalkingPatternGenerator::callback_IK_res(
-  //   const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future
-  // ) {
-  //   // resultをメンバ変数に記録。FK,IKそれぞれが求めない値（IK->p, FK->q）は、requestで与えた値と同値を返す。
-  //   p_target_r_ = future.get()->p_result_r;
-  //   p_target_l_ = future.get()->p_result_l;
-  //   q_target_r_ = future.get()->q_result_r;
-  //   q_target_l_ = future.get()->q_result_l;
-    
-  //   // step_counter_++;
-  //   publish_ok_check_ = true;
-  // }
-
   void WalkingPatternGenerator::step_WPG_pub() {
-
-    // RCLCPP_INFO(this->get_logger(), "step...");
 
     auto toKine_IK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
 
-    // IK ERROR_Handling
-    if(
-      (std::abs(toKine_IK_req->p_target_r[2]) > 0.3082)  // コレだと不完全。absがある意味がない。他方向のERROR処理も随時追加
-    ) {
-      RCLCPP_ERROR(this->get_logger(), "IK_Request: P_target: Invalid Value!!");
-    }
-
-    // RCLCPP_INFO(this->get_logger(), "Request to kinematics...");
     auto toKine_IK_res = toKine_IK_clnt_->async_send_request(
       toKine_IK_req, 
-      // std::bind(&WalkingPatternGenerator::callback_IK_res, this, _1)
       [this](const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future) {
 
         // resultをメンバ変数に記録。FK,IKそれぞれが求めない値（IK->p, FK->q）は、requestで与えた値と同値を返す。
