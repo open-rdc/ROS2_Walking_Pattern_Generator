@@ -26,13 +26,13 @@ def generate_launch_description():
     parameters = [{'use_sim_time': True}]
   )
 
-  # walking_stabilization_controller
-  walking_stabilization_controller = Node(
-    package = "walking_stabilization_controller",
-    executable = "walking_stabilization_controller",
-    output = "screen",
-    parameters = [{'use_sim_time': True}]
-  )
+  # # walking_stabilization_controller
+  # walking_stabilization_controller = Node(
+  #   package = "walking_stabilization_controller",
+  #   executable = "walking_stabilization_controller",
+  #   output = "screen",
+  #   parameters = [{'use_sim_time': True}]
+  # )
 
   # webots world
   webots = WebotsLauncher(  
@@ -63,7 +63,7 @@ def generate_launch_description():
   return launch.LaunchDescription([
     fk,
     ik,
-    walking_stabilization_controller,
+    # walking_stabilization_controller,
     webots,
     robotis_op2_driver,
     walking_pattern_generator,

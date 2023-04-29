@@ -6,6 +6,7 @@
 #include "webots_ros2_driver/PluginInterface.hpp"
 #include "webots_ros2_driver/WebotsNode.hpp"
 #include "msgs_package/srv/to_webots_robot_handler_message.hpp"
+#include "msgs_package/msg/to_walking_stabilization_controller_message.hpp"
 
 namespace webots_robot_handler
 {
@@ -19,12 +20,14 @@ namespace webots_robot_handler
       void step() override;
 
       void callback_res(const rclcpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedFuture future);
+      void callback_sub(const msgs_package::msg::ToWalkingStabilizationControllerMessage::SharedPtr sub_data);
 
 
     private:
       webots_ros2_driver::WebotsNode *node_;
 
       rclcpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedPtr toWRH_clnt_;
+      rclcpp::Subscription<msgs_package::msg::ToWalkingStabilizationControllerMessage>::SharedPtr toWPG_sub_;
       
       // Webots内のロボットが持つデバイスのタグを持つ。このタグをもとに、Webotsの関数はデバイスを区別する。
       WbDeviceTag motorsTag_[20];  // 全モータ２０個

@@ -255,6 +255,8 @@ namespace walking_pattern_generator
     // DEBUG: parameter setting
     WalkingPatternGenerator::DEBUG_ParameterSetting();
 
+    rclcpp::sleep_for(7s);
+
     step_pub_ = this->create_wall_timer(
       std::chrono::milliseconds(t_sup_),  // t_sup_[ms]
       std::bind(&WalkingPatternGenerator::step_WPG_pub, this)
