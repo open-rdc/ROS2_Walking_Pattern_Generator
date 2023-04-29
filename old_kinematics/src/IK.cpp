@@ -1,11 +1,11 @@
 #include "rclcpp/rclcpp.hpp"
-#include "kinematics/IK.hpp"
+#include "old_kinematics/IK.hpp"
 
 #include "iostream"
 #include "cmath"
 #include "Eigen/Dense"
 
-namespace kinematics
+namespace old_kinematics
 {
   // auto time = rclcpp::Clock{}.now().seconds();
   // auto time_max = time - time;

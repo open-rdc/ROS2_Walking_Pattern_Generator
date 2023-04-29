@@ -4,7 +4,7 @@
 #include "cmath"
 #include "Eigen/Dense"
 
-namespace kinematics
+namespace old_kinematics
 {
   class IK : public rclcpp::Node {
     public:

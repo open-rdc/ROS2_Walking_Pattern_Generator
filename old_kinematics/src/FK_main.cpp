@@ -1,11 +1,10 @@
 #include "rclcpp/rclcpp.hpp"
-#include "kinematics/IK.hpp"
-
+#include "old_kinematics/FK.hpp"
 
 int main(int argc, char *argv[]) {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<kinematics::IK>());
+  rclcpp::spin(std::make_shared<old_kinematics::FK>());
   rclcpp::shutdown();
-
+  
   return 0;
 }
