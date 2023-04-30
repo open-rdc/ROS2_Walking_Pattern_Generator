@@ -20,7 +20,7 @@ namespace kinematics
       );
 
     private:
-      Eigen::Matrix3d Rx(double rad = 0);
+      Eigen::Matrix3d Rx(double rad = 0);  // ここ、Eigen系の関数として、また別に共有ライブラリを作りたい
       Eigen::Matrix3d Ry(double rad = 0);
       Eigen::Matrix3d Rz(double rad = 0);
       Eigen::Matrix3d IdentifyMatrix(void);

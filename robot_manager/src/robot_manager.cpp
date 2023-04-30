@@ -1,9 +1,9 @@
 #include <cstdio>
-#include "rclcpp/rclcpp.hpp"
-#include "kinematics/FK.hpp"
-#include "Eigen/Dense"
+// #include "rclcpp/rclcpp.hpp"
+// #include "kinematics/FK.hpp"
+// #include "Eigen/Dense"
 
-using namespace Eigen;
+// using namespace Eigen;
 
 int main(int argc, char ** argv)
 {
@@ -13,5 +13,5 @@ int main(int argc, char ** argv)
   printf("hello world biped_controller package\n");
   return 0;
 
-  Vector3d hoge = kinematics::FK::FK_calc();
+  // Vector3d hoge = kinematics::FK::FK_calc();
 }
