@@ -10,27 +10,38 @@ using namespace Eigen;
 namespace kinematics
 {
 // DEBUG===/*
-  void IK::DEBUG_ParameterSetting() {
-    P_legL_ = {
-        Vector3d(-0.005, 0.037, -0.1222),
-        Vector3d(0, 0, 0),
-        Vector3d(0, 0, 0),
-        Vector3d(0, 0, -0.093),
-        Vector3d(0, 0, -0.093),
-        Vector3d(0, 0, 0),
-        Vector3d(0, 0, 0)
-    };
-    P_legR_ = {
-        Vector3d(-0.005, -0.037, -0.1222),
-        Vector3d(0, 0, 0),
-        Vector3d(0, 0, 0),
-        Vector3d(0, 0, -0.093),
-        Vector3d(0, 0, -0.093),
-        Vector3d(0, 0, 0),
-        Vector3d(0, 0, 0)
-    };
-  }
+  // void IK::DEBUG_ParameterSetting() {
+  //   P_legL_ = {
+  //       Vector3d(-0.005, 0.037, -0.1222),
+  //       Vector3d(0, 0, 0),
+  //       Vector3d(0, 0, 0),
+  //       Vector3d(0, 0, -0.093),
+  //       Vector3d(0, 0, -0.093),
+  //       Vector3d(0, 0, 0),
+  //       Vector3d(0, 0, 0)
+  //   };
+  //   P_legR_ = {
+  //       Vector3d(-0.005, -0.037, -0.1222),
+  //       Vector3d(0, 0, 0),
+  //       Vector3d(0, 0, 0),
+  //       Vector3d(0, 0, -0.093),
+  //       Vector3d(0, 0, -0.093),
+  //       Vector3d(0, 0, 0),
+  //       Vector3d(0, 0, 0)
+  //   };
+  // }
 // DEBUG=====*/
+
+  Vector3d IK::Array2Vector(std::array<double, 3> array) {
+    return {array[0], array[1], array[2]};
+  }
+  Matrix3d IK::Array2Matrix(std::array<double, 9> array) {
+    Matrix3d R;
+    R << array[0], array[1], array[2],
+         array[3], array[4], array[5],
+         array[6], array[7], array[8];
+    return R;
+  }
 
   Matrix3d IK::IdentifyMatrix() {
     Matrix3d I;
@@ -65,19 +76,8 @@ namespace kinematics
     return((arg >= 0) - (arg < 0));  // result 1 or -1 (true == 1, false == 0)
   }
 
-  Vector3d IK::Array2Vector(std::array<double, 3> array) {
-    return {array[0], array[1], array[2]};
-  }
-  Matrix3d IK::Array2Matrix(std::array<double, 9> array) {
-    Matrix3d R;
-    R << array[0], array[1], array[2],
-         array[3], array[4], array[5],
-         array[6], array[7], array[8];
-    return R;
-  }
-
   //IK (ROBOTIS-OP2's Leg only. analytical method)
-  std::array<double, 6> IK::IK_calc(
+  std::array<double, 6> IK::getIK(
     std::array<Eigen::Vector3d, 7> P_leg,
     Eigen::Vector3d P_target_leg,
     Eigen::Matrix3d R_target_leg
@@ -109,14 +109,12 @@ namespace kinematics
     return Q;
   }
 
-
-
   IK::IK(
     const rclcpp::NodeOptions& options
   ) : Node("IK", options) {
 
 // DEBUG===/*
-    DEBUG_ParameterSetting();
+    // DEBUG_ParameterSetting();
 // DEBUG===*/
 
   }

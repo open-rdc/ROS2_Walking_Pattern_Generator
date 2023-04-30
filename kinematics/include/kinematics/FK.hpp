@@ -14,9 +14,14 @@ namespace kinematics
     public:
       FK(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
-      Eigen::Vector3d FK_calc(
-        std::array<Eigen::Matrix3d, 6> R_leg,
-        std::array<Eigen::Vector3d, 7> P_leg
+      Eigen::Vector3d getFK(
+        std::array<double, 6> Q_leg,
+        std::array<Eigen::Vector3d, 7> P_leg,
+        int joint_point
+      );
+
+      std::array<Eigen::Matrix3d, 6> getR_leg(
+        std::array<double, 6> Q_leg
       );
 
     private:
@@ -30,21 +35,23 @@ namespace kinematics
       //   std::array<Eigen::Vector3d, 7> P_leg
       // );
 
-      const float pi = 3.141593;  // 四捨五入済み
+      // const float pi = 3.141593;  // 四捨五入済み
 
-      std::array<Eigen::Matrix3d, 6> R_legR_;
-      std::array<Eigen::Vector3d, 7> P_legR_;
-      std::array<Eigen::Matrix3d, 6> R_legL_;
-      std::array<Eigen::Vector3d, 7> P_legL_;
-      std::array<double, 6> Q_legR_;
-      std::array<double, 6> Q_legL_;
+      std::array<Eigen::Matrix3d, 6> R_leg_;
 
-      Eigen::Vector3d FK_resultR_;
-      Eigen::Vector3d FK_resultL_;
+      // std::array<Eigen::Matrix3d, 6> R_legR_;
+      // std::array<Eigen::Vector3d, 7> P_legR_;
+      // std::array<Eigen::Matrix3d, 6> R_legL_;
+      // std::array<Eigen::Vector3d, 7> P_legL_;
+      // std::array<double, 6> Q_legR_;
+      // std::array<double, 6> Q_legL_;
 
-// DEBUG===/*
-      void DEBUG_ParameterSetting(void);
-// DEBUG===*/
+      // Eigen::Vector3d FK_resultR_;
+      // Eigen::Vector3d FK_resultL_;
+
+// // DEBUG===/*
+//       void DEBUG_ParameterSetting(void);
+// // DEBUG===*/
 
   };
 

@@ -20,7 +20,10 @@ namespace walking_pattern_generator
       std::array<double, 6> q_target_r_;
       std::array<double, 6> q_target_l_;
 
-      int step_count_;
+      int step_count_ = 0;
+
+      std::array<Eigen::Vector3d, 7> P_legR_;
+      std::array<Eigen::Vector3d, 7> P_legL_;
 
       std::array<std::array<double, 3>, 4> walking_pattern_P_R_;
       std::array<std::array<double, 3>, 4> walking_pattern_P_L_;

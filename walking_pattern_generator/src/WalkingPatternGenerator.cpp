@@ -6,6 +6,8 @@
 
 #include "Eigen/Dense"
 
+using namespace Eigen;
+
 namespace walking_pattern_generator
 {
   static const rmw_qos_profile_t custom_qos_profile =
@@ -22,6 +24,25 @@ namespace walking_pattern_generator
   };
 
   void WalkingPatternGenerator::DEBUG_ParameterSetting() {
+    P_legL_ = {
+        Vector3d(-0.005, 0.037, -0.1222),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, -0.093),
+        Vector3d(0, 0, -0.093),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, 0)
+    };
+    P_legR_ = {
+        Vector3d(-0.005, -0.037, -0.1222),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, -0.093),
+        Vector3d(0, 0, -0.093),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, 0)
+    };
+
     // 逆運動学からJointAngleを導出する。回転行列もWalkingPatternで欲しい？
     walking_pattern_P_R_[0] = {-0.01, -0.000, -0.3000};  // [m]
     walking_pattern_P_R_[1] = {-0.01, -0.000, -0.3000};
@@ -44,15 +65,46 @@ namespace walking_pattern_generator
   }
 
   void WalkingPatternGenerator::WPG_Server(
-    const std::shared_ptr<msgs_package::srv::ToWalkingPatternGenerator::Request> resuest,
+    const std::shared_ptr<msgs_package::srv::ToWalkingPatternGenerator::Request> request,
     std::shared_ptr<msgs_package::srv::ToWalkingPatternGenerator::Response> response
   ) {
+    step_count_ = request->step_count % 4;
 
+    Eigen::Matrix3d I;
+    I << 1, 0, 0,
+        0, 1, 0,
+        0, 0, 1;
+
+    response->q_target_leg_r = IK_.getIK(
+      P_legR_, 
+      Vector3d(walking_pattern_P_R_[step_count_][0], 
+              walking_pattern_P_R_[step_count_][1], 
+              walking_pattern_P_R_[step_count_][2]), 
+      I
+    );
+    response->q_target_leg_l = IK_.getIK(
+      P_legL_, 
+      Vector3d(walking_pattern_P_L_[step_count_][0], 
+              walking_pattern_P_L_[step_count_][1], 
+              walking_pattern_P_L_[step_count_][2]), 
+      I
+    );
+
+    response->dq_target_leg_r = walking_pattern_jointVel_R_[step_count_];
+    response->dq_target_leg_l = walking_pattern_jointVel_L_[step_count_];
   }
 
   WalkingPatternGenerator::WalkingPatternGenerator(
     const rclcpp::NodeOptions &options
   ) : Node("WalkingPatternGenerator", options) {
+
+    using namespace std::placeholders;
+
+    WPG_srv_ = this->create_service<msgs_package::srv::ToWalkingPatternGenerator>(
+      "WalkingPattern",
+      std::bind(&WalkingPatternGenerator::WPG_Server, this, _1, _2),
+      custom_qos_profile
+    );
 
     // DEBUG: parameter setting
     WalkingPatternGenerator::DEBUG_ParameterSetting();
