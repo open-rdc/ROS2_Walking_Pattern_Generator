@@ -18,7 +18,8 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(msgs_package REQUIRED)
-# find_package(Eigen3 REQUIRED)
+find_package(kinematics REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 add_executable(walking_pattern_generator
   src/WalkingPatternGenerator.cpp
@@ -27,11 +28,12 @@ add_executable(walking_pattern_generator
 ament_target_dependencies(walking_pattern_generator
   rclcpp
   msgs_package
+  kinematics
 )
 target_include_directories(walking_pattern_generator
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    # $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
+    $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:include>
   PRIVATE
     include
