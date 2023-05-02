@@ -2,6 +2,8 @@
 #include <rmw/qos_profiles.h>
 #include "walking_stabilization_controller/WalkingStabilizationController.hpp"
 #include "msgs_package/srv/to_walking_stabilization_controller.hpp"
+#include "kinematics/FK.hpp"
+#include "kinematics/IK.hpp"
 
 #include "Eigen/Dense"
 
@@ -48,6 +50,11 @@ namespace walking_stabilization_controller
     std::shared_ptr<msgs_package::srv::ToWalkingStabilizationController::Response> response
   ) {
 
+    // ふざけたコード
+    response->q_next_leg_r = request->q_target_leg_r;
+    response->q_next_leg_l = request->q_target_leg_l;
+    response->dq_next_leg_r = request->dq_target_leg_r;
+    response->dq_next_leg_l = request->dq_target_leg_l;
   }
 
   WalkingStabilizationController::WalkingStabilizationController(
