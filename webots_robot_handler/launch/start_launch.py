@@ -10,23 +10,23 @@ def generate_launch_description():
   robot_description = pathlib.Path(os.path.join(package_dir, 'resource', 'webots_robotis_op2_description.urdf')).read_text()
   # robotis_op2_ros2_control_params = os.path.join(package_dir, "resource", "robotis_op2_ros2_control.yaml")
 
-  # FK (kinematics)
-  fk = Node(
-    package = "kinematics",
-    # namespace = "walking_controller",  # 通信は、同namespace内でしか行えない
-    executable = "fk_srv",  # CMakeLists.txtのtarget_nameに合わせる
-    output = "screen",
-    parameters = [{'use_sim_time': True}]
-  )
+  # # FK (kinematics)
+  # fk = Node(
+  #   package = "kinematics",
+  #   # namespace = "walking_controller",  # 通信は、同namespace内でしか行えない
+  #   executable = "fk_srv",  # CMakeLists.txtのtarget_nameに合わせる
+  #   output = "screen",
+  #   parameters = [{'use_sim_time': True}]
+  # )
 
-  # IK (kinematics)
-  ik = Node(
-    package = "kinematics",
-    # namespace = "walking_controller",
-    executable = "ik_srv",
-    output = "screen",
-    parameters = [{'use_sim_time': True}]
-  )
+  # # IK (kinematics)
+  # ik = Node(
+  #   package = "kinematics",
+  #   # namespace = "walking_controller",
+  #   executable = "ik_srv",
+  #   output = "screen",
+  #   parameters = [{'use_sim_time': True}]
+  # )
 
   # walking_stabilization_controller
   walking_stabilization_controller = Node(
@@ -64,6 +64,15 @@ def generate_launch_description():
     output = "screen",
     parameters = [{'use_sim_time': True}]
   )
+  
+  # robot_manager
+  robot_manager = Node(
+    package = "robot_manager",
+    # namespace = "walking_controller",
+    executable = "robot_manager",
+    output = "screen",
+    parameters = [{'use_sim_time': True}]
+  )
 
   # robot_state_publisher = Node(
   #   package = "robot_state_publisher",
@@ -74,12 +83,13 @@ def generate_launch_description():
 
   return launch.LaunchDescription([
     # robot_state_publisher,
-    fk,
-    ik,
+    # fk,
+    # ik,
     walking_stabilization_controller,
     webots,
     robotis_op2_driver,
     walking_pattern_generator,
+    robot_manager,
     launch.actions.RegisterEventHandler(
       event_handler = launch.event_handlers.OnProcessExit(
         target_action = webots,
