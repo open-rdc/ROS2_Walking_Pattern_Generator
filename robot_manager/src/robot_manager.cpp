@@ -1,17 +1,12 @@
-#include <cstdio>
-// #include "rclcpp/rclcpp.hpp"
-// #include "kinematics/FK.hpp"
-// #include "Eigen/Dense"
+#include "rclcpp/rclcpp.hpp"
+#include "robot_manager/robot_manager.hpp"
+#include "msgs_package/srv/to_robot_manager.hpp"
+#include "msgs_package/srv/to_walking_pattern_generator.hpp"
+#include "msgs_package/srv/to_walking_stabilization_controller.hpp"
 
-// using namespace Eigen;
+using namespace std::chrono_literals;
+using namespace std::placeholders;
 
-int main(int argc, char ** argv)
-{
-  (void) argc;
-  (void) argv;
-
-  printf("hello world biped_controller package\n");
-  return 0;
-
-  // Vector3d hoge = kinematics::FK::FK_calc();
+namespace robot_manager {
+  
 }
