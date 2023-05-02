@@ -91,7 +91,13 @@ namespace webots_robot_handler
   void WebotsRobotHandler::callback_res(
     rclcpp::Client<msgs_package::srv::ToRobotManager>::SharedFuture future
   ) {
-
+    // set joints angle & velocity
+    for(int i = 0; i < 6; i++) {
+      wb_motor_set_position(motorsTag_[jointNum_legR_[i]], future.get()->q_next_leg_r[i]*jointAng_posi_or_nega_legR_[i]);
+      wb_motor_set_velocity(motorsTag_[jointNum_legR_[i]], future.get()->dq_next_leg_r[i]);
+      wb_motor_set_position(motorsTag_[jointNum_legL_[i]], future.get()->q_next_leg_l[i]*jointAng_posi_or_nega_legL_[i]);
+      wb_motor_set_velocity(motorsTag_[jointNum_legL_[i]], future.get()->dq_next_leg_l[i]);
+    }
   }
 
   void WebotsRobotHandler::step() {
