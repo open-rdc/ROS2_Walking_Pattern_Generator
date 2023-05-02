@@ -50,9 +50,21 @@ namespace walking_stabilization_controller
 
     // std::cout << P_target_legR_.transpose() << std::endl;
     // std::cout << P_target_legL_.transpose() << std::endl;
-    // for(int i = 0; i < 6; i++){std::cout << Q_target_legR_[i];} std::cout << std::endl;
-    // for(int i = 0; i < 6; i++){std::cout << Q_target_legL_[i];} std::cout << std::endl;
-    // for(int i = 0; i < 6; i++){std::cout << dQ_target_legR_[i];} std::cout << std::endl;
+    // for(int i = 0; i < 6; i++){std::cout << Q_target_legR_[i];} std::cout << std::endl;  // 激遅。printfのほうが良い。
+    // for(int i = 0; i < 6; i++){std::cout << Q_target_legL_[i];} std::cout << std::endl;  // std::endlは駄目。
+    // for(int i = 0; i < 6; i++){std::cout << dQ_target_legR_[i];} std::cout << std::endl;  // 出力は、いちいち出力せずに、Vectorとかそれを持つ構造体に保存して一気に出力するのも有り。標準出力で速い方法を探す。deathtruct。シグナルキャッチでCtrl+C、それでデストラクト。これをしないと、デストラクタが動かない。signal.hを使うと結構楽にできる。nice値の操作も、実機なら特に有効。
+    // 並列処理も重要。
+    // 処理時間を最重要視。
+    // ちゃんとした制御周期で。10msが目標。その時間内にほぼ確実に収まるように。
+    // 遅れをちゃんと見るように。
+    // UDPより、共有メモリのほうがもっと速い。
+    // 0MQ
+    // vector push back. reserve. setとfindの違いとか。
+    // usならいいだろう。
+    // データ構造。アルゴリズム。
+    // signal(SIGINT(), 呼び出す関数)が楽。sched.h
+    // setp~()で、nice値の操作ができる。CPUの優先度の操作。
+    // ファイル出力のほうがまし。command > file のほうがまし。
     // for(int i = 0; i < 6; i++){std::cout << dQ_target_legL_[i];} std::cout << std::endl;
 
     // RCLCPP_INFO(this->get_logger(), "Subscribed...\n");
