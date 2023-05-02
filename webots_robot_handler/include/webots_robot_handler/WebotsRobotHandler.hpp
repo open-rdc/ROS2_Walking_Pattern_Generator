@@ -5,7 +5,7 @@
 
 #include "webots_ros2_driver/PluginInterface.hpp"
 #include "webots_ros2_driver/WebotsNode.hpp"
-#include "msgs_package/srv/to_webots_robot_handler_message.hpp"
+#include "msgs_package/srv/to_robot_manager.hpp"
 
 namespace webots_robot_handler
 {
@@ -18,25 +18,28 @@ namespace webots_robot_handler
 
       void step() override;
 
-      void callback_res(const rclcpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedFuture future);
-
-
     private:
+// == init() ==
+
+      void callback_res(const rclcpp::Client<msgs_package::srv::ToRobotManager>::SharedFuture future);
+
+// DEBUG===/*
+      void DEBUG_ParameterSetting(void);
+
+      std::array<std::string, 20> motors_name_;
+      std::array<double, 20> initJointAng_;
+      std::array<double, 20> initJointVel_;
+// DEBUG===*/
+
       webots_ros2_driver::WebotsNode *node_;
 
-      rclcpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedPtr toWRH_clnt_;
+      rclcpp::Client<msgs_package::srv::ToRobotManager>::SharedPtr WRH_clnt_;
       
       // Webots内のロボットが持つデバイスのタグを持つ。このタグをもとに、Webotsの関数はデバイスを区別する。
       WbDeviceTag motorsTag_[20];  // 全モータ２０個
       WbDeviceTag positionSensorsTag_[20];  // 全モータの回転角度センサ２０個
       WbDeviceTag gyroTag_;  // ジャイロセンサ
       WbDeviceTag accelerometerTag_;  // 加速度センサ
-
-      // double setJointAng_[20];  // いる？
-      // double setJointVel_[20];
-      double getJointAng_[20];  // Webots側から得た関節角度を記憶
-      const double *accelerometerValue_;  
-      const double *gyroValue_;
 
       // 処理に役立つ配列
       // std::array<std::string, 20> motors_name;
@@ -46,14 +49,16 @@ namespace webots_robot_handler
       std::array<int, 6> jointAng_posi_or_nega_legL_;  // 上に同じ（左足）
 
       // DEBUG
-      int count = 0;
-// DEBUG===/*
-      void DEBUG_ParameterSetting(void);
+      int step_count_ = 0;
 
-      std::array<std::string, 20> motors_name_;
-      std::array<double, 20> initJointAng_;
-      std::array<double, 20> initJointVel_;
-// DEBUG===*/
+// == step() ==
+
+      // double setJointAng_[20];  // いる？
+      // double setJointVel_[20];
+      double getJointAng_[20];  // Webots側から得た関節角度を記憶
+      const double *accelerometerValue_;  
+      const double *gyroValue_;
+
   };
 }
 
