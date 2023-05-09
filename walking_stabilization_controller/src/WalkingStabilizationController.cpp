@@ -39,7 +39,7 @@ namespace walking_stabilization_controller
   ) {
     // to walking_pattern_generator
 
-    RCLCPP_INFO(this->get_logger(), "Start callback_sub");
+    // RCLCPP_INFO(this->get_logger(), "Start callback_sub");
 
     P_target_legR_ = {sub_data->p_target_r[0], sub_data->p_target_r[1], sub_data->p_target_r[2]};
     P_target_legL_ = {sub_data->p_target_l[0], sub_data->p_target_l[1], sub_data->p_target_l[2]};
@@ -55,7 +55,7 @@ namespace walking_stabilization_controller
     // for(int i = 0; i < 6; i++){std::cout << dQ_target_legR_[i];} std::cout << std::endl;
     // for(int i = 0; i < 6; i++){std::cout << dQ_target_legL_[i];} std::cout << std::endl;
 
-    RCLCPP_INFO(this->get_logger(), "Finish callback_sub");
+    // RCLCPP_INFO(this->get_logger(), "Finish callback_sub");
   }
 
   void WalkingStabilizationController::callback_res(
@@ -97,7 +97,7 @@ namespace walking_stabilization_controller
   ) {
     // walking_stabilization_controller service_server
 
-    RCLCPP_INFO(this->get_logger(), "Start WSC_SrvServer");
+    // RCLCPP_INFO(this->get_logger(), "Start WSC_SrvServer");
 
     if(P_target_legR_[0] == 999) {
       RCLCPP_WARN(this->get_logger(), "WSC couldn't get subscription from WPG. All value are numeric 999.");
@@ -171,7 +171,7 @@ namespace walking_stabilization_controller
     response->dq_fix_r = dQ_target_legR_;
     response->dq_fix_l = dQ_target_legL_;
 
-    RCLCPP_INFO(this->get_logger(), "Finish WSC_SrvServer\n");
+    // RCLCPP_INFO(this->get_logger(), "Finish WSC_SrvServer\n");
   }
 
   WalkingStabilizationController::WalkingStabilizationController(
