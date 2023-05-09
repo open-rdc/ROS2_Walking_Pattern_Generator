@@ -49,18 +49,18 @@ namespace webots_robot_handler
 
     // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Start up WebotsRobotHandler. Hello WebotsRobotHandler!!");
 
-    WRH_clnt_ = node_->create_client<msgs_package::srv::ToRobotManager>(
-      "FB_StabilizationController",
+    RM_clnt_ = node_->create_client<msgs_package::srv::ToRobotManager>(
+      "RobotManage",
       custom_qos_profile
     );
 
     // check & wait service server
-    while(!WRH_clnt_->wait_for_service(1s)) {
+    while(!RM_clnt_->wait_for_service(1s)) {
       if(!rclcpp::ok()) {
-        RCLCPP_ERROR(node_->get_logger(), "ERROR!!: FB_StabilizationController service is dead.");
+        RCLCPP_ERROR(node_->get_logger(), "ERROR!!: RobotManage service is dead.");
         return;
       }
-      // RCLCPP_INFO(node_->get_logger(), "Waiting for FB_StabilizationController service...");
+      // RCLCPP_INFO(node_->get_logger(), "Waiting for RobotManage service...");
     }
 
     // DEBUG parameter setting
@@ -112,35 +112,35 @@ namespace webots_robot_handler
     gyroValue_ = wb_gyro_get_values(gyroTag_);
 
     // set request
-    auto WRH_clnt_req = std::make_shared<msgs_package::srv::ToRobotManager::Request>();
+    auto RM_clnt_req = std::make_shared<msgs_package::srv::ToRobotManager::Request>();
 
-    WRH_clnt_req->q_now_leg_r = {getJointAng_[jointNum_legR_[0]],
+    RM_clnt_req->q_now_leg_r = {getJointAng_[jointNum_legR_[0]],
                                 getJointAng_[jointNum_legR_[1]],
                                 getJointAng_[jointNum_legR_[2]],
                                 getJointAng_[jointNum_legR_[3]],
                                 getJointAng_[jointNum_legR_[4]],
                                 getJointAng_[jointNum_legR_[5]],}; 
                                 
-    WRH_clnt_req->q_now_leg_l = {getJointAng_[jointNum_legL_[0]],
+    RM_clnt_req->q_now_leg_l = {getJointAng_[jointNum_legL_[0]],
                                 getJointAng_[jointNum_legL_[1]],
                                 getJointAng_[jointNum_legL_[2]],
                                 getJointAng_[jointNum_legL_[3]],
                                 getJointAng_[jointNum_legL_[4]],
                                 getJointAng_[jointNum_legL_[5]],}; 
 
-    WRH_clnt_req->accelerometer_now = {accelerometerValue_[0], 
+    RM_clnt_req->accelerometer_now = {accelerometerValue_[0], 
                                       accelerometerValue_[1], 
                                       accelerometerValue_[2]};
 
-    WRH_clnt_req->gyro_now = {gyroValue_[0],
+    RM_clnt_req->gyro_now = {gyroValue_[0],
                               gyroValue_[1],
                               gyroValue_[2]};
 
-    WRH_clnt_req->step_count = step_count_;
+    RM_clnt_req->step_count = step_count_;
 
     // push requset
-    WRH_clnt_->async_send_request(
-      WRH_clnt_req, 
+    RM_clnt_->async_send_request(
+      RM_clnt_req, 
       std::bind(&WebotsRobotHandler::callback_res, this, _1)
     );
   }

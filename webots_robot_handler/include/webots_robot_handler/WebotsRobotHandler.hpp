@@ -33,7 +33,7 @@ namespace webots_robot_handler
 
       webots_ros2_driver::WebotsNode *node_;
 
-      rclcpp::Client<msgs_package::srv::ToRobotManager>::SharedPtr WRH_clnt_;
+      rclcpp::Client<msgs_package::srv::ToRobotManager>::SharedPtr RM_clnt_;
       
       // Webots内のロボットが持つデバイスのタグを持つ。このタグをもとに、Webotsの関数はデバイスを区別する。
       WbDeviceTag motorsTag_[20];  // 全モータ２０個
