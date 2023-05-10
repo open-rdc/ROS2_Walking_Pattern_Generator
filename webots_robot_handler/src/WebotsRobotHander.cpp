@@ -88,17 +88,17 @@ namespace webots_robot_handler
     // RCLCPP_INFO(node_->get_logger(), "Finish init, Start step.");
   }
 
-  void WebotsRobotHandler::callback_res(
-    rclcpp::Client<msgs_package::srv::ToRobotManager>::SharedFuture future
-  ) {
-    // set joints angle & velocity
-    for(int i = 0; i < 6; i++) {
-      wb_motor_set_position(motorsTag_[jointNum_legR_[i]], future.get()->q_next_leg_r[i]*jointAng_posi_or_nega_legR_[i]);
-      wb_motor_set_velocity(motorsTag_[jointNum_legR_[i]], future.get()->dq_next_leg_r[i]);
-      wb_motor_set_position(motorsTag_[jointNum_legL_[i]], future.get()->q_next_leg_l[i]*jointAng_posi_or_nega_legL_[i]);
-      wb_motor_set_velocity(motorsTag_[jointNum_legL_[i]], future.get()->dq_next_leg_l[i]);
-    }
-  }
+  // void WebotsRobotHandler::callback_res(
+  //   rclcpp::Client<msgs_package::srv::ToRobotManager>::SharedFuture future
+  // ) {
+  //   // set joints angle & velocity
+  //   // for(int i = 0; i < 6; i++) {
+  //   //   wb_motor_set_position(motorsTag_[jointNum_legR_[i]], RM_future.get()->q_next_leg_r[i]*jointAng_posi_or_nega_legR_[i]);
+  //   //   wb_motor_set_velocity(motorsTag_[jointNum_legR_[i]], RM_future.get()->dq_next_leg_r[i]);
+  //   //   wb_motor_set_position(motorsTag_[jointNum_legL_[i]], RM_future.get()->q_next_leg_l[i]*jointAng_posi_or_nega_legL_[i]);
+  //   //   wb_motor_set_velocity(motorsTag_[jointNum_legL_[i]], RM_future.get()->dq_next_leg_l[i]);
+  //   // }
+  // }
 
   void WebotsRobotHandler::step() {
 
@@ -138,11 +138,20 @@ namespace webots_robot_handler
 
     RM_clnt_req->step_count = step_count_;
 
-    // push requset
-    RM_clnt_->async_send_request(
-      RM_clnt_req, 
-      std::bind(&WebotsRobotHandler::callback_res, this, _1)
-    );
+    // requset & wait response
+    auto RM_future = RM_clnt_->async_send_request(RM_clnt_req);
+    auto future_status = RM_future.wait_for(10ms);  // wait for 10ms
+    if(future_status == std::future_status::ready) {
+      for(int i = 0; i < 6; i++) {
+        wb_motor_set_position(motorsTag_[jointNum_legR_[i]], RM_future.get()->q_next_leg_r[i]*jointAng_posi_or_nega_legR_[i]);
+        wb_motor_set_velocity(motorsTag_[jointNum_legR_[i]], RM_future.get()->dq_next_leg_r[i]);
+        wb_motor_set_position(motorsTag_[jointNum_legL_[i]], RM_future.get()->q_next_leg_l[i]*jointAng_posi_or_nega_legL_[i]);
+        wb_motor_set_velocity(motorsTag_[jointNum_legL_[i]], RM_future.get()->dq_next_leg_l[i]);
+      }
+    }
+    else if(future_status == std::future_status::timeout) {
+      RCLCPP_WARN(node_->get_logger(), "<TIMEOUT> RM_future: Time over 10ms");
+    }
   }
 }
 
