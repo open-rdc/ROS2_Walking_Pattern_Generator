@@ -21,7 +21,7 @@ namespace webots_robot_handler
     private:
 // == init() ==
 
-      void callback_res(const rclcpp::Client<msgs_package::srv::ToRobotManager>::SharedFuture future);
+      // void callback_res(const rclcpp::Client<msgs_package::srv::ToRobotManager>::SharedFuture future);
 
 // DEBUG===/*
       void DEBUG_ParameterSetting(void);
