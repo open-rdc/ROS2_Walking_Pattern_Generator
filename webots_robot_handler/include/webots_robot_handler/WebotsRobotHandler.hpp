@@ -59,6 +59,8 @@ namespace webots_robot_handler
       const double *accelerometerValue_;  
       const double *gyroValue_;
 
+      // rclcpp::CallbackGroup::SharedPtr callback_group_ = nullptr;
+
   };
 }
 

@@ -71,10 +71,14 @@ namespace robot_manager {
   ) : Node("RobotManager", options) {
     
     WPG_clnt_ = this->create_client<msgs_package::srv::ToWalkingPatternGenerator>(
-      "WalkingPattern"
+      "WalkingPattern",
+      custom_qos_profile
+      // callback_group_
     );
     WSC_clnt_ = this->create_client<msgs_package::srv::ToWalkingStabilizationController>(
-      "StabilizationControl"
+      "StabilizationControl",
+      custom_qos_profile
+      // callback_group_
     );
 
     while(!WPG_clnt_->wait_for_service(1s)) {
@@ -92,7 +96,9 @@ namespace robot_manager {
 
     RM_srv_ = this->create_service<msgs_package::srv::ToRobotManager>(
       "RobotManage",
-      std::bind(&RobotManager::RM_Server, this, _1, _2)
+      std::bind(&RobotManager::RM_Server, this, _1, _2),
+      custom_qos_profile
+      // callback_group_
     );
   }
 }

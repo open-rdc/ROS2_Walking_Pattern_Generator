@@ -41,5 +41,7 @@ namespace walking_pattern_generator
       std::array<std::array<double, 3>, 4> walking_pattern_P_L_;
       std::array<std::array<double, 6>, 4> walking_pattern_jointVel_R_;
       std::array<std::array<double, 6>, 4> walking_pattern_jointVel_L_;
+
+      // rclcpp::CallbackGroup::SharedPtr callback_group_ = nullptr;
   };
 }

@@ -65,7 +65,9 @@ namespace walking_stabilization_controller
 
     WSC_srv_ = this->create_service<msgs_package::srv::ToWalkingStabilizationController>(
       "StabilizationControl",
-      std::bind(&WalkingStabilizationController::WSC_Server, this, _1, _2)
+      std::bind(&WalkingStabilizationController::WSC_Server, this, _1, _2),
+      custom_qos_profile
+      // callback_group_
     );
   }
 }

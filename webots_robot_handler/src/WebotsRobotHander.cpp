@@ -50,7 +50,9 @@ namespace webots_robot_handler
     // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Start up WebotsRobotHandler. Hello WebotsRobotHandler!!");
 
     RM_clnt_ = node_->create_client<msgs_package::srv::ToRobotManager>(
-      "RobotManage"
+      "RobotManage",
+      custom_qos_profile
+      // callback_group_
     );
 
     // check & wait service server
@@ -140,18 +142,18 @@ namespace webots_robot_handler
     // requset & wait response
     auto RM_future = RM_clnt_->async_send_request(RM_clnt_req);
     // RM_future.wait();
-    std::future_status future_status = RM_future.wait_for(100ms);  // wait for 10ms
-    if(future_status == std::future_status::ready) {
+    // std::future_status future_status = RM_future.wait_for(10ms);  // wait for 10ms
+    // if(future_status == std::future_status::ready) {
       for(int i = 0; i < 6; i++) {
         wb_motor_set_position(motorsTag_[jointNum_legR_[i]], RM_future.get()->q_next_leg_r[i]*jointAng_posi_or_nega_legR_[i]);
         wb_motor_set_velocity(motorsTag_[jointNum_legR_[i]], RM_future.get()->dq_next_leg_r[i]);
         wb_motor_set_position(motorsTag_[jointNum_legL_[i]], RM_future.get()->q_next_leg_l[i]*jointAng_posi_or_nega_legL_[i]);
         wb_motor_set_velocity(motorsTag_[jointNum_legL_[i]], RM_future.get()->dq_next_leg_l[i]);
       }
-    }
-    else if(future_status == std::future_status::timeout) {
-      RCLCPP_WARN(node_->get_logger(), "<TIMEOUT> RM_future: Time over 10ms");
-    }
+    // }
+    // else if(future_status == std::future_status::timeout) {
+    //   RCLCPP_WARN(node_->get_logger(), "<TIMEOUT> RM_future: Time over 10ms");
+    // }
   }
 }
 
