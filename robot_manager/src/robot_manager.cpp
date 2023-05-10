@@ -34,33 +34,35 @@ namespace robot_manager {
 
     // req WPG & wait WPG_res
     auto WPG_future = WPG_clnt_->async_send_request(WPG_clnt_req);
-    auto future_status = WPG_future.wait_for(3ms);  // wait for 3ms. 3ms or future_ready
-    if(future_status == std::future_status::ready) {  // get WPG_res & set WSC_req
+    // WPG_future.wait();
+    // std::future_status future_status = WPG_future.wait_for(300ms);  // wait for 3ms. 3ms or future_ready
+    // if(future_status == std::future_status::ready) {  // get WPG_res & set WSC_req
       WSC_clnt_req->q_now_leg_r = request->q_now_leg_r;
       WSC_clnt_req->q_now_leg_l = request->q_now_leg_l;
-      WSC_clnt_req->q_target_leg_r = WPG_future.get()->q_target_leg_r;
+      WSC_clnt_req->q_target_leg_r = WPG_future.get()->q_target_leg_r;  // future.get()でも、responseをwaitできる。
       WSC_clnt_req->q_target_leg_l = WPG_future.get()->q_target_leg_l;
       WSC_clnt_req->dq_target_leg_r = WPG_future.get()->dq_target_leg_r;
       WSC_clnt_req->dq_target_leg_l = WPG_future.get()->dq_target_leg_l;
       WSC_clnt_req->accelerometer_now = request->accelerometer_now;
       WSC_clnt_req->gyro_now = request->gyro_now;    
-    }
-    else if(future_status == std::future_status::timeout) {  // failed
-      RCLCPP_WARN(this->get_logger(), "<TIMEOUT> WPG_future: Time over 3ms");
-    }
+    // }
+    // else if(future_status == std::future_status::timeout) {  // failed
+    //   RCLCPP_WARN(this->get_logger(), "<TIMEOUT> WPG_future: Time over 3ms");
+    // }
 
     // req WSC & wait WSC_res
     auto WSC_future = WSC_clnt_->async_send_request(WSC_clnt_req);
-    future_status = WSC_future.wait_for(3ms);
-    if(future_status == std::future_status::ready) {  // get WSC_res & set RM_res
+    // WSC_future.wait();
+    // future_status = WSC_future.wait_for(300ms);
+    // if(future_status == std::future_status::ready) {  // get WSC_res & set RM_res
       response->q_next_leg_r = WSC_future.get()->q_next_leg_r;
       response->q_next_leg_l = WSC_future.get()->q_next_leg_l;
       response->dq_next_leg_r = WSC_future.get()->dq_next_leg_r;
       response->dq_next_leg_l = WSC_future.get()->dq_next_leg_l;
-    }
-    else if(future_status == std::future_status::timeout) {  // failed
-      RCLCPP_WARN(this->get_logger(), "<TIMEOUT> WSC_future: Time over 3ms");
-    }
+    // }
+    // else if(future_status == std::future_status::timeout) {  // failed
+    //   RCLCPP_WARN(this->get_logger(), "<TIMEOUT> WSC_future: Time over 3ms");
+    // }
     
   }
 
@@ -69,12 +71,10 @@ namespace robot_manager {
   ) : Node("RobotManager", options) {
     
     WPG_clnt_ = this->create_client<msgs_package::srv::ToWalkingPatternGenerator>(
-      "WalkingPattern",
-      custom_qos_profile
+      "WalkingPattern"
     );
     WSC_clnt_ = this->create_client<msgs_package::srv::ToWalkingStabilizationController>(
-      "StabilizationControl",
-      custom_qos_profile
+      "StabilizationControl"
     );
 
     while(!WPG_clnt_->wait_for_service(1s)) {
@@ -92,8 +92,7 @@ namespace robot_manager {
 
     RM_srv_ = this->create_service<msgs_package::srv::ToRobotManager>(
       "RobotManage",
-      std::bind(&RobotManager::RM_Server, this, _1, _2),
-      custom_qos_profile
+      std::bind(&RobotManager::RM_Server, this, _1, _2)
     );
   }
 }

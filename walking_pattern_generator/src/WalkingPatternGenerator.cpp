@@ -106,8 +106,7 @@ namespace walking_pattern_generator
 
     WPG_srv_ = this->create_service<msgs_package::srv::ToWalkingPatternGenerator>(
       "WalkingPattern",
-      std::bind(&WalkingPatternGenerator::WPG_Server, this, _1, _2),
-      custom_qos_profile
+      std::bind(&WalkingPatternGenerator::WPG_Server, this, _1, _2)
     );
 
     // DEBUG: parameter setting
