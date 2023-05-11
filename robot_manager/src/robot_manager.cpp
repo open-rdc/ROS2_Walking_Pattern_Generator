@@ -72,13 +72,13 @@ namespace robot_manager {
     
     WPG_clnt_ = this->create_client<msgs_package::srv::ToWalkingPatternGenerator>(
       "WalkingPattern",
-      custom_qos_profile
-      // callback_group_
+      custom_qos_profile,
+      callback_group_
     );
     WSC_clnt_ = this->create_client<msgs_package::srv::ToWalkingStabilizationController>(
       "StabilizationControl",
-      custom_qos_profile
-      // callback_group_
+      custom_qos_profile,
+      callback_group_
     );
 
     while(!WPG_clnt_->wait_for_service(1s)) {

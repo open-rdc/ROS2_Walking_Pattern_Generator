@@ -18,7 +18,7 @@ namespace robot_manager {
         std::shared_ptr<msgs_package::srv::ToRobotManager::Response> response
       );
 
-      // rclcpp::CallbackGroup::SharedPtr callback_group_ = nullptr;
+      rclcpp::CallbackGroup::SharedPtr callback_group_ = nullptr;
 
   };
 }

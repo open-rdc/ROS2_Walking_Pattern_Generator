@@ -51,8 +51,8 @@ namespace webots_robot_handler
 
     RM_clnt_ = node_->create_client<msgs_package::srv::ToRobotManager>(
       "RobotManage",
-      custom_qos_profile
-      // callback_group_
+      custom_qos_profile,
+      callback_group_
     );
 
     // check & wait service server
