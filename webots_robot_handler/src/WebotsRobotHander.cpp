@@ -141,11 +141,13 @@ namespace webots_robot_handler
 
     // requset & wait response
     auto RM_future = RM_clnt_->async_send_request(RM_clnt_req);
-    if(rclcpp::spin_until_future_complete(node_->get_node_base_interface(), RM_future, 10ms) != rclcpp::FutureReturnCode::SUCCESS) {  // success
+    if(rclcpp::spin_until_future_complete(node_->get_node_base_interface(), RM_future, 50ms) != rclcpp::FutureReturnCode::SUCCESS) {  // success
       RCLCPP_INFO(node_->get_logger(), "nooooo");
-    }
+    }  // ここだけ同期、RM内は非同期なら行ける。だから、多分SyncService in SyncServiceが駄目なんだろうな
+    // RM_future.get();
     // RM_future.wait();
-    // std::future_status future_status = RM_future.wait_for(10ms);  // wait for 10ms
+    // auto future_status = RM_future.wait_for(100ms);  // wait for 10ms
+    // if(future_status != std::future_status::ready){RCLCPP_INFO(node_->get_logger(), "IHIHIHIHHHI");}
     // if(future_status == std::future_status::ready) {
     //   // for(int i = 0; i < 6; i++) {
     //   //   wb_motor_set_position(motorsTag_[jointNum_legR_[i]], RM_future.get()->q_next_leg_r[i]*jointAng_posi_or_nega_legR_[i]);

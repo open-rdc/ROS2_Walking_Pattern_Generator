@@ -68,34 +68,35 @@ namespace walking_pattern_generator
     const std::shared_ptr<msgs_package::srv::ToWalkingPatternGenerator::Request> request,
     std::shared_ptr<msgs_package::srv::ToWalkingPatternGenerator::Response> response
   ) {
-    // stepの周期を元に、出力するwalking_patternを決定（今回は静歩行をループさせるので、/4して余りを算出）
-    step_count_ = request->step_count % 4;
+    RCLCPP_INFO(this->get_logger(), "WPGWPGWPG");
+    // // stepの周期を元に、出力するwalking_patternを決定（今回は静歩行をループさせるので、/4して余りを算出）
+    // step_count_ = request->step_count % 4;
 
-    // IdentifyMatrix（便利関数をまとめたライブラリで宣言・定義したい）
-    Eigen::Matrix3d I;
-    I << 1, 0, 0,
-        0, 1, 0,
-        0, 0, 1;
+    // // IdentifyMatrix（便利関数をまとめたライブラリで宣言・定義したい）
+    // Eigen::Matrix3d I;
+    // I << 1, 0, 0,
+    //     0, 1, 0,
+    //     0, 0, 1;
 
-    // response->leg_joint-angle
-    response->q_target_leg_r = IK_.getIK(
-      P_legR_,                                        // leg_R joint point
-      Vector3d(walking_pattern_P_R_[step_count_][0],  // walking_pattern axis_x
-              walking_pattern_P_R_[step_count_][1],   // walking_pattern axis_y
-              walking_pattern_P_R_[step_count_][2]),  // walking_pattern axis_z
-      I                                               // foot angle matrix (IdentifyMatrix)
-    );
-    response->q_target_leg_l = IK_.getIK(
-      P_legL_,                                        // leg_R joint point
-      Vector3d(walking_pattern_P_L_[step_count_][0],  // walking_pattern axis_x
-              walking_pattern_P_L_[step_count_][1],   // walking_pattern axis_y
-              walking_pattern_P_L_[step_count_][2]),  // walking_pattern axis_z
-      I                                               // foot angle matrix (IdentifyMatrix)
-    );
+    // // response->leg_joint-angle
+    // response->q_target_leg_r = IK_.getIK(
+    //   P_legR_,                                        // leg_R joint point
+    //   Vector3d(walking_pattern_P_R_[step_count_][0],  // walking_pattern axis_x
+    //           walking_pattern_P_R_[step_count_][1],   // walking_pattern axis_y
+    //           walking_pattern_P_R_[step_count_][2]),  // walking_pattern axis_z
+    //   I                                               // foot angle matrix (IdentifyMatrix)
+    // );
+    // response->q_target_leg_l = IK_.getIK(
+    //   P_legL_,                                        // leg_R joint point
+    //   Vector3d(walking_pattern_P_L_[step_count_][0],  // walking_pattern axis_x
+    //           walking_pattern_P_L_[step_count_][1],   // walking_pattern axis_y
+    //           walking_pattern_P_L_[step_count_][2]),  // walking_pattern axis_z
+    //   I                                               // foot angle matrix (IdentifyMatrix)
+    // );
 
-    // response->leg_joint-velocity
-    response->dq_target_leg_r = walking_pattern_jointVel_R_[step_count_];
-    response->dq_target_leg_l = walking_pattern_jointVel_L_[step_count_];
+    // // response->leg_joint-velocity
+    // response->dq_target_leg_r = walking_pattern_jointVel_R_[step_count_];
+    // response->dq_target_leg_l = walking_pattern_jointVel_L_[step_count_];
   }
 
   WalkingPatternGenerator::WalkingPatternGenerator(
