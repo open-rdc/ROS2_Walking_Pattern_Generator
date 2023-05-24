@@ -141,7 +141,7 @@ namespace webots_robot_handler
 
     // requset & wait response
     auto RM_future = RM_clnt_->async_send_request(RM_clnt_req);
-    if(rclcpp::spin_until_future_complete(node_->get_node_base_interface(), RM_future, 100ms) == rclcpp::FutureReturnCode::SUCCESS) {  // success
+    if(rclcpp::spin_until_future_complete(node_->get_node_base_interface(), RM_future, 10ms) != rclcpp::FutureReturnCode::SUCCESS) {  // success
       RCLCPP_INFO(node_->get_logger(), "nooooo");
     }
     // RM_future.wait();

@@ -71,29 +71,29 @@ namespace robot_manager {
     const rclcpp::NodeOptions &options
   ) : Node("RobotManager", options) {
     
-    // WPG_clnt_ = this->create_client<msgs_package::srv::ToWalkingPatternGenerator>(
-    //   "WalkingPattern",
-    //   custom_qos_profile,
-    //   callback_group_
-    // );
-    // WSC_clnt_ = this->create_client<msgs_package::srv::ToWalkingStabilizationController>(
-    //   "StabilizationControl",
-    //   custom_qos_profile,
-    //   callback_group_
-    // );
+    WPG_clnt_ = this->create_client<msgs_package::srv::ToWalkingPatternGenerator>(
+      "WalkingPattern",
+      custom_qos_profile,
+      callback_group_
+    );
+    WSC_clnt_ = this->create_client<msgs_package::srv::ToWalkingStabilizationController>(
+      "StabilizationControl",
+      custom_qos_profile,
+      callback_group_
+    );
 
-    // while(!WPG_clnt_->wait_for_service(1s)) {
-    //   if(!rclcpp::ok()) {
-    //     RCLCPP_ERROR(this->get_logger(), "ERROR!!: WalkingPattern service is dead.");
-    //     return;
-    //   }
-    // }
-    // while(!WSC_clnt_->wait_for_service(1s)) {
-    //   if(!rclcpp::ok()) {
-    //     RCLCPP_ERROR(this->get_logger(), "ERROR!!: StabilizationControl service is dead.");
-    //     return;
-    //   }
-    // }
+    while(!WPG_clnt_->wait_for_service(1s)) {
+      if(!rclcpp::ok()) {
+        RCLCPP_ERROR(this->get_logger(), "ERROR!!: WalkingPattern service is dead.");
+        return;
+      }
+    }
+    while(!WSC_clnt_->wait_for_service(1s)) {
+      if(!rclcpp::ok()) {
+        RCLCPP_ERROR(this->get_logger(), "ERROR!!: StabilizationControl service is dead.");
+        return;
+      }
+    }
 
     RM_srv_ = this->create_service<msgs_package::srv::ToRobotManager>(
       "RobotManage",
