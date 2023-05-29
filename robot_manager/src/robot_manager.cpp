@@ -35,19 +35,14 @@ namespace robot_manager {
 
     // req WPG & wait WPG_res
     auto WPG_future = WPG_clnt_->async_send_request(WPG_clnt_req);
-    auto future_status = WPG_future.wait_for(10ms);  // wait for 10ms
-    if(future_status != std::future_status::ready){RCLCPP_INFO(this->get_logger(), "IHIHIHIHHHI");}
-
-    // if(rclcpp::spin_until_future_complete(this->get_node_base_interface(), WPG_future, 5ms) != rclcpp::FutureReturnCode::SUCCESS) {  // success
-    //   RCLCPP_INFO(this->get_logger(), "NNNNNN");
-    // }
+    rclcpp::sleep_for(5ms);
     // WPG_future.get();
     // // WPG_future.wait();
     // // std::future_status future_status = WPG_future.wait_for(300ms);  // wait for 3ms. 3ms or future_ready
     // // if(future_status == std::future_status::ready) {  // get WPG_res & set WSC_req
     //   WSC_clnt_req->q_now_leg_r = request->q_now_leg_r;
-    //   WSC_clnt_req->q_now_leg_l = request->q_now_leg_l;
-    //   WSC_clnt_req->q_target_leg_r = WPG_future.get()->q_target_leg_r;  // future.get()でも、responseをwaitできる。
+    // WSC_clnt_req->q_now_leg_l = request->q_now_leg_l;
+    // WSC_clnt_req->q_target_leg_r = WPG_future.get()->q_target_leg_r;  // future.get()でも、responseをwaitできる。
     //   WSC_clnt_req->q_target_leg_l = WPG_future.get()->q_target_leg_l;
     //   WSC_clnt_req->dq_target_leg_r = WPG_future.get()->dq_target_leg_r;
     //   WSC_clnt_req->dq_target_leg_l = WPG_future.get()->dq_target_leg_l;
