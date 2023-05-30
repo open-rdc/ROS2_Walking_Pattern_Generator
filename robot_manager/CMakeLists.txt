@@ -9,6 +9,8 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(msgs_package REQUIRED)
+find_package(kinematics REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 add_executable(robot_manager
   src/robot_manager.cpp
@@ -17,10 +19,12 @@ add_executable(robot_manager
 ament_target_dependencies(robot_manager
   rclcpp
   msgs_package
+  kinematics
 )
 target_include_directories(robot_manager 
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:include>
   PRIVATE
     include

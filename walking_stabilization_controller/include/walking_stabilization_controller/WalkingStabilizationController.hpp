@@ -30,6 +30,7 @@ namespace walking_stabilization_controller
       std::array<Eigen::Vector3d, 7> P_legR_;
       std::array<Eigen::Vector3d, 7> P_legL_;
 
-      // rclcpp::CallbackGroup::SharedPtr callback_group_ = nullptr;
+    rclcpp::CallbackGroup::SharedPtr cb_group_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
+
   };
 }

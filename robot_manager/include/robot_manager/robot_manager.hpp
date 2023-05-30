@@ -20,5 +20,8 @@ namespace robot_manager {
       rclcpp::Client<msgs_package::srv::StabilizationControl>::SharedPtr clnt_stabilization_control_;
       rclcpp::Subscription<msgs_package::msg::WalkingPattern>::SharedPtr sub_walking_pattern_;
       rclcpp::Subscription<msgs_package::msg::Feedback>::SharedPtr sub_feedback_;
+
+      rclcpp::CallbackGroup::SharedPtr cb_group_ = nullptr;
+      rclcpp::CallbackGroup::SharedPtr cc_group_ = nullptr;
   };
 }

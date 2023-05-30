@@ -9,6 +9,7 @@
 
   <depend>rclcpp</depend>
   <depend>msgs_package</depend>
+  <depend>kinematics</depend>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
