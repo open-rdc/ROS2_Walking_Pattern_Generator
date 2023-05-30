@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[]) {
     rclcpp::init(argc, argv);
-    rclcpp::executors::SingleThreadedExecutor exec;
+    rclcpp::executors::MultiThreadedExecutor exec;
     exec.add_node(std::make_shared<robot_manager::WalkingStabilizationController>());
     exec.add_node(std::make_shared<robot_manager::RobotManager>());
     exec.spin();

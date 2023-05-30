@@ -7,6 +7,7 @@ float64[6] dq_target_leg_l
 float64[3] accelerometer_now
 float64[3] gyro_now
 ---
+int32 nini
 float64[6] q_next_leg_r
 float64[6] q_next_leg_l
 float64[6] dq_next_leg_r

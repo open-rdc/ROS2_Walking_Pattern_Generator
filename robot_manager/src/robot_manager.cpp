@@ -1,3 +1,6 @@
+#include <chrono>
+#include <memory>
+
 #include "rclcpp/rclcpp.hpp"
 #include <rmw/qos_profiles.h>
 #include "robot_manager/robot_manager.hpp"
@@ -25,24 +28,28 @@ namespace robot_manager {
     const rclcpp::NodeOptions &options
   ) : Node("RobotManager", options) {
 
-    cb_group_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
-    cc_group_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
+    cb_group_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);;
+    cc_group_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);;
 
     clnt_stabilization_control_ = this->create_client<msgs_package::srv::StabilizationControl>(
       "StabilizationControl",
-      custom_qos_profile,
+      rmw_qos_profile_services_default,
       cb_group_
     );
-    // while(!clnt_stabilization_control_->wait_for_service(1s)) {
-    //   RCLCPP_WARN(this->get_logger(), "Waiting StabilizationController service ...");
-    //   if(!rclcpp::ok()) {
-    //     RCLCPP_ERROR(this->get_logger(), "ERROR!!: StabilizationControl service is dead.");
-    //     return;
-    //   }
-    // }
+    while(!clnt_stabilization_control_->wait_for_service(1s)) {
+      RCLCPP_INFO(this->get_logger(), "Waiting StabilizationController service ...");
+      if(!rclcpp::ok()) {
+        RCLCPP_ERROR(this->get_logger(), "ERROR!!: StabilizationControl service is dead.");
+        return;
+      }
+    }
     // RCLCPP_INFO(this->get_logger(), "hoge");
-    pub_control_output_ = this->create_publisher<msgs_package::msg::ControlOutput>("ControlOutput", rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile)));
-    timer_ = create_wall_timer(7s, std::bind(&RobotManager::ControlOutput_Timer, this), cc_group_);
+    // pub_control_output_ = this->create_publisher<msgs_package::msg::ControlOutput>("ControlOutput", rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(rmw_qos_profile_services_default)));
+    timer_ = create_wall_timer(1s, std::bind(&RobotManager::ControlOutput_Timer, this), cc_group_);
+    
+    // if(rclcpp::ok()) {
+    //   ControlOutput_Timer();
+    // }
   }
 
   // Robot Manager 
@@ -51,21 +58,21 @@ namespace robot_manager {
 
     auto req = std::make_shared<msgs_package::srv::StabilizationControl::Request>();
 
+    // auto res = clnt_stabilization_control_->async_send_request(req, [this](rclcpp::Client<msgs_package::srv::StabilizationControl>::SharedFuture fu){auto hoge = fu.get()->nini; std::cout << hoge << std::endl;});
     auto res = clnt_stabilization_control_->async_send_request(req);
     // if(rclcpp::spin_until_future_complete(this->get_node_base_interface(), res) != rclcpp::FutureReturnCode::SUCCESS) {
-    //   RCLCPP_WARN(this->get_logger(), "Failed StabilizationControl");
+    //   RCLCPP_INFO(this->get_logger(), "Failed StabilizationControl");
     // }
-    std::future_status status = res.wait_for(5s);
+    std::future_status status = res.wait_for(10s);
     if(status == std::future_status::ready) {
-      RCLCPP_WARN(this->get_logger(), "SUCCESS");
+      RCLCPP_INFO(this->get_logger(), "SUCCESS");
     }
     else if (status == std::future_status::timeout) {
-      RCLCPP_WARN(this->get_logger(), "TIMEOUT");
+      RCLCPP_INFO(this->get_logger(), "TIMEOUT");
     }
     else {
-      RCLCPP_WARN(this->get_logger(), "deffered");
+      RCLCPP_INFO(this->get_logger(), "deffered");
     }
-
   }
 
   void RobotManager::WalkingPattern_Callback(const msgs_package::msg::WalkingPattern::SharedPtr callback_data) {

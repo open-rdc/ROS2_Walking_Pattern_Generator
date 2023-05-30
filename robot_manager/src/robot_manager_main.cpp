@@ -3,10 +3,11 @@
 
 int main(int argc, char *argv[]) {
   rclcpp::init(argc, argv);
-  // rclcpp::executors::MultiThreadedExecutor exe;
-  // exe.add_node(std::make_shared<robot_manager::RobotManager>());
-  // exe.spin();
-  rclcpp::spin(std::make_shared<robot_manager::RobotManager>());
+  auto node = std::make_shared<robot_manager::RobotManager>();
+  rclcpp::executors::MultiThreadedExecutor exe;
+  exe.add_node(node);
+  exe.spin();
+  // rclcpp::spin(std::make_shared<robot_manager::RobotManager>());
   rclcpp::shutdown();
 
   return 0;

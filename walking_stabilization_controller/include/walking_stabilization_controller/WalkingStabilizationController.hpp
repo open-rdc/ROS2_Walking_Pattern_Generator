@@ -15,6 +15,7 @@ namespace robot_manager
 
     private:
       void WSC_Server(
+        const std::shared_ptr<rmw_request_id_t> request_header,
         const std::shared_ptr<msgs_package::srv::StabilizationControl::Request> request,
         std::shared_ptr<msgs_package::srv::StabilizationControl::Response> response
       );

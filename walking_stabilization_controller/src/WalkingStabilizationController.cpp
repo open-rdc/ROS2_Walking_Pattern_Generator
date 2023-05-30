@@ -53,21 +53,23 @@ namespace robot_manager
 
     srv_stabilization_control_ = this->create_service<msgs_package::srv::StabilizationControl>(
       "StabilizationControl",
-      std::bind(&WalkingStabilizationController::WSC_Server, this, _1, _2),
-      custom_qos_profile
+      std::bind(&WalkingStabilizationController::WSC_Server, this, _1, _2, _3)
     );
   }
 
   void WalkingStabilizationController::WSC_Server(
+    const std::shared_ptr<rmw_request_id_t> request_header,
     const std::shared_ptr<msgs_package::srv::StabilizationControl::Request> request,
     std::shared_ptr<msgs_package::srv::StabilizationControl::Response> response
   ) {
     RCLCPP_INFO(this->get_logger(), "WalkingStabilizationController::WSC_Server");
-    (void)request;
-    (void)response;
+    (void)request_header;
+    // (void)request;
+    // (void)response;
     // ふざけたコード
-    // response->q_next_leg_r = request->q_target_leg_r;
-    // response->q_next_leg_l = request->q_target_leg_l;
+    response->nini = 99;
+    response->q_next_leg_r = {99, 99, 99, 99, 99, 99};
+    response->q_next_leg_l = request->q_target_leg_l;
     // response->dq_next_leg_r = request->dq_target_leg_r;
     // response->dq_next_leg_l = request->dq_target_leg_l;
     RCLCPP_INFO(this->get_logger(), "Response");
