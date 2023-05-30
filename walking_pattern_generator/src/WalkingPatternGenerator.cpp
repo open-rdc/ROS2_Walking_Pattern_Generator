@@ -1,7 +1,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include <rmw/qos_profiles.h>
 #include "walking_pattern_generator/WalkingPatternGenerator.hpp"
-#include "msgs_package/srv/to_walking_pattern_generator.hpp"
+#include "msgs_package/msg/walking_pattern.hpp"
 #include "kinematics/IK.hpp"
 
 #include "Eigen/Dense"
@@ -64,11 +64,21 @@ namespace walking_pattern_generator
     walking_pattern_jointVel_L_[3] = {1, 1, 0.5, 1, 0.5, 1};
   }
 
-  void WalkingPatternGenerator::WPG_Server(
-    const std::shared_ptr<msgs_package::srv::ToWalkingPatternGenerator::Request> request,
-    std::shared_ptr<msgs_package::srv::ToWalkingPatternGenerator::Response> response
-  ) {
-    RCLCPP_INFO(this->get_logger(), "WPGWPGWPG");
+  WalkingPatternGenerator::WalkingPatternGenerator(
+    const rclcpp::NodeOptions &options
+  ) : Node("WalkingPatternGenerator", options) {
+
+    // DEBUG: parameter setting
+    WalkingPatternGenerator::DEBUG_ParameterSetting();
+
+    using namespace std::chrono_literals;
+
+    pub_walking_pattern_ = this->create_publisher<msgs_package::msg::WalkingPattern>("WalkingPattern", rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile)));
+    timer_ = create_wall_timer(500ms, std::bind(&WalkingPatternGenerator::WalkingPattern_Timer, this));
+  }
+
+  void WalkingPatternGenerator::WalkingPattern_Timer() {
+    // RCLCPP_INFO(this->get_logger(), "WalkingPatternGenerator::WalkingPattern_Timer");
     // // stepの周期を元に、出力するwalking_patternを決定（今回は静歩行をループさせるので、/4して余りを算出）
     // step_count_ = request->step_count % 4;
 
@@ -97,22 +107,5 @@ namespace walking_pattern_generator
     // // response->leg_joint-velocity
     // response->dq_target_leg_r = walking_pattern_jointVel_R_[step_count_];
     // response->dq_target_leg_l = walking_pattern_jointVel_L_[step_count_];
-  }
-
-  WalkingPatternGenerator::WalkingPatternGenerator(
-    const rclcpp::NodeOptions &options
-  ) : Node("WalkingPatternGenerator", options) {
-
-    using namespace std::placeholders;
-
-    WPG_srv_ = this->create_service<msgs_package::srv::ToWalkingPatternGenerator>(
-      "WalkingPattern",
-      std::bind(&WalkingPatternGenerator::WPG_Server, this, _1, _2),
-      custom_qos_profile
-      // callback_group_
-    );
-
-    // DEBUG: parameter setting
-    WalkingPatternGenerator::DEBUG_ParameterSetting();
   }
 }

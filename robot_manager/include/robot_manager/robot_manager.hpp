@@ -1,7 +1,8 @@
 #include "rclcpp/rclcpp.hpp"
-#include "msgs_package/srv/to_robot_manager.hpp"
-#include "msgs_package/srv/to_walking_pattern_generator.hpp"
-#include "msgs_package/srv/to_walking_stabilization_controller.hpp"
+#include "msgs_package/msg/control_output.hpp"
+#include "msgs_package/msg/walking_pattern.hpp"
+#include "msgs_package/msg/feedback.hpp"
+#include "msgs_package/srv/stabilization_control.hpp"
 
 namespace robot_manager {
   class RobotManager : public rclcpp::Node {
@@ -9,16 +10,15 @@ namespace robot_manager {
       RobotManager(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
 
     private:
-      rclcpp::Service<msgs_package::srv::ToRobotManager>::SharedPtr RM_srv_;
-      rclcpp::Client<msgs_package::srv::ToWalkingPatternGenerator>::SharedPtr WPG_clnt_;
-      rclcpp::Client<msgs_package::srv::ToWalkingStabilizationController>::SharedPtr WSC_clnt_;
+      void ControlOutput_Timer();
+      void WalkingPattern_Callback(const msgs_package::msg::WalkingPattern::SharedPtr callback_data);
+      void Feedback_Callback(const msgs_package::msg::Feedback::SharedPtr callback_data);
 
-      void RM_Server(
-        const std::shared_ptr<msgs_package::srv::ToRobotManager::Request> request,
-        std::shared_ptr<msgs_package::srv::ToRobotManager::Response> response
-      );
+      rclcpp::Publisher<msgs_package::msg::ControlOutput>::SharedPtr pub_control_output_;
+      rclcpp::TimerBase::SharedPtr timer_; 
 
-      rclcpp::CallbackGroup::SharedPtr callback_group_ = nullptr;
-
+      rclcpp::Client<msgs_package::srv::StabilizationControl>::SharedPtr clnt_stabilization_control_;
+      rclcpp::Subscription<msgs_package::msg::WalkingPattern>::SharedPtr sub_walking_pattern_;
+      rclcpp::Subscription<msgs_package::msg::Feedback>::SharedPtr sub_feedback_;
   };
 }

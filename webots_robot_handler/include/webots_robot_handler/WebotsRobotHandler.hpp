@@ -2,10 +2,11 @@
 #define WEBOTS_ROBOT_HANDLER_HPP
 
 #include "rclcpp/rclcpp.hpp"
+#include "msgs_package/msg/feedback.hpp"
+#include "msgs_package/msg/control_output.hpp"
 
 #include "webots_ros2_driver/PluginInterface.hpp"
 #include "webots_ros2_driver/WebotsNode.hpp"
-#include "msgs_package/srv/to_robot_manager.hpp"
 
 namespace webots_robot_handler
 {
@@ -21,19 +22,12 @@ namespace webots_robot_handler
     private:
 // == init() ==
 
-      // void callback_res(const rclcpp::Client<msgs_package::srv::ToRobotManager>::SharedFuture future);
-
-// DEBUG===/*
-      void DEBUG_ParameterSetting(void);
-
-      std::array<std::string, 20> motors_name_;
-      std::array<double, 20> initJointAng_;
-      std::array<double, 20> initJointVel_;
-// DEBUG===*/
+      void ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data);
 
       webots_ros2_driver::WebotsNode *node_;
 
-      rclcpp::Client<msgs_package::srv::ToRobotManager>::SharedPtr RM_clnt_;
+      rclcpp::Publisher<msgs_package::msg::Feedback>::SharedPtr pub_feedback_;
+      rclcpp::Subscription<msgs_package::msg::ControlOutput>::SharedPtr sub_control_output_;
       
       // Webots内のロボットが持つデバイスのタグを持つ。このタグをもとに、Webotsの関数はデバイスを区別する。
       WbDeviceTag motorsTag_[20];  // 全モータ２０個
@@ -50,6 +44,13 @@ namespace webots_robot_handler
 
       // DEBUG
       int step_count_ = 0;
+// DEBUG===/*
+      void DEBUG_ParameterSetting(void);
+
+      std::array<std::string, 20> motors_name_;
+      std::array<double, 20> initJointAng_;
+      std::array<double, 20> initJointVel_;
+// DEBUG===*/
 
 // == step() ==
 
@@ -58,9 +59,6 @@ namespace webots_robot_handler
       double getJointAng_[20];  // Webots側から得た関節角度を記憶
       const double *accelerometerValue_;  
       const double *gyroValue_;
-
-      rclcpp::CallbackGroup::SharedPtr callback_group_ = nullptr;
-
   };
 }
 

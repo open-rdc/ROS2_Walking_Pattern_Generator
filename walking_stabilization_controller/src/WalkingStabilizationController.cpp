@@ -1,7 +1,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include <rmw/qos_profiles.h>
 #include "walking_stabilization_controller/WalkingStabilizationController.hpp"
-#include "msgs_package/srv/to_walking_stabilization_controller.hpp"
+#include "msgs_package/srv/stabilization_control.hpp"
 #include "kinematics/FK.hpp"
 #include "kinematics/IK.hpp"
 
@@ -45,9 +45,23 @@ namespace walking_stabilization_controller
     };
   }
 
+  WalkingStabilizationController::WalkingStabilizationController(
+    const rclcpp::NodeOptions &options
+  ) : Node("WalkingStabilizationController", options) {
+
+    using namespace std::placeholders;
+
+    srv_stabilization_control_ = this->create_service<msgs_package::srv::StabilizationControl>(
+      "StabilizationControl",
+      std::bind(&WalkingStabilizationController::WSC_Server, this, _1, _2),
+      custom_qos_profile
+      // callback_group_
+    );
+  }
+
   void WalkingStabilizationController::WSC_Server(
-    const std::shared_ptr<msgs_package::srv::ToWalkingStabilizationController::Request> request,
-    std::shared_ptr<msgs_package::srv::ToWalkingStabilizationController::Response> response
+    const std::shared_ptr<msgs_package::srv::StabilizationControl::Request> request,
+    std::shared_ptr<msgs_package::srv::StabilizationControl::Response> response
   ) {
 
     // ふざけたコード
@@ -55,19 +69,5 @@ namespace walking_stabilization_controller
     response->q_next_leg_l = request->q_target_leg_l;
     response->dq_next_leg_r = request->dq_target_leg_r;
     response->dq_next_leg_l = request->dq_target_leg_l;
-  }
-
-  WalkingStabilizationController::WalkingStabilizationController(
-    const rclcpp::NodeOptions &options
-  ) : Node("WalkingStabilizationController", options) {
-
-    using namespace std::placeholders;
-
-    WSC_srv_ = this->create_service<msgs_package::srv::ToWalkingStabilizationController>(
-      "StabilizationControl",
-      std::bind(&WalkingStabilizationController::WSC_Server, this, _1, _2),
-      custom_qos_profile
-      // callback_group_
-    );
   }
 }

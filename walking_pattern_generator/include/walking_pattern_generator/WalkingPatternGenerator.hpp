@@ -1,5 +1,5 @@
 #include "rclcpp/rclcpp.hpp"
-#include "msgs_package/srv/to_walking_pattern_generator.hpp"
+#include "msgs_package/msg/walking_pattern.hpp"
 #include "kinematics/IK.hpp"
 
 #include "Eigen/Dense"
@@ -11,16 +11,10 @@ namespace walking_pattern_generator
       WalkingPatternGenerator(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
 
     private:
-      void WPG_Server(
-        const std::shared_ptr<msgs_package::srv::ToWalkingPatternGenerator::Request> request,
-        std::shared_ptr<msgs_package::srv::ToWalkingPatternGenerator::Response> response
-      );
+      void WalkingPattern_Timer();
 
-// DEBUG===/*
-      void DEBUG_ParameterSetting(void);
-// DEBUG===*/
-
-      rclcpp::Service<msgs_package::srv::ToWalkingPatternGenerator>::SharedPtr WPG_srv_;
+      rclcpp::Publisher<msgs_package::msg::WalkingPattern>::SharedPtr pub_walking_pattern_;
+      rclcpp::TimerBase::SharedPtr timer_;
 
       // 共有ライブラリの実体化
       kinematics::IK IK_;
@@ -42,6 +36,8 @@ namespace walking_pattern_generator
       std::array<std::array<double, 6>, 4> walking_pattern_jointVel_R_;
       std::array<std::array<double, 6>, 4> walking_pattern_jointVel_L_;
 
-      // rclcpp::CallbackGroup::SharedPtr callback_group_ = nullptr;
+// DEBUG===/*
+      void DEBUG_ParameterSetting(void);
+// DEBUG===*/
   };
 }

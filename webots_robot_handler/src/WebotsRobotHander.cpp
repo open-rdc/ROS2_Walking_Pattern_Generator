@@ -3,7 +3,8 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include <rmw/qos_profiles.h>
-#include "msgs_package/srv/to_robot_manager.hpp"
+#include "msgs_package/msg/control_output.hpp"
+#include "msgs_package/msg/feedback.hpp"
 
 #include <webots/robot.h>
 #include <webots/motor.h>
@@ -11,7 +12,7 @@
 #include <webots/accelerometer.h>
 #include <webots/gyro.h>
 
-using namespace std::placeholders;
+// using namespace std::placeholders;
 using namespace std::chrono_literals;
 
 namespace webots_robot_handler
@@ -47,22 +48,7 @@ namespace webots_robot_handler
     node_ = node;
     auto hoge = parameters;
 
-    // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Start up WebotsRobotHandler. Hello WebotsRobotHandler!!");
 
-    RM_clnt_ = node_->create_client<msgs_package::srv::ToRobotManager>(
-      "RobotManage",
-      custom_qos_profile,
-      callback_group_
-    );
-
-    // check & wait service server
-    while(!RM_clnt_->wait_for_service(1s)) {
-      if(!rclcpp::ok()) {
-        RCLCPP_ERROR(node_->get_logger(), "ERROR!!: RobotManage service is dead.");
-        return;
-      }
-      // RCLCPP_INFO(node_->get_logger(), "Waiting for RobotManage service...");
-    }
 
     // DEBUG parameter setting
     DEBUG_ParameterSetting();
@@ -89,18 +75,6 @@ namespace webots_robot_handler
     // RCLCPP_INFO(node_->get_logger(), "Finish init, Start step.");
   }
 
-  // void WebotsRobotHandler::callback_res(
-  //   rclcpp::Client<msgs_package::srv::ToRobotManager>::SharedFuture future
-  // ) {
-  //   // set joints angle & velocity
-  //   // for(int i = 0; i < 6; i++) {
-  //   //   wb_motor_set_position(motorsTag_[jointNum_legR_[i]], RM_future.get()->q_next_leg_r[i]*jointAng_posi_or_nega_legR_[i]);
-  //   //   wb_motor_set_velocity(motorsTag_[jointNum_legR_[i]], RM_future.get()->dq_next_leg_r[i]);
-  //   //   wb_motor_set_position(motorsTag_[jointNum_legL_[i]], RM_future.get()->q_next_leg_l[i]*jointAng_posi_or_nega_legL_[i]);
-  //   //   wb_motor_set_velocity(motorsTag_[jointNum_legL_[i]], RM_future.get()->dq_next_leg_l[i]);
-  //   // }
-  // }
-
   void WebotsRobotHandler::step() {
 
     step_count_++;
@@ -112,55 +86,33 @@ namespace webots_robot_handler
     accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);
     gyroValue_ = wb_gyro_get_values(gyroTag_);
 
-    // set request
-    auto RM_clnt_req = std::make_shared<msgs_package::srv::ToRobotManager::Request>();
-
-    RM_clnt_req->q_now_leg_r = {getJointAng_[jointNum_legR_[0]],
-                                getJointAng_[jointNum_legR_[1]],
-                                getJointAng_[jointNum_legR_[2]],
-                                getJointAng_[jointNum_legR_[3]],
-                                getJointAng_[jointNum_legR_[4]],
-                                getJointAng_[jointNum_legR_[5]],}; 
+    // req->q_now_leg_r = {getJointAng_[jointNum_legR_[0]],
+    //                             getJointAng_[jointNum_legR_[1]],
+    //                             getJointAng_[jointNum_legR_[2]],
+    //                             getJointAng_[jointNum_legR_[3]],
+    //                             getJointAng_[jointNum_legR_[4]],
+    //                             getJointAng_[jointNum_legR_[5]],}; 
                                 
-    RM_clnt_req->q_now_leg_l = {getJointAng_[jointNum_legL_[0]],
-                                getJointAng_[jointNum_legL_[1]],
-                                getJointAng_[jointNum_legL_[2]],
-                                getJointAng_[jointNum_legL_[3]],
-                                getJointAng_[jointNum_legL_[4]],
-                                getJointAng_[jointNum_legL_[5]],}; 
+    // req->q_now_leg_l = {getJointAng_[jointNum_legL_[0]],
+    //                             getJointAng_[jointNum_legL_[1]],
+    //                             getJointAng_[jointNum_legL_[2]],
+    //                             getJointAng_[jointNum_legL_[3]],
+    //                             getJointAng_[jointNum_legL_[4]],
+    //                             getJointAng_[jointNum_legL_[5]],}; 
 
-    RM_clnt_req->accelerometer_now = {accelerometerValue_[0], 
-                                      accelerometerValue_[1], 
-                                      accelerometerValue_[2]};
+    // req->accelerometer_now = {accelerometerValue_[0], 
+    //                                   accelerometerValue_[1], 
+    //                                   accelerometerValue_[2]};
 
-    RM_clnt_req->gyro_now = {gyroValue_[0],
-                              gyroValue_[1],
-                              gyroValue_[2]};
+    // req->gyro_now = {gyroValue_[0],
+    //                           gyroValue_[1],
+    //                           gyroValue_[2]};
 
-    RM_clnt_req->step_count = step_count_;
+    // req->step_count = step_count_;
+  }
 
-    // requset & wait response
-    auto RM_future = RM_clnt_->async_send_request(RM_clnt_req);
-    // RM_future.get()->q_next_leg_r[0];
-    // RCLCPP_INFO(node_->get_logger(), "hogehogehoge");
-    // if(rclcpp::spin_until_future_complete(node_->get_node_base_interface(), RM_future, 50ms) != rclcpp::FutureReturnCode::SUCCESS) {  // success
-    //   RCLCPP_INFO(node_->get_logger(), "nooooo");
-    // }  // ここだけ同期、RM内は非同期なら行ける。だから、多分SyncService in SyncServiceが駄目なんだろうな
-    // RM_future.get();
-    // RM_future.wait();
-    // auto future_status = RM_future.wait_for(100ms);  // wait for 10ms
-    // if(future_status != std::future_status::ready){RCLCPP_INFO(node_->get_logger(), "IHIHIHIHHHI");}
-    // if(future_status == std::future_status::ready) {
-    //   // for(int i = 0; i < 6; i++) {
-    //   //   wb_motor_set_position(motorsTag_[jointNum_legR_[0]], RM_future.get()->q_next_leg_r[0]*jointAng_posi_or_nega_legR_[0]);
-    //   //   wb_motor_set_velocity(motorsTag_[jointNum_legR_[i]], RM_future.get()->dq_next_leg_r[i]);
-    //   //   wb_motor_set_position(motorsTag_[jointNum_legL_[i]], RM_future.get()->q_next_leg_l[i]*jointAng_posi_or_nega_legL_[i]);
-    //   //   wb_motor_set_velocity(motorsTag_[jointNum_legL_[i]], RM_future.get()->dq_next_leg_l[i]);
-    //   // }
-    // }
-    // else if(future_status == std::future_status::timeout) {
-    //   RCLCPP_WARN(node_->get_logger(), "<TIMEOUT> RM_future: Time over 10ms");
-    // }
+  void WebotsRobotHandler::ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data) {
+    // RCLCPP_INFO(node_->get_logger(), "WebotsRobotHandler::ControlOutput_Callback");
   }
 }
 

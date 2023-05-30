@@ -1,5 +1,5 @@
 #include "rclcpp/rclcpp.hpp"
-#include "msgs_package/srv/to_walking_stabilization_controller.hpp"
+#include "msgs_package/srv/stabilization_control.hpp"
 #include "kinematics/FK.hpp"
 #include "kinematics/IK.hpp"
 
@@ -13,8 +13,8 @@ namespace walking_stabilization_controller
 
     private:
       void WSC_Server(
-        const std::shared_ptr<msgs_package::srv::ToWalkingStabilizationController::Request> request,
-        std::shared_ptr<msgs_package::srv::ToWalkingStabilizationController::Response> response
+        const std::shared_ptr<msgs_package::srv::StabilizationControl::Request> request,
+        std::shared_ptr<msgs_package::srv::StabilizationControl::Response> response
       );
 
 // DEBUG===/*
@@ -25,7 +25,7 @@ namespace walking_stabilization_controller
       kinematics::FK FK_;
       kinematics::IK IK_;
 
-      rclcpp::Service<msgs_package::srv::ToWalkingStabilizationController>::SharedPtr WSC_srv_;
+      rclcpp::Service<msgs_package::srv::StabilizationControl>::SharedPtr srv_stabilization_control_;
 
       std::array<Eigen::Vector3d, 7> P_legR_;
       std::array<Eigen::Vector3d, 7> P_legL_;
