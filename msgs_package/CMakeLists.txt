@@ -23,13 +23,17 @@ find_package(rosidl_default_generators REQUIRED)
 # find_package(<dependency> REQUIRED)
 
 rosidl_generate_interfaces(msgs_package
-  "srv/ToRobotManager.srv"
-  "srv/ToWalkingPatternGenerator.srv"
-  "srv/ToWalkingStabilizationController.srv"
+  "msg/ControlOutput.msg"
+  "msg/Feedback.msg"
+  "msg/WalkingPattern.msg"
+  "srv/StabilizationControl.srv"
   # old_message_file
-  "msg/ToWalkingStabilizationControllerMessage.msg"
-  "srv/ToKinematicsMessage.srv"
-  "srv/ToWebotsRobotHandlerMessage.srv"
+  # "srv/ToRobotManager.srv"
+  # "srv/ToWalkingPatternGenerator.srv"
+  # "srv/ToWalkingStabilizationController.srv"
+  # "msg/ToWalkingStabilizationControllerMessage.msg"
+  # "srv/ToKinematicsMessage.srv"
+  # "srv/ToWebotsRobotHandlerMessage.srv"
   # DEPENDENCIES
 )
 
