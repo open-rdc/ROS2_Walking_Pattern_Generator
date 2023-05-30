@@ -53,7 +53,8 @@ namespace robot_manager
 
     srv_stabilization_control_ = this->create_service<msgs_package::srv::StabilizationControl>(
       "StabilizationControl",
-      std::bind(&WalkingStabilizationController::WSC_Server, this, _1, _2, _3)
+      std::bind(&WalkingStabilizationController::WSC_Server, this, _1, _2, _3),
+      custom_qos_profile
     );
   }
 
