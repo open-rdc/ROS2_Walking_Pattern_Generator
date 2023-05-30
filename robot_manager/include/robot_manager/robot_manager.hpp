@@ -3,10 +3,12 @@
 #include "msgs_package/msg/walking_pattern.hpp"
 #include "msgs_package/msg/feedback.hpp"
 #include "msgs_package/srv/stabilization_control.hpp"
+#include "robot_manager/visibility_control.h"
 
 namespace robot_manager {
   class RobotManager : public rclcpp::Node {
     public:
+      ROBOT_MANAGER_PUBLIC
       RobotManager(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
 
     private:

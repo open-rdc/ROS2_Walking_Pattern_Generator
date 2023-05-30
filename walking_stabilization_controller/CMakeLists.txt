@@ -22,10 +22,13 @@ find_package(msgs_package REQUIRED)
 find_package(kinematics REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-add_executable(${PROJECT_NAME}
+add_library(${PROJECT_NAME}
   src/WalkingStabilizationController.cpp
-  src/WalkingStabilizationController_main.cpp
 )
+# add_executable(${PROJECT_NAME}
+#   src/WalkingStabilizationController.cpp
+#   src/WalkingStabilizationController_main.cpp
+# )
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp
   msgs_package
@@ -36,13 +39,35 @@ target_include_directories(${PROJECT_NAME}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:include>
+)
+target_compile_features(${PROJECT_NAME}
+  PUBLIC
+    c_std_99
+    cxx_std_17
+)
+target_compile_definitions(${PROJECT_NAME}
   PRIVATE
-    include
+    "WALKING_STABILIZATION_CONTROLLER_BUILDING_LIBRARY"
+)
+ament_export_include_directories(
+  include
+)
+ament_export_libraries(
+  ${PROJECT_NAME}
 )
 
+install(
+  DIRECTORY
+    include/
+  DESTINATION
+    include
+)
 install(TARGETS
   ${PROJECT_NAME}
-  DESTINATION lib/${PROJECT_NAME}
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 if(BUILD_TESTING)

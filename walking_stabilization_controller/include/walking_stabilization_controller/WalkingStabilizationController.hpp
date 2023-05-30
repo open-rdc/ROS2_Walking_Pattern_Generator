@@ -2,6 +2,7 @@
 #include "msgs_package/srv/stabilization_control.hpp"
 #include "kinematics/FK.hpp"
 #include "kinematics/IK.hpp"
+#include "walking_stabilization_controller/visibility_control.h"
 
 #include "Eigen/Dense"
 
@@ -9,6 +10,7 @@ namespace walking_stabilization_controller
 {
   class WalkingStabilizationController : public rclcpp::Node {
     public:
+      WALKING_STABILIZATION_CONTROLLER_PUBLIC
       WalkingStabilizationController(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
 
     private:
