@@ -9,7 +9,7 @@
 
 using namespace Eigen;
 
-namespace walking_stabilization_controller
+namespace robot_manager
 {
   static const rmw_qos_profile_t custom_qos_profile =
   {
@@ -54,8 +54,7 @@ namespace walking_stabilization_controller
     srv_stabilization_control_ = this->create_service<msgs_package::srv::StabilizationControl>(
       "StabilizationControl",
       std::bind(&WalkingStabilizationController::WSC_Server, this, _1, _2),
-      custom_qos_profile,
-      cb_group_
+      custom_qos_profile
     );
   }
 

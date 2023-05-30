@@ -33,13 +33,13 @@ namespace robot_manager {
       custom_qos_profile,
       cb_group_
     );
-    while(!clnt_stabilization_control_->wait_for_service(1s)) {
-      RCLCPP_WARN(this->get_logger(), "Waiting StabilizationController service ...");
-      if(!rclcpp::ok()) {
-        RCLCPP_ERROR(this->get_logger(), "ERROR!!: StabilizationControl service is dead.");
-        return;
-      }
-    }
+    // while(!clnt_stabilization_control_->wait_for_service(1s)) {
+    //   RCLCPP_WARN(this->get_logger(), "Waiting StabilizationController service ...");
+    //   if(!rclcpp::ok()) {
+    //     RCLCPP_ERROR(this->get_logger(), "ERROR!!: StabilizationControl service is dead.");
+    //     return;
+    //   }
+    // }
     // RCLCPP_INFO(this->get_logger(), "hoge");
     pub_control_output_ = this->create_publisher<msgs_package::msg::ControlOutput>("ControlOutput", rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile)));
     timer_ = create_wall_timer(7s, std::bind(&RobotManager::ControlOutput_Timer, this), cc_group_);

@@ -6,7 +6,7 @@
 
 #include "Eigen/Dense"
 
-namespace walking_stabilization_controller
+namespace robot_manager
 {
   class WalkingStabilizationController : public rclcpp::Node {
     public:

@@ -12,13 +12,13 @@ find_package(msgs_package REQUIRED)
 find_package(kinematics REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-add_library(robot_manager
-  src/robot_manager.cpp
-)
-# add_executable(robot_manager
+# add_library(robot_manager
 #   src/robot_manager.cpp
-#   src/robot_manager_main.cpp
 # )
+add_executable(robot_manager
+  src/robot_manager.cpp
+  src/robot_manager_main.cpp
+)
 ament_target_dependencies(robot_manager
   rclcpp
   msgs_package

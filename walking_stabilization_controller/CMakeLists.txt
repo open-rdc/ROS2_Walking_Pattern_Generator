@@ -22,13 +22,13 @@ find_package(msgs_package REQUIRED)
 find_package(kinematics REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-add_library(${PROJECT_NAME}
-  src/WalkingStabilizationController.cpp
-)
-# add_executable(${PROJECT_NAME}
+# add_library(${PROJECT_NAME}
 #   src/WalkingStabilizationController.cpp
-#   src/WalkingStabilizationController_main.cpp
 # )
+add_executable(${PROJECT_NAME}
+  src/WalkingStabilizationController.cpp
+  src/WalkingStabilizationController_main.cpp
+)
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp
   msgs_package
