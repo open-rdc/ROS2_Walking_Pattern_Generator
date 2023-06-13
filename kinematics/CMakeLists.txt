@@ -1,101 +1,104 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.8)
 project(kinematics)
-
-# Default to C99
-if(NOT CMAKE_C_STANDARD)
-  set(CMAKE_C_STANDARD 99)
-endif()
-
-# Default to C++14
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
-endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_ros REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(msgs_package REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-add_executable(fk_srv 
-  src/FK.cpp
-  src/FK_main.cpp
-)
-ament_target_dependencies(fk_srv
-  rclcpp
-  msgs_package
-)
-target_include_directories(fk_srv
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
-    $<INSTALL_INTERFACE:include>
-  PRIVATE
-    include
-)
-
-add_executable(ik_srv
+add_library(IK 
   src/IK.cpp
-  src/IK_main.cpp
 )
-ament_target_dependencies(ik_srv
-  rclcpp
-  msgs_package
+add_library(FK
+  src/FK.cpp
 )
-target_include_directories(ik_srv
+
+target_compile_features(IK  # Require C99 and C++17
+  PUBLIC 
+    c_std_99 
+    cxx_std_17
+)
+target_compile_features(FK  # Require C99 and C++17
+  PUBLIC 
+    c_std_99 
+    cxx_std_17
+)  
+
+target_include_directories(IK 
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:include>
-  PRIVATE
-    include
 )
-
-add_executable(fk_client
-  src/FK_client.cpp
-)
-ament_target_dependencies(fk_client
-  rclcpp
-  msgs_package
-)
-target_include_directories(ik_srv
+target_include_directories(FK
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:include>
-  PRIVATE
+)
+
+ament_target_dependencies(IK
+  "rclcpp"
+)
+ament_target_dependencies(FK
+  "rclcpp"
+)
+
+# Causes the visibility macros to use dllexport rather than dllimport,
+# which is appropriate when building the dll but not consuming it.
+target_compile_definitions(IK
+  PRIVATE 
+    "KINEMATICS_BUILDING_LIBRARY"
+)
+target_compile_definitions(FK
+  PRIVATE 
+    "KINEMATICS_BUILDING_LIBRARY"
+)
+
+ament_export_include_directories(
+  include
+)
+
+ament_export_libraries(
+  IK
+  FK
+)
+
+ament_export_targets(
+  export_${PROJECT_NAME}
+  HAS_LIBRARY_TARGET
+)
+
+install(
+  DIRECTORY 
+    include/
+  DESTINATION 
     include
 )
 
-add_executable(ik_client
-  src/IK_client.cpp
-)
-ament_target_dependencies(ik_client
-  rclcpp
-  msgs_package
-)
-target_include_directories(ik_srv
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
-    $<INSTALL_INTERFACE:include>
-  PRIVATE
-    include
-)
-
-install(TARGETS
-  fk_srv
-  ik_srv
-  fk_client
-  ik_client
-  DESTINATION lib/${PROJECT_NAME}
+install(TARGETS 
+  IK
+  FK
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
+  # the following line skips the linter which checks for copyrights
+  # comment the line when a copyright and license is added to all source files
+  set(ament_cmake_copyright_FOUND TRUE)
+  # the following line skips cpplint (only works in a git repo)
+  # comment the line when this package is in a git repo and when
+  # a copyright and license is added to all source files
+  set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
 

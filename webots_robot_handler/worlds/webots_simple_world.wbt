@@ -6,16 +6,17 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/RobotisOp2.proto"
 
 WorldInfo {
+  basicTimeStep 8
 }
 Viewpoint {
   orientation -0.13419524520586362 -0.033585038522204805 0.990385622548914 3.561959280293347
   position 1.1874580812309212 0.5930131516182624 0.483741794041867
 }
 TexturedBackground {
-  texture "mars"
+  texture "stadium_dry"
 }
 TexturedBackgroundLight {
-  texture "mars"
+  texture "stadium_dry"
 }
 Floor {
 }

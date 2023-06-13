@@ -1,6 +1,7 @@
 #include "rclcpp/rclcpp.hpp"
-#include "msgs_package/msg/to_walking_stabilization_controller_message.hpp"
-#include "msgs_package/srv/to_kinematics_message.hpp"
+#include "msgs_package/msg/walking_pattern.hpp"
+#include "kinematics/IK.hpp"
+
 #include "Eigen/Dense"
 
 namespace walking_pattern_generator
@@ -10,18 +11,26 @@ namespace walking_pattern_generator
       WalkingPatternGenerator(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
 
     private:
-      rclcpp::Publisher<msgs_package::msg::ToWalkingStabilizationControllerMessage>::SharedPtr toWSC_pub_;
-      rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_FK_clnt_;
-      rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_IK_clnt_;
+      void WalkingPattern_Timer();
 
-      // get FK, IK result. set publish data.
-      std::array<double, 3> p_target_r_;
-      std::array<double, 3> p_target_l_;
-      std::array<double, 6> q_target_r_;
-      std::array<double, 6> q_target_l_;
+      rclcpp::Publisher<msgs_package::msg::WalkingPattern>::SharedPtr pub_walking_pattern_;
+      rclcpp::TimerBase::SharedPtr timer_;
 
-      // timer
-      rclcpp::TimerBase::SharedPtr step_pub_;
+      // 共有ライブラリの実体化
+      kinematics::IK IK_;
+
+      // 未使用
+      // std::array<double, 3> p_target_r_;
+      // std::array<double, 3> p_target_l_;
+      // std::array<double, 6> q_target_r_;
+      // std::array<double, 6> q_target_l_;
+
+      int step_count_ = 0;
+
+      // Parameterから受け取りたい（今はまだDEBUG_ParameterSetting()で定義）
+      std::array<Eigen::Vector3d, 7> P_legR_; 
+      std::array<Eigen::Vector3d, 7> P_legL_;
+
 
       // PARAMETER
       bool publish_ok_check_;
@@ -71,6 +80,11 @@ namespace walking_pattern_generator
       std::array<Eigen::Vector3d, 6> P_FK_legL_;
       std::array<Eigen::Vector3d, 6> UnitVec_legR_;
       std::array<Eigen::Vector3d, 6> UnitVec_legL_;
+
+      std::array<std::array<double, 3>, 4> walking_pattern_P_R_;
+      std::array<std::array<double, 3>, 4> walking_pattern_P_L_;
+      std::array<std::array<double, 6>, 4> walking_pattern_jointVel_R_;
+      std::array<std::array<double, 6>, 4> walking_pattern_jointVel_L_;
 
 // DEBUG===/*
       void DEBUG_ParameterSetting(void);

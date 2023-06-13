@@ -34,28 +34,30 @@ https://user-images.githubusercontent.com/91410662/231434693-c9bd6288-f6b9-442e-
 
 ## Configuration Plan (Draft)
 * ROS_2_Package & Node<br>
+  * robot_manager<br>
+    * robot_manager node<br>
   * walking_pattern_generator<br>
     * walking_pattern_generator node<br>
   * walking_stabilization_controller<br>
     * walking_stabilization_controller node<br>
   * webots_robot_handler (webots_ros2 C++ plugin)<br>
     * ROBOTIS OP 2 node (plugin)<br>
-  * kinematics<br>
+  <!-- * kinematics<br>
     * FK_SrvServer node<br>
-    * IK_SrvServer node<br>
+    * IK_SrvServer node<br> -->
 <br>
 
-![image](https://user-images.githubusercontent.com/91410662/218409060-1515cfde-39ba-43af-a07a-62a8140f8847.png)
+![image](https://user-images.githubusercontent.com/91410662/234569468-f75ff588-d25a-49c7-9ceb-60174b0049f0.png)
 <div align="center">Configulation Plan</div>
 <br>
 
-![image](https://user-images.githubusercontent.com/91410662/228191771-cca5eb6a-7219-4a2e-819b-28e3249042ab.png)
+<!-- ![image](https://user-images.githubusercontent.com/91410662/228191771-cca5eb6a-7219-4a2e-819b-28e3249042ab.png)
 <div align="center">rqt_graph</div>
 <br>
-<br>
+<br> -->
 
 ## Robot Configulation
-* Used Robot: ROBOTIS OP2 ([official](https://e-shop.robotis.co.jp/product.php?id=14))<br>
+* Used Robot: ROBOTIS OP2 ([official](http://en.robotis.com/model/board.php?bo_table=print_en&wr_id=39))<br>
   * Webots simulation source data ([GitHub, cyberbotics, Webots, Darwin-op.proto](https://github.com/cyberbotics/webots/blob/master/projects/robots/robotis/darwin-op/protos/Darwin-op.proto
 ))<br>
   * Joint Status: [STATUS.txt](https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/blob/main/STATUS.txt)

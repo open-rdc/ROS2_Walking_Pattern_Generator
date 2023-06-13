@@ -1,48 +1,19 @@
 #include "rclcpp/rclcpp.hpp"
-#include "kinematics/IK.hpp"
+#include "old_kinematics/IK.hpp"
 
 #include "iostream"
 #include "cmath"
 #include "Eigen/Dense"
 
-using namespace Eigen;
-
-namespace kinematics
+namespace old_kinematics
 {
-// DEBUG===/*
-  // void IK::DEBUG_ParameterSetting() {
-  //   P_legL_ = {
-  //       Vector3d(-0.005, 0.037, -0.1222),
-  //       Vector3d(0, 0, 0),
-  //       Vector3d(0, 0, 0),
-  //       Vector3d(0, 0, -0.093),
-  //       Vector3d(0, 0, -0.093),
-  //       Vector3d(0, 0, 0),
-  //       Vector3d(0, 0, 0)
-  //   };
-  //   P_legR_ = {
-  //       Vector3d(-0.005, -0.037, -0.1222),
-  //       Vector3d(0, 0, 0),
-  //       Vector3d(0, 0, 0),
-  //       Vector3d(0, 0, -0.093),
-  //       Vector3d(0, 0, -0.093),
-  //       Vector3d(0, 0, 0),
-  //       Vector3d(0, 0, 0)
-  //   };
-  // }
-// DEBUG=====*/
+  // auto time = rclcpp::Clock{}.now().seconds();
+  // auto time_max = time - time;
+  // auto time_min = time + time;
 
-  Vector3d IK::Array2Vector(std::array<double, 3> array) {
-    return {array[0], array[1], array[2]};
-  }
-  Matrix3d IK::Array2Matrix(std::array<double, 9> array) {
-    Matrix3d R;
-    R << array[0], array[1], array[2],
-         array[3], array[4], array[5],
-         array[6], array[7], array[8];
-    return R;
-  }
+  using namespace Eigen;
 
+  // 3D Rotation Matrix
   Matrix3d IK::IdentifyMatrix() {
     Matrix3d I;
     I << 1, 0, 0,
@@ -76,8 +47,19 @@ namespace kinematics
     return((arg >= 0) - (arg < 0));  // result 1 or -1 (true == 1, false == 0)
   }
 
+  Vector3d IK::Array2Vector(std::array<double, 3> array) {
+    return {array[0], array[1], array[2]};
+  }
+  Matrix3d IK::Array2Matrix(std::array<double, 9> array) {
+    Matrix3d R;
+    R << array[0], array[1], array[2],
+         array[3], array[4], array[5],
+         array[6], array[7], array[8];
+    return R;
+  }
+
   //IK (ROBOTIS-OP2's Leg only. analytical method)
-  std::array<double, 6> IK::getIK(
+  std::array<double, 6> IK::IK_calc(
     std::array<Eigen::Vector3d, 7> P_leg,
     Eigen::Vector3d P_target_leg,
     Eigen::Matrix3d R_target_leg
@@ -109,14 +91,38 @@ namespace kinematics
     return Q;
   }
 
+// DEBUG===/*
+  void IK::DEBUG_ParameterSetting() {
+    P_legL_ = {
+        Vector3d(-0.005, 0.037, -0.1222),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, -0.093),
+        Vector3d(0, 0, -0.093),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, 0)
+    };
+    P_legR_ = {
+        Vector3d(-0.005, -0.037, -0.1222),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, -0.093),
+        Vector3d(0, 0, -0.093),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, 0)
+    };
+  }
+// DEBUG=====*/
+
+  // Node Setting
   IK::IK(
     const rclcpp::NodeOptions& options
-  ) : Node("IK", options) {
+  ) : Node("IK_SrvServer", options) {
+    using namespace std::placeholders;
 
 // DEBUG===/*
-    // DEBUG_ParameterSetting();
+    DEBUG_ParameterSetting();
 // DEBUG===*/
 
   }
-
 }
