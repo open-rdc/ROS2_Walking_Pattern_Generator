@@ -11,6 +11,8 @@ using namespace std::chrono_literals;
 
 namespace robot_manager {
 
+  auto counter = 0;
+
   static const rmw_qos_profile_t custom_qos_profile =
   {
     RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
@@ -23,7 +25,6 @@ namespace robot_manager {
     RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,  // Liveliness_LeaseDuration: default or number
     false  // avoid_ros_namespace_conventions
   };
-
 
   void RobotManager::WalkingPattern_Callback(const msgs_package::msg::WalkingPattern::SharedPtr callback_data) {
     (void)callback_data;  // fake
@@ -67,7 +68,7 @@ namespace robot_manager {
 
   // Robot Manager 
   void RobotManager::ControlOutput_Timer() {
-    RCLCPP_INFO(this->get_logger(), "RobotManager");
+    // RCLCPP_INFO(this->get_logger(), "RobotManager");
 
     auto req = std::make_shared<msgs_package::srv::StabilizationControl::Request>();
 
@@ -75,14 +76,22 @@ namespace robot_manager {
     auto res = clnt_stabilization_control_->async_send_request(req);
     std::future_status status = res.wait_for(10s);
     if(status == std::future_status::ready) {
-      RCLCPP_INFO(this->get_logger(), "SUCCESS");
+      //RCLCPP_INFO(this->get_logger(), "SUCCESS");
     }
     else if (status == std::future_status::timeout) {
-      RCLCPP_WARN(this->get_logger(), "TIMEOUT");
+      //RCLCPP_WARN(this->get_logger(), "TIMEOUT");
     }
     else {
-      RCLCPP_WARN(this->get_logger(), "deffered");
+      //RCLCPP_WARN(this->get_logger(), "deffered");
     }
+
+    counter++;
+
+    auto pub = std::make_shared<msgs_package::msg::ControlOutput>();
+    
+    pub->counter = counter;
+
+    pub_control_output_->publish(*pub);
   }
 
 }

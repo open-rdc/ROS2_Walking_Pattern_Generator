@@ -41,8 +41,24 @@ namespace webots_robot_handler
     jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
   }
 
+  // きたない。TopicだとPublishを拾い損ねるときがあり、歩行パターンを拾い忘れる場合が考えられる。
+  auto counter_old = 0;
+  auto counter_check = 0;
+  auto check = false;
+  auto exe = rclcpp::executors::SingleThreadedExecutor();
   void WebotsRobotHandler::ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data) {
-    (void)callback_data;
+    // RCLCPP_INFO(node_->get_logger(), "subscribe...: [ %d ]", callback_data->counter);
+    // (void)callback_data;
+    if(callback_data->counter >= 350) {
+      if(callback_data->counter != counter_old) {
+        RCLCPP_WARN(node_->get_logger(), "##### Drop #####  [ %d ] [ %d ]", callback_data->counter, counter_old);
+        counter_old = callback_data->counter + 1;
+      } else {
+        counter_old = callback_data->counter + 1;
+      }
+    } else {
+      counter_old = callback_data->counter + 1;
+    }
   }
 
   void WebotsRobotHandler::init(
@@ -85,7 +101,7 @@ namespace webots_robot_handler
   }
 
   void WebotsRobotHandler::step() {
-    RCLCPP_INFO(node_->get_logger(), "step...");
+    // RCLCPP_INFO(node_->get_logger(), "step...");
 
     step_count_++;
 
@@ -119,6 +135,7 @@ namespace webots_robot_handler
     //                           gyroValue_[2]};
 
     // req->step_count = step_count_;
+
   }
 
 }

@@ -85,7 +85,7 @@ def generate_launch_description():
     # robot_state_publisher,
     # fk,
     # ik,
-    # walking_stabilization_controller,
+    walking_stabilization_controller,
     webots,
     robotis_op2_driver,
     # walking_pattern_generator,

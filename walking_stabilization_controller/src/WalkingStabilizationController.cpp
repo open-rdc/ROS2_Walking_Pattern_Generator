@@ -50,7 +50,7 @@ namespace robot_manager
     const std::shared_ptr<msgs_package::srv::StabilizationControl::Request> request,
     std::shared_ptr<msgs_package::srv::StabilizationControl::Response> response
   ) {
-    RCLCPP_INFO(this->get_logger(), "WalkingStabilizationController::WSC_Server");
+    // RCLCPP_INFO(this->get_logger(), "WalkingStabilizationController::WSC_Server");
     (void)request_header;
     // (void)request;
     // (void)response;
@@ -60,7 +60,7 @@ namespace robot_manager
     response->q_next_leg_l = request->q_target_leg_l;
     // response->dq_next_leg_r = request->dq_target_leg_r;
     // response->dq_next_leg_l = request->dq_target_leg_l;
-    RCLCPP_INFO(this->get_logger(), "Response");
+    // RCLCPP_INFO(this->get_logger(), "Response");
   }
 
   WalkingStabilizationController::WalkingStabilizationController(
