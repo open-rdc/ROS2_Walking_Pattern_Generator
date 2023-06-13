@@ -53,7 +53,7 @@ https://user-images.githubusercontent.com/91410662/231434693-c9bd6288-f6b9-442e-
 <br> -->
 
 ## Robot Configulation
-* Used Robot: ROBOTIS OP2 ([official](https://e-shop.robotis.co.jp/product.php?id=14))<br>
+* Used Robot: ROBOTIS OP2 ([official](http://en.robotis.com/model/board.php?bo_table=print_en&wr_id=39)<br>
   * Webots simulation source data ([GitHub, cyberbotics, Webots, Darwin-op.proto](https://github.com/cyberbotics/webots/blob/master/projects/robots/robotis/darwin-op/protos/Darwin-op.proto
 ))<br>
   * Joint Status: [STATUS.txt](https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/blob/main/STATUS.txt)
