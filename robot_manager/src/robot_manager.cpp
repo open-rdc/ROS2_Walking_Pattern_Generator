@@ -24,9 +24,28 @@ namespace robot_manager {
     false  // avoid_ros_namespace_conventions
   };
 
+
+  void RobotManager::WalkingPattern_Callback(const msgs_package::msg::WalkingPattern::SharedPtr callback_data) {
+    (void)callback_data;  // fake
+    // RCLCPP_INFO(this->get_logger(), "RobotManager::WalkingPattern_Callback");
+  }
+
+  void RobotManager::Feedback_Callback(const msgs_package::msg::Feedback::SharedPtr callback_data) {
+    (void)callback_data;  // fake
+    // RCLCPP_INFO(this->get_logger(), "RobotManager::Feedback");
+  }
+  
   RobotManager::RobotManager(
     const rclcpp::NodeOptions &options
   ) : Node("RobotManager", options) {
+
+    auto custom_QoS = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile));
+    
+        using namespace std::placeholders;
+
+    pub_control_output_ = this->create_publisher<msgs_package::msg::ControlOutput>("ControlOutput", custom_QoS);
+    sub_walking_pattern_ = this->create_subscription<msgs_package::msg::WalkingPattern>("WalkingPattern", custom_QoS, std::bind(&RobotManager::WalkingPattern_Callback, this, _1));
+    sub_feedback_ = this->create_subscription<msgs_package::msg::Feedback>("Feedback", custom_QoS, std::bind(&RobotManager::Feedback_Callback, this, _1));
 
     cb_group1_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
     cb_group2_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
@@ -43,8 +62,6 @@ namespace robot_manager {
         return;
       }
     }
-    // RCLCPP_INFO(this->get_logger(), "hoge");
-    // pub_control_output_ = this->create_publisher<msgs_package::msg::ControlOutput>("ControlOutput", rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile)));
     timer_ = create_wall_timer(10ms, std::bind(&RobotManager::ControlOutput_Timer, this), cb_group2_);
   }
 
@@ -68,15 +85,6 @@ namespace robot_manager {
     }
   }
 
-  void RobotManager::WalkingPattern_Callback(const msgs_package::msg::WalkingPattern::SharedPtr callback_data) {
-    (void)callback_data;  // fake
-    // RCLCPP_INFO(this->get_logger(), "RobotManager::WalkingPattern_Callback");
-  }
-
-  void RobotManager::Feedback_Callback(const msgs_package::msg::Feedback::SharedPtr callback_data) {
-    (void)callback_data;  // fake
-    // RCLCPP_INFO(this->get_logger(), "RobotManager::Feedback");
-  }
 }
 
 /* Reference

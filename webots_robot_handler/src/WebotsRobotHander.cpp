@@ -41,14 +41,23 @@ namespace webots_robot_handler
     jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
   }
 
+  void WebotsRobotHandler::ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data) {
+    (void)callback_data;
+  }
+
   void WebotsRobotHandler::init(
     webots_ros2_driver::WebotsNode *node,
     std::unordered_map<std::string, std::string> &parameters
   ) {
-    node_ = node;
-    auto hoge = parameters;
+    node_ = node;  // 他関数内でも使うため
+    (void)parameters;  // fake
 
+    auto custom_QoS = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile));
 
+    using namespace std::placeholders;
+
+    pub_feedback_ = node_->create_publisher<msgs_package::msg::Feedback>("Feedback", custom_QoS);
+    sub_control_output_ = node_->create_subscription<msgs_package::msg::ControlOutput>("ControlOutput", custom_QoS, std::bind(&WebotsRobotHandler::ControlOutput_Callback, this, _1));
 
     // DEBUG parameter setting
     DEBUG_ParameterSetting();
@@ -76,6 +85,7 @@ namespace webots_robot_handler
   }
 
   void WebotsRobotHandler::step() {
+    RCLCPP_INFO(node_->get_logger(), "step...");
 
     step_count_++;
 
@@ -111,9 +121,6 @@ namespace webots_robot_handler
     // req->step_count = step_count_;
   }
 
-  void WebotsRobotHandler::ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data) {
-    // RCLCPP_INFO(node_->get_logger(), "WebotsRobotHandler::ControlOutput_Callback");
-  }
 }
 
 PLUGINLIB_EXPORT_CLASS (
