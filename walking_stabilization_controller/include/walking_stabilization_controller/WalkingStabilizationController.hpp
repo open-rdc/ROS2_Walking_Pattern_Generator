@@ -37,3 +37,8 @@ namespace robot_manager
 
   };
 }
+
+/* Reference
+  https://docs.ros.org/en/humble/How-To-Guides/Using-callback-groups.html
+
+*/

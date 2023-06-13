@@ -12,3 +12,8 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
+
+/* Reference
+  https://docs.ros.org/en/humble/How-To-Guides/Using-callback-groups.html
+
+*/

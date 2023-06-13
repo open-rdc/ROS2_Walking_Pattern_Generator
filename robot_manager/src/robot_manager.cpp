@@ -11,6 +11,8 @@ using namespace std::chrono_literals;
 
 namespace robot_manager {
 
+  auto counter = 0;
+
   static const rmw_qos_profile_t custom_qos_profile =
   {
     RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
@@ -24,17 +26,35 @@ namespace robot_manager {
     false  // avoid_ros_namespace_conventions
   };
 
+  void RobotManager::WalkingPattern_Callback(const msgs_package::msg::WalkingPattern::SharedPtr callback_data) {
+    (void)callback_data;  // fake
+    // RCLCPP_INFO(this->get_logger(), "RobotManager::WalkingPattern_Callback");
+  }
+
+  void RobotManager::Feedback_Callback(const msgs_package::msg::Feedback::SharedPtr callback_data) {
+    (void)callback_data;  // fake
+    // RCLCPP_INFO(this->get_logger(), "RobotManager::Feedback");
+  }
+  
   RobotManager::RobotManager(
     const rclcpp::NodeOptions &options
   ) : Node("RobotManager", options) {
 
-    cb_group_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
-    cc_group_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
+    auto custom_QoS = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile));
+    
+        using namespace std::placeholders;
+
+    pub_control_output_ = this->create_publisher<msgs_package::msg::ControlOutput>("ControlOutput", custom_QoS);
+    sub_walking_pattern_ = this->create_subscription<msgs_package::msg::WalkingPattern>("WalkingPattern", custom_QoS, std::bind(&RobotManager::WalkingPattern_Callback, this, _1));
+    sub_feedback_ = this->create_subscription<msgs_package::msg::Feedback>("Feedback", custom_QoS, std::bind(&RobotManager::Feedback_Callback, this, _1));
+
+    cb_group1_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
+    cb_group2_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
 
     clnt_stabilization_control_ = this->create_client<msgs_package::srv::StabilizationControl>(
       "StabilizationControl",
       custom_qos_profile,
-      cb_group_
+      cb_group1_
     );
     while(!clnt_stabilization_control_->wait_for_service(1s)) {
       RCLCPP_WARN(this->get_logger(), "Waiting StabilizationController service ...");
@@ -43,14 +63,12 @@ namespace robot_manager {
         return;
       }
     }
-    // RCLCPP_INFO(this->get_logger(), "hoge");
-    // pub_control_output_ = this->create_publisher<msgs_package::msg::ControlOutput>("ControlOutput", rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile)));
-    timer_ = create_wall_timer(1s, std::bind(&RobotManager::ControlOutput_Timer, this), cc_group_);
+    timer_ = create_wall_timer(10ms, std::bind(&RobotManager::ControlOutput_Timer, this), cb_group2_);
   }
 
   // Robot Manager 
   void RobotManager::ControlOutput_Timer() {
-    RCLCPP_INFO(this->get_logger(), "RobotManager");
+    // RCLCPP_INFO(this->get_logger(), "RobotManager");
 
     auto req = std::make_shared<msgs_package::srv::StabilizationControl::Request>();
 
@@ -58,23 +76,27 @@ namespace robot_manager {
     auto res = clnt_stabilization_control_->async_send_request(req);
     std::future_status status = res.wait_for(10s);
     if(status == std::future_status::ready) {
-      RCLCPP_INFO(this->get_logger(), "SUCCESS");
+      //RCLCPP_INFO(this->get_logger(), "SUCCESS");
     }
     else if (status == std::future_status::timeout) {
-      RCLCPP_WARN(this->get_logger(), "TIMEOUT");
+      //RCLCPP_WARN(this->get_logger(), "TIMEOUT");
     }
     else {
-      RCLCPP_WARN(this->get_logger(), "deffered");
+      //RCLCPP_WARN(this->get_logger(), "deffered");
     }
+
+    counter++;
+
+    auto pub = std::make_shared<msgs_package::msg::ControlOutput>();
+    
+    pub->counter = counter;
+
+    pub_control_output_->publish(*pub);
   }
 
-  void RobotManager::WalkingPattern_Callback(const msgs_package::msg::WalkingPattern::SharedPtr callback_data) {
-    (void)callback_data;
-    // RCLCPP_INFO(this->get_logger(), "RobotManager::WalkingPattern_Callback");
-  }
-
-  void RobotManager::Feedback_Callback(const msgs_package::msg::Feedback::SharedPtr callback_data) {
-    (void)callback_data;
-    // RCLCPP_INFO(this->get_logger(), "RobotManager::Feedback");
-  }
 }
+
+/* Reference
+  https://docs.ros.org/en/humble/How-To-Guides/Using-callback-groups.html
+
+*/

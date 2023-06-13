@@ -45,6 +45,24 @@ namespace robot_manager
     };
   }
 
+  void WalkingStabilizationController::WSC_Server(
+    const std::shared_ptr<rmw_request_id_t> request_header,
+    const std::shared_ptr<msgs_package::srv::StabilizationControl::Request> request,
+    std::shared_ptr<msgs_package::srv::StabilizationControl::Response> response
+  ) {
+    // RCLCPP_INFO(this->get_logger(), "WalkingStabilizationController::WSC_Server");
+    (void)request_header;
+    // (void)request;
+    // (void)response;
+    // ふざけたコード
+    response->nini = 99;
+    response->q_next_leg_r = {99, 99, 99, 99, 99, 99};
+    response->q_next_leg_l = request->q_target_leg_l;
+    // response->dq_next_leg_r = request->dq_target_leg_r;
+    // response->dq_next_leg_l = request->dq_target_leg_l;
+    // RCLCPP_INFO(this->get_logger(), "Response");
+  }
+
   WalkingStabilizationController::WalkingStabilizationController(
     const rclcpp::NodeOptions &options
   ) : Node("WalkingStabilizationController", options) {
@@ -58,21 +76,9 @@ namespace robot_manager
     );
   }
 
-  void WalkingStabilizationController::WSC_Server(
-    const std::shared_ptr<rmw_request_id_t> request_header,
-    const std::shared_ptr<msgs_package::srv::StabilizationControl::Request> request,
-    std::shared_ptr<msgs_package::srv::StabilizationControl::Response> response
-  ) {
-    RCLCPP_INFO(this->get_logger(), "WalkingStabilizationController::WSC_Server");
-    (void)request_header;
-    // (void)request;
-    // (void)response;
-    // ふざけたコード
-    response->nini = 99;
-    response->q_next_leg_r = {99, 99, 99, 99, 99, 99};
-    response->q_next_leg_l = request->q_target_leg_l;
-    // response->dq_next_leg_r = request->dq_target_leg_r;
-    // response->dq_next_leg_l = request->dq_target_leg_l;
-    RCLCPP_INFO(this->get_logger(), "Response");
-  }
 }
+
+/* Reference
+  https://docs.ros.org/en/humble/How-To-Guides/Using-callback-groups.html
+
+*/

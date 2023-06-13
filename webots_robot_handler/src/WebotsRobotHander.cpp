@@ -45,25 +45,24 @@ namespace webots_robot_handler
     jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
   }
 
-  // RobotManagerに切り替える
-  // void WebotsRobotHandler::callback_sub(const msgs_package::msg::ToWalkingStabilizationControllerMessage::SharedPtr sub_data) {
-  //   // set joints angle & velocity
-  //   for(int i = 0; i < 6; i++) {
-  //     wb_motor_set_position(motorsTag_[jointNum_legR_[i]], sub_data->q_target_r[i]*jointAng_posi_or_nega_legR_[i]);
-  //     wb_motor_set_velocity(motorsTag_[jointNum_legR_[i]], sub_data->dq_target_r[i]);
-  //     wb_motor_set_position(motorsTag_[jointNum_legL_[i]], sub_data->q_target_l[i]*jointAng_posi_or_nega_legL_[i]);
-  //     wb_motor_set_velocity(motorsTag_[jointNum_legL_[i]], sub_data->dq_target_l[i]);
-  //   }
-  // }
+  void WebotsRobotHandler::ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data) {
+    // RCLCPP_INFO(node_->get_logger(), "subscribe...: [ %d ]", callback_data->counter);
+    (void)callback_data;
+  }
 
   void WebotsRobotHandler::init(
     webots_ros2_driver::WebotsNode *node,
     std::unordered_map<std::string, std::string> &parameters
   ) {
-    node_ = node;
-    auto hoge = parameters;
+    node_ = node;  // 他関数内でも使うため
+    (void)parameters;  // fake
 
+    auto custom_QoS = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile));
 
+    using namespace std::placeholders;
+
+    pub_feedback_ = node_->create_publisher<msgs_package::msg::Feedback>("Feedback", custom_QoS);
+    sub_control_output_ = node_->create_subscription<msgs_package::msg::ControlOutput>("ControlOutput", custom_QoS, std::bind(&WebotsRobotHandler::ControlOutput_Callback, this, _1));
 
     // DEBUG parameter setting
     DEBUG_ParameterSetting();
@@ -96,6 +95,7 @@ namespace webots_robot_handler
   }
 
   void WebotsRobotHandler::step() {
+    // RCLCPP_INFO(node_->get_logger(), "step...");
 
     step_count_++;
 
@@ -129,11 +129,9 @@ namespace webots_robot_handler
     //                           gyroValue_[2]};
 
     // req->step_count = step_count_;
+
   }
 
-  void WebotsRobotHandler::ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data) {
-    // RCLCPP_INFO(node_->get_logger(), "WebotsRobotHandler::ControlOutput_Callback");
-  }
 }
 
 PLUGINLIB_EXPORT_CLASS (
