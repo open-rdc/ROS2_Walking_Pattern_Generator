@@ -65,76 +65,76 @@ namespace walking_pattern_generator
     // loop_number_ = walking_pattern_P_R_.max_size();  // 要素の最大数を返す
   }
 
+//   // kinematics node でも作って、共有ライブラリにFK・IKともに入れたほうが良いと思う。
+//   void WalkingPatternGenerator::JacobiMatrix_leg(std::array<double, 6> Q_legR, std::array<double, 6> Q_legL) {
+//     Jacobi_legR_ = MatrixXd::Zero(6, UnitVec_legR_.max_size());
+//     Jacobi_legL_ = MatrixXd::Zero(6, UnitVec_legR_.max_size());
 
-  void WalkingPatternGenerator::JacobiMatrix_leg(std::array<double, 6> Q_legR, std::array<double, 6> Q_legL) {
-    Jacobi_legR_ = MatrixXd::Zero(6, UnitVec_legR_.max_size());
-    Jacobi_legL_ = MatrixXd::Zero(6, UnitVec_legR_.max_size());
+//     // ココは書き換える必要がある。
+// // ココから
+//     auto toKine_FK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
 
-    // ココは書き換える必要がある。
-// ココから
-    auto toKine_FK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
+//     toKine_FK_req->q_target_r = Q_legR;
+//     toKine_FK_req->q_target_l = Q_legL;
 
-    toKine_FK_req->q_target_r = Q_legR;
-    toKine_FK_req->q_target_l = Q_legL;
+//     for(int i = 0; i < int(UnitVec_legR_.max_size()); i++) {
+//       toKine_FK_req->fk_point = i;
 
-    for(int i = 0; i < int(UnitVec_legR_.max_size()); i++) {
-      toKine_FK_req->fk_point = i;
+//       auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
+//         toKine_FK_req, 
+//         [this, i](const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future) {
+//           P_FK_legR_[i] = {future.get()->p_result_r[0], future.get()->p_result_r[1], future.get()->p_result_r[2]};
+//           P_FK_legL_[i] = {future.get()->p_result_l[0], future.get()->p_result_l[1], future.get()->p_result_l[2]};
+//         }
+//       );
+//       rclcpp::spin_until_future_complete(this->get_node_base_interface(), toKine_FK_res);
 
-      auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
-        toKine_FK_req, 
-        [this, i](const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future) {
-          P_FK_legR_[i] = {future.get()->p_result_r[0], future.get()->p_result_r[1], future.get()->p_result_r[2]};
-          P_FK_legL_[i] = {future.get()->p_result_l[0], future.get()->p_result_l[1], future.get()->p_result_l[2]};
-        }
-      );
-      rclcpp::spin_until_future_complete(this->get_node_base_interface(), toKine_FK_res);
+//       // std::cout << i << std::endl;
+//       // std::cout << "legR: " << P_FK_legR_[i].transpose() << std::endl;
+//       // std::cout << "legL: " << P_FK_legL_[i].transpose() << std::endl;
+//     }
+//     std::cout << std::endl;
+// // ココまで
 
-      // std::cout << i << std::endl;
-      // std::cout << "legR: " << P_FK_legR_[i].transpose() << std::endl;
-      // std::cout << "legL: " << P_FK_legL_[i].transpose() << std::endl;
-    }
-    std::cout << std::endl;
-// ココまで
-
-    Vector3d P_legR = P_FK_legR_[int(UnitVec_legR_.max_size())-1];
-    Vector3d P_legL = P_FK_legL_[int(UnitVec_legR_.max_size())-1];
+//     Vector3d P_legR = P_FK_legR_[int(UnitVec_legR_.max_size())-1];
+//     Vector3d P_legL = P_FK_legL_[int(UnitVec_legR_.max_size())-1];
     
 
-    Vector3d mat_legR = Vector3d::Zero(3);
-    Vector3d mat_legL = Vector3d::Zero(3);
-    Vector3d pt_P_legR = Vector3d::Zero(3);
-    Vector3d pt_P_legL = Vector3d::Zero(3);
-    for(int tag = 0; tag < int(UnitVec_legR_.max_size()); tag++) {
-      if(tag == int(UnitVec_legR_.max_size()-1)) {
-        mat_legR = Vector3d::Zero(3);
-        mat_legL = Vector3d::Zero(3);
-      }
-      else { 
-        pt_P_legR = P_legR - P_FK_legR_[tag];
-        pt_P_legL = P_legL - P_FK_legL_[tag];
-        // std::cout << "pt_P_legR: " << pt_P_legR.transpose() << std::endl;
-        // std::cout << "pt_P_legL: " << pt_P_legL.transpose() << std::endl;
-        mat_legR = UnitVec_legR_[tag].cross(pt_P_legR);
-        mat_legL = UnitVec_legL_[tag].cross(pt_P_legL);
-      }
+//     Vector3d mat_legR = Vector3d::Zero(3);
+//     Vector3d mat_legL = Vector3d::Zero(3);
+//     Vector3d pt_P_legR = Vector3d::Zero(3);
+//     Vector3d pt_P_legL = Vector3d::Zero(3);
+//     for(int tag = 0; tag < int(UnitVec_legR_.max_size()); tag++) {
+//       if(tag == int(UnitVec_legR_.max_size()-1)) {
+//         mat_legR = Vector3d::Zero(3);
+//         mat_legL = Vector3d::Zero(3);
+//       }
+//       else { 
+//         pt_P_legR = P_legR - P_FK_legR_[tag];
+//         pt_P_legL = P_legL - P_FK_legL_[tag];
+//         // std::cout << "pt_P_legR: " << pt_P_legR.transpose() << std::endl;
+//         // std::cout << "pt_P_legL: " << pt_P_legL.transpose() << std::endl;
+//         mat_legR = UnitVec_legR_[tag].cross(pt_P_legR);
+//         mat_legL = UnitVec_legL_[tag].cross(pt_P_legL);
+//       }
 
-      for(int i = 0; i < 3; i++) {
-        if(abs(mat_legR[i]) < 0.000001) {
-          mat_legR[i] = 0;
-        }
-        if(abs(mat_legL[i]) < 0.000001) {
-          mat_legL[i] = 0;
-        }
-      }
+//       for(int i = 0; i < 3; i++) {
+//         if(abs(mat_legR[i]) < 0.000001) {
+//           mat_legR[i] = 0;
+//         }
+//         if(abs(mat_legL[i]) < 0.000001) {
+//           mat_legL[i] = 0;
+//         }
+//       }
 
-      for(int i = 0; i < 3; i++) {
-        Jacobi_legR_(i, tag) = mat_legR[i];
-        Jacobi_legR_(i+3, tag) = UnitVec_legR_[tag][i];
-        Jacobi_legL_(i, tag) = mat_legL[i];
-        Jacobi_legL_(i+3, tag) = UnitVec_legL_[tag][i];
-      }
-    }
-  }
+//       for(int i = 0; i < 3; i++) {
+//         Jacobi_legR_(i, tag) = mat_legR[i];
+//         Jacobi_legR_(i+3, tag) = UnitVec_legR_[tag][i];
+//         Jacobi_legL_(i, tag) = mat_legL[i];
+//         Jacobi_legL_(i+3, tag) = UnitVec_legL_[tag][i];
+//       }
+//     }
+//   }
 
   std::array<double, 6> WalkingPatternGenerator::Vector2Array(Vector<double, 6> vector) {
     return (std::array<double, 6>{vector[0], vector[1], vector[2], vector[3], vector[4], vector[5]});

@@ -8,6 +8,10 @@
 #include "webots_ros2_driver/PluginInterface.hpp"
 #include "webots_ros2_driver/WebotsNode.hpp"
 
+#include "Eigen/Dense"
+#include "kinematics/FK.hpp"
+#include "kinematics/IK.hpp"
+
 namespace webots_robot_handler
 {
   class WebotsRobotHandler : public webots_ros2_driver::PluginInterface {
@@ -20,6 +24,8 @@ namespace webots_robot_handler
       void step() override;
 
     private:
+      void JacobiMatrix_leg(std::array<double, 6> Q_legR, std::array<double, 6> Q_legL);
+
 // == init() ==
 
       void ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data);
