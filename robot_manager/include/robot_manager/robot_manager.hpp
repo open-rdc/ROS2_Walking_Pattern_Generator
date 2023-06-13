@@ -23,7 +23,12 @@ namespace robot_manager {
       rclcpp::Subscription<msgs_package::msg::WalkingPattern>::SharedPtr sub_walking_pattern_;
       rclcpp::Subscription<msgs_package::msg::Feedback>::SharedPtr sub_feedback_;
 
-      rclcpp::CallbackGroup::SharedPtr cb_group_ = nullptr;
-      rclcpp::CallbackGroup::SharedPtr cc_group_ = nullptr;
+      rclcpp::CallbackGroup::SharedPtr cb_group1_ = nullptr;
+      rclcpp::CallbackGroup::SharedPtr cb_group2_ = nullptr;
   };
 }
+
+/* Reference
+  https://docs.ros.org/en/humble/How-To-Guides/Using-callback-groups.html
+
+*/

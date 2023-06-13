@@ -16,7 +16,7 @@ def generate_launch_description():
   #   # namespace = "walking_controller",  # 通信は、同namespace内でしか行えない
   #   executable = "fk_srv",  # CMakeLists.txtのtarget_nameに合わせる
   #   output = "screen",
-  #   parameters = [{'use_sim_time': True}]
+  #   parameters = [{'use_sim_time': True}]  // ちゃんと理解して使うべき
   # )
 
   # # IK (kinematics)
@@ -86,9 +86,9 @@ def generate_launch_description():
     # fk,
     # ik,
     walking_stabilization_controller,
-    webots,
-    robotis_op2_driver,
-    walking_pattern_generator,
+    # webots,
+    # robotis_op2_driver,
+    # walking_pattern_generator,
     robot_manager,
     launch.actions.RegisterEventHandler(
       event_handler = launch.event_handlers.OnProcessExit(

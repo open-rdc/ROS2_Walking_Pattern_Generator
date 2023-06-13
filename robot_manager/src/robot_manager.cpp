@@ -28,13 +28,13 @@ namespace robot_manager {
     const rclcpp::NodeOptions &options
   ) : Node("RobotManager", options) {
 
-    cb_group_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
-    cc_group_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
+    cb_group1_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
+    cb_group2_ = this->create_callback_group(rclcpp::CallbackGroupType::Reentrant);
 
     clnt_stabilization_control_ = this->create_client<msgs_package::srv::StabilizationControl>(
       "StabilizationControl",
       custom_qos_profile,
-      cb_group_
+      cb_group1_
     );
     while(!clnt_stabilization_control_->wait_for_service(1s)) {
       RCLCPP_WARN(this->get_logger(), "Waiting StabilizationController service ...");
@@ -45,7 +45,7 @@ namespace robot_manager {
     }
     // RCLCPP_INFO(this->get_logger(), "hoge");
     // pub_control_output_ = this->create_publisher<msgs_package::msg::ControlOutput>("ControlOutput", rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile)));
-    timer_ = create_wall_timer(1s, std::bind(&RobotManager::ControlOutput_Timer, this), cc_group_);
+    timer_ = create_wall_timer(10ms, std::bind(&RobotManager::ControlOutput_Timer, this), cb_group2_);
   }
 
   // Robot Manager 
@@ -69,12 +69,17 @@ namespace robot_manager {
   }
 
   void RobotManager::WalkingPattern_Callback(const msgs_package::msg::WalkingPattern::SharedPtr callback_data) {
-    (void)callback_data;
+    (void)callback_data;  // fake
     // RCLCPP_INFO(this->get_logger(), "RobotManager::WalkingPattern_Callback");
   }
 
   void RobotManager::Feedback_Callback(const msgs_package::msg::Feedback::SharedPtr callback_data) {
-    (void)callback_data;
+    (void)callback_data;  // fake
     // RCLCPP_INFO(this->get_logger(), "RobotManager::Feedback");
   }
 }
+
+/* Reference
+  https://docs.ros.org/en/humble/How-To-Guides/Using-callback-groups.html
+
+*/

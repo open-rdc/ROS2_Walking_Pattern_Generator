@@ -67,6 +67,8 @@ namespace kinematics
     return {Rz(Q_leg[0]), Rx(Q_leg[1]), Ry(Q_leg[2]), Ry(Q_leg[3]), Ry(Q_leg[4]), Rx(Q_leg[5])};
   }
 
+
+  // 関数のオーバーライドをして、joint_pointを入れずに導出できるようにする。 or forで再帰的に回す。
   Vector3d FK::getFK(
     std::array<double, 6> Q_leg,
     std::array<Eigen::Vector3d, 7> P_leg,

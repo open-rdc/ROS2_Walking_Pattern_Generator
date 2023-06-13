@@ -45,19 +45,6 @@ namespace robot_manager
     };
   }
 
-  WalkingStabilizationController::WalkingStabilizationController(
-    const rclcpp::NodeOptions &options
-  ) : Node("WalkingStabilizationController", options) {
-
-    using namespace std::placeholders;
-
-    srv_stabilization_control_ = this->create_service<msgs_package::srv::StabilizationControl>(
-      "StabilizationControl",
-      std::bind(&WalkingStabilizationController::WSC_Server, this, _1, _2, _3),
-      custom_qos_profile
-    );
-  }
-
   void WalkingStabilizationController::WSC_Server(
     const std::shared_ptr<rmw_request_id_t> request_header,
     const std::shared_ptr<msgs_package::srv::StabilizationControl::Request> request,
@@ -75,4 +62,23 @@ namespace robot_manager
     // response->dq_next_leg_l = request->dq_target_leg_l;
     RCLCPP_INFO(this->get_logger(), "Response");
   }
+
+  WalkingStabilizationController::WalkingStabilizationController(
+    const rclcpp::NodeOptions &options
+  ) : Node("WalkingStabilizationController", options) {
+
+    using namespace std::placeholders;
+
+    srv_stabilization_control_ = this->create_service<msgs_package::srv::StabilizationControl>(
+      "StabilizationControl",
+      std::bind(&WalkingStabilizationController::WSC_Server, this, _1, _2, _3),
+      custom_qos_profile
+    );
+  }
+
 }
+
+/* Reference
+  https://docs.ros.org/en/humble/How-To-Guides/Using-callback-groups.html
+
+*/
