@@ -31,7 +31,15 @@ namespace webots_robot_handler
       // マネージャからのCallback
       void ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data);
 
-// == Dynamic Gait ==
+// DEBUG: Dynamic Gait ==
+      void WalkingPatternGenerate(void);
+
+      // 歩行パターンの変数（行列）
+      std::vector<std::array<double, 6>> WalkingPattern_Pos_legR_;
+      std::vector<std::array<double, 6>> WalkingPattern_Vel_legR_;
+      std::vector<std::array<double, 6>> WalkingPattern_Pos_legL_;
+      std::vector<std::array<double, 6>> WalkingPattern_Vel_legL_;
+
       Eigen::Matrix<double, 6, 6> Jacobi_legR_;
       Eigen::Matrix<double, 6, 6> Jacobi_legL_;
       // 以下、いる？
@@ -39,6 +47,11 @@ namespace webots_robot_handler
       std::array<Eigen::Vector3d, 6> P_FK_legL_;
       std::array<Eigen::Vector3d, 6> UnitVec_legR_;
       std::array<Eigen::Vector3d, 6> UnitVec_legL_;
+
+      std::array<Eigen::Matrix3d, 6> R_legR_;
+      std::array<Eigen::Vector3d, 7> P_legR_;
+      std::array<Eigen::Matrix3d, 6> R_legL_;
+      std::array<Eigen::Vector3d, 7> P_legL_;
 
 // == init() ==
 
@@ -60,20 +73,24 @@ namespace webots_robot_handler
       std::array<int, 6> jointAng_posi_or_nega_legR_;  // モータの回転方向の系が、モータごとに違う。Kinematicsの方ではすべて右手系で計算している。ので、Webots内環境に合わせるための補正（正負の逆転）をかける。（右足）
       std::array<int, 6> jointAng_posi_or_nega_legL_;  // 上に同じ（左足）
 
-// DEBUG===/*
+// DEBUG:===/*
       void DEBUG_ParameterSetting(void);
 
       // Parameter serverやURDF、Protoから読み込みたい。
       std::array<std::string, 20> motors_name_;
       std::array<double, 20> initJointAng_;
       std::array<double, 20> initJointVel_;
-// DEBUG===*/
+
 
 // == step() ==
 
       double getJointAng_[20];  // Webots側から得た関節角度を記憶
       const double *accelerometerValue_;  
       const double *gyroValue_;
+
+      std::array<double, 6> Q_legR_;
+      std::array<double, 6> Q_legL_;
+
   };
 }
 
