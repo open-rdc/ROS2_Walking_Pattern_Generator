@@ -34,12 +34,17 @@ namespace webots_robot_handler
 // DEBUG: Dynamic Gait ==
       void WalkingPatternGenerate(void);
 
+      // TODO: Parameterから読み取るべき
+      // TODO: 生成に必要な変数
+      float weight_;
+
       // 歩行パターンの変数（行列）
       std::vector<std::array<double, 6>> WalkingPattern_Pos_legR_;
       std::vector<std::array<double, 6>> WalkingPattern_Vel_legR_;
       std::vector<std::array<double, 6>> WalkingPattern_Pos_legL_;
       std::vector<std::array<double, 6>> WalkingPattern_Vel_legL_;
 
+      // ヤコビアンとかに必要な変数
       Eigen::Matrix<double, 6, 6> Jacobi_legR_;
       Eigen::Matrix<double, 6, 6> Jacobi_legL_;
       // 以下、いる？
