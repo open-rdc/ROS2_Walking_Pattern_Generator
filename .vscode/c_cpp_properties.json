@@ -19,7 +19,9 @@
                 "/home/xubu22/WPJ_ros2_ws/src/walking_stabilization_controller/include/**",
                 "/home/xubu22/WPJ_ros2_ws/src/webots_robot_handler/include/**",
                 "/usr/include/**",
-                "/home/xubu22/WPJ_ros2_ws/build/msgs_package/rosidl_generator_cpp"
+                "/home/xubu22/WPJ_ros2_ws/build/msgs_package/rosidl_generator_cpp",
+                "/home/ubuntu/ros2_ws/install/**",
+                "/home/ubuntu/ros2_ws/src/**"
             ],
             "name": "ROS",
             "intelliSenseMode": "gcc-x64",
