@@ -16,6 +16,7 @@ namespace webots_robot_handler
 {
   class WebotsRobotHandler : public webots_ros2_driver::PluginInterface {
     public:
+    
       void init(
         webots_ros2_driver::WebotsNode *node, 
         std::unordered_map<std::string, std::string> &parameters
@@ -24,12 +25,24 @@ namespace webots_robot_handler
       void step() override;
 
     private:
+
+      // Kinematicsライブラリの中に含めるべき関数
       void JacobiMatrix_leg(std::array<double, 6> Q_legR, std::array<double, 6> Q_legL);
+      // マネージャからのCallback
+      void ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data);
+
+// == Dynamic Gait ==
+      Eigen::Matrix<double, 6, 6> Jacobi_legR_;
+      Eigen::Matrix<double, 6, 6> Jacobi_legL_;
+      // 以下、いる？
+      std::array<Eigen::Vector3d, 6> P_FK_legR_;
+      std::array<Eigen::Vector3d, 6> P_FK_legL_;
+      std::array<Eigen::Vector3d, 6> UnitVec_legR_;
+      std::array<Eigen::Vector3d, 6> UnitVec_legL_;
 
 // == init() ==
 
-      void ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data);
-
+      // init関数以外でもrclcpp::Nodeを使えるようにするため。
       webots_ros2_driver::WebotsNode *node_;
 
       rclcpp::Publisher<msgs_package::msg::Feedback>::SharedPtr pub_feedback_;
@@ -47,11 +60,10 @@ namespace webots_robot_handler
       std::array<int, 6> jointAng_posi_or_nega_legR_;  // モータの回転方向の系が、モータごとに違う。Kinematicsの方ではすべて右手系で計算している。ので、Webots内環境に合わせるための補正（正負の逆転）をかける。（右足）
       std::array<int, 6> jointAng_posi_or_nega_legL_;  // 上に同じ（左足）
 
-      // DEBUG
-      int step_count_ = 0;
 // DEBUG===/*
       void DEBUG_ParameterSetting(void);
 
+      // Parameter serverやURDF、Protoから読み込みたい。
       std::array<std::string, 20> motors_name_;
       std::array<double, 20> initJointAng_;
       std::array<double, 20> initJointVel_;
@@ -59,8 +71,6 @@ namespace webots_robot_handler
 
 // == step() ==
 
-      // double setJointAng_[20];  // いる？
-      // double setJointVel_[20];
       double getJointAng_[20];  // Webots側から得た関節角度を記憶
       const double *accelerometerValue_;  
       const double *gyroValue_;

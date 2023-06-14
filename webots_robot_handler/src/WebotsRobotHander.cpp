@@ -34,24 +34,29 @@ namespace webots_robot_handler
   };
 
   void WebotsRobotHandler::DEBUG_ParameterSetting() {
+    // protoに沿った各モータの名前
     motors_name_ = {("ShoulderR"), ("ShoulderL"), ("ArmUpperR"), ("ArmUpperL"), ("ArmLowerR"), ("ArmLowerL"), 
                     ("PelvYR"), ("PelvYL"), ("PelvR"), ("PelvL"), ("LegUpperR"), ("LegUpperL"), ("LegLowerR"), ("LegLowerL"), ("AnkleR"), ("AnkleL"), ("FootR"), ("FootL"), 
                     ("Neck"), ("Head")};
+    // 初期姿勢を設定
     initJointAng_ = {0, 0, -0.5, 0.5, -1, 1, 
                      0, 0, 0, 0, -3.14/8, 3.14/8, 3.14/4, -3.14/4, 3.14/8, -3.14/8, 0, 0, 
                      0, 0.26};  // init joints ang [rad]. corresponding to motors_name
+    // 初期姿勢に移行する時の角速度
     initJointVel_ = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.5, 0.5};  // init joints vel [rad/s]
 
+    // 脚のラベル一覧
     jointNum_legR_ = {6, 8, 10, 12, 14, 16};  // joint numbers (motorsTag[20] & positionSensorsTag[20])(right leg)
     jointNum_legL_ = {7, 9, 11, 13, 15, 17};  // joint numbers (motorsTag[20] & positionSensorsTag[20])(left leg)
+    // IKなどは右手系で解いているが、ロボットで左手系を採用している関節が幾つかある。それに対応する為の配列。
     jointAng_posi_or_nega_legR_ = {-1, -1, 1, 1, -1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
     jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
   }
 
   // kinematics node でも作って、共有ライブラリにFK・IKともに入れたほうが良いと思う。
   void WebotsRobotHandler::JacobiMatrix_leg(std::array<double, 6> Q_legR, std::array<double, 6> Q_legL) {
-//     Jacobi_legR_ = MatrixXd::Zero(6, UnitVec_legR_.max_size());
-//     Jacobi_legL_ = MatrixXd::Zero(6, UnitVec_legR_.max_size());
+    Jacobi_legR_ = MatrixXd::Zero(6, UnitVec_legR_.max_size());
+    Jacobi_legL_ = MatrixXd::Zero(6, UnitVec_legR_.max_size());
 
 //     // ココは書き換える必要がある。
 // // ココから
@@ -119,7 +124,7 @@ namespace webots_robot_handler
 //     }
   }
 
-
+  // マネージャからのCallback関数
   void WebotsRobotHandler::ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data) {
     // RCLCPP_INFO(node_->get_logger(), "subscribe...: [ %d ]", callback_data->counter);
     (void)callback_data;
@@ -145,34 +150,23 @@ namespace webots_robot_handler
     for(int i = 0; i < 20; i++) {  // get motor tags & position_sensor tags
       motorsTag_[i] = wb_robot_get_device(motors_name_[i].c_str());
       positionSensorsTag_[i] = wb_robot_get_device((motors_name_[i]+"S").c_str());
-      wb_position_sensor_enable(positionSensorsTag_[i], 100);
+      wb_position_sensor_enable(positionSensorsTag_[i], 1);
     }
     accelerometerTag_ = wb_robot_get_device("Accelerometer");
-    wb_accelerometer_enable(accelerometerTag_, 100);  // enable & sampling_period: 100[ms]
+    wb_accelerometer_enable(accelerometerTag_, 1);  // enable & sampling_period: 100[ms]
     gyroTag_ = wb_robot_get_device("Gyro");
-    wb_gyro_enable(gyroTag_, 100);
+    wb_gyro_enable(gyroTag_, 1);
 
     // RCLCPP_INFO(node_->get_logger(), "Set init joints_angle.");
     for(int i = 0; i < 20; i++) {  // set init position & value
       getJointAng_[i] = 0;
       wb_motor_set_position(motorsTag_[i], initJointAng_[i]);wb_motor_set_velocity(motorsTag_[i], initJointVel_[i]);
     }
-
-    step_count_ = 0;
-
-    // RobotManagerに切り替える
-    // // RCLCPP_INFO(node_->get_logger(), "Finish init, Start step.");
-    // toWPG_sub_ = node_->create_subscription<msgs_package::msg::ToWalkingStabilizationControllerMessage>(
-    //   "WalkingPattern",
-    //   rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile)),
-    //   std::bind(&WebotsRobotHandler::callback_sub, this, _1)
-    // );
+    
   }
 
   void WebotsRobotHandler::step() {
     // RCLCPP_INFO(node_->get_logger(), "step...");
-
-    step_count_++;
 
     // get now status
     for(int i = 0; i < 20; i++) {
@@ -181,29 +175,13 @@ namespace webots_robot_handler
     accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);
     gyroValue_ = wb_gyro_get_values(gyroTag_);
 
-    // req->q_now_leg_r = {getJointAng_[jointNum_legR_[0]],
-    //                             getJointAng_[jointNum_legR_[1]],
-    //                             getJointAng_[jointNum_legR_[2]],
-    //                             getJointAng_[jointNum_legR_[3]],
-    //                             getJointAng_[jointNum_legR_[4]],
-    //                             getJointAng_[jointNum_legR_[5]],}; 
-                                
-    // req->q_now_leg_l = {getJointAng_[jointNum_legL_[0]],
-    //                             getJointAng_[jointNum_legL_[1]],
-    //                             getJointAng_[jointNum_legL_[2]],
-    //                             getJointAng_[jointNum_legL_[3]],
-    //                             getJointAng_[jointNum_legL_[4]],
-    //                             getJointAng_[jointNum_legL_[5]],}; 
-
-    // req->accelerometer_now = {accelerometerValue_[0], 
-    //                                   accelerometerValue_[1], 
-    //                                   accelerometerValue_[2]};
-
-    // req->gyro_now = {gyroValue_[0],
-    //                           gyroValue_[1],
-    //                           gyroValue_[2]};
-
-    // req->step_count = step_count_;
+  // set joints angle & velocity
+    for(int i = 0; i < 6; i++) {
+  //    wb_motor_set_position(motorsTag_[jointNum_legR_[i]], future.get()->q_fix_r[i]*jointAng_posi_or_nega_legR_[i]);
+  //    wb_motor_set_velocity(motorsTag_[jointNum_legR_[i]], future.get()->dq_fix_r[i]);
+  //    wb_motor_set_position(motorsTag_[jointNum_legL_[i]], future.get()->q_fix_l[i]*jointAng_posi_or_nega_legL_[i]);
+  //    wb_motor_set_velocity(motorsTag_[jointNum_legL_[i]], future.get()->dq_fix_l[i]);
+    }
 
   }
 
