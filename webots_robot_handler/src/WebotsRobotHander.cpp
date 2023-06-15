@@ -92,6 +92,10 @@ namespace webots_robot_handler
         Vector3d(0, 0, 0),
         Vector3d(0, 0, 0)
     };
+
+    // Dynamic Gait====
+    weight_ = 3.0;  // [kg]
+    length_leg_ = 219.5;  // [mm]
   }
 
   // TODO: kinematics node でも作って、共有ライブラリにFK・IKともに入れたほうが良いと思う。
@@ -106,8 +110,14 @@ namespace webots_robot_handler
 //     toKine_FK_req->q_target_r = Q_legR;
 //     toKine_FK_req->q_target_l = Q_legL;
 
+        // CHECKME: 確認すべき
+        for(int tag = 0; tag < int(UnitVec_legR_.max_size()); tag++) {
+          P_FK_legR_[tag] = FK_.getFK(Q_legR, P_legR_, tag);
+          P_FK_legL_[tag] = FK_.getFK(Q_legL, P_legL_, tag);
+        }
+
 //     for(int i = 0; i < int(UnitVec_legR_.max_size()); i++) {
-//       toKine_FK_req->fk_point = i;
+//       toKine_FK_req->fk_point = i; 
 
 //       auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
 //         toKine_FK_req, 
@@ -125,44 +135,48 @@ namespace webots_robot_handler
 //     std::cout << std::endl;
 // // ココまで
 
-//     Vector3d P_legR = P_FK_legR_[int(UnitVec_legR_.max_size())-1];
-//     Vector3d P_legL = P_FK_legL_[int(UnitVec_legR_.max_size())-1];
-    
+    Vector3d mat_legR = Vector3d::Zero(3);
+    Vector3d mat_legL = Vector3d::Zero(3);
+    Vector3d pt_P_legR = Vector3d::Zero(3);
+    Vector3d pt_P_legL = Vector3d::Zero(3);
+    for(int tag = 0; tag < int(UnitVec_legR_.max_size()); tag++) {
+      if(tag == int(UnitVec_legR_.max_size()-1)) {
+        mat_legR = Vector3d::Zero(3);
+        mat_legL = Vector3d::Zero(3);
+      }
+      else { 
+        // P_FK_legR_[int(UnitVec_legR_.max_size())-1]: 股関節の座標を取得（基準座標から股関節までの距離を含まないFKの結果を取得）
+        pt_P_legR = P_FK_legR_[int(UnitVec_legR_.max_size())-1] - P_FK_legR_[tag];
+        pt_P_legL = P_FK_legL_[int(UnitVec_legL_.max_size())-1] - P_FK_legL_[tag];
+        // std::cout << "pt_P_legR: " << pt_P_legR.transpose() << std::endl;
+        // std::cout << "pt_P_legL: " << pt_P_legL.transpose() << std::endl;
+        mat_legR = UnitVec_legR_[tag].cross(pt_P_legR);
+        mat_legL = UnitVec_legL_[tag].cross(pt_P_legL);
+      }
 
-//     Vector3d mat_legR = Vector3d::Zero(3);
-//     Vector3d mat_legL = Vector3d::Zero(3);
-//     Vector3d pt_P_legR = Vector3d::Zero(3);
-//     Vector3d pt_P_legL = Vector3d::Zero(3);
-//     for(int tag = 0; tag < int(UnitVec_legR_.max_size()); tag++) {
-//       if(tag == int(UnitVec_legR_.max_size()-1)) {
-//         mat_legR = Vector3d::Zero(3);
-//         mat_legL = Vector3d::Zero(3);
-//       }
-//       else { 
-//         pt_P_legR = P_legR - P_FK_legR_[tag];
-//         pt_P_legL = P_legL - P_FK_legL_[tag];
-//         // std::cout << "pt_P_legR: " << pt_P_legR.transpose() << std::endl;
-//         // std::cout << "pt_P_legL: " << pt_P_legL.transpose() << std::endl;
-//         mat_legR = UnitVec_legR_[tag].cross(pt_P_legR);
-//         mat_legL = UnitVec_legL_[tag].cross(pt_P_legL);
-//       }
+      // 異常値への対処
+      for(int i = 0; i < 3; i++) {
+        if(abs(mat_legR[i]) < 0.000001) {
+          mat_legR[i] = 0;
+        }
+        if(abs(mat_legL[i]) < 0.000001) {
+          mat_legL[i] = 0;
+        }
+        if(abs(mat_legR[i]) > 10000000) {
+          mat_legR[i] = 0;
+        }
+        if(abs(mat_legL[i]) > 10000000) {
+          mat_legL[i] = 0;
+        }
+      }
 
-//       for(int i = 0; i < 3; i++) {
-//         if(abs(mat_legR[i]) < 0.000001) {
-//           mat_legR[i] = 0;
-//         }
-//         if(abs(mat_legL[i]) < 0.000001) {
-//           mat_legL[i] = 0;
-//         }
-//       }
-
-//       for(int i = 0; i < 3; i++) {
-//         Jacobi_legR_(i, tag) = mat_legR[i];
-//         Jacobi_legR_(i+3, tag) = UnitVec_legR_[tag][i];
-//         Jacobi_legL_(i, tag) = mat_legL[i];
-//         Jacobi_legL_(i+3, tag) = UnitVec_legL_[tag][i];
-//       }
-//     }
+      for(int i = 0; i < 3; i++) {
+        Jacobi_legR_(i, tag) = mat_legR[i];
+        Jacobi_legR_(i+3, tag) = UnitVec_legR_[tag][i];
+        Jacobi_legL_(i, tag) = mat_legL[i];
+        Jacobi_legL_(i+3, tag) = UnitVec_legL_[tag][i];
+      }
+    }
   }
 
   // TODO: 歩行パターンを生成する
