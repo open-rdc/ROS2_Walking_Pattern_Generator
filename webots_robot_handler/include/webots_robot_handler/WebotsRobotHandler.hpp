@@ -43,6 +43,15 @@ namespace webots_robot_handler
       float weight_;
       float length_leg_;
 
+      // TODO: 歩行パラメータを設定すべき
+      // 歩行パラメータの行列
+      // ex.
+      // [[time, x_point, y_point]
+      //  [time, x_point, y_point]
+      //            ...
+      //  [time, x_point, y_point]]
+      std::vector<std::array<double, 3>> LandingPosition_;
+
       // 歩行パターンの変数（行列）
       std::vector<std::array<double, 6>> WalkingPattern_Pos_legR_;
       std::vector<std::array<double, 6>> WalkingPattern_Vel_legR_;

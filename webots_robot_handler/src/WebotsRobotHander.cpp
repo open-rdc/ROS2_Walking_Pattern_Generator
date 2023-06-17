@@ -93,9 +93,14 @@ namespace webots_robot_handler
         Vector3d(0, 0, 0)
     };
 
-    // Dynamic Gait====
+    // Dynamic Gait ====
     weight_ = 3.0;  // [kg]
     length_leg_ = 219.5;  // [mm]
+    LandingPosition_ = {{0.8, 0.0, 0.1},  // 歩行パラメータからの着地位置(time, x, y)(教科書のやつ、の、y軸をちょいといじっただけ。)
+                        {1.6, 0.3, -0.1},
+                        {2.4, 0.3, 0.1},
+                        {3.2, 0.3, -0.1},
+                        {4.0, 0.0, 0.1}};
   }
 
   // TODO: kinematics node でも作って、共有ライブラリにFK・IKともに入れたほうが良いと思う。
@@ -103,7 +108,7 @@ namespace webots_robot_handler
     Jacobi_legR_ = MatrixXd::Zero(6, UnitVec_legR_.max_size());
     Jacobi_legL_ = MatrixXd::Zero(6, UnitVec_legR_.max_size());
 
-//     // TODO: ココは書き換える必要がある。
+//     // -TODO: ココは書き換える必要がある。
 // // ココから
 //     auto toKine_FK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
 
@@ -181,8 +186,24 @@ namespace webots_robot_handler
 
   // TODO: 歩行パターンを生成する
   void WebotsRobotHandler::WalkingPatternGenerate() {
-    WalkingPattern_Pos_legR_.push_back({0, 0, 0, 0, 0, 0});  // CHECKME: 歩行パターンの行列に１ステップ分を末端に追加
+    // flow
+    // 1. loop(0.01[s]刻み、数[s])
+    // 2. 重心位置計算
+    // 3. if(支持脚切り替えタイミングか否か)
+    //   4. True: 支持脚切り替え・P_leg切り替え、歩行素片初期重心位置でIKを解いて歩行パターンへpushback
+    //   5. False: 重心位置でIKを解いて歩行パターンへpushback
+    // 
+    // WalkingPattern_Pos_legR_.push_back({0, 0, 0, 0, 0, 0});  // CHECKME: 歩行パターンの行列に１ステップ分を末端に追加
     // x.erase(x.begin() (== 0) );  // CHECKME: 始端の削除。.begin()のほうが可読性が高いと思う。
+
+    // 制御周期
+    float control_cycle = 0.01;  // [s]
+
+    // 着地位置修正の最適化での重み
+    int opt_weight_pos = 10;
+    int opt_weight_vel = 1;
+
+    
   }
 
   // マネージャからのCallback関数
