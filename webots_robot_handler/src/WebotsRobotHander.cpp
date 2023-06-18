@@ -192,18 +192,21 @@ namespace webots_robot_handler
     // 3. if(支持脚切り替えタイミングか否か)
     //   4. True: 支持脚切り替え・P_leg切り替え、歩行素片初期重心位置でIKを解いて歩行パターンへpushback
     //   5. False: 重心位置でIKを解いて歩行パターンへpushback
-    // 
-    // WalkingPattern_Pos_legR_.push_back({0, 0, 0, 0, 0, 0});  // CHECKME: 歩行パターンの行列に１ステップ分を末端に追加
-    // x.erase(x.begin() (== 0) );  // CHECKME: 始端の削除。.begin()のほうが可読性が高いと思う。
 
     // 制御周期
     float control_cycle = 0.01;  // [s]
+
+    // 歩行パラメータの最終着地時間[s]を抽出
+    float walking_time_max = LandingPosition_[LandingPosition_.max_size()-1][0];  // TODO: 無駄な変数なので消すべき。わかりやすさ重視 
 
     // 着地位置修正の最適化での重み
     int opt_weight_pos = 10;
     int opt_weight_vel = 1;
 
-    
+
+
+    // WalkingPattern_Pos_legR_.push_back({0, 0, 0, 0, 0, 0});  // CHECKME: 歩行パターンの行列に１ステップ分を末端に追加
+    // x.erase(x.begin() (== 0) );  // CHECKME: 始端の削除。.begin()のほうが可読性が高いと思う。
   }
 
   // マネージャからのCallback関数
@@ -264,20 +267,19 @@ namespace webots_robot_handler
     }
     accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);
     gyroValue_ = wb_gyro_get_values(gyroTag_);
-
     // get leg_joints angle
     // for(int tag = 0; tag < 6; tag++) {
     //   Q_legR_[tag] = getJointAng_[jointNum_legR_[tag]];
     //   Q_legL_[tag] = getJointAng_[jointNum_legL_[tag]];
     // }
 
-    // TODO: setするコードを書き直す。
+    // CHECKME: setするコードを書き直す。
     // set joints angle & velocity
     // for(int tag = 0; tag < 6; tag++) {
-    //   wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], future.get()->q_fix_r[tag]*jointAng_posi_or_nega_legR_[i]);
-    //   wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], future.get()->dq_fix_r[tag]);
-    //   wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], future.get()->q_fix_l[tag]*jointAng_posi_or_nega_legL_[i]);
-    //   wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], future.get()->dq_fix_l[tag]);
+    //   wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[tag]*jointAng_posi_or_nega_legR_[i]);
+    //   wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Vel_legR_[tag]);
+    //   wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[tag]*jointAng_posi_or_nega_legL_[i]);
+    //   wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Vel_legL_[tag]);
     // }
 
   }
