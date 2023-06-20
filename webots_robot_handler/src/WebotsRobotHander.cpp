@@ -116,7 +116,8 @@ namespace webots_robot_handler
     weight_ = 3.0;  // [kg]
     length_leg_ = 219.5;  // [mm]
     // TODO: 足踏み。歩行する着地位置を計算して適用すべき
-    LandingPosition_ = {{0.8, 0.0, 0.037},  // 歩行パラメータからの着地位置(time, x, y)
+    LandingPosition_ = {{0.0, 0.0, -0.037},  // 歩行パラメータからの着地位置(time, x, y)
+                        {0.8, 0.0, 0.037},
                         {1.6, 0.0, -0.037},
                         {2.4, 0.0, 0.037},
                         {3.2, 0.0, -0.037},
@@ -227,11 +228,51 @@ namespace webots_robot_handler
     std::vector<std::array<double, 6>> CoG_2D_Pos;  // {{x0,y0},{x1,y1},{x2,y2}}
     std::vector<std::array<double, 6>> CoG_2D_Vec;
 
+    // 修正着地位置（ｘ）
+    double p_x_fix;
+
+    // 時間, 時定数
+    float T_sup = 0;  // 0 ~ 支持脚切り替え時間
+    float T_sup_max = LandingPosition_[1][0];  // 0.8. 支持脚切り替えタイミング. 歩行素片終端時間
+    float T_c = std::sqrt(length_leg_ / 9.81);  // 時定数
+
     // loop. 0: control_cycle: walking_time_max
-    for(float control_step = 0; control_step <= walking_time_max; control_step + control_cycle) {
-      void;
+    int control_step = 0;
+    int walking_step = 0;
+    float walking_time = 0;
+    double S, C;
+    while(walking_time <= walking_time_max) {
+      // 行を追加
+      CoG_2D_Pos.push_back({0, 0});
+      CoG_2D_Vec.push_back({0, 0});
+
+      // sinh(Tsup/Tc), cosh(Tsup/Tc)
+      S = std::sinh(T_sup / T_c);
+      C = std::cosh(T_sup / T_c);
+      
+      // 重心位置の計算
+      CoG_2D_Pos[control_step][0] = 0;  // position_x
+      CoG_2D_Pos[control_step][1] = 0;  // position_y
+      // 重心速度の計算
+      CoG_2D_Vec[control_step][0] = 0;
+      CoG_2D_Vec[control_step][1] = 0;
+
+      // 支持脚切り替えの判定
+      if(T_sup == T_sup_max) {
+        p_x_fix = LandingPosition_[walking_step][1];
+        
+        T_sup = 0;
+        walking_step++;
+      }
+      else {
+        T_sup += control_cycle;
+      }
+
+      control_step++;
+      walking_time += control_cycle;
     }
 
+    // 歩行パラメータの定義
     WalkingPattern_Pos_legR_.push_back({0, 0, 0, 0, 0, 0});  // CHECKME: 歩行パターンの行列に１ステップ分を末端に追加
     WalkingPattern_Vel_legR_.push_back({0, 0, 0, 0, 0, 0});
     WalkingPattern_Pos_legL_.push_back({0, 0, 0, 0, 0, 0});
@@ -290,7 +331,7 @@ namespace webots_robot_handler
     // RCLCPP_INFO(node_->get_logger(), "step...");
 
     // TODO: 脚、腕と、専用の配列に入れ直すのだから、getJointAng_はもっと最適化できるはず。
-    // get now status 
+    // get current status 
     for(int tag = 0; tag < 20; tag++) {
       getJointAng_[tag] = wb_position_sensor_get_value(positionSensorsTag_[tag]);
     }
@@ -310,13 +351,12 @@ namespace webots_robot_handler
       wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]*jointAng_posi_or_nega_legL_[tag]);
       wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Vel_legL_[0][tag]);
     }
+
     // CHECKME: 読んだ歩行パターンを削除
     WalkingPattern_Pos_legR_.erase(WalkingPattern_Pos_legR_.begin());  // CHECKME: 始端の削除。.begin()のほうが可読性が高いと思う。
     WalkingPattern_Vel_legR_.erase(WalkingPattern_Vel_legR_.begin());  
     WalkingPattern_Pos_legL_.erase(WalkingPattern_Pos_legL_.begin()); 
     WalkingPattern_Vel_legL_.erase(WalkingPattern_Vel_legL_.begin()); 
-
-
   }
 
 }
