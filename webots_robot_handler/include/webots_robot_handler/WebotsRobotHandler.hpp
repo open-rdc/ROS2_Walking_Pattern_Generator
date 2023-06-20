@@ -69,8 +69,10 @@ namespace webots_robot_handler
 
       std::array<Eigen::Matrix3d, 6> R_legR_;
       std::array<Eigen::Vector3d, 7> P_legR_;
+      std::array<Eigen::Vector3d, 7> P_legR_waist_standard_;
       std::array<Eigen::Matrix3d, 6> R_legL_;
       std::array<Eigen::Vector3d, 7> P_legL_;
+      std::array<Eigen::Vector3d, 7> P_legL_waist_standard_;
 
 // == init() ==
 

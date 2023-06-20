@@ -92,15 +92,35 @@ namespace webots_robot_handler
         Vector3d(0, 0, 0),
         Vector3d(0, 0, 0)
     };
+    // 脚の関節位置。基準を腰（ｚ軸が股関節と等しい）に修正
+    P_legR_waist_standard_ = {  // 右脚
+        Vector3d(-0.005, -0.037, 0),  // o(基準) -> 1
+        Vector3d(0, 0, 0),  // 1 -> 2
+        Vector3d(0, 0, 0),  // 2 -> 3
+        Vector3d(0, 0, -0.093),  // 3 -> 4
+        Vector3d(0, 0, -0.093),  // 4 -> 5
+        Vector3d(0, 0, 0),  // 5 -> 6
+        Vector3d(0, 0, 0)  // 6 -> a(足裏)
+    };
+    P_legL_waist_standard_ = {  // 左脚
+        Vector3d(-0.005, 0.037, 0),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, -0.093),
+        Vector3d(0, 0, -0.093),
+        Vector3d(0, 0, 0),
+        Vector3d(0, 0, 0)
+    };
 
     // Dynamic Gait ====
     weight_ = 3.0;  // [kg]
     length_leg_ = 219.5;  // [mm]
-    LandingPosition_ = {{0.8, 0.0, 0.1},  // 歩行パラメータからの着地位置(time, x, y)(教科書のやつ、の、y軸をちょいといじっただけ。)
-                        {1.6, 0.3, -0.1},
-                        {2.4, 0.3, 0.1},
-                        {3.2, 0.3, -0.1},
-                        {4.0, 0.0, 0.1}};
+    // TODO: 足踏み。歩行する着地位置を計算して適用すべき
+    LandingPosition_ = {{0.8, 0.0, 0.037},  // 歩行パラメータからの着地位置(time, x, y)
+                        {1.6, 0.0, -0.037},
+                        {2.4, 0.0, 0.037},
+                        {3.2, 0.0, -0.037},
+                        {4.0, 0.0, 0.037}};
   }
 
   // TODO: kinematics node でも作って、共有ライブラリにFK・IKともに入れたほうが良いと思う。
@@ -117,8 +137,8 @@ namespace webots_robot_handler
 
         // CHECKME: 確認すべき
         for(int tag = 0; tag < int(UnitVec_legR_.max_size()); tag++) {
-          P_FK_legR_[tag] = FK_.getFK(Q_legR, P_legR_, tag);
-          P_FK_legL_[tag] = FK_.getFK(Q_legL, P_legL_, tag);
+          P_FK_legR_[tag] = FK_.getFK(Q_legR, P_legR_waist_standard_, tag);
+          P_FK_legL_[tag] = FK_.getFK(Q_legL, P_legL_waist_standard_, tag);
         }
 
 //     for(int i = 0; i < int(UnitVec_legR_.max_size()); i++) {
@@ -203,10 +223,19 @@ namespace webots_robot_handler
     int opt_weight_pos = 10;
     int opt_weight_vel = 1;
 
+    // 重心位置・速度を保持する変数（重心は腰に位置するものとする）
+    std::vector<std::array<double, 6>> CoG_2D_Pos;  // {{x0,y0},{x1,y1},{x2,y2}}
+    std::vector<std::array<double, 6>> CoG_2D_Vec;
 
+    // loop. 0: control_cycle: walking_time_max
+    for(float control_step = 0; control_step <= walking_time_max; control_step + control_cycle) {
+      void;
+    }
 
-    // WalkingPattern_Pos_legR_.push_back({0, 0, 0, 0, 0, 0});  // CHECKME: 歩行パターンの行列に１ステップ分を末端に追加
-    // x.erase(x.begin() (== 0) );  // CHECKME: 始端の削除。.begin()のほうが可読性が高いと思う。
+    WalkingPattern_Pos_legR_.push_back({0, 0, 0, 0, 0, 0});  // CHECKME: 歩行パターンの行列に１ステップ分を末端に追加
+    WalkingPattern_Vel_legR_.push_back({0, 0, 0, 0, 0, 0});
+    WalkingPattern_Pos_legL_.push_back({0, 0, 0, 0, 0, 0});
+    WalkingPattern_Vel_legL_.push_back({0, 0, 0, 0, 0, 0});
   }
 
   // マネージャからのCallback関数
@@ -275,12 +304,18 @@ namespace webots_robot_handler
 
     // CHECKME: setするコードを書き直す。
     // set joints angle & velocity
-    // for(int tag = 0; tag < 6; tag++) {
-    //   wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[tag]*jointAng_posi_or_nega_legR_[i]);
-    //   wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Vel_legR_[tag]);
-    //   wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[tag]*jointAng_posi_or_nega_legL_[i]);
-    //   wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Vel_legL_[tag]);
-    // }
+    for(int tag = 0; tag < 6; tag++) {
+      wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]*jointAng_posi_or_nega_legR_[tag]);
+      wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Vel_legR_[0][tag]);
+      wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]*jointAng_posi_or_nega_legL_[tag]);
+      wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Vel_legL_[0][tag]);
+    }
+    // CHECKME: 読んだ歩行パターンを削除
+    WalkingPattern_Pos_legR_.erase(WalkingPattern_Pos_legR_.begin());  // CHECKME: 始端の削除。.begin()のほうが可読性が高いと思う。
+    WalkingPattern_Vel_legR_.erase(WalkingPattern_Vel_legR_.begin());  
+    WalkingPattern_Pos_legL_.erase(WalkingPattern_Pos_legL_.begin()); 
+    WalkingPattern_Vel_legL_.erase(WalkingPattern_Vel_legL_.begin()); 
+
 
   }
 
