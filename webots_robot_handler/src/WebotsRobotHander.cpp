@@ -221,10 +221,6 @@ namespace webots_robot_handler
     // 歩行パラメータの最終着地時間[s]を抽出
     float walking_time_max = LandingPosition_[LandingPosition_.max_size()-1][0];  // TODO: 無駄な変数なので消すべき。わかりやすさ重視 
 
-    // 着地位置修正の最適化での重み
-    int opt_weight_pos = 10;
-    int opt_weight_vel = 1;
-
     // 重心位置・速度を保持する変数（重心は腰に位置するものとする）
     std::vector<std::array<double, 6>> CoG_2D_Pos;  // {{x0,y0},{x1,y1},{x2,y2}}
     std::vector<std::array<double, 6>> CoG_2D_Vel;
@@ -264,11 +260,17 @@ namespace webots_robot_handler
     double dx_f = 0;
     double dy_f = 0;
 
+    // 着地位置修正の最適化での重み
+    int opt_weight_pos = 10;
+    int opt_weight_vel = 1;
+    // 最適化のときのマテリアル
+    double D = opt_weight_pos * std::pow((std::cosh(T_sup_max / T_c) - 1), 2) + opt_weight_vel * std::pow((std::sinh(T_sup_max / T_c) / T_c), 2);  
+
     // loop. 0: control_cycle: walking_time_max
     int control_step = 0;
     int walking_step = 0;
     float walking_time = 0;
-    double S, C;
+    double S, C;  // sinh, cosh の短縮
     // 着地位置の取得（後で修正着地位置が代入される）
     p_x_fix = LandingPosition_[walking_step][1];
     p_y_fix = LandingPosition_[walking_step][2];
@@ -309,6 +311,7 @@ namespace webots_robot_handler
         dy_f = CoG_2D_Vel[control_step][1];
 
         // 評価関数を最小化する着地位置の計算
+        // ココに式
         
         // 値の更新
         T_sup = 0;
