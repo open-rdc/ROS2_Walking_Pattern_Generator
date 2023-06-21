@@ -259,15 +259,19 @@ namespace webots_robot_handler
 
       // 支持脚切り替えの判定
       if(T_sup == T_sup_max) {
+        // 着地位置の取得（後で修正着地位置が代入される）
         p_x_fix = LandingPosition_[walking_step][1];
         
+        // 値の更新
         T_sup = 0;
         walking_step++;
       }
       else {
+        // 値の更新
         T_sup += control_cycle;
       }
 
+      // 値の更新
       control_step++;
       walking_time += control_cycle;
     }
