@@ -228,10 +228,6 @@ namespace webots_robot_handler
     std::vector<std::array<double, 6>> CoG_2D_Pos;  // {{x0,y0},{x1,y1},{x2,y2}}
     std::vector<std::array<double, 6>> CoG_2D_Vel;
 
-    // 修正着地位置
-    double p_x_fix;
-    double p_y_fix;
-
     // 時間, 時定数
     float T_sup = 0;  // 0 ~ 支持脚切り替え時間
     float T_sup_max = LandingPosition_[1][0];  // 0.8. 支持脚切り替えタイミング. 歩行素片終端時間
@@ -248,6 +244,19 @@ namespace webots_robot_handler
     double y_0 = 0;
     double dx_0 = 0;
     double dy_0 = 0;
+    // 理想の重心位置・速度 (World座標系)
+    double x_d = 0;
+    double y_d = 0;
+    double dx_d = 0;
+    double dy_d = 0;
+    // 修正着地位置
+    double p_x_fix;
+    double p_y_fix;
+    // 歩行素片のパラメータ
+    double x_bar = 0;
+    double y_bar = 0;
+    double dx_bar = 0;
+    double dy_bar = 0;
 
     // loop. 0: control_cycle: walking_time_max
     int control_step = 0;
@@ -275,6 +284,18 @@ namespace webots_robot_handler
         // 着地位置の取得（後で修正着地位置が代入される）
         p_x_fix = LandingPosition_[walking_step][1];
         p_y_fix = LandingPosition_[walking_step][2];
+
+        // 歩行素片のパラメータを計算 
+        x_bar = (LandingPosition_[walking_step + 1][1] - LandingPosition_[walking_step][1]) / 2;
+        y_bar = LandingPosition_[walking_step + 1][2] / 2;
+        dx_bar = ((C + 1) / (T_c * S)) * x_bar;
+        dy_bar = ((C - 1) / (T_c * S)) * y_bar;
+
+        // 歩行素片の最終状態の目標値
+        x_d = p_x_fix + x_bar;
+        y_d = p_y_fix + y_bar;
+        dx_d = dx_bar;
+        dy_d = dy_bar;
         
         // 値の更新
         T_sup = 0;
