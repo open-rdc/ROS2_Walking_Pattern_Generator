@@ -116,6 +116,7 @@ namespace webots_robot_handler
     weight_ = 3.0;  // [kg]
     length_leg_ = 219.5;  // [mm]
     // TODO: 足踏み。歩行する着地位置を計算して適用すべき
+    // TODO: 両脚がついている直立姿勢からの歩行になっていない。直立姿勢から初期片足支持状態までの、Tsup / 2 時間の分の動作をどうするか、考えて適用すべき。今の状態だと、片足支持状態からの歩行しかできない。
     LandingPosition_ = {{0.0, 0.0, -0.037},  // 歩行パラメータからの着地位置(time, x, y)
                         {0.8, 0.0, 0.037},
                         {1.6, 0.0, -0.037},
@@ -250,19 +251,27 @@ namespace webots_robot_handler
     double dx_d = 0;
     double dy_d = 0;
     // 修正着地位置
-    double p_x_fix;
-    double p_y_fix;
+    double p_x_fix = 0;
+    double p_y_fix = 0;
     // 歩行素片のパラメータ
     double x_bar = 0;
     double y_bar = 0;
     double dx_bar = 0;
     double dy_bar = 0;
+    // 着地点と歩行素片の最終状態の関係
+    double x_f = 0;
+    double y_f = 0;
+    double dx_f = 0;
+    double dy_f = 0;
 
     // loop. 0: control_cycle: walking_time_max
     int control_step = 0;
     int walking_step = 0;
     float walking_time = 0;
     double S, C;
+    // 着地位置の取得（後で修正着地位置が代入される）
+    p_x_fix = LandingPosition_[walking_step][1];
+    p_y_fix = LandingPosition_[walking_step][2];
     while(walking_time <= walking_time_max) {
       // 行を追加
       CoG_2D_Pos.push_back({0, 0});
@@ -281,13 +290,9 @@ namespace webots_robot_handler
 
       // 支持脚切り替えの判定
       if(T_sup == T_sup_max) {
-        // 着地位置の取得（後で修正着地位置が代入される）
-        p_x_fix = LandingPosition_[walking_step][1];
-        p_y_fix = LandingPosition_[walking_step][2];
-
         // 歩行素片のパラメータを計算 
         x_bar = (LandingPosition_[walking_step + 1][1] - LandingPosition_[walking_step][1]) / 2;
-        y_bar = LandingPosition_[walking_step + 1][2] / 2;
+        y_bar = LandingPosition_[walking_step + 1][2];
         dx_bar = ((C + 1) / (T_c * S)) * x_bar;
         dy_bar = ((C - 1) / (T_c * S)) * y_bar;
 
@@ -296,6 +301,14 @@ namespace webots_robot_handler
         y_d = p_y_fix + y_bar;
         dx_d = dx_bar;
         dy_d = dy_bar;
+
+        // 着地点と最終状態
+        x_f = CoG_2D_Pos[control_step][0];
+        y_f = CoG_2D_Pos[control_step][1];
+        dx_f = CoG_2D_Vel[control_step][0];
+        dy_f = CoG_2D_Vel[control_step][1];
+
+        // 評価関数を最小化する着地位置の計算
         
         // 値の更新
         T_sup = 0;
