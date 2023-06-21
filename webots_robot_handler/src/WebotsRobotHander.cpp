@@ -226,15 +226,28 @@ namespace webots_robot_handler
 
     // 重心位置・速度を保持する変数（重心は腰に位置するものとする）
     std::vector<std::array<double, 6>> CoG_2D_Pos;  // {{x0,y0},{x1,y1},{x2,y2}}
-    std::vector<std::array<double, 6>> CoG_2D_Vec;
+    std::vector<std::array<double, 6>> CoG_2D_Vel;
 
-    // 修正着地位置（ｘ）
+    // 修正着地位置
     double p_x_fix;
+    double p_y_fix;
 
     // 時間, 時定数
     float T_sup = 0;  // 0 ~ 支持脚切り替え時間
     float T_sup_max = LandingPosition_[1][0];  // 0.8. 支持脚切り替えタイミング. 歩行素片終端時間
     float T_c = std::sqrt(length_leg_ / 9.81);  // 時定数
+
+    // 各変数
+    // 歩行素片の重心位置・速度 (World座標系)
+    double x_t = 0;
+    double y_t = 0;
+    double dx_t = 0;
+    double dy_t = 0;
+    // 歩行素片の始端の重心位置・速度 (World座標系)
+    double x_0 = 0;
+    double y_0 = 0;
+    double dx_0 = 0;
+    double dy_0 = 0;
 
     // loop. 0: control_cycle: walking_time_max
     int control_step = 0;
@@ -244,23 +257,24 @@ namespace webots_robot_handler
     while(walking_time <= walking_time_max) {
       // 行を追加
       CoG_2D_Pos.push_back({0, 0});
-      CoG_2D_Vec.push_back({0, 0});
+      CoG_2D_Vel.push_back({0, 0});
 
       // sinh(Tsup/Tc), cosh(Tsup/Tc)
       S = std::sinh(T_sup / T_c);
       C = std::cosh(T_sup / T_c);
       
       // 重心位置の計算
-      CoG_2D_Pos[control_step][0] = 0;  // position_x
-      CoG_2D_Pos[control_step][1] = 0;  // position_y
+      CoG_2D_Pos[control_step][0] = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
+      CoG_2D_Pos[control_step][1] = (y_0 - p_y_fix) * C + T_c * dx_0 * S + p_y_fix;  // position_y
       // 重心速度の計算
-      CoG_2D_Vec[control_step][0] = 0;
-      CoG_2D_Vec[control_step][1] = 0;
+      CoG_2D_Vel[control_step][0] = ((x_0 - p_x_fix) / T_c) * S + dx_0 * C;
+      CoG_2D_Vel[control_step][1] = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
 
       // 支持脚切り替えの判定
       if(T_sup == T_sup_max) {
         // 着地位置の取得（後で修正着地位置が代入される）
         p_x_fix = LandingPosition_[walking_step][1];
+        p_y_fix = LandingPosition_[walking_step][2];
         
         // 値の更新
         T_sup = 0;
