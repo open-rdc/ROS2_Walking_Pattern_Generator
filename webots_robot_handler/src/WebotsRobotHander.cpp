@@ -114,7 +114,8 @@ namespace webots_robot_handler
 
     // Dynamic Gait ====
     weight_ = 3.0;  // [kg]
-    length_leg_ = 219.5;  // [mm]
+    // length_leg_ = 219.5;  // [mm] 直立姿勢
+    length_leg_ = 171.856;  // [mm] ちょっと中腰。特異点を回避
     // TODO: 足踏み。歩行する着地位置を計算して適用すべき
     // TODO: 両脚がついている直立姿勢からの歩行になっていない。直立姿勢から初期片足支持状態までの、Tsup / 2 時間の分の動作をどうするか、考えて適用すべき。今の状態だと、片足支持状態からの歩行しかできない。
     LandingPosition_ = {{0.0, 0.0, -0.037},  // 歩行パラメータからの着地位置(time, x, y)
@@ -123,6 +124,12 @@ namespace webots_robot_handler
                         {2.4, 0.0, 0.037},
                         {3.2, 0.0, -0.037},
                         {4.0, 0.0, 0.037}};
+
+    // DEBUG:
+    for(int i = 0; i < 6; i++) {
+      std::cout << LandingPosition_[i][0] << "," << LandingPosition_[i][1] << "," << LandingPosition_[i][2] << std::endl;
+    }
+    std::cout << std::endl;
   }
 
   // TODO: kinematics node でも作って、共有ライブラリにFK・IKともに入れたほうが良いと思う。
@@ -219,7 +226,7 @@ namespace webots_robot_handler
     float control_cycle = 0.01;  // [s]
 
     // 歩行パラメータの最終着地時間[s]を抽出
-    float walking_time_max = LandingPosition_[LandingPosition_.max_size()-1][0];  // TODO: 無駄な変数なので消すべき。わかりやすさ重視 
+    float walking_time_max = LandingPosition_[5][0];  // TODO: 無駄な変数なので消すべき。わかりやすさ重視 
 
     // 重心位置・速度を保持する変数（重心は腰に位置するものとする）
     std::vector<std::array<double, 6>> CoG_2D_Pos;  // {{x0,y0},{x1,y1},{x2,y2}}
@@ -232,10 +239,10 @@ namespace webots_robot_handler
 
     // 各変数
     // 歩行素片の重心位置・速度 (World座標系)
-    double x_t = 0;
-    double y_t = 0;
-    double dx_t = 0;
-    double dy_t = 0;
+    // double x_t = 0;
+    // double y_t = 0;
+    // double dx_t = 0;
+    // double dy_t = 0;
     // 歩行素片の始端の重心位置・速度 (World座標系)
     double x_0 = 0;
     double y_0 = 0;
@@ -274,6 +281,7 @@ namespace webots_robot_handler
     // 着地位置の取得（後で修正着地位置が代入される）
     p_x_fix = LandingPosition_[walking_step][1];
     p_y_fix = LandingPosition_[walking_step][2];
+
     while(walking_time <= walking_time_max) {
       // 行を追加
       CoG_2D_Pos.push_back({0, 0});
@@ -316,6 +324,7 @@ namespace webots_robot_handler
 
         // 評価関数を最小化する着地位置の計算
         p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * x_0 - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * x_0 - C * dx_0);
+        p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * y_0 - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * y_0 - C * dy_0);
 
         // 修正された着地点と最終状態
         x_f = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
@@ -337,6 +346,9 @@ namespace webots_robot_handler
         // 値の更新
         T_sup += control_cycle;
       }
+
+      // DEBUG:
+      std::cout << CoG_2D_Pos[control_step][0] << "," << CoG_2D_Pos[control_step][1] << "," << CoG_2D_Vel[control_step][0] << "," << CoG_2D_Vel[control_step][1] << std::endl;
 
       // 値の更新
       control_step++;
@@ -379,8 +391,7 @@ namespace webots_robot_handler
     DEBUG_ParameterSetting();
 
     // TODO: 歩行パターンを生成する
-
-
+    WalkingPatternGenerate();
 
     for(int tag = 0; tag < 20; tag++) {  // get motor tags & position_sensor tags
       motorsTag_[tag] = wb_robot_get_device(motors_name_[tag].c_str());
@@ -406,31 +417,34 @@ namespace webots_robot_handler
 
     // TODO: 脚、腕と、専用の配列に入れ直すのだから、getJointAng_はもっと最適化できるはず。
     // get current status 
-    for(int tag = 0; tag < 20; tag++) {
-      getJointAng_[tag] = wb_position_sensor_get_value(positionSensorsTag_[tag]);
-    }
-    accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);
-    gyroValue_ = wb_gyro_get_values(gyroTag_);
-    // get leg_joints angle
+    // for(int tag = 0; tag < 20; tag++) {
+    //   getJointAng_[tag] = wb_position_sensor_get_value(positionSensorsTag_[tag]);
+    // }
+    // accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);
+    // gyroValue_ = wb_gyro_get_values(gyroTag_);
+    // // get leg_joints angle
     // for(int tag = 0; tag < 6; tag++) {
     //   Q_legR_[tag] = getJointAng_[jointNum_legR_[tag]];
     //   Q_legL_[tag] = getJointAng_[jointNum_legL_[tag]];
     // }
+    // DEBUG:
+    // auto hoge = FK_.getFK(Q_legR_, P_legR_waist_standard_, 6);
+    // std::cout << hoge << std::endl;
 
-    // CHECKME: setするコードを書き直す。
-    // set joints angle & velocity
-    for(int tag = 0; tag < 6; tag++) {
-      wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]*jointAng_posi_or_nega_legR_[tag]);
-      wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Vel_legR_[0][tag]);
-      wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]*jointAng_posi_or_nega_legL_[tag]);
-      wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Vel_legL_[0][tag]);
-    }
+    // // CHECKME: setするコードを書き直す。
+    // // set joints angle & velocity
+    // for(int tag = 0; tag < 6; tag++) {
+    //   wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]*jointAng_posi_or_nega_legR_[tag]);
+    //   wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Vel_legR_[0][tag]);
+    //   wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]*jointAng_posi_or_nega_legL_[tag]);
+    //   wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Vel_legL_[0][tag]);
+    // }
 
-    // CHECKME: 読んだ歩行パターンを削除
-    WalkingPattern_Pos_legR_.erase(WalkingPattern_Pos_legR_.begin());  // CHECKME: 始端の削除。.begin()のほうが可読性が高いと思う。
-    WalkingPattern_Vel_legR_.erase(WalkingPattern_Vel_legR_.begin());  
-    WalkingPattern_Pos_legL_.erase(WalkingPattern_Pos_legL_.begin()); 
-    WalkingPattern_Vel_legL_.erase(WalkingPattern_Vel_legL_.begin()); 
+    // // CHECKME: 読んだ歩行パターンを削除
+    // WalkingPattern_Pos_legR_.erase(WalkingPattern_Pos_legR_.begin());  // CHECKME: 始端の削除。.begin()のほうが可読性が高いと思う。
+    // WalkingPattern_Vel_legR_.erase(WalkingPattern_Vel_legR_.begin());  
+    // WalkingPattern_Pos_legL_.erase(WalkingPattern_Pos_legL_.begin()); 
+    // WalkingPattern_Vel_legL_.erase(WalkingPattern_Vel_legL_.begin()); 
   }
 
 }

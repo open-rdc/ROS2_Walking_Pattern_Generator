@@ -78,8 +78,8 @@ def generate_launch_description():
     # walking_stabilization_controller,
     webots,
     robotis_op2_driver,
-    # walking_pattern_generator,
-    robot_manager,
+    walking_pattern_generator,
+    # robot_manager,
     launch.actions.RegisterEventHandler(
       event_handler = launch.event_handlers.OnProcessExit(
         target_action = webots,
