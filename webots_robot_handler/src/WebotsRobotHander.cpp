@@ -291,7 +291,11 @@ namespace webots_robot_handler
       CoG_2D_Vel[control_step][1] = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
 
       // 支持脚切り替えの判定
-      if(T_sup == T_sup_max) {
+      if(T_sup == T_sup_max or T_sup == LandingPosition_[walking_step][0]) {
+        // sinh(Tsup/Tc), cosh(Tsup/Tc)
+        S = std::sinh(T_sup_max / T_c);
+        C = std::cosh(T_sup_max / T_c);
+
         // 歩行素片のパラメータを計算 
         x_bar = (LandingPosition_[walking_step + 1][1] - LandingPosition_[walking_step][1]) / 2;
         y_bar = LandingPosition_[walking_step + 1][2];
@@ -311,7 +315,19 @@ namespace webots_robot_handler
         dy_f = CoG_2D_Vel[control_step][1];
 
         // 評価関数を最小化する着地位置の計算
-        // ココに式
+        p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * x_0 - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * x_0 - C * dx_0);
+
+        // 修正された着地点と最終状態
+        x_f = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
+        y_f = (y_0 - p_y_fix) * C + T_c * dx_0 * S + p_y_fix;  // position_y
+        dx_f = ((x_0 - p_x_fix) / T_c) * S + dx_0 * C;
+        dy_f = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
+
+        // 最終状態を歩行素片の初期状態に代入
+        x_0 = x_f;
+        y_0 = y_f;
+        dx_0 = dx_f;
+        dy_0 = dy_f;
         
         // 値の更新
         T_sup = 0;
