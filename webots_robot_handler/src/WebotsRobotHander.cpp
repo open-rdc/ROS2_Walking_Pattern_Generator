@@ -246,7 +246,7 @@ namespace webots_robot_handler
     double y_d = 0;
     double dx_d = 0;
     double dy_d = 0;
-    // 修正着地位置
+    // 支持脚着地位置・修正着地位置
     double p_x_fix = 0;
     double p_y_fix = 0;
     // 歩行素片のパラメータ
@@ -291,14 +291,14 @@ namespace webots_robot_handler
       CoG_2D_Vel[control_step][1] = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
 
       // 支持脚切り替えの判定
-      if(T_sup == T_sup_max or T_sup == LandingPosition_[walking_step][0]) {
-        // sinh(Tsup/Tc), cosh(Tsup/Tc)
+      if(T_sup == T_sup_max) {
+        // sinh(Tsup/Tc), cosh(Tsup/Tc). 特に意味はない。結局if内では、TsupはTsup_maxと等しいので。
         S = std::sinh(T_sup_max / T_c);
         C = std::cosh(T_sup_max / T_c);
 
         // 歩行素片のパラメータを計算 
         x_bar = (LandingPosition_[walking_step + 1][1] - LandingPosition_[walking_step][1]) / 2;
-        y_bar = LandingPosition_[walking_step + 1][2];
+        y_bar = LandingPosition_[walking_step + 1][2];  // /2 をしていないのは、y=0 を身体の中心においているから。
         dx_bar = ((C + 1) / (T_c * S)) * x_bar;
         dy_bar = ((C - 1) / (T_c * S)) * y_bar;
 
@@ -342,6 +342,9 @@ namespace webots_robot_handler
       control_step++;
       walking_time += control_cycle;
     }
+
+    // TODO: CoG の Pos, Vel をグラフで出力してみるべき。C++のgnuplotとかで。Publishしたいが、サイズが可変だからちょい難しいかな？
+    // https://github.com/martinruenz/gnuplot-cpp
 
     // 歩行パラメータの定義
     WalkingPattern_Pos_legR_.push_back({0, 0, 0, 0, 0, 0});  // CHECKME: 歩行パターンの行列に１ステップ分を末端に追加
