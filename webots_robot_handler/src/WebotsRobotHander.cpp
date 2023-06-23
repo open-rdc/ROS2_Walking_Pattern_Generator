@@ -280,9 +280,8 @@ namespace webots_robot_handler
     float walking_time = 0;
     double S, C;  // sinh, cosh の短縮
     // 着地位置の取得（後で修正着地位置が代入される）
-    p_x_fix = LandingPosition_[walking_step][1];
-    p_y_fix = LandingPosition_[walking_step][2];
-    std::cout << p_y_fix << std::endl;
+    p_x_fix = (LandingPosition_[walking_step + 1][1] - LandingPosition_[walking_step][1]) / 2;
+    p_y_fix = LandingPosition_[walking_step + 1][2];
 
     while(walking_time <= walking_time_max) {
       // 行を追加
@@ -301,62 +300,63 @@ namespace webots_robot_handler
       CoG_2D_Vel[control_step][1] = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
 
       // 支持脚切り替えの判定
-      if(T_sup < T_sup_max) {
+      // BUG: T_sup == 0.8 になっても、ifが実行されて、0.81になってしまう。応急処置で、T_sup_max - 0.01
+      if(T_sup < T_sup_max - 0.01) {
         // 値の更新
         T_sup += control_cycle;
       }
-      else if(T_sup == T_sup_max) {
-        std::cout << "################################" << std::endl;
+      else if(T_sup >= T_sup_max - 0.01) {
+        // DEBUG:
+        //std::cout << "################################" << std::endl;
+
+        walking_step++;
+        
         // sinh(Tsup/Tc), cosh(Tsup/Tc). 特に意味はない。結局if内では、TsupはTsup_maxと等しいので。
         S = std::sinh(T_sup_max / T_c);
         C = std::cosh(T_sup_max / T_c);
 
-        // 歩行素片のパラメータを計算 
+        // 次の歩行素片のパラメータを計算 
         x_bar = (LandingPosition_[walking_step + 1][1] - LandingPosition_[walking_step][1]) / 2;
-        y_bar = (LandingPosition_[walking_step + 1][2] - LandingPosition_[walking_step][2]);  // /2 をしていないのは、y=0 を身体の中心においているから。
+        y_bar = (LandingPosition_[walking_step + 1][2]);  // /2 をしていないのは、y=0 を身体の中心においているから。
         dx_bar = ((C + 1) / (T_c * S)) * x_bar;
         dy_bar = ((C - 1) / (T_c * S)) * y_bar;
 
-        // 歩行素片の最終状態の目標値
+        // 次の歩行素片の最終状態の目標値
+        p_x_fix = LandingPosition_[walking_step][1];
+        p_y_fix = LandingPosition_[walking_step][2];
         x_d = p_x_fix + x_bar;
         y_d = p_y_fix + y_bar;
         dx_d = dx_bar;
         dy_d = dy_bar;
 
-        // 着地点と最終状態
-        x_f = CoG_2D_Pos[control_step][0];
-        y_f = CoG_2D_Pos[control_step][1];
-        dx_f = CoG_2D_Vel[control_step][0];
-        dy_f = CoG_2D_Vel[control_step][1];
+        // 次の歩行素片の初期状態を定義
+        x_0 = CoG_2D_Pos[control_step][0];
+        y_0 = CoG_2D_Pos[control_step][1];
+        dx_0 = CoG_2D_Vel[control_step][0];
+        dy_0 = CoG_2D_Vel[control_step][1];
 
-        // 評価関数を最小化する着地位置の計算
-        p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * x_0 - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * x_0 - C * dx_0);
-        p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * y_0 - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * y_0 - C * dy_0);
-
-        // 修正された着地点と最終状態
+        // 次の着地点と最終状態
         x_f = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
         y_f = (y_0 - p_y_fix) * C + T_c * dx_0 * S + p_y_fix;  // position_y
         dx_f = ((x_0 - p_x_fix) / T_c) * S + dx_0 * C;
         dy_f = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
 
-        // 最終状態を歩行素片の初期状態に代入
-        x_0 = x_f;
-        y_0 = y_f;
-        dx_0 = dx_f;
-        dy_0 = dy_f;
+        // 評価関数を最小化する着地位置の計算
+        p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * x_0 - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * x_0 - C * dx_0);
+        p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * y_0 - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * y_0 - C * dy_0);
         
         // 値の更新
-        T_sup = 0;
-        walking_step++;
+        T_sup = 0.01;
       }
 
       // DEBUG:
-      // std::cout << CoG_2D_Pos[control_step][0] << "," << CoG_2D_Pos[control_step][1] << "," << CoG_2D_Vel[control_step][0] << "," << CoG_2D_Vel[control_step][1] << std::endl;
+      std::cout << CoG_2D_Pos[control_step][0] << "," << CoG_2D_Pos[control_step][1] << "," << CoG_2D_Vel[control_step][0] << "," << CoG_2D_Vel[control_step][1] << std::endl;
 
       // 値の更新
       control_step++;
       walking_time += control_cycle;
-      std::cout << control_step << " " << T_sup << " " << walking_time << std::endl;
+      // DEBUG:
+      // std::cout << control_step << " " << T_sup << " " << walking_time << std::endl;
     }
 
     // TODO: CoG の Pos, Vel をグラフで出力してみるべき。C++のgnuplotとかで。Publishしたいが、サイズが可変だからちょい難しいかな？

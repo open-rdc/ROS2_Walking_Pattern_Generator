@@ -33,7 +33,7 @@ with open("../Log/WPG_log.csv") as file:
   for step in range(0, 4010, 10):
     control_step.append(step / 1000)
     
-  mpl.plot(control_step, cog_point_x, cog_point_y, cog_veloc_x, cog_veloc_y)
+  mpl.plot(control_step, cog_point_y)
   # mpl.xticks([0, 1, 2, 3, 4000])
   # mpl.yticks([-0.06, -0.04, -0.02, 0.00, 0.02, 0.04, 0.06])
   mpl.show()
