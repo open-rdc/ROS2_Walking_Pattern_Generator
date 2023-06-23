@@ -235,6 +235,7 @@ namespace webots_robot_handler
     // 時間, 時定数
     float T_sup = 0;  // 0 ~ 支持脚切り替え時間
     float T_sup_max = LandingPosition_[1][0];  // 0.8. 支持脚切り替えタイミング. 歩行素片終端時間
+    // float T_sup_max = 0.80;  // 0.8. 支持脚切り替えタイミング. 歩行素片終端時間
     float T_c = std::sqrt(length_leg_ / 9.81);  // 時定数
 
     // 各変数
@@ -281,6 +282,7 @@ namespace webots_robot_handler
     // 着地位置の取得（後で修正着地位置が代入される）
     p_x_fix = LandingPosition_[walking_step][1];
     p_y_fix = LandingPosition_[walking_step][2];
+    std::cout << p_y_fix << std::endl;
 
     while(walking_time <= walking_time_max) {
       // 行を追加
@@ -293,20 +295,25 @@ namespace webots_robot_handler
       
       // 重心位置の計算
       CoG_2D_Pos[control_step][0] = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
-      CoG_2D_Pos[control_step][1] = (y_0 - p_y_fix) * C + T_c * dx_0 * S + p_y_fix;  // position_y
+      CoG_2D_Pos[control_step][1] = (y_0 - p_y_fix) * C + T_c * dy_0 * S + p_y_fix;  // position_y
       // 重心速度の計算
       CoG_2D_Vel[control_step][0] = ((x_0 - p_x_fix) / T_c) * S + dx_0 * C;
       CoG_2D_Vel[control_step][1] = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
 
       // 支持脚切り替えの判定
-      if(T_sup == T_sup_max) {
+      if(T_sup < T_sup_max) {
+        // 値の更新
+        T_sup += control_cycle;
+      }
+      else if(T_sup == T_sup_max) {
+        std::cout << "################################" << std::endl;
         // sinh(Tsup/Tc), cosh(Tsup/Tc). 特に意味はない。結局if内では、TsupはTsup_maxと等しいので。
         S = std::sinh(T_sup_max / T_c);
         C = std::cosh(T_sup_max / T_c);
 
         // 歩行素片のパラメータを計算 
         x_bar = (LandingPosition_[walking_step + 1][1] - LandingPosition_[walking_step][1]) / 2;
-        y_bar = LandingPosition_[walking_step + 1][2];  // /2 をしていないのは、y=0 を身体の中心においているから。
+        y_bar = (LandingPosition_[walking_step + 1][2] - LandingPosition_[walking_step][2]);  // /2 をしていないのは、y=0 を身体の中心においているから。
         dx_bar = ((C + 1) / (T_c * S)) * x_bar;
         dy_bar = ((C - 1) / (T_c * S)) * y_bar;
 
@@ -342,17 +349,14 @@ namespace webots_robot_handler
         T_sup = 0;
         walking_step++;
       }
-      else {
-        // 値の更新
-        T_sup += control_cycle;
-      }
 
       // DEBUG:
-      std::cout << CoG_2D_Pos[control_step][0] << "," << CoG_2D_Pos[control_step][1] << "," << CoG_2D_Vel[control_step][0] << "," << CoG_2D_Vel[control_step][1] << std::endl;
+      // std::cout << CoG_2D_Pos[control_step][0] << "," << CoG_2D_Pos[control_step][1] << "," << CoG_2D_Vel[control_step][0] << "," << CoG_2D_Vel[control_step][1] << std::endl;
 
       // 値の更新
       control_step++;
       walking_time += control_cycle;
+      std::cout << control_step << " " << T_sup << " " << walking_time << std::endl;
     }
 
     // TODO: CoG の Pos, Vel をグラフで出力してみるべき。C++のgnuplotとかで。Publishしたいが、サイズが可変だからちょい難しいかな？
