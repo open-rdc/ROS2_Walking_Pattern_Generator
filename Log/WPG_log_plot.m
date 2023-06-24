@@ -8,7 +8,7 @@ t = 1:a;
 
 plot(t, WPG_log)
 
-legend("CoG Position X", "CoG Position Y", "CoG Velocity X", "CoG Velocity Y", "p_x_fix", "p_y_fix", "LandingPosition_X", "LandingPosition_Y")
+legend("CoG Position X", "CoG Position Y", "CoG Velocity X", "CoG Velocity Y", "p x fix", "p y fix", "LandingPosition X", "LandingPosition Y")
 xlabel("time")
 
 % reference https://jp.mathworks.com/help/matlab/data_analysis/plotting-data.html

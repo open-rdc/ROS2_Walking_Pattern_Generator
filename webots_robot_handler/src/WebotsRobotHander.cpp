@@ -339,14 +339,14 @@ namespace webots_robot_handler
         dy_0 = CoG_2D_Vel[control_step][1];
 
         // 次の着地点と最終状態
-        x_f = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
-        y_f = (y_0 - p_y_fix) * C + T_c * dx_0 * S + p_y_fix;  // position_y
-        dx_f = ((x_0 - p_x_fix) / T_c) * S + dx_0 * C;
-        dy_f = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
+        // x_f = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
+        // y_f = (y_0 - p_y_fix) * C + T_c * dy_0 * S + p_y_fix;  // position_y
+        // dx_f = ((x_0 - p_x_fix) / T_c) * S + dx_0 * C;
+        // dy_f = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
 
         // 評価関数を最小化する着地位置の計算
-        p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * x_0 - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * x_0 - C * dx_0);
-        p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * y_0 - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * y_0 - C * dy_0);
+        // p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * x_0 - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * x_0 - C * dx_0);
+        // p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * y_0 - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * y_0 - C * dy_0);
         
         // 値の更新
         T_sup = 0.01;
