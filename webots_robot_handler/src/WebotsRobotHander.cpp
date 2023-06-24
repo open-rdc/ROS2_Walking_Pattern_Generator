@@ -126,10 +126,10 @@ namespace webots_robot_handler
                         {4.0, 0.0, 0.037}};
 
     // DEBUG:
-    for(int i = 0; i < 6; i++) {
-      std::cout << LandingPosition_[i][0] << "," << LandingPosition_[i][1] << "," << LandingPosition_[i][2] << std::endl;
-    }
-    std::cout << std::endl;
+    // for(int i = 0; i < 6; i++) {
+    //   std::cout << LandingPosition_[i][0] << "," << LandingPosition_[i][1] << "," << LandingPosition_[i][2] << std::endl;
+    // }
+    // std::cout << std::endl;
   }
 
   // TODO: kinematics node でも作って、共有ライブラリにFK・IKともに入れたほうが良いと思う。
@@ -350,7 +350,7 @@ namespace webots_robot_handler
       }
 
       // DEBUG:
-      std::cout << CoG_2D_Pos[control_step][0] << "," << CoG_2D_Pos[control_step][1] << "," << CoG_2D_Vel[control_step][0] << "," << CoG_2D_Vel[control_step][1] << std::endl;
+      std::cout << CoG_2D_Pos[control_step][0] << " " << CoG_2D_Pos[control_step][1] << " " << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << std::endl;
 
       // 値の更新
       control_step++;
