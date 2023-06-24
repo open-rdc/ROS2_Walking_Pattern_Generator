@@ -280,8 +280,8 @@ namespace webots_robot_handler
     float walking_time = 0;
     double S, C;  // sinh, cosh の短縮
     // 着地位置の取得（後で修正着地位置が代入される）
-    p_x_fix = (LandingPosition_[walking_step + 1][1] - LandingPosition_[walking_step][1]) / 2;
-    p_y_fix = LandingPosition_[walking_step + 1][2];
+    p_x_fix = LandingPosition_[walking_step][1];
+    p_y_fix = LandingPosition_[walking_step][2];
 
     while(walking_time <= walking_time_max) {
       // 行を追加
@@ -316,8 +316,9 @@ namespace webots_robot_handler
         C = std::cosh(T_sup_max / T_c);
 
         // 次の歩行素片のパラメータを計算 
-        x_bar = (LandingPosition_[walking_step + 1][1] - LandingPosition_[walking_step][1]) / 2;
-        y_bar = (LandingPosition_[walking_step + 1][2]);  // /2 をしていないのは、y=0 を身体の中心においているから。
+        x_bar = (LandingPosition_[walking_step][1] - LandingPosition_[walking_step - 1][1]) / 2;
+        y_bar = (LandingPosition_[walking_step][2]);  // /2 をしていないのは、y=0 を身体の中心においているから。
+        
         dx_bar = ((C + 1) / (T_c * S)) * x_bar;
         dy_bar = ((C - 1) / (T_c * S)) * y_bar;
 
@@ -328,6 +329,8 @@ namespace webots_robot_handler
         y_d = p_y_fix + y_bar;
         dx_d = dx_bar;
         dy_d = dy_bar;
+        // DEBUG:
+        // std::cout << y_d << std::endl;
 
         // 次の歩行素片の初期状態を定義
         x_0 = CoG_2D_Pos[control_step][0];
@@ -349,8 +352,12 @@ namespace webots_robot_handler
         T_sup = 0.01;
       }
 
-      // DEBUG:
-      std::cout << CoG_2D_Pos[control_step][0] << " " << CoG_2D_Pos[control_step][1] << " " << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << std::endl;
+      // DEBUG: plot用
+      std::cout << CoG_2D_Pos[control_step][0] << " " << CoG_2D_Pos[control_step][1] << " " 
+                << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << " " 
+                << p_x_fix << " " << p_y_fix << " " 
+                << LandingPosition_[walking_step][1] << " " << LandingPosition_[walking_step][2] 
+      << std::endl;
 
       // 値の更新
       control_step++;
@@ -358,9 +365,6 @@ namespace webots_robot_handler
       // DEBUG:
       // std::cout << control_step << " " << T_sup << " " << walking_time << std::endl;
     }
-
-    // TODO: CoG の Pos, Vel をグラフで出力してみるべき。C++のgnuplotとかで。Publishしたいが、サイズが可変だからちょい難しいかな？
-    // https://github.com/martinruenz/gnuplot-cpp
 
     // 歩行パラメータの定義
     WalkingPattern_Pos_legR_.push_back({0, 0, 0, 0, 0, 0});  // CHECKME: 歩行パターンの行列に１ステップ分を末端に追加
