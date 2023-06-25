@@ -118,11 +118,11 @@ namespace webots_robot_handler
     length_leg_ = 171.856;  // [mm] ちょっと中腰。特異点を回避
     // TODO: 足踏み。歩行する着地位置を計算して適用すべき
     // TODO: 両脚がついている直立姿勢からの歩行になっていない。直立姿勢から初期片足支持状態までの、Tsup / 2 時間の分の動作をどうするか、考えて適用すべき。今の状態だと、片足支持状態からの歩行しかできない。
-    LandingPosition_ = {{0.0, 0.0, -0.074},  // 歩行パラメータからの着地位置(time, x, y)
+    LandingPosition_ = {{0.0, 0.0, 0.0},  // 歩行パラメータからの着地位置(time, x, y)
                         {0.8, 0.0, 0.074},  // 元は、0.037. 基準点を変えている. 
-                        {1.6, 0.0, -0.074},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
+                        {1.6, 0.0, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
                         {2.4, 0.0, 0.074},
-                        {3.2, 0.0, -0.074},
+                        {3.2, 0.0, 0.0},
                         {4.0, 0.0, 0.074}};
 
     // DEBUG:
@@ -246,7 +246,7 @@ namespace webots_robot_handler
     // double dy_t = 0;
     // 歩行素片の始端の重心位置・速度 (World座標系)
     double x_0 = 0;
-    double y_0 = 0;
+    double y_0 = 0.037;
     double dx_0 = 0;
     double dy_0 = 0;
     // 理想の重心位置・速度 (World座標系)
@@ -354,10 +354,10 @@ namespace webots_robot_handler
       }
 
       // DEBUG: plot用
-      std::cout << CoG_2D_Pos[control_step][0] << " " << CoG_2D_Pos[control_step][1] << " " 
+      std::cout << CoG_2D_Pos[control_step][0] << " " << CoG_2D_Pos[control_step][1]-0.037 << " " 
                 << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << " " 
-                << p_x_fix << " " << p_y_fix << " " 
-                << LandingPosition_[walking_step][1] << " " << LandingPosition_[walking_step][2] 
+                << p_x_fix << " " << p_y_fix-0.037 << " " 
+                << LandingPosition_[walking_step][1] << " " << LandingPosition_[walking_step][2]-0.037 
       << std::endl;
 
       // 値の更新
