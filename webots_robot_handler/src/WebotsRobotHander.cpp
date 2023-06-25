@@ -326,8 +326,8 @@ namespace webots_robot_handler
         dy_0 = CoG_2D_Vel[control_step][1];
 
         // 次の歩行素片のパラメータを計算 
-        x_bar = (LandingPosition_[walking_step + 2][1] - LandingPosition_[walking_step + 1][1]) / 2;
-        y_bar = (LandingPosition_[walking_step + 2][2] - LandingPosition_[walking_step + 1][2]) / 2;
+        x_bar = (LandingPosition_[walking_step + 1][1] - LandingPosition_[walking_step][1]) / 2;
+        y_bar = (LandingPosition_[walking_step + 1][2] - LandingPosition_[walking_step][2]) / 2;
         dx_bar = ((C + 1) / (T_c * S)) * x_bar;
         dy_bar = ((C - 1) / (T_c * S)) * y_bar;
 
@@ -340,14 +340,14 @@ namespace webots_robot_handler
         // std::cout << y_d << std::endl;
 
         // // 次の歩行素片の最終状態を定義
-        // x_f = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
-        // y_f = (y_0 - p_y_fix) * C + T_c * dy_0 * S + p_y_fix;  // position_y
-        // dx_f = ((x_0 - p_x_fix) / T_c) * S + dx_0 * C;
-        // dy_f = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
+        x_f = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
+        y_f = (y_0 - p_y_fix) * C + T_c * dy_0 * S + p_y_fix;  // position_y
+        dx_f = ((x_0 - p_x_fix) / T_c) * S + dx_0 * C;
+        dy_f = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
 
         // // 評価関数を最小化する着地位置の計算
-        // p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * x_0 - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * x_0 - C * dx_0);
-        // p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * y_0 - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * y_0 - C * dy_0);
+        p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * x_0 - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * x_0 - C * dx_0);
+        p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * y_0 - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * y_0 - C * dy_0);
         
         // 値の更新
         T_sup = 0.01;
@@ -356,8 +356,8 @@ namespace webots_robot_handler
       // DEBUG: plot用
       std::cout << CoG_2D_Pos[control_step][0] << " " << CoG_2D_Pos[control_step][1]-0.037 << " " 
                 << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << " " 
-                << p_x_fix << " " << p_y_fix-0.037 << " " 
-                << LandingPosition_[walking_step][1] << " " << LandingPosition_[walking_step][2]-0.037 
+                // << p_x_fix << " " << p_y_fix << " " 
+                // << LandingPosition_[walking_step][1] << " " << LandingPosition_[walking_step][2] 
       << std::endl;
 
       // 値の更新

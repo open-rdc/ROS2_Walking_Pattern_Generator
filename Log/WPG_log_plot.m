@@ -10,5 +10,6 @@ plot(t, WPG_log)
 
 legend("CoG Position X", "CoG Position Y", "CoG Velocity X", "CoG Velocity Y", "p x fix", "p y fix", "LandingPosition X", "LandingPosition Y")
 xlabel("time")
+grid on
 
 % reference https://jp.mathworks.com/help/matlab/data_analysis/plotting-data.html
