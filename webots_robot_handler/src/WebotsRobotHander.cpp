@@ -118,12 +118,12 @@ namespace webots_robot_handler
     length_leg_ = 171.856;  // [mm] ちょっと中腰。特異点を回避
     // TODO: 足踏み。歩行する着地位置を計算して適用すべき
     // TODO: 両脚がついている直立姿勢からの歩行になっていない。直立姿勢から初期片足支持状態までの、Tsup / 2 時間の分の動作をどうするか、考えて適用すべき。今の状態だと、片足支持状態からの歩行しかできない。
-    LandingPosition_ = {{0.0, 0.0, -0.037},  // 歩行パラメータからの着地位置(time, x, y)
-                        {0.8, 0.0, 0.037},
-                        {1.6, 0.0, -0.037},
-                        {2.4, 0.0, 0.037},
-                        {3.2, 0.0, -0.037},
-                        {4.0, 0.0, 0.037}};
+    LandingPosition_ = {{0.0, 0.0, -0.074},  // 歩行パラメータからの着地位置(time, x, y)
+                        {0.8, 0.0, 0.074},  // 元は、0.037. 基準点を変えている. 
+                        {1.6, 0.0, -0.074},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
+                        {2.4, 0.0, 0.074},
+                        {3.2, 0.0, -0.074},
+                        {4.0, 0.0, 0.074}};
 
     // DEBUG:
     // for(int i = 0; i < 6; i++) {
@@ -315,22 +315,9 @@ namespace webots_robot_handler
         S = std::sinh(T_sup_max / T_c);
         C = std::cosh(T_sup_max / T_c);
 
-        // 次の歩行素片のパラメータを計算 
-        x_bar = (LandingPosition_[walking_step][1] - LandingPosition_[walking_step - 1][1]) / 2;
-        y_bar = (LandingPosition_[walking_step][2]);  // /2 をしていないのは、y=0 を身体の中心においているから。
-        
-        dx_bar = ((C + 1) / (T_c * S)) * x_bar;
-        dy_bar = ((C - 1) / (T_c * S)) * y_bar;
-
-        // 次の歩行素片の最終状態の目標値
+        // 次の着地位置を取得
         p_x_fix = LandingPosition_[walking_step][1];
         p_y_fix = LandingPosition_[walking_step][2];
-        x_d = p_x_fix + x_bar;
-        y_d = p_y_fix + y_bar;
-        dx_d = dx_bar;
-        dy_d = dy_bar;
-        // DEBUG:
-        // std::cout << y_d << std::endl;
 
         // 次の歩行素片の初期状態を定義
         x_0 = CoG_2D_Pos[control_step][0];
@@ -338,13 +325,27 @@ namespace webots_robot_handler
         dx_0 = CoG_2D_Vel[control_step][0];
         dy_0 = CoG_2D_Vel[control_step][1];
 
-        // 次の着地点と最終状態
+        // 次の歩行素片のパラメータを計算 
+        x_bar = (LandingPosition_[walking_step + 2][1] - LandingPosition_[walking_step + 1][1]) / 2;
+        y_bar = (LandingPosition_[walking_step + 2][2] - LandingPosition_[walking_step + 1][2]) / 2;
+        dx_bar = ((C + 1) / (T_c * S)) * x_bar;
+        dy_bar = ((C - 1) / (T_c * S)) * y_bar;
+
+        // 次の歩行素片の最終状態の目標値
+        x_d = p_x_fix + x_bar;
+        y_d = p_y_fix + y_bar;
+        dx_d = dx_bar;
+        dy_d = dy_bar;
+        // DEBUG:
+        // std::cout << y_d << std::endl;
+
+        // // 次の歩行素片の最終状態を定義
         // x_f = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
         // y_f = (y_0 - p_y_fix) * C + T_c * dy_0 * S + p_y_fix;  // position_y
         // dx_f = ((x_0 - p_x_fix) / T_c) * S + dx_0 * C;
         // dy_f = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
 
-        // 評価関数を最小化する着地位置の計算
+        // // 評価関数を最小化する着地位置の計算
         // p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * x_0 - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * x_0 - C * dx_0);
         // p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * y_0 - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * y_0 - C * dy_0);
         
