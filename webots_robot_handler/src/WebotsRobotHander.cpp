@@ -388,10 +388,10 @@ namespace webots_robot_handler
       }
 
       // DEBUG: plot用
-      std::cout << CoG_2D_Pos[control_step][0] << " " << CoG_2D_Pos[control_step][1] << " " 
-                // << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << " " 
-                << p_x_fix << " " << p_y_fix << " " 
-                << LandingPosition_[walking_step][1] << " " << LandingPosition_[walking_step][2] 
+      std::cout << CoG_2D_Pos[control_step][0] << " " << CoG_2D_Pos[control_step][1]-0.1 << " " 
+                << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << " " 
+                << p_x_fix << " " << p_y_fix-0.1 << " " 
+                << LandingPosition_[walking_step][1] << " " << LandingPosition_[walking_step][2]-0.1
       << std::endl;
 
       // 値の更新
