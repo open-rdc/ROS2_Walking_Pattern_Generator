@@ -269,10 +269,10 @@ namespace webots_robot_handler
     double dx_bar = 0;
     double dy_bar = 0;
     // 着地点と歩行素片の最終状態の関係
-    double x_f = 0;
-    double y_f = 0;
-    double dx_f = 0;
-    double dy_f = 0;
+    // double x_f = 0;
+    // double y_f = 0;
+    // double dx_f = 0;
+    // double dy_f = 0;
 
     // 着地位置修正の最適化での重み
     int opt_weight_pos = 10;
@@ -307,10 +307,10 @@ namespace webots_robot_handler
     // std::cout << y_d << std::endl;
 
     // // 次の歩行素片の最終状態を定義
-    x_f = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
-    y_f = (y_0 - p_y_fix) * C + T_c * dy_0 * S + p_y_fix;  // position_y
-    dx_f = ((x_0 - p_x_fix) / T_c) * S + dx_0 * C;
-    dy_f = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
+    // x_f = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
+    // y_f = (y_0 - p_y_fix) * C + T_c * dy_0 * S + p_y_fix;  // position_y
+    // dx_f = ((x_0 - p_x_fix) / T_c) * S + dx_0 * C;
+    // dy_f = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
 
     // // 評価関数を最小化する着地位置の計算
     p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * x_0 - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * x_0 - C * dx_0);
@@ -374,10 +374,10 @@ namespace webots_robot_handler
         // std::cout << y_d << std::endl;
 
         // // 次の歩行素片の最終状態を定義
-        x_f = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
-        y_f = (y_0 - p_y_fix) * C + T_c * dy_0 * S + p_y_fix;  // position_y
-        dx_f = ((x_0 - p_x_fix) / T_c) * S + dx_0 * C;
-        dy_f = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
+        // x_f = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
+        // y_f = (y_0 - p_y_fix) * C + T_c * dy_0 * S + p_y_fix;  // position_y
+        // dx_f = ((x_0 - p_x_fix) / T_c) * S + dx_0 * C;
+        // dy_f = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
 
         // // 評価関数を最小化する着地位置の計算
         p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * x_0 - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * x_0 - C * dx_0);
@@ -388,6 +388,7 @@ namespace webots_robot_handler
       }
 
       // DEBUG: plot用
+      // TODO: ちゃんとファイルを読み込んで、そこにLogを吐くようにすべき。それも複数種類。可変長の配列をMessageが扱えれば一番いいが。
       std::cout << CoG_2D_Pos[control_step][0] << " " << CoG_2D_Pos[control_step][1]-(LandingPosition_[1][2]/2) << " " 
                 << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << " " 
                 << p_x_fix << " " << p_y_fix-(LandingPosition_[1][2]/2) << " " 
