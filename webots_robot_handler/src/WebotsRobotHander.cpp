@@ -115,21 +115,21 @@ namespace webots_robot_handler
     // Dynamic Gait ====
     weight_ = 3.0;  // [kg]
     // length_leg_ = 219.5;  // [mm] 直立姿勢
-    length_leg_ = 0.8;  // [m] ちょっと中腰。特異点を回避
+    length_leg_ = 171.856 / 1000;  // [m] ちょっと中腰。特異点を回避
     // TODO: 足踏み。歩行する着地位置を計算して適用すべき
     // TODO: 両脚がついている直立姿勢からの歩行になっていない。直立姿勢から初期片足支持状態までの、Tsup / 2 時間の分の動作をどうするか、考えて適用すべき。今の状態だと、片足支持状態からの歩行しかできない。
-    // LandingPosition_ = {{0.0, 0.0, 0.0},  // 歩行パラメータからの着地位置(time, x, y)
-    //                     {0.8, 0.0, 0.074},  // 元は、0.037. 基準点を変えている. 
-    //                     {1.6, 0.07, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
-    //                     {2.4, 0.14, 0.074},
-    //                     {3.2, 0.21, 0.0},
-    //                     {4.0, 0.21, 0.074}};
     LandingPosition_ = {{0.0, 0.0, 0.0},  // 歩行パラメータからの着地位置(time, x, y)
-                        {0.8, 0.0, 0.2},  // 元は、0.037. 基準点を変えている. 
-                        {1.6, 0.3, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
-                        {2.4, 0.6, 0.2},
-                        {3.2, 0.9, 0.0},
-                        {4.0, 0.9, 0.2}};
+                        {0.8, 0.0, 0.074},  // 元は、0.037. 基準点を変えている. 
+                        {1.6, 0.0, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
+                        {2.4, 0.0, 0.074},
+                        {3.2, 0.0, 0.0},
+                        {4.0, 0.0, 0.074}};
+    // LandingPosition_ = {{0.0, 0.0, 0.0},  // 教科書のパラメータに合わせた 
+    //                     {0.8, 0.0, 0.2},  
+    //                     {1.6, 0.3, 0.0},  
+    //                     {2.4, 0.6, 0.2},
+    //                     {3.2, 0.9, 0.0},
+    //                     {4.0, 0.9, 0.2}};
 
     // DEBUG:
     // for(int i = 0; i < 6; i++) {
@@ -388,10 +388,10 @@ namespace webots_robot_handler
       }
 
       // DEBUG: plot用
-      std::cout << CoG_2D_Pos[control_step][0] << " " << CoG_2D_Pos[control_step][1]-0.1 << " " 
+      std::cout << CoG_2D_Pos[control_step][0] << " " << CoG_2D_Pos[control_step][1]-(LandingPosition_[1][2]/2) << " " 
                 << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << " " 
-                << p_x_fix << " " << p_y_fix-0.1 << " " 
-                << LandingPosition_[walking_step][1] << " " << LandingPosition_[walking_step][2]-0.1
+                << p_x_fix << " " << p_y_fix-(LandingPosition_[1][2]/2) << " " 
+                << LandingPosition_[walking_step][1] << " " << LandingPosition_[walking_step][2]-(LandingPosition_[1][2]/2)
       << std::endl;
 
       // 値の更新
