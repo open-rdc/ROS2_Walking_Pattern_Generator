@@ -252,7 +252,7 @@ namespace webots_robot_handler
     // double dy_t = 0;
     // 歩行素片の始端の重心位置・速度 (World座標系)
     double x_0 = 0;
-    double y_0 = 0;
+    double y_0 = 0.0;
     double dx_0 = 0;
     double dy_0 = 0;
     // 理想の重心位置・速度 (World座標系)
