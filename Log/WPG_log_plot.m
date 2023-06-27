@@ -8,7 +8,8 @@ t = 1:a;
 
 plot(t, WPG_log)
 
-legend("CoG Position X", "CoG Position Y", "CoG Velocity X", "CoG Velocity Y", "p x fix", "p y fix", "LandingPosition X", "LandingPosition Y")
+% legend("CoG Position X", "CoG Position Y", "CoG Velocity X", "CoG Velocity Y", "p x fix", "p y fix", "LandingPosition X", "LandingPosition Y")
+legend("CoG Position X", "CoG Position Y", "p x fix", "p y fix", "LandingPosition X", "LandingPosition Y")
 xlabel("time")
 grid on
 
