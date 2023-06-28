@@ -2,7 +2,7 @@
 #include "pluginlib/class_list_macros.hpp"
 
 #include "rclcpp/rclcpp.hpp"
-#include <fstream>
+#include <fstream>  // Logをファイルに吐くため
 #include <rmw/qos_profiles.h>
 #include "msgs_package/msg/control_output.hpp"
 #include "msgs_package/msg/feedback.hpp"
@@ -56,7 +56,7 @@ namespace webots_robot_handler
     jointAng_posi_or_nega_legR_ = {-1, -1, 1, 1, -1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
     jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
 
-    // 単位ベクトルの設定。これもParameterやURDF, Protoから得たい。
+    // TODO: 単位ベクトルの設定。これもParameterやURDF, Protoから得たい。
     UnitVec_legR_ = {  // legR joint unit vector
       Vector3d(0, 0, 1),
       Vector3d(1, 0, 0),
@@ -115,28 +115,14 @@ namespace webots_robot_handler
 
     // Dynamic Gait ====
     weight_ = 3.0;  // [kg]
-    // length_leg_ = 219.5;  // [mm] 直立姿勢
-    length_leg_ = 171.856 / 1000;  // [m] ちょっと中腰。特異点を回避
+    length_leg_ = 171.856 / 1000;  // [m] ちょっと中腰。特異点を回避。直立：219.5[mm]
     // TODO: 足踏み。歩行する着地位置を計算して適用すべき
-    // TODO: 両脚がついている直立姿勢からの歩行になっていない。直立姿勢から初期片足支持状態までの、Tsup / 2 時間の分の動作をどうするか、考えて適用すべき。今の状態だと、片足支持状態からの歩行しかできない。
     LandingPosition_ = {{0.0, 0.0, 0.037},  // 歩行パラメータからの着地位置(time, x, y)
                         {0.8, 0.0, 0.074},  // 元は、0.037. 基準点を変えている. 
                         {1.6, 0.0, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
                         {2.4, 0.0, 0.074},
                         {3.2, 0.0, 0.0},
                         {4.0, 0.0, 0.074}};
-    // LandingPosition_ = {{0.0, 0.0, 0.0},  // 教科書のパラメータに合わせた 
-    //                     {0.8, 0.0, 0.2},  
-    //                     {1.6, 0.3, 0.0},  
-    //                     {2.4, 0.6, 0.2},
-    //                     {3.2, 0.9, 0.0},
-    //                     {4.0, 0.9, 0.2}};
-
-    // DEBUG:
-    // for(int i = 0; i < 6; i++) {
-    //   std::cout << LandingPosition_[i][0] << "," << LandingPosition_[i][1] << "," << LandingPosition_[i][2] << std::endl;
-    // }
-    // std::cout << std::endl;
   }
 
   // TODO: kinematics node でも作って、共有ライブラリにFK・IKともに入れたほうが良いと思う。
@@ -222,12 +208,6 @@ namespace webots_robot_handler
 
   // TODO: 歩行パターンを生成する
   void WebotsRobotHandler::WalkingPatternGenerate() {
-    // flow
-    // 1. loop(0.01[s]刻み、数[s])
-    // 2. 重心位置計算
-    // 3. if(支持脚切り替えタイミングか否か)
-    //   4. True: 支持脚切り替え・P_leg切り替え、歩行素片初期重心位置でIKを解いて歩行パターンへpushback
-    //   5. False: 重心位置でIKを解いて歩行パターンへpushback
 
     // DEBUG: Logを吐くファイルを指定
     std::ofstream LogFile;
@@ -247,15 +227,8 @@ namespace webots_robot_handler
     // 時間, 時定数
     float T_sup = 0;  // 0 ~ 支持脚切り替え時間
     float T_sup_max = LandingPosition_[1][0];  // 0.8. 支持脚切り替えタイミング. 歩行素片終端時間
-    // float T_sup_max = 0.80;  // 0.8. 支持脚切り替えタイミング. 歩行素片終端時間
     float T_c = std::sqrt(length_leg_ / 9.81);  // 時定数
 
-    // 各変数
-    // 歩行素片の重心位置・速度 (World座標系)
-    // double x_t = 0;
-    // double y_t = 0;
-    // double dx_t = 0;
-    // double dy_t = 0;
     // 歩行素片の始端の重心位置・速度 (World座標系)
     double x_0 = 0;
     double y_0 = 0.037;
@@ -274,11 +247,6 @@ namespace webots_robot_handler
     double y_bar = 0;
     double dx_bar = 0;
     double dy_bar = 0;
-    // 着地点と歩行素片の最終状態の関係
-    // double x_f = 0;
-    // double y_f = 0;
-    // double dx_f = 0;
-    // double dy_f = 0;
 
     // 着地位置修正の最適化での重み
     int opt_weight_pos = 10;
@@ -291,11 +259,13 @@ namespace webots_robot_handler
     int walking_step = 0;
     float walking_time = 0;
     double S, C;  // sinh, cosh の短縮
-    // 着地位置の取得（後で修正着地位置が代入される）
-    // TODO: ここでも着地位置修正をおこなうべき。
+
+    // 初期着地位置の取得
     p_x_fix = LandingPosition_[walking_step][1];
     p_y_fix = LandingPosition_[walking_step][2];
     
+  // 初期着地位置の修正
+    // sinh, cosh
     S = std::sinh(T_sup_max / T_c);
     C = std::cosh(T_sup_max / T_c);
     // 次の歩行素片のパラメータを計算 
@@ -303,32 +273,22 @@ namespace webots_robot_handler
     y_bar = (LandingPosition_[walking_step + 1][2] - LandingPosition_[walking_step][2]) / 2;
     dx_bar = ((C + 1) / (T_c * S)) * x_bar;
     dy_bar = ((C - 1) / (T_c * S)) * y_bar;
-
     // 次の歩行素片の最終状態の目標値
     x_d = p_x_fix + x_bar;
     y_d = p_y_fix + y_bar;
     dx_d = dx_bar;
     dy_d = dy_bar;
-    // DEBUG:
-    // std::cout << y_d << std::endl;
-
-    // // 次の歩行素片の最終状態を定義
-    // x_f = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
-    // y_f = (y_0 - p_y_fix) * C + T_c * dy_0 * S + p_y_fix;  // position_y
-    // dx_f = ((x_0 - p_x_fix) / T_c) * S + dx_0 * C;
-    // dy_f = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
-
-    // // 評価関数を最小化する着地位置の計算
+    // 評価関数を最小化する着地位置の計算
     p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * x_0 - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * x_0 - C * dx_0);
     p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * y_0 - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * y_0 - C * dy_0);
 
-
+    // 歩行パターンの生成
     while(walking_time <= walking_time_max) {
       // 行を追加
       CoG_2D_Pos.push_back({0, 0});
       CoG_2D_Vel.push_back({0, 0});
 
-      // sinh(Tsup/Tc), cosh(Tsup/Tc)
+      // sinh(Tsup/Tc), cosh(Tsup/Tc). 0 <= Tsup <= Tsup_max(=0.8)
       S = std::sinh(T_sup / T_c);
       C = std::cosh(T_sup / T_c);
       
@@ -346,9 +306,7 @@ namespace webots_robot_handler
         T_sup += control_cycle;
       }
       else if(T_sup >= T_sup_max - 0.01) {
-        // DEBUG:
-        //std::cout << "################################" << std::endl;
-
+        // stepの更新
         walking_step++;
         
         // sinh(Tsup/Tc), cosh(Tsup/Tc). 特に意味はない。結局if内では、TsupはTsup_maxと等しいので。
@@ -376,16 +334,8 @@ namespace webots_robot_handler
         y_d = p_y_fix + y_bar;
         dx_d = dx_bar;
         dy_d = dy_bar;
-        // DEBUG:
-        // std::cout << y_d << std::endl;
 
-        // // 次の歩行素片の最終状態を定義
-        // x_f = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
-        // y_f = (y_0 - p_y_fix) * C + T_c * dy_0 * S + p_y_fix;  // position_y
-        // dx_f = ((x_0 - p_x_fix) / T_c) * S + dx_0 * C;
-        // dy_f = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
-
-        // // 評価関数を最小化する着地位置の計算
+        // 評価関数を最小化する着地位置の計算
         p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * x_0 - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * x_0 - C * dx_0);
         p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * y_0 - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * y_0 - C * dy_0);
         
@@ -394,7 +344,7 @@ namespace webots_robot_handler
       }
 
       // DEBUG: plot用
-      // TODO: 複数のファイルを読み込んで、複数種類のLogを吐くようにすべき。可変長の配列をMessageが扱えれば一番いいが。
+      // TODO: 複数のファイルを読み込んで、複数種類のLogを吐くようにすべき。可変長の配列をMessageをPublishが扱えれば一番いいが。
       LogFile << CoG_2D_Pos[control_step][0] << " " << CoG_2D_Pos[control_step][1]-(LandingPosition_[1][2]/2) << " " 
                 << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << " " 
                 << p_x_fix << " " << p_y_fix-(LandingPosition_[1][2]/2) << " " 
@@ -404,13 +354,13 @@ namespace webots_robot_handler
       // 値の更新
       control_step++;
       walking_time += control_cycle;
-      // DEBUG:
-      // std::cout << control_step << " " << T_sup << " " << walking_time << std::endl;
     }
     // DEBUG: Log file close
     LogFile.close();
 
-    // 歩行パラメータの定義
+    // 遊脚軌道の生成
+
+    // IKと歩行パラメータの定義
     WalkingPattern_Pos_legR_.push_back({0, 0, 0, 0, 0, 0});  // CHECKME: 歩行パターンの行列に１ステップ分を末端に追加
     WalkingPattern_Vel_legR_.push_back({0, 0, 0, 0, 0, 0});
     WalkingPattern_Pos_legL_.push_back({0, 0, 0, 0, 0, 0});
