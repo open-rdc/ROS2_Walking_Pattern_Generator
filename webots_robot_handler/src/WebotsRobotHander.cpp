@@ -2,6 +2,7 @@
 #include "pluginlib/class_list_macros.hpp"
 
 #include "rclcpp/rclcpp.hpp"
+#include <fstream>
 #include <rmw/qos_profiles.h>
 #include "msgs_package/msg/control_output.hpp"
 #include "msgs_package/msg/feedback.hpp"
@@ -228,6 +229,11 @@ namespace webots_robot_handler
     //   4. True: 支持脚切り替え・P_leg切り替え、歩行素片初期重心位置でIKを解いて歩行パターンへpushback
     //   5. False: 重心位置でIKを解いて歩行パターンへpushback
 
+    // DEBUG: Logを吐くファイルを指定
+    std::ofstream LogFile;
+    std::string LogFile_name = "src/Log/WPG_log.dat";
+    LogFile.open(LogFile_name, std::ios::out);
+
     // 制御周期
     float control_cycle = 0.01;  // [s]
 
@@ -388,8 +394,8 @@ namespace webots_robot_handler
       }
 
       // DEBUG: plot用
-      // TODO: ちゃんとファイルを読み込んで、そこにLogを吐くようにすべき。それも複数種類。可変長の配列をMessageが扱えれば一番いいが。
-      std::cout << CoG_2D_Pos[control_step][0] << " " << CoG_2D_Pos[control_step][1]-(LandingPosition_[1][2]/2) << " " 
+      // TODO: 複数のファイルを読み込んで、複数種類のLogを吐くようにすべき。可変長の配列をMessageが扱えれば一番いいが。
+      LogFile << CoG_2D_Pos[control_step][0] << " " << CoG_2D_Pos[control_step][1]-(LandingPosition_[1][2]/2) << " " 
                 << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << " " 
                 << p_x_fix << " " << p_y_fix-(LandingPosition_[1][2]/2) << " " 
                 << LandingPosition_[walking_step][1] << " " << LandingPosition_[walking_step][2]-(LandingPosition_[1][2]/2)
@@ -401,6 +407,8 @@ namespace webots_robot_handler
       // DEBUG:
       // std::cout << control_step << " " << T_sup << " " << walking_time << std::endl;
     }
+    // DEBUG: Log file close
+    LogFile.close();
 
     // 歩行パラメータの定義
     WalkingPattern_Pos_legR_.push_back({0, 0, 0, 0, 0, 0});  // CHECKME: 歩行パターンの行列に１ステップ分を末端に追加
