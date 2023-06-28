@@ -118,7 +118,7 @@ namespace webots_robot_handler
     length_leg_ = 171.856 / 1000;  // [m] ちょっと中腰。特異点を回避
     // TODO: 足踏み。歩行する着地位置を計算して適用すべき
     // TODO: 両脚がついている直立姿勢からの歩行になっていない。直立姿勢から初期片足支持状態までの、Tsup / 2 時間の分の動作をどうするか、考えて適用すべき。今の状態だと、片足支持状態からの歩行しかできない。
-    LandingPosition_ = {{0.0, 0.0, 0.0},  // 歩行パラメータからの着地位置(time, x, y)
+    LandingPosition_ = {{0.0, 0.0, 0.037},  // 歩行パラメータからの着地位置(time, x, y)
                         {0.8, 0.0, 0.074},  // 元は、0.037. 基準点を変えている. 
                         {1.6, 0.0, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
                         {2.4, 0.0, 0.074},
@@ -232,7 +232,7 @@ namespace webots_robot_handler
     float control_cycle = 0.01;  // [s]
 
     // 歩行パラメータの最終着地時間[s]を抽出
-    float walking_time_max = LandingPosition_[5][0];  // TODO: 無駄な変数なので消すべき。わかりやすさ重視 
+    float walking_time_max = LandingPosition_[LandingPosition_.size()-1][0];  // TODO: 無駄な変数なので消すべき。わかりやすさ重視 
 
     // 重心位置・速度を保持する変数（重心は腰に位置するものとする）
     std::vector<std::array<double, 6>> CoG_2D_Pos;  // {{x0,y0},{x1,y1},{x2,y2}}
@@ -252,7 +252,7 @@ namespace webots_robot_handler
     // double dy_t = 0;
     // 歩行素片の始端の重心位置・速度 (World座標系)
     double x_0 = 0;
-    double y_0 = 0.0;
+    double y_0 = 0.037;
     double dx_0 = 0;
     double dy_0 = 0;
     // 理想の重心位置・速度 (World座標系)
