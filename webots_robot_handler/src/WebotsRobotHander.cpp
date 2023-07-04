@@ -358,13 +358,21 @@ namespace webots_robot_handler
     // DEBUG: Log file close
     LogFile.close();
 
-    // 遊脚軌道の生成
+    // 遊脚軌道に必要な変数の定義
+    float height_leg_lift = 0.05;  // 足上げ高さ [m]
+    double swing_trajectory;  // 遊脚軌道の値を記録したい。
+    T_sup = 0;
 
-    // IKと歩行パラメータの定義
+    // 重心位置から遊脚軌道（正弦波）を引く。支持脚に応じて遊脚も切り替えるから、0.8[s]ごとに切り替える。
+    // 遊脚軌道を反映するのは、IK解いて歩行パラメータを生成するloop内で一緒にやる。
+    // 遊脚軌道の式：z = height_leg_lift * sin((pi / T_sup_max) * T_sup)   0 <= T_sup <= T_sup_max(=0.8[s])
+
+    // IKと歩行パラメータの定義・遊脚軌道の反映
     WalkingPattern_Pos_legR_.push_back({0, 0, 0, 0, 0, 0});  // CHECKME: 歩行パターンの行列に１ステップ分を末端に追加
     WalkingPattern_Vel_legR_.push_back({0, 0, 0, 0, 0, 0});
     WalkingPattern_Pos_legL_.push_back({0, 0, 0, 0, 0, 0});
     WalkingPattern_Vel_legL_.push_back({0, 0, 0, 0, 0, 0});
+    
   }
 
   // マネージャからのCallback関数
