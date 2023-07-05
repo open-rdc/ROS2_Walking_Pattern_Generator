@@ -114,7 +114,7 @@ namespace webots_robot_handler
       const double *accelerometerValue_;  
       const double *gyroValue_;
 
-
+      int wait_step;  // DEBUG: 初期姿勢になるまで待機するstep数
   };
 }
 

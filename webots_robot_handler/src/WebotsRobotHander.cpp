@@ -372,7 +372,7 @@ namespace webots_robot_handler
     LogFile.close();
 
     // 遊脚軌道に必要な変数の定義
-    float height_leg_lift = 0.05;  // 足上げ高さ [m]
+    float height_leg_lift = 0.01;  // 足上げ高さ [m]
     double swing_trajectory;  // 遊脚軌道の値を記録したい。
     T_sup = 0;
     walking_time = 0;
@@ -566,6 +566,8 @@ namespace webots_robot_handler
       wb_motor_set_velocity(motorsTag_[tag], initJointVel_[tag]);
     }
     
+    // DEBUG:
+    wait_step = 800;
   }
 
   void WebotsRobotHandler::step() {
@@ -587,20 +589,26 @@ namespace webots_robot_handler
     // auto hoge = FK_.getFK(Q_legR_, P_legR_waist_standard_, 6);
     // std::cout << hoge << std::endl;
 
-    // // CHECKME: setするコードを書き直す。
-    // // set joints angle & velocity
-    // for(int tag = 0; tag < 6; tag++) {
-    //   wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]*jointAng_posi_or_nega_legR_[tag]);
-    //   wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Vel_legR_[0][tag]);
-    //   wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]*jointAng_posi_or_nega_legL_[tag]);
-    //   wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Vel_legL_[0][tag]);
-    // }
+    // DEBUG: 初期姿勢が完了するまでwait
+    if(wait_step != 0) {
+      wait_step--;
+    }
+    else if(wait_step == 0) {
+      // CHECKME: setするコードを書き直す。
+      // set joints angle & velocity
+      for(int tag = 0; tag < 6; tag++) {
+        wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]*jointAng_posi_or_nega_legR_[tag]);
+        wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], std::abs(WalkingPattern_Vel_legR_[0][tag]));
+        wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]*jointAng_posi_or_nega_legL_[tag]);
+        wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], std::abs(WalkingPattern_Vel_legL_[0][tag]));
+      }
 
-    // // CHECKME: 読んだ歩行パターンを削除
-    // WalkingPattern_Pos_legR_.erase(WalkingPattern_Pos_legR_.begin());  // CHECKME: 始端の削除。.begin()のほうが可読性が高いと思う。
-    // WalkingPattern_Vel_legR_.erase(WalkingPattern_Vel_legR_.begin());  
-    // WalkingPattern_Pos_legL_.erase(WalkingPattern_Pos_legL_.begin()); 
-    // WalkingPattern_Vel_legL_.erase(WalkingPattern_Vel_legL_.begin()); 
+      // CHECKME: 読んだ歩行パターンを削除
+      WalkingPattern_Pos_legR_.erase(WalkingPattern_Pos_legR_.begin());  // CHECKME: 始端の削除。.begin()のほうが可読性が高いと思う。
+      WalkingPattern_Vel_legR_.erase(WalkingPattern_Vel_legR_.begin());  
+      WalkingPattern_Pos_legL_.erase(WalkingPattern_Pos_legL_.begin()); 
+      WalkingPattern_Vel_legL_.erase(WalkingPattern_Vel_legL_.begin()); 
+    }
   }
 
 }
