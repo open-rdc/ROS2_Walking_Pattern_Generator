@@ -127,7 +127,6 @@ namespace webots_robot_handler
                         {3.2, 0.0, 0.0},
                         {4.0, 0.0, 0.074}};
 
-
     // DEBUG: Jacobian関数のテスト
     // Q_legR_ = {0, 0, -3.14/8, 3.14/4, -3.14/8, 0};
     // Q_legL_ = {0, 0, -3.14/8, 3.14/4, -3.14/8, 0};
@@ -137,6 +136,7 @@ namespace webots_robot_handler
   }
 
   // TODO: kinematics node でも作って、共有ライブラリにFK・IKともに入れたほうが良いと思う。
+  // TODO: 返り値をVoidではなく、Jacobianを返すべき。分かりづらい。
   void WebotsRobotHandler::JacobiMatrix_leg(std::array<double, 6> Q_legR, std::array<double, 6> Q_legL) {
     Jacobi_legR_ = MatrixXd::Zero(6, UnitVec_legR_.max_size());
     Jacobi_legL_ = MatrixXd::Zero(6, UnitVec_legR_.max_size());
@@ -384,8 +384,11 @@ namespace webots_robot_handler
     // 遊脚軌道の式：z = height_leg_lift * sin((pi / T_sup_max) * T_sup)   0 <= T_sup <= T_sup_max(=0.8[s])
 
     // IKと歩行パラメータの定義・遊脚軌道の反映
-    Eigen::Vector3d CoG_3D_Pos;
-    Eigen::Vector3d CoG_3D_Pos_Swing;
+    Eigen::Vector<double, 3> CoG_3D_Pos;
+    Eigen::Vector<double, 3> CoG_3D_Pos_Swing;
+    Eigen::Vector<double, 6> CoG_3D_Vel;
+    Eigen::Vector<double, 6> jointVel_legR;
+    Eigen::Vector<double, 6> jointVel_legL;
     while(walking_time <= walking_time_max) {
 
       // 支持脚切替タイミングの判定
@@ -409,7 +412,17 @@ namespace webots_robot_handler
         CoG_2D_Pos[control_step][1]-LandingPosition_[0][2],  // y (基準点を右足接地点から胴体真下にするために、-0.037)
         length_leg_ - swing_trajectory // z (遊脚軌道をzから引く) 
       };
-      
+
+      // 重心速度の定義
+      CoG_3D_Vel = {
+        CoG_2D_Vel[control_step][0],  // liner x
+        CoG_2D_Vel[control_step][1],  // liner y
+        0,  // liner z
+        0,  // rotation x
+        0,  // rotation y
+        0   // rotation z
+      };
+
       // 支持脚の判定
       // 両脚支持期
       if(LandingPosition_[walking_step][2] == 0.037) {
@@ -427,11 +440,18 @@ namespace webots_robot_handler
           R_target_leg
         );
 
+        // Jacobianの計算、Jacobianを記憶するクラス変数の更新
+        JacobiMatrix_leg(Q_legR_, Q_legL_);
+
+        // 各関節速度の計算
+        jointVel_legR = Jacobi_legR_.inverse()*CoG_3D_Vel;
+        jointVel_legL = Jacobi_legL_.inverse()*CoG_3D_Vel;
+
         // 歩行パラメータの代入
         WalkingPattern_Pos_legR_.push_back(Q_legR_);
-        WalkingPattern_Vel_legR_.push_back({0, 0, 0, 0, 0, 0});
+        WalkingPattern_Vel_legR_.push_back({jointVel_legR[0], jointVel_legR[1], jointVel_legR[2], jointVel_legR[3], jointVel_legR[4], jointVel_legR[5]});  // eigen::vectorをstd::arrayに変換するためにこうしている。
         WalkingPattern_Pos_legL_.push_back(Q_legL_);
-        WalkingPattern_Vel_legL_.push_back({0, 0, 0, 0, 0, 0});
+        WalkingPattern_Vel_legL_.push_back({jointVel_legL[0], jointVel_legL[1], jointVel_legL[2], jointVel_legL[3], jointVel_legL[4], jointVel_legL[5]});
       }
       // 左脚支持期
       else if(LandingPosition_[walking_step][2] > 0.037) {
@@ -449,11 +469,18 @@ namespace webots_robot_handler
           R_target_leg
         );
 
+        // Jacobianの計算、Jacobianを記憶するクラス変数の更新
+        JacobiMatrix_leg(Q_legR_, Q_legL_);
+
+        // 各関節速度の計算
+        jointVel_legR = Jacobi_legR_.inverse()*CoG_3D_Vel;
+        jointVel_legL = Jacobi_legL_.inverse()*CoG_3D_Vel;
+
         // 歩行パラメータの代入
         WalkingPattern_Pos_legR_.push_back(Q_legR_);  // 遊脚
-        WalkingPattern_Vel_legR_.push_back({0, 0, 0, 0, 0, 0});
+        WalkingPattern_Vel_legR_.push_back({jointVel_legR[0], jointVel_legR[1], jointVel_legR[2], jointVel_legR[3], jointVel_legR[4], jointVel_legR[5]});
         WalkingPattern_Pos_legL_.push_back(Q_legL_);  // 支持脚
-        WalkingPattern_Vel_legL_.push_back({0, 0, 0, 0, 0, 0});
+        WalkingPattern_Vel_legL_.push_back({jointVel_legL[0], jointVel_legL[1], jointVel_legL[2], jointVel_legL[3], jointVel_legL[4], jointVel_legL[5]});
       }
       // 右脚支持期
       else if(LandingPosition_[walking_step][2] < 0.037) {
@@ -471,11 +498,18 @@ namespace webots_robot_handler
           R_target_leg
         );
 
+        // Jacobianの計算、Jacobianを記憶するクラス変数の更新
+        JacobiMatrix_leg(Q_legR_, Q_legL_);
+
+        // 各関節速度の計算
+        jointVel_legR = Jacobi_legR_.inverse()*CoG_3D_Vel;
+        jointVel_legL = Jacobi_legL_.inverse()*CoG_3D_Vel;
+
         // 歩行パラメータの代入
         WalkingPattern_Pos_legR_.push_back(Q_legR_);  // 支持脚
-        WalkingPattern_Vel_legR_.push_back({0, 0, 0, 0, 0, 0});
+        WalkingPattern_Vel_legR_.push_back({jointVel_legR[0], jointVel_legR[1], jointVel_legR[2], jointVel_legR[3], jointVel_legR[4], jointVel_legR[5]});
         WalkingPattern_Pos_legL_.push_back(Q_legL_);  // 遊脚
-        WalkingPattern_Vel_legL_.push_back({0, 0, 0, 0, 0, 0});
+        WalkingPattern_Vel_legL_.push_back({jointVel_legL[0], jointVel_legL[1], jointVel_legL[2], jointVel_legL[3], jointVel_legL[4], jointVel_legL[5]});
       }
 
       // 更新
