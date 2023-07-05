@@ -123,7 +123,7 @@ namespace webots_robot_handler
     LandingPosition_ = {{0.0, 0.0, 0.037},  // 歩行パラメータからの着地位置(time, x, y)
                         {0.8, 0.0, 0.074},  // 元は、0.037. 基準点を変えている. 
                         {1.6, 0.0, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
-                        {2.4, 0.0, 0.074},
+                        {2.4, 0.0, 0.074},  // TODO: そもそもコレの基準点を胴体の真下でも通じるようにするべき。
                         {3.2, 0.0, 0.0},
                         {4.0, 0.0, 0.074}};
 
@@ -141,39 +141,12 @@ namespace webots_robot_handler
     Jacobi_legR_ = MatrixXd::Zero(6, UnitVec_legR_.max_size());
     Jacobi_legL_ = MatrixXd::Zero(6, UnitVec_legR_.max_size());
 
-//     // -TODO: ココは書き換える必要がある。
-// // ココから
-//     auto toKine_FK_req = std::make_shared<msgs_package::srv::ToKinematicsMessage::Request>();
-
-//     toKine_FK_req->q_target_r = Q_legR;
-//     toKine_FK_req->q_target_l = Q_legL;
-
-        // CHECKME: 確認すべき
-        for(int joint_point = 0; joint_point < int(UnitVec_legR_.max_size()); joint_point++) {
-          P_FK_legR_[joint_point] = FK_.getFK(Q_legR, P_legR_waist_standard_, joint_point);
-          P_FK_legL_[joint_point] = FK_.getFK(Q_legL, P_legL_waist_standard_, joint_point);
-          // std::cout << P_FK_legR_[joint_point] << std::endl;
-          // std::cout << P_FK_legL_[joint_point] << std::endl;
-        }
-
-//     for(int i = 0; i < int(UnitVec_legR_.max_size()); i++) {
-//       toKine_FK_req->fk_point = i; 
-
-//       auto toKine_FK_res = toKine_FK_clnt_->async_send_request(
-//         toKine_FK_req, 
-//         [this, i](const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future) {
-//           P_FK_legR_[i] = {future.get()->p_result_r[0], future.get()->p_result_r[1], future.get()->p_result_r[2]};
-//           P_FK_legL_[i] = {future.get()->p_result_l[0], future.get()->p_result_l[1], future.get()->p_result_l[2]};
-//         }
-//       );
-//       rclcpp::spin_until_future_complete(this->get_node_base_interface(), toKine_FK_res);
-
-//       // std::cout << i << std::endl;
-//       // std::cout << "legR: " << P_FK_legR_[i].transpose() << std::endl;
-//       // std::cout << "legL: " << P_FK_legL_[i].transpose() << std::endl;
-//     }
-//     std::cout << std::endl;
-// // ココまで
+    for(int joint_point = 0; joint_point < int(UnitVec_legR_.max_size()); joint_point++) {
+      P_FK_legR_[joint_point] = FK_.getFK(Q_legR, P_legR_waist_standard_, joint_point);
+      P_FK_legL_[joint_point] = FK_.getFK(Q_legL, P_legL_waist_standard_, joint_point);
+      // std::cout << P_FK_legR_[joint_point] << std::endl;
+      // std::cout << P_FK_legL_[joint_point] << std::endl;
+    }
 
     Vector3d mat_legR = Vector3d::Zero(3);
     Vector3d mat_legL = Vector3d::Zero(3);
@@ -193,22 +166,6 @@ namespace webots_robot_handler
         mat_legR = UnitVec_legR_[tag].cross(pt_P_legR);
         mat_legL = UnitVec_legL_[tag].cross(pt_P_legL);
       }
-
-      // // 異常値への対処
-      // for(int i = 0; i < 3; i++) {
-      //   if(abs(mat_legR[i]) < 0.000001) {
-      //     mat_legR[i] = 0;
-      //   }
-      //   if(abs(mat_legL[i]) < 0.000001) {
-      //     mat_legL[i] = 0;
-      //   }
-      //   if(abs(mat_legR[i]) > 10000000) {
-      //     mat_legR[i] = 0;
-      //   }
-      //   if(abs(mat_legL[i]) > 10000000) {
-      //     mat_legL[i] = 0;
-      //   }
-      // }
 
       for(int i = 0; i < 3; i++) {
         Jacobi_legR_(i, tag) = mat_legR[i];
@@ -371,7 +328,7 @@ namespace webots_robot_handler
 
     // 遊脚軌道に必要な変数の定義
     float height_leg_lift = 0.01;  // 足上げ高さ [m]
-    double swing_trajectory;  // 遊脚軌道の値を記録したい。
+    double swing_trajectory;  // 遊脚軌道の値を記録
     T_sup = 0;
     walking_time = 0;
     walking_step = 0;
@@ -411,6 +368,7 @@ namespace webots_robot_handler
         length_leg_ - swing_trajectory // z (遊脚軌道をzから引く) 
       };
 
+      // DEBUG: Logの吐き出し
       LogFile << CoG_3D_Pos.transpose() << " " << CoG_3D_Pos_Swing.transpose() << std::endl;
 
       // 重心速度の定義
@@ -431,7 +389,7 @@ namespace webots_robot_handler
         // IK
         Q_legR_ = IK_.getIK(  // IKを解いて、各関節角度を取得
           P_legR_waist_standard_,  // 脚の各リンク長
-          CoG_3D_Pos,  // 重心位置 
+          CoG_3D_Pos_Swing,  // 重心位置 
           R_target_leg  // 足の回転行列。床面と並行なので、ただの単位行列。
         );
         Q_legL_ = IK_.getIK(
@@ -552,7 +510,8 @@ namespace webots_robot_handler
     // TODO: 歩行パターンを生成する
     WalkingPatternGenerate();
 
-    for(int tag = 0; tag < 20; tag++) {  // get motor tags & position_sensor tags
+    // get motor tags & position_sensor tags
+    for(int tag = 0; tag < 20; tag++) {  
       motorsTag_[tag] = wb_robot_get_device(motors_name_[tag].c_str());
       positionSensorsTag_[tag] = wb_robot_get_device((motors_name_[tag]+"S").c_str());
       wb_position_sensor_enable(positionSensorsTag_[tag], 1);  // enable & sampling_period: 100[ms]
@@ -562,15 +521,17 @@ namespace webots_robot_handler
     gyroTag_ = wb_robot_get_device("Gyro");
     wb_gyro_enable(gyroTag_, 1);  // enable & sampling_period: 100[ms]
 
-    // RCLCPP_INFO(node_->get_logger(), "Set init joints_angle.");
-    for(int tag = 0; tag < 20; tag++) {  // set init position & value
+    // set init position & value
+    // TODO: 脚の初期姿勢（特に位置）はIKの解から与えたい。今は角度を決め打ちで与えているので、初期姿勢の変更がめっちゃめんどくさい。
+    // jointNum_legR_とかを使って、ここでIKを解いてinitJointAng_の指定列に結果を代入すればOK
+    for(int tag = 0; tag < 20; tag++) {  
       getJointAng_[tag] = 0;
       wb_motor_set_position(motorsTag_[tag], initJointAng_[tag]);
       wb_motor_set_velocity(motorsTag_[tag], initJointVel_[tag]);
     }
     
     // DEBUG:
-    wait_step = 800;
+    wait_step = 500;
   }
 
   void WebotsRobotHandler::step() {
@@ -597,20 +558,27 @@ namespace webots_robot_handler
       wait_step--;
     }
     else if(wait_step == 0) {
-      // CHECKME: setするコードを書き直す。
-      // set joints angle & velocity
-      for(int tag = 0; tag < 6; tag++) {
-        wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]*jointAng_posi_or_nega_legR_[tag]);
-        wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], std::abs(WalkingPattern_Vel_legR_[0][tag]));
-        wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]*jointAng_posi_or_nega_legL_[tag]);
-        wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], std::abs(WalkingPattern_Vel_legL_[0][tag]));
+      // DEBUG:
+      if(control_step <= int(WalkingPattern_Pos_legR_.size()-1)) {
+
+        // CHECKME: setするコードを書き直す。
+        // set joints angle & velocity
+        for(int tag = 0; tag < 6; tag++) {
+          wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[control_step][tag]*jointAng_posi_or_nega_legR_[tag]);
+          wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], std::abs(WalkingPattern_Vel_legR_[control_step][tag]));  // マイナスだと怒られるので、絶対値を取る
+          wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[control_step][tag]*jointAng_posi_or_nega_legL_[tag]);
+          wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], std::abs(WalkingPattern_Vel_legL_[control_step][tag]));
+        }
+
+        // // CHECKME: 読んだ歩行パターンを削除
+        // WalkingPattern_Pos_legR_.erase(WalkingPattern_Pos_legR_.begin());  // CHECKME: 始端の削除。.begin()のほうが可読性が高いと思う。
+        // WalkingPattern_Vel_legR_.erase(WalkingPattern_Vel_legR_.begin());  
+        // WalkingPattern_Pos_legL_.erase(WalkingPattern_Pos_legL_.begin()); 
+        // WalkingPattern_Vel_legL_.erase(WalkingPattern_Vel_legL_.begin()); 
+
       }
 
-      // CHECKME: 読んだ歩行パターンを削除
-      WalkingPattern_Pos_legR_.erase(WalkingPattern_Pos_legR_.begin());  // CHECKME: 始端の削除。.begin()のほうが可読性が高いと思う。
-      WalkingPattern_Vel_legR_.erase(WalkingPattern_Vel_legR_.begin());  
-      WalkingPattern_Pos_legL_.erase(WalkingPattern_Pos_legL_.begin()); 
-      WalkingPattern_Vel_legL_.erase(WalkingPattern_Vel_legL_.begin()); 
+      control_step++;  // DEBUG: 
     }
   }
 
