@@ -67,12 +67,17 @@ namespace webots_robot_handler
       std::array<Eigen::Vector3d, 6> UnitVec_legR_;
       std::array<Eigen::Vector3d, 6> UnitVec_legL_;
 
-      std::array<Eigen::Matrix3d, 6> R_legR_;
+      // std::array<Eigen::Matrix3d, 6> R_legR_;
       std::array<Eigen::Vector3d, 7> P_legR_;
       std::array<Eigen::Vector3d, 7> P_legR_waist_standard_;
-      std::array<Eigen::Matrix3d, 6> R_legL_;
+      // std::array<Eigen::Matrix3d, 6> R_legL_;
       std::array<Eigen::Vector3d, 7> P_legL_;
       std::array<Eigen::Vector3d, 7> P_legL_waist_standard_;
+
+      Eigen::Matrix<double, 3, 3> R_target_leg;
+
+      std::array<double, 6> Q_legR_;
+      std::array<double, 6> Q_legL_;
 
 // == init() ==
 
@@ -109,8 +114,6 @@ namespace webots_robot_handler
       const double *accelerometerValue_;  
       const double *gyroValue_;
 
-      std::array<double, 6> Q_legR_;
-      std::array<double, 6> Q_legL_;
 
   };
 }

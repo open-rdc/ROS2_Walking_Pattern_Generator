@@ -112,6 +112,9 @@ namespace webots_robot_handler
         Vector3d(0, 0, 0),
         Vector3d(0, 0, 0)
     };
+    R_target_leg << 1, 0, 0,
+                    0, 1, 0,
+                    0, 0, 1;  // Legの末端の回転行列。床面と並行にしたいので、ただの単位行列。
 
     // Dynamic Gait ====
     weight_ = 3.0;  // [kg]
@@ -371,46 +374,101 @@ namespace webots_robot_handler
     // 遊脚軌道の式：z = height_leg_lift * sin((pi / T_sup_max) * T_sup)   0 <= T_sup <= T_sup_max(=0.8[s])
 
     // IKと歩行パラメータの定義・遊脚軌道の反映
+    Eigen::Vector3d CoG_3D_Pos;
+    Eigen::Vector3d CoG_3D_Pos_Swing;
     while(walking_time <= walking_time_max) {
 
       // 支持脚切替タイミングの判定
       if(T_sup >= T_sup_max - 0.01) {
+        // 支持脚切替のための更新
         T_sup = 0;
         walking_step++;
       }
+
+      // 遊脚軌道（正弦波）の計算
+      swing_trajectory = height_leg_lift * std::sin((3.141592/T_sup_max)*T_sup);
+
+      // 重心位置の定義
+      CoG_3D_Pos = {
+        CoG_2D_Pos[control_step][0],  // x 
+        CoG_2D_Pos[control_step][1]-LandingPosition_[0][2],  // y (基準点を右足接地点から胴体真下にするために、-0.037)
+        length_leg_  // z 
+      };
+      CoG_3D_Pos_Swing = {
+        CoG_2D_Pos[control_step][0],  // x 
+        CoG_2D_Pos[control_step][1]-LandingPosition_[0][2],  // y (基準点を右足接地点から胴体真下にするために、-0.037)
+        length_leg_ - swing_trajectory // z (遊脚軌道をzから引く) 
+      };
       
       // 支持脚の判定
       // 両脚支持期
       if(LandingPosition_[walking_step][2] == 0.037) {
         // 両脚支持。遊脚はないので、左右どちらも重心位置からIKを解く。
 
+        // IK
+        Q_legR_ = IK_.getIK(  // IKを解いて、各関節角度を取得
+          P_legR_waist_standard_,  // 脚の各リンク長
+          CoG_3D_Pos,  // 重心位置 
+          R_target_leg  // 足の回転行列。床面と並行なので、ただの単位行列。
+        );
+        Q_legL_ = IK_.getIK(
+          P_legL_waist_standard_,
+          CoG_3D_Pos,
+          R_target_leg
+        );
+
         // 歩行パラメータの代入
-        WalkingPattern_Pos_legR_.push_back({0, 0, 0, 0, 0, 0});
+        WalkingPattern_Pos_legR_.push_back(Q_legR_);
         WalkingPattern_Vel_legR_.push_back({0, 0, 0, 0, 0, 0});
-        WalkingPattern_Pos_legL_.push_back({0, 0, 0, 0, 0, 0});
+        WalkingPattern_Pos_legL_.push_back(Q_legL_);
         WalkingPattern_Vel_legL_.push_back({0, 0, 0, 0, 0, 0});
       }
       // 左脚支持期
       else if(LandingPosition_[walking_step][2] > 0.037) {
         // 左脚支持。右脚遊脚。
 
+        // IK
+        Q_legR_ = IK_.getIK(
+          P_legR_waist_standard_,
+          CoG_3D_Pos_Swing, 
+          R_target_leg
+        );
+        Q_legL_ = IK_.getIK(
+          P_legL_waist_standard_,
+          CoG_3D_Pos,
+          R_target_leg
+        );
+
         // 歩行パラメータの代入
-        WalkingPattern_Pos_legR_.push_back({0, 0, 0, 0, 0, 0});  // 遊脚
+        WalkingPattern_Pos_legR_.push_back(Q_legR_);  // 遊脚
         WalkingPattern_Vel_legR_.push_back({0, 0, 0, 0, 0, 0});
-        WalkingPattern_Pos_legL_.push_back({0, 0, 0, 0, 0, 0});
+        WalkingPattern_Pos_legL_.push_back(Q_legL_);  // 支持脚
         WalkingPattern_Vel_legL_.push_back({0, 0, 0, 0, 0, 0});
       }
       // 右脚支持期
       else if(LandingPosition_[walking_step][2] < 0.037) {
         // 右脚支持。左脚遊脚。
 
+        // IK
+        Q_legR_ = IK_.getIK(
+          P_legR_waist_standard_,
+          CoG_3D_Pos, 
+          R_target_leg
+        );
+        Q_legL_ = IK_.getIK(
+          P_legL_waist_standard_,
+          CoG_3D_Pos_Swing,
+          R_target_leg
+        );
+
         // 歩行パラメータの代入
-        WalkingPattern_Pos_legR_.push_back({0, 0, 0, 0, 0, 0});
+        WalkingPattern_Pos_legR_.push_back(Q_legR_);  // 支持脚
         WalkingPattern_Vel_legR_.push_back({0, 0, 0, 0, 0, 0});
-        WalkingPattern_Pos_legL_.push_back({0, 0, 0, 0, 0, 0});  // 遊脚
+        WalkingPattern_Pos_legL_.push_back(Q_legL_);  // 遊脚
         WalkingPattern_Vel_legL_.push_back({0, 0, 0, 0, 0, 0});
       }
 
+      // 更新
       control_step++;
       T_sup += control_cycle;
       walking_time += control_cycle;
