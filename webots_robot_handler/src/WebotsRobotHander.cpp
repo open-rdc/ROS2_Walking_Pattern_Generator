@@ -129,11 +129,11 @@ namespace webots_robot_handler
 
 
     // DEBUG: Jacobian関数のテスト
-    Q_legR_ = {0, 0, -3.14/8, 3.14/4, -3.14/8, 0};
-    Q_legL_ = {0, 0, -3.14/8, 3.14/4, -3.14/8, 0};
-    JacobiMatrix_leg(Q_legR_, Q_legL_);
-    std::cout << "\n" << Jacobi_legR_ << "\n" << std::endl;
-    std::cout << "\n" << Jacobi_legL_ << "\n" << std::endl;
+    // Q_legR_ = {0, 0, -3.14/8, 3.14/4, -3.14/8, 0};
+    // Q_legL_ = {0, 0, -3.14/8, 3.14/4, -3.14/8, 0};
+    // JacobiMatrix_leg(Q_legR_, Q_legL_);
+    // std::cout << "\n" << Jacobi_legR_ << "\n" << std::endl;
+    // std::cout << "\n" << Jacobi_legL_ << "\n" << std::endl;
   }
 
   // TODO: kinematics node でも作って、共有ライブラリにFK・IKともに入れたほうが良いと思う。
@@ -188,8 +188,8 @@ namespace webots_robot_handler
         // P_FK_legR_[int(UnitVec_legR_.max_size())-1]: 股関節の座標を取得（基準座標から股関節までの距離を含まないFKの結果を取得）
         pt_P_legR = P_FK_legR_[int(UnitVec_legR_.max_size())-1] - P_FK_legR_[tag];
         pt_P_legL = P_FK_legL_[int(UnitVec_legL_.max_size())-1] - P_FK_legL_[tag];
-        std::cout << "pt_P_legR: " << pt_P_legR.transpose() << ", " << P_FK_legR_[int(UnitVec_legR_.max_size())-1].transpose() << ", " << P_FK_legR_[tag].transpose() << std::endl;
-        std::cout << "pt_P_legL: " << pt_P_legL.transpose() << ", " << P_FK_legL_[int(UnitVec_legL_.max_size())-1].transpose() << ", " << P_FK_legL_[tag].transpose() << std::endl;
+        // std::cout << "pt_P_legR: " << pt_P_legR.transpose() << ", " << P_FK_legR_[int(UnitVec_legR_.max_size())-1].transpose() << ", " << P_FK_legR_[tag].transpose() << std::endl;
+        // std::cout << "pt_P_legL: " << pt_P_legL.transpose() << ", " << P_FK_legL_[int(UnitVec_legL_.max_size())-1].transpose() << ", " << P_FK_legL_[tag].transpose() << std::endl;
         mat_legR = UnitVec_legR_[tag].cross(pt_P_legR);
         mat_legL = UnitVec_legL_[tag].cross(pt_P_legL);
       }
