@@ -319,15 +319,15 @@ namespace webots_robot_handler
 
       // DEBUG: plot用
       // TODO: 複数のファイルを読み込んで、複数種類のLogを吐くようにすべき。可変長の配列をMessageをPublishが扱えれば一番いいが。
-      LogFile << CoG_2D_Pos_world[control_step][0] << " " << CoG_2D_Pos_world[control_step][1]-(LandingPosition_[1][2]/2) << " " 
-                << CoG_2D_Pos_local[control_step][0] << " " << CoG_2D_Pos_local[control_step][1]-(LandingPosition_[1][2]/2) << " " 
-                << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << " " 
-                << p_x_fix << " " << p_y_fix-(LandingPosition_[1][2]/2) << " " 
-                << LandingPosition_[walking_step][1] << " " << LandingPosition_[walking_step][2]-(LandingPosition_[1][2]/2)
-      << std::endl;
+      // LogFile << CoG_2D_Pos_world[control_step][0] << " " << CoG_2D_Pos_world[control_step][1]-(LandingPosition_[1][2]/2) << " " 
+      //           << CoG_2D_Pos_local[control_step][0] << " " << CoG_2D_Pos_local[control_step][1]-(LandingPosition_[1][2]/2) << " " 
+      //           << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << " " 
+      //           << p_x_fix << " " << p_y_fix-(LandingPosition_[1][2]/2) << " " 
+      //           << LandingPosition_[walking_step][1] << " " << LandingPosition_[walking_step][2]-(LandingPosition_[1][2]/2)
+      // << std::endl;
 
       // DEBUG: Log file close
-      LogFile.close();
+      // LogFile.close();
 
       // 値の更新
       control_step++;
@@ -335,7 +335,7 @@ namespace webots_robot_handler
     }
 
     // 遊脚軌道に必要な変数の定義
-    float height_leg_lift = 0.03;  // 足上げ高さ [m]
+    float height_leg_lift = 0.05;  // 足上げ高さ [m]
     double swing_trajectory;  // 遊脚軌道の値を記録
     T_sup = 0;
     walking_time = 0;
@@ -347,8 +347,8 @@ namespace webots_robot_handler
     // 遊脚軌道の式：z = height_leg_lift * sin((pi / T_sup_max) * T_sup)   0 <= T_sup <= T_sup_max(=0.8[s])
 
     // IKと歩行パラメータの定義・遊脚軌道の反映
-    Eigen::Vector<double, 3> CoG_3D_Pos;
-    Eigen::Vector<double, 3> CoG_3D_Pos_Swing;
+    Eigen::Vector<double, 3> Foot_3D_Pos;
+    Eigen::Vector<double, 3> Foot_3D_Pos_Swing;
     Eigen::Vector<double, 6> CoG_3D_Vel;
     Eigen::Vector<double, 6> jointVel_legR;
     Eigen::Vector<double, 6> jointVel_legL;
@@ -364,20 +364,20 @@ namespace webots_robot_handler
       // 遊脚軌道（正弦波）の計算
       swing_trajectory = height_leg_lift * std::sin((3.141592/T_sup_max)*T_sup);
 
-      // 重心位置の定義
-      CoG_3D_Pos = {
-        CoG_2D_Pos_local[control_step][0],  // x 
-        CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2],  // y (基準点を右足接地点から胴体真下にするために、-0.037)
+      // 重心位置を元とした足位置の定義
+      Foot_3D_Pos = {
+        LandingPosition_[walking_step][1]-CoG_2D_Pos_local[control_step][0],  // x 
+        (LandingPosition_[walking_step][2]-LandingPosition_[0][2])-(CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),  // y (基準点を右足接地点から胴体真下にするために、-0.037). 現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
         -length_leg_  // z 
       };
-      CoG_3D_Pos_Swing = {
-        CoG_2D_Pos_local[control_step][0],  // x 
-        CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2],  // y (基準点を右足接地点から胴体真下にするために、-0.037)
+      Foot_3D_Pos_Swing = {
+        CoG_2D_Pos_local[control_step][0]-LandingPosition_[walking_step][1],  // x 
+        -(CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2])-(LandingPosition_[walking_step][2]-LandingPosition_[0][2]),  // y (基準点を右足接地点から胴体真下にするために、-0.037). 現重心位置ー現着地位置、Xなら脚を後ろから前に出すイメージ。
         -length_leg_ + swing_trajectory // z (遊脚軌道をzから引く) 
       };
 
       // DEBUG: Logの吐き出し
-      // LogFile << CoG_3D_Pos.transpose() << " " << CoG_3D_Pos_Swing.transpose() << std::endl;
+      LogFile << CoG_2D_Pos_world[control_step][0] << " " << CoG_2D_Pos_world[control_step][1]-LandingPosition_[0][2] << " " << Foot_3D_Pos.transpose() << " " << Foot_3D_Pos_Swing.transpose() << std::endl;
 
       // 重心速度の定義
       CoG_3D_Vel = {
@@ -397,12 +397,12 @@ namespace webots_robot_handler
         // IK
         Q_legR_ = IK_.getIK(  // IKを解いて、各関節角度を取得
           P_legR_waist_standard_,  // 脚の各リンク長
-          CoG_3D_Pos_Swing,  // 重心位置 
+          Foot_3D_Pos_Swing,  // 重心位置 
           R_target_leg  // 足の回転行列。床面と並行なので、ただの単位行列。
         );
         Q_legL_ = IK_.getIK(
           P_legL_waist_standard_,
-          CoG_3D_Pos,
+          Foot_3D_Pos,
           R_target_leg
         );
 
@@ -426,12 +426,12 @@ namespace webots_robot_handler
         // IK
         Q_legR_ = IK_.getIK(
           P_legR_waist_standard_,
-          CoG_3D_Pos_Swing, 
+          Foot_3D_Pos_Swing, 
           R_target_leg
         );
         Q_legL_ = IK_.getIK(
           P_legL_waist_standard_,
-          CoG_3D_Pos,
+          Foot_3D_Pos,
           R_target_leg
         );
 
@@ -455,12 +455,12 @@ namespace webots_robot_handler
         // IK
         Q_legR_ = IK_.getIK(
           P_legR_waist_standard_,
-          CoG_3D_Pos, 
+          Foot_3D_Pos, 
           R_target_leg
         );
         Q_legL_ = IK_.getIK(
           P_legL_waist_standard_,
-          CoG_3D_Pos_Swing,
+          Foot_3D_Pos_Swing,
           R_target_leg
         );
 
