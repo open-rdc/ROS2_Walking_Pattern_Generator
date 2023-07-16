@@ -28,12 +28,12 @@ f1 = figure;
 f2 = figure;
 figure(f1);
 plot3(t, xc, z1, t, y1, z1, t, y2, z2)
-legend("CoG Pos (t, y, z)", "Foot Pos of Support Leg relative to CoG Pos (t, y, z)", "Foot Pos of Swing Leg relative to CoG Pos (t, y, z)")
+legend("-", "Foot Pos of Support Leg relative to CoG Pos (t, y, z)", "Foot Pos of Swing Leg relative to CoG Pos (t, y, z)")
 grid on
 
 figure(f2);
 plot(t, xc, t, y1, t, y2)
-legend("CoG Pos (t, y)", "Foot Pos of Support Leg relative to CoG Pos (t, y)", "Foot Pos of Swing Leg relative to CoG Pos (t, y)")
+legend("-", "Foot Pos of Support Leg relative to CoG Pos (t, y)", "Foot Pos of Swing Leg relative to CoG Pos (t, y)")
 grid on
 
 f3 = figure;

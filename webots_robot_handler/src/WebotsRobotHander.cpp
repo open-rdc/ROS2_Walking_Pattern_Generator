@@ -384,8 +384,36 @@ namespace webots_robot_handler
           -length_leg_
         };
       }
-      // TODO: 前着地位置が0.037だった場合の処理を書くべき。Y軸のwalking_step-1を含む式の解が好ましくないものになる。
-      // TODO: 次着地位置が0.037だった場合の処理を書くべき。Y軸のwalking_step-1を含む式の解が好ましくないものになる。
+      // -TODO: 前着地位置が0.037だった場合の処理を書くべき。遊脚Y軸のwalking_step-1を含む式の解が好ましくないものになる。
+        // 歩行周期の前半を、重心位置を無視して遊脚Y軸の値を変更しないようにすれば良いはず。
+        // TODO: もっとキレイにできるはず。歩行開始時の歩行周期の最後に得られた遊脚軌道のY軸を記録しておいて、そこよりも０に近い値を取らないようにすればいい。下限を設定してやればいい。
+      else if(LandingPosition_[walking_step-1][2] == 0.037) {
+        Foot_3D_Pos = {
+          LandingPosition_[walking_step][1]-CoG_2D_Pos_local[control_step][0],  // x 
+          (LandingPosition_[walking_step][2]-LandingPosition_[0][2])-(CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),  // y (基準点を右足接地点から胴体真下にするために、-0.037). 現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
+          -length_leg_  // z 
+        };
+        Foot_3D_Pos_Swing = {
+          LandingPosition_[walking_step-1][1]+((LandingPosition_[walking_step+1][1]-LandingPosition_[walking_step-1][1])*(t/T_sup)),  // 前FP+(次FP-前FP)*t/Tsup
+          (LandingPosition_[walking_step+1][2]-LandingPosition_[0][2])+(((LandingPosition_[walking_step+1][2]-LandingPosition_[0][2])-(LandingPosition_[walking_step+1][2]-LandingPosition_[0][2]))*(t/T_sup)) - (CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),  // 前FP+(次FP-前FP)*t/Tsup - 重心位置
+          -length_leg_ + swing_trajectory // z (遊脚軌道をzから引く) 
+        };
+      }
+      // -TODO: 次着地位置が0.037だった場合の処理を書くべき。遊脚Y軸のwalking_step-1を含む式の解が好ましくないものになる。
+        // 次着地位置を参照せずに、前着地位置と次着地位置の差分を０と扱えばいい。つまり、walking_step+1をwalking_step-1に変えれば良いだけなはず。
+        // -TODO: もっとキレイにできるはず。
+      else if(LandingPosition_[walking_step+1][2] == 0.037) {
+        Foot_3D_Pos = {
+          LandingPosition_[walking_step][1]-CoG_2D_Pos_local[control_step][0],  // x 
+          (LandingPosition_[walking_step][2]-LandingPosition_[0][2])-(CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),  // y (基準点を右足接地点から胴体真下にするために、-0.037). 現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
+          -length_leg_  // z 
+        };
+        Foot_3D_Pos_Swing = {
+          LandingPosition_[walking_step-1][1]+((LandingPosition_[walking_step+1][1]-LandingPosition_[walking_step-1][1])*(t/T_sup)),  // 前FP+(次FP-前FP)*t/Tsup
+          (LandingPosition_[walking_step-1][2]-LandingPosition_[0][2])+(((LandingPosition_[walking_step-1][2]-LandingPosition_[0][2])-(LandingPosition_[walking_step-1][2]-LandingPosition_[0][2]))*(t/T_sup)) - (CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),  // 前FP+(次FP-前FP)*t/Tsup - 重心位置
+          -length_leg_ + swing_trajectory // z (遊脚軌道をzから引く) 
+        };
+      }
       else {
         Foot_3D_Pos = {
           LandingPosition_[walking_step][1]-CoG_2D_Pos_local[control_step][0],  // x 
