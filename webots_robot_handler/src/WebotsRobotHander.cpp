@@ -199,8 +199,8 @@ namespace webots_robot_handler
     std::vector<std::array<double, 2>> CoG_2D_Vel;
 
     // 時間, 時定数
-    float T_sup = 0;  // 0 ~ 支持脚切り替え時間
-    float T_sup_max = LandingPosition_[1][0];  // 0.8. 支持脚切り替えタイミング. 歩行素片終端時間
+    float t = 0;  // 0 ~ 支持脚切り替え時間
+    float T_sup = LandingPosition_[1][0];  // 0.8. 支持脚切り替えタイミング. 歩行素片終端時間
     float T_c = std::sqrt(length_leg_ / 9.81);  // 時定数
 
     // 歩行素片の始端の重心位置・速度 (World座標系)
@@ -226,7 +226,7 @@ namespace webots_robot_handler
     int opt_weight_pos = 10;
     int opt_weight_vel = 1;
     // 最適化のときのマテリアル
-    double D = opt_weight_pos * std::pow((std::cosh(T_sup_max / T_c) - 1), 2) + opt_weight_vel * std::pow((std::sinh(T_sup_max / T_c) / T_c), 2);  
+    double D = opt_weight_pos * std::pow((std::cosh(T_sup / T_c) - 1), 2) + opt_weight_vel * std::pow((std::sinh(T_sup / T_c) / T_c), 2);  
 
     // loop. 0: control_cycle: walking_time_max
     int control_step = 0;
@@ -240,8 +240,8 @@ namespace webots_robot_handler
     
   // 初期着地位置の修正
     // sinh, cosh
-    S = std::sinh(T_sup_max / T_c);
-    C = std::cosh(T_sup_max / T_c);
+    S = std::sinh(T_sup / T_c);
+    C = std::cosh(T_sup / T_c);
     // 次の歩行素片のパラメータを計算 
     x_bar = (LandingPosition_[walking_step + 1][1] - LandingPosition_[walking_step][1]) / 2;
     y_bar = (LandingPosition_[walking_step + 1][2] - LandingPosition_[walking_step][2]) / 2;
@@ -264,8 +264,8 @@ namespace webots_robot_handler
       CoG_2D_Vel.push_back({0, 0});
 
       // sinh(Tsup/Tc), cosh(Tsup/Tc). 0 <= Tsup <= Tsup_max(=0.8)
-      S = std::sinh(T_sup / T_c);
-      C = std::cosh(T_sup / T_c);
+      S = std::sinh(t / T_c);
+      C = std::cosh(t / T_c);
       
       // 重心位置の計算
       CoG_2D_Pos_world[control_step][0] = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
@@ -277,18 +277,18 @@ namespace webots_robot_handler
       CoG_2D_Vel[control_step][1] = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
 
       // 支持脚切り替えの判定
-      // BUG: T_sup == 0.8 になっても、ifが実行されて、0.81になってしまう。応急処置で、T_sup_max - 0.01
-      if(T_sup < T_sup_max - 0.01) {
+      // BUG: t == 0.8 になっても、ifが実行されて、0.81になってしまう。応急処置で、T_sup - 0.01
+      if(t < T_sup - 0.01) {
         // 値の更新
-        T_sup += control_cycle;
+        t += control_cycle;
       }
-      else if(T_sup >= T_sup_max - 0.01) {
+      else if(t >= T_sup - 0.01) {
         // stepの更新
         walking_step++;
         
         // sinh(Tsup/Tc), cosh(Tsup/Tc). 特に意味はない。結局if内では、TsupはTsup_maxと等しいので。
-        S = std::sinh(T_sup_max / T_c);
-        C = std::cosh(T_sup_max / T_c);
+        S = std::sinh(T_sup / T_c);
+        C = std::cosh(T_sup / T_c);
 
         // 次の着地位置を取得
         p_x_fix = LandingPosition_[walking_step][1];
@@ -317,7 +317,7 @@ namespace webots_robot_handler
         p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * y_0 - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * y_0 - C * dy_0);
         
         // 値の更新
-        T_sup = 0.01;
+        t = 0.01;
       }
 
       // DEBUG: plot用
@@ -340,14 +340,14 @@ namespace webots_robot_handler
     // 遊脚軌道に必要な変数の定義
     float height_leg_lift = 0.07;  // 足上げ高さ [m]
     double swing_trajectory;  // 遊脚軌道の値を記録
-    T_sup = 0;
+    t = 0;
     walking_time = 0;
     walking_step = 0;
     control_step = 0;
 
     // 重心位置から遊脚軌道（正弦波）を引く。支持脚に応じて遊脚も切り替えるから、0.8[s]ごとに切り替える。
     // 遊脚軌道を反映するのは、IK解いて歩行パラメータを生成するloop内で一緒にやる。
-    // 遊脚軌道の式：z = height_leg_lift * sin((pi / T_sup_max) * T_sup)   0 <= T_sup <= T_sup_max(=0.8[s])
+    // 遊脚軌道の式：z = height_leg_lift * sin((pi / T_sup) * t)   0 <= t <= T_sup(=0.8[s])
 
     // IKと歩行パラメータの定義・遊脚軌道の反映
     Eigen::Vector<double, 3> Foot_3D_Pos;
@@ -358,14 +358,14 @@ namespace webots_robot_handler
     while(walking_time <= walking_time_max) {
 
       // 支持脚切替タイミングの判定
-      if(T_sup >= T_sup_max - 0.01) {
+      if(t >= T_sup - 0.01) {
         // 支持脚切替のための更新
-        T_sup = 0;
+        t = 0;
         walking_step++;
       }
 
       // 遊脚軌道（正弦波）の計算
-      swing_trajectory = height_leg_lift * std::sin((3.141592/T_sup_max)*T_sup);
+      swing_trajectory = height_leg_lift * std::sin((3.141592/T_sup)*t);
 
       // 重心位置を元とした足位置の定義
       Foot_3D_Pos = {
@@ -373,9 +373,10 @@ namespace webots_robot_handler
         (LandingPosition_[walking_step][2]-LandingPosition_[0][2])-(CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),  // y (基準点を右足接地点から胴体真下にするために、-0.037). 現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
         -length_leg_  // z 
       };
+      // TODO: 配列の外を参照する場合の処理を書く。walking_step-1とかwalking_step+1とか。
       Foot_3D_Pos_Swing = {
-        CoG_2D_Pos_local[control_step][0]-LandingPosition_[walking_step][1],  // x 
-        (LandingPosition_[walking_step-1][2]-LandingPosition_[0][2])+(((LandingPosition_[walking_step+1][2]-LandingPosition_[0][2])-(LandingPosition_[walking_step-1][2]-LandingPosition_[0][2]))*(T_sup/T_sup_max)) - (CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),  // 前FP+(次FP-前FP)*t/Tsup - 重心位置
+        LandingPosition_[walking_step-1][1]+((LandingPosition_[walking_step+1][1]-LandingPosition_[walking_step-1][1])*(t/T_sup)),  // 前FP+(次FP-前FP)*t/Tsup
+        (LandingPosition_[walking_step-1][2]-LandingPosition_[0][2])+(((LandingPosition_[walking_step+1][2]-LandingPosition_[0][2])-(LandingPosition_[walking_step-1][2]-LandingPosition_[0][2]))*(t/T_sup)) - (CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),  // 前FP+(次FP-前FP)*t/Tsup - 重心位置
         -length_leg_ + swing_trajectory // z (遊脚軌道をzから引く) 
       };
 
@@ -483,7 +484,7 @@ namespace webots_robot_handler
 
       // 更新
       control_step++;
-      T_sup += control_cycle;
+      t += control_cycle;
       walking_time += control_cycle;
 
     }
