@@ -335,7 +335,7 @@ namespace webots_robot_handler
     }
 
     // 遊脚軌道に必要な変数の定義
-    float height_leg_lift = 0.05;  // 足上げ高さ [m]
+    float height_leg_lift = 0.07;  // 足上げ高さ [m]
     double swing_trajectory;  // 遊脚軌道の値を記録
     T_sup = 0;
     walking_time = 0;
@@ -372,7 +372,7 @@ namespace webots_robot_handler
       };
       Foot_3D_Pos_Swing = {
         CoG_2D_Pos_local[control_step][0]-LandingPosition_[walking_step][1],  // x 
-        -(CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2])-(LandingPosition_[walking_step][2]-LandingPosition_[0][2]),  // y (基準点を右足接地点から胴体真下にするために、-0.037). 現重心位置ー現着地位置、Xなら脚を後ろから前に出すイメージ。
+        (LandingPosition_[walking_step-1][2]-LandingPosition_[0][2])+(((LandingPosition_[walking_step+1][2]-LandingPosition_[0][2])-(LandingPosition_[walking_step-1][2]-LandingPosition_[0][2]))*(T_sup/T_sup_max)) - (CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),  // 前FP+(次FP-前FP)*t/Tsup - 重心位置
         -length_leg_ + swing_trajectory // z (遊脚軌道をzから引く) 
       };
 
