@@ -390,14 +390,14 @@ namespace webots_robot_handler
       };
 
       // 支持脚の判定
-      // 両脚支持期
+      // 歩行開始、終了時
       if(LandingPosition_[walking_step][2] == 0.037) {
         // 両脚支持。遊脚はないので、左右どちらも重心位置からIKを解く。
 
         // IK
         Q_legR_ = IK_.getIK(  // IKを解いて、各関節角度を取得
           P_legR_waist_standard_,  // 脚の各リンク長
-          Foot_3D_Pos_Swing,  // 重心位置 
+          Foot_3D_Pos,  // 重心位置を元にした足の位置 
           R_target_leg  // 足の回転行列。床面と並行なので、ただの単位行列。
         );
         Q_legL_ = IK_.getIK(
