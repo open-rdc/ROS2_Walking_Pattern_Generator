@@ -180,9 +180,12 @@ namespace webots_robot_handler
   void WebotsRobotHandler::WalkingPatternGenerate() {
 
     // DEBUG: Logを吐くファイルを指定
-    std::ofstream LogFile;
-    std::string LogFile_name = "src/Log/WPG_log.dat";
-    LogFile.open(LogFile_name, std::ios::out);
+    std::ofstream WPG_log_WalkingPttern;
+    std::string WPG_log_WalkingPttern_name = "src/Log/WPG_log_WalkingPattern.dat";
+    WPG_log_WalkingPttern.open(WPG_log_WalkingPttern_name, std::ios::out);
+    std::ofstream WPG_log_FootTrajectory;
+    std::string WPG_log_FootTrajectory_name = "src/Log/WPG_log_FootTrajectory.dat";
+    WPG_log_FootTrajectory.open(WPG_log_FootTrajectory_name, std::ios::out);
 
     // 制御周期
     float control_cycle = 0.01;  // [s]
@@ -319,20 +322,20 @@ namespace webots_robot_handler
 
       // DEBUG: plot用
       // TODO: 複数のファイルを読み込んで、複数種類のLogを吐くようにすべき。可変長の配列をMessageをPublishが扱えれば一番いいが。
-      // LogFile << CoG_2D_Pos_world[control_step][0] << " " << CoG_2D_Pos_world[control_step][1]-(LandingPosition_[1][2]/2) << " " 
-      //           << CoG_2D_Pos_local[control_step][0] << " " << CoG_2D_Pos_local[control_step][1]-(LandingPosition_[1][2]/2) << " " 
-      //           << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << " " 
-      //           << p_x_fix << " " << p_y_fix-(LandingPosition_[1][2]/2) << " " 
-      //           << LandingPosition_[walking_step][1] << " " << LandingPosition_[walking_step][2]-(LandingPosition_[1][2]/2)
-      // << std::endl;
-
-      // DEBUG: Log file close
-      // LogFile.close();
+      WPG_log_WalkingPttern << CoG_2D_Pos_world[control_step][0] << " " << CoG_2D_Pos_world[control_step][1]-(LandingPosition_[1][2]/2) << " " 
+                << CoG_2D_Pos_local[control_step][0] << " " << CoG_2D_Pos_local[control_step][1]-(LandingPosition_[1][2]/2) << " " 
+                << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << " " 
+                << p_x_fix << " " << p_y_fix-(LandingPosition_[1][2]/2) << " " 
+                << LandingPosition_[walking_step][1] << " " << LandingPosition_[walking_step][2]-(LandingPosition_[1][2]/2)
+      << std::endl;
 
       // 値の更新
       control_step++;
       walking_time += control_cycle;
     }
+
+    // DEBUG: Log file close
+    WPG_log_WalkingPttern.close();
 
     // 遊脚軌道に必要な変数の定義
     float height_leg_lift = 0.07;  // 足上げ高さ [m]
@@ -377,7 +380,7 @@ namespace webots_robot_handler
       };
 
       // DEBUG: Logの吐き出し
-      LogFile << CoG_2D_Pos_world[control_step][0] << " " << CoG_2D_Pos_world[control_step][1]-LandingPosition_[0][2] << " " << Foot_3D_Pos.transpose() << " " << Foot_3D_Pos_Swing.transpose() << std::endl;
+      WPG_log_FootTrajectory << CoG_2D_Pos_world[control_step][0] << " " << CoG_2D_Pos_world[control_step][1]-LandingPosition_[0][2] << " " << Foot_3D_Pos.transpose() << " " << Foot_3D_Pos_Swing.transpose() << std::endl;
 
       // 重心速度の定義
       CoG_3D_Vel = {
@@ -486,7 +489,7 @@ namespace webots_robot_handler
     }
     
     // DEBUG: Log file close
-    LogFile.close();
+    WPG_log_WalkingPttern.close();
 
   }
 
