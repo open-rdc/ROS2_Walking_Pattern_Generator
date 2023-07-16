@@ -125,8 +125,9 @@ namespace webots_robot_handler
                         {1.6, 0.0, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
                         {2.4, 0.0, 0.074},  // TODO: そもそもコレの基準点を胴体の真下でも通じるようにするべき。
                         {3.2, 0.0, 0.0},
-                        {4.0, 0.0, 0.037},
-                        {4.8, 0.0, 0.037}};
+                        {4.0, 0.0, 0.074},
+                        {4.8, 0.0, 0.037},
+                        {5.6, 0.0, 0.037}};
 
     // DEBUG: Jacobian関数のテスト
     // Q_legR_ = {0, 0, -3.14/8, 3.14/4, -3.14/8, 0};
@@ -369,17 +370,35 @@ namespace webots_robot_handler
       swing_trajectory = height_leg_lift * std::sin((3.141592/T_sup)*t);
 
       // 重心位置を元とした足位置の定義
-      Foot_3D_Pos = {
-        LandingPosition_[walking_step][1]-CoG_2D_Pos_local[control_step][0],  // x 
-        (LandingPosition_[walking_step][2]-LandingPosition_[0][2])-(CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),  // y (基準点を右足接地点から胴体真下にするために、-0.037). 現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
-        -length_leg_  // z 
-      };
-      // TODO: 配列の外を参照する場合の処理を書く。walking_step-1とかwalking_step+1とか。
-      Foot_3D_Pos_Swing = {
-        LandingPosition_[walking_step-1][1]+((LandingPosition_[walking_step+1][1]-LandingPosition_[walking_step-1][1])*(t/T_sup)),  // 前FP+(次FP-前FP)*t/Tsup
-        (LandingPosition_[walking_step-1][2]-LandingPosition_[0][2])+(((LandingPosition_[walking_step+1][2]-LandingPosition_[0][2])-(LandingPosition_[walking_step-1][2]-LandingPosition_[0][2]))*(t/T_sup)) - (CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),  // 前FP+(次FP-前FP)*t/Tsup - 重心位置
-        -length_leg_ + swing_trajectory // z (遊脚軌道をzから引く) 
-      };
+      // TODO: もっとキレイな書き方があるはず。修正すべき。今は、始まりの支持脚と終わりの支持脚が同じだからコレでOK。異なった場合も書くべき。
+      // 歩行開始時、終了時
+      if(LandingPosition_[walking_step][2] == 0.037) {
+        Foot_3D_Pos_Swing = {  // 右足。歩行開始と終了では、直立状態の足の位置とから重心軌道を引いてやる。
+          LandingPosition_[walking_step][1]-CoG_2D_Pos_local[control_step][0],
+          -LandingPosition_[walking_step][2]-(CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),
+          -length_leg_
+        };
+        Foot_3D_Pos = {  // 左足。
+          LandingPosition_[walking_step][1]-CoG_2D_Pos_local[control_step][0],
+          LandingPosition_[walking_step][2]-(CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),
+          -length_leg_
+        };
+      }
+      // TODO: 前着地位置が0.037だった場合の処理を書くべき。Y軸のwalking_step-1を含む式の解が好ましくないものになる。
+      // TODO: 次着地位置が0.037だった場合の処理を書くべき。Y軸のwalking_step-1を含む式の解が好ましくないものになる。
+      else {
+        Foot_3D_Pos = {
+          LandingPosition_[walking_step][1]-CoG_2D_Pos_local[control_step][0],  // x 
+          (LandingPosition_[walking_step][2]-LandingPosition_[0][2])-(CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),  // y (基準点を右足接地点から胴体真下にするために、-0.037). 現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
+          -length_leg_  // z 
+        };
+        // TODO: 配列の外を参照する場合の処理を書く。walking_step-1とかwalking_step+1とか。
+        Foot_3D_Pos_Swing = {
+          LandingPosition_[walking_step-1][1]+((LandingPosition_[walking_step+1][1]-LandingPosition_[walking_step-1][1])*(t/T_sup)),  // 前FP+(次FP-前FP)*t/Tsup
+          (LandingPosition_[walking_step-1][2]-LandingPosition_[0][2])+(((LandingPosition_[walking_step+1][2]-LandingPosition_[0][2])-(LandingPosition_[walking_step-1][2]-LandingPosition_[0][2]))*(t/T_sup)) - (CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),  // 前FP+(次FP-前FP)*t/Tsup - 重心位置
+          -length_leg_ + swing_trajectory // z (遊脚軌道をzから引く) 
+        };
+      }
 
       // DEBUG: Logの吐き出し
       WPG_log_FootTrajectory << CoG_2D_Pos_world[control_step][0] << " " << CoG_2D_Pos_world[control_step][1]-LandingPosition_[0][2] << " " << Foot_3D_Pos.transpose() << " " << Foot_3D_Pos_Swing.transpose() << std::endl;
@@ -396,13 +415,14 @@ namespace webots_robot_handler
 
       // 支持脚の判定
       // 歩行開始、終了時
+      // TODO: 今は、始まりの支持脚と終わりの支持脚が同じだからコレでOK。異なった場合も書くべき。
       if(LandingPosition_[walking_step][2] == 0.037) {
         // 両脚支持。遊脚はないので、左右どちらも重心位置からIKを解く。
-
+// 
         // IK
         Q_legR_ = IK_.getIK(  // IKを解いて、各関節角度を取得
           P_legR_waist_standard_,  // 脚の各リンク長
-          Foot_3D_Pos,  // 重心位置を元にした足の位置 
+          Foot_3D_Pos_Swing,  // 重心位置を元にした足の位置 
           R_target_leg  // 足の回転行列。床面と並行なので、ただの単位行列。
         );
         Q_legL_ = IK_.getIK(
