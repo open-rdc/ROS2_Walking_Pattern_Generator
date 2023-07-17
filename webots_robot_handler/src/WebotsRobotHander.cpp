@@ -212,7 +212,7 @@ namespace webots_robot_handler
     // 時間, 時定数
     float t = 0;  // 0 ~ 支持脚切り替え時間
     float T_sup = LandingPosition_[1][0];  // 0.8. 支持脚切り替えタイミング. 歩行素片終端時間
-    float T_dsup = 0.2;
+    float T_dsup = 0.4;
     float T_c = std::sqrt(length_leg_ / 9.81);  // 時定数
 
     // 歩行素片の始端の重心位置・速度 (World座標系)
@@ -381,7 +381,7 @@ namespace webots_robot_handler
       // TODO: 両脚支持期間は支持脚切替時に重心速度が急激に変化しないようにするために設けるものである。
         // 歩行パターン生成時に、両脚支持期間を考慮すべきか？ただ単に両脚ともに地面についていれば良いのか？目標重心位置のYを0.037にすれば良いのか？
       if(t >= T_dsup/2 && t <= T_sup-T_dsup/2) {
-        swing_trajectory = height_leg_lift * std::sin((3.141592/T_sup-T_dsup)*t-T_dsup/2);
+        swing_trajectory = height_leg_lift * std::sin((3.141592/T_sup-T_dsup)*t-T_dsup/2)+0.02;  //最初と最後に0.02[m]分浮かせるのと叩きつける
       }
       else {
         swing_trajectory = 0;
