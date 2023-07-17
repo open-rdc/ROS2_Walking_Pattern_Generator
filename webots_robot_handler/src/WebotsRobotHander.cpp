@@ -128,6 +128,14 @@ namespace webots_robot_handler
                         {4.0, 0.0, 0.074},
                         {4.8, 0.0, 0.037},
                         {5.6, 0.0, 0.037}};
+    // LandingPosition_ = {{0.0, 0.0, 0.037},  // 歩行パラメータからの着地位置(time, x, y)
+    //                     {0.8, 0.025, 0.074},  // 元は、0.037. 基準点を変えている. 
+    //                     {1.6, 0.05, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
+    //                     {2.4, 0.075, 0.074},  // TODO: そもそもコレの基準点を胴体の真下でも通じるようにするべき。
+    //                     {3.2, 0.1, 0.0},
+    //                     {4.0, 0.125, 0.074},
+    //                     {4.8, 0.15, 0.037},
+    //                     {5.6, 0.15, 0.037}};
 
     // DEBUG: Jacobian関数のテスト
     // Q_legR_ = {0, 0, -3.14/8, 3.14/4, -3.14/8, 0};
@@ -203,6 +211,7 @@ namespace webots_robot_handler
     // 時間, 時定数
     float t = 0;  // 0 ~ 支持脚切り替え時間
     float T_sup = LandingPosition_[1][0];  // 0.8. 支持脚切り替えタイミング. 歩行素片終端時間
+    float T_dsup = 0.2;
     float T_c = std::sqrt(length_leg_ / 9.81);  // 時定数
 
     // 歩行素片の始端の重心位置・速度 (World座標系)
@@ -325,7 +334,7 @@ namespace webots_robot_handler
       // DEBUG: plot用
       // TODO: 複数のファイルを読み込んで、複数種類のLogを吐くようにすべき。可変長の配列をMessageをPublishが扱えれば一番いいが。
       WPG_log_WalkingPttern << CoG_2D_Pos_world[control_step][0] << " " << CoG_2D_Pos_world[control_step][1]-(LandingPosition_[1][2]/2) << " " 
-                //<< CoG_2D_Pos_local[control_step][0] << " " << CoG_2D_Pos_local[control_step][1]-(LandingPosition_[1][2]/2) << " " 
+                << CoG_2D_Pos_local[control_step][0] << " " << CoG_2D_Pos_local[control_step][1]-(LandingPosition_[1][2]/2) << " " 
                 << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << " " 
                 << p_x_fix << " " << p_y_fix-(LandingPosition_[1][2]/2) << " " 
                 << LandingPosition_[walking_step][1] << " " << LandingPosition_[walking_step][2]-(LandingPosition_[1][2]/2)
@@ -367,7 +376,16 @@ namespace webots_robot_handler
       }
 
       // 遊脚軌道（正弦波）の計算
-      swing_trajectory = height_leg_lift * std::sin((3.141592/T_sup)*t);
+      // 両脚支持期間を無視するように条件分岐。両脚支持期間以外で正弦波を > 0 にしてやることで、片足支持にしている。
+      // TODO: 両脚支持期間は支持脚切替時に重心速度が急激に変化しないようにするために設けるものである。
+        // 歩行パターン生成時に、両脚支持期間を考慮すべきか？ただ単に両脚ともに地面についていれば良いのか？目標重心位置のYを0.037にすれば良いのか？
+      if(t >= T_dsup/2 && t <= T_sup-T_dsup/2) {
+        swing_trajectory = height_leg_lift * std::sin((3.141592/T_sup-T_dsup)*t-T_dsup/2);
+      }
+      else {
+        swing_trajectory = 0;
+      }
+      
 
       // 重心位置を元とした足位置の定義
       // TODO: もっとキレイな書き方があるはず。修正すべき。今は、始まりの支持脚と終わりの支持脚が同じだからコレでOK。異なった場合も書くべき。
