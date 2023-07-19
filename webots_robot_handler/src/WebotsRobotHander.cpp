@@ -118,7 +118,7 @@ namespace webots_robot_handler
 
     // Dynamic Gait ====
     weight_ = 3.0;  // [kg]
-    length_leg_ = 171.856 / 1000;  // [m] ちょっと中腰。特異点を回避。直立：219.5[mm]
+    length_leg_ = 171.856 / 1000 + 0.1222;  // [m] ちょっと中腰。特異点を回避。直立：219.5[mm]
     // TODO: 足踏み。歩行する着地位置を計算して適用すべき
     LandingPosition_ = {{0.0, 0.0, 0.037},  // 歩行パラメータからの着地位置(time, x, y)
                         {0.8, 0.0, 0.0},  // 元は、0.037. 基準点を変えている. 
@@ -197,6 +197,9 @@ namespace webots_robot_handler
     std::ofstream WPG_log_FootTrajectory;
     std::string WPG_log_FootTrajectory_name = "src/Log/WPG_log_FootTrajectory.dat";
     WPG_log_FootTrajectory.open(WPG_log_FootTrajectory_name, std::ios::out);
+    std::ofstream WPG_log_FootTrajectory_FK;
+    std::string WPG_log_FootTrajectory_FK_name = "src/Log/WPG_log_FootTrajectory_FK.dat";
+    WPG_log_FootTrajectory_FK.open(WPG_log_FootTrajectory_FK_name, std::ios::out);
 
     // 制御周期
     float control_cycle = 0.01;  // [s]
@@ -235,7 +238,7 @@ namespace webots_robot_handler
     double dy_bar = 0;
 
     // 着地位置修正の最適化での重み
-    int opt_weight_pos = 10;
+    int opt_weight_pos = 1;
     int opt_weight_vel = 1;
     // 最適化のときのマテリアル
     double D = opt_weight_pos * std::pow((std::cosh(T_sup / T_c) - 1), 2) + opt_weight_vel * std::pow((std::sinh(T_sup / T_c) / T_c), 2);  
@@ -350,7 +353,7 @@ namespace webots_robot_handler
     WPG_log_WalkingPttern.close();
 
     // 遊脚軌道に必要な変数の定義
-    float height_leg_lift = 0.07;  // 足上げ高さ [m]
+    float height_leg_lift = 0.08;  // 足上げ高さ [m]
     double swing_trajectory;  // 遊脚軌道の値を記録
     t = 0;
     walking_time = 0;
@@ -381,7 +384,7 @@ namespace webots_robot_handler
       // TODO: 両脚支持期間は支持脚切替時に重心速度が急激に変化しないようにするために設けるものである。
         // 歩行パターン生成時に、両脚支持期間を考慮すべきか？ただ単に両脚ともに地面についていれば良いのか？目標重心位置のYを0.037にすれば良いのか？
       if(t >= T_dsup/2 && t <= T_sup-T_dsup/2) {
-        swing_trajectory = height_leg_lift * std::sin((3.141592/T_sup-T_dsup)*t-T_dsup/2)+0.02;  //最初と最後に0.02[m]分浮かせるのと叩きつける
+        swing_trajectory = height_leg_lift * std::sin((3.141592/T_sup-T_dsup)*t-T_dsup/2);  //最初と最後に0.02[m]分浮かせるのと叩きつける
       }
       else {
         swing_trajectory = 0;
@@ -490,15 +493,18 @@ namespace webots_robot_handler
 // 
         // IK
         Q_legR_ = IK_.getIK(  // IKを解いて、各関節角度を取得
-          P_legR_waist_standard_,  // 脚の各リンク長
+          P_legR_,  // 脚の各リンク長
           Foot_3D_Pos_Swing,  // 重心位置を元にした足の位置 
           R_target_leg  // 足の回転行列。床面と並行なので、ただの単位行列。
         );
         Q_legL_ = IK_.getIK(
-          P_legL_waist_standard_,
+          P_legL_,
           Foot_3D_Pos,
           R_target_leg
         );
+        
+        // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
+        WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_, 6).transpose() << std::endl;
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
         JacobiMatrix_leg(Q_legR_, Q_legL_);
@@ -520,15 +526,18 @@ namespace webots_robot_handler
 
         // IK
         Q_legR_ = IK_.getIK(
-          P_legR_waist_standard_,
+          P_legR_,
           Foot_3D_Pos_Swing, 
           R_target_leg
         );
         Q_legL_ = IK_.getIK(
-          P_legL_waist_standard_,
+          P_legL_,
           Foot_3D_Pos,
           R_target_leg
         );
+
+        // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
+        WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_, 6).transpose() << std::endl;
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
         JacobiMatrix_leg(Q_legR_, Q_legL_);
@@ -549,15 +558,18 @@ namespace webots_robot_handler
 
         // IK
         Q_legR_ = IK_.getIK(
-          P_legR_waist_standard_,
+          P_legR_,
           Foot_3D_Pos, 
           R_target_leg
         );
         Q_legL_ = IK_.getIK(
-          P_legL_waist_standard_,
+          P_legL_,
           Foot_3D_Pos_Swing,
           R_target_leg
         );
+
+        // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
+        WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_, 6).transpose() << std::endl;
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
         JacobiMatrix_leg(Q_legR_, Q_legL_);
@@ -582,6 +594,8 @@ namespace webots_robot_handler
     
     // DEBUG: Log file close
     WPG_log_WalkingPttern.close();
+    WPG_log_FootTrajectory.close();
+    WPG_log_FootTrajectory_FK.close();
 
   }
 

@@ -43,4 +43,31 @@ legend(["CoG Position X world", "CoG Position Y world", "CoG Position X local", 
 xlabel("time")
 grid on
 
+load WPG_log_FootTrajectory_FK.dat;
+
+[a4, b4] = size(WPG_log_FootTrajectory_FK);
+
+t4 = 1:a4;
+
+i = 0;
+for n=t
+  i = i+1;
+  xr(i) = WPG_log_FootTrajectory_FK(i, 1);
+  yr(i) = WPG_log_FootTrajectory_FK(i, 2);
+  zr(i) = WPG_log_FootTrajectory_FK(i, 3);
+  xl(i) = WPG_log_FootTrajectory_FK(i, 4);
+  yl(i) = WPG_log_FootTrajectory_FK(i, 5);
+  zl(i) = WPG_log_FootTrajectory_FK(i, 6);
+end
+
+f4 = figure;
+figure(f4);
+plot3(t, yr, zr, t, yl, zl)
+legend("right foot", "left foot")
+xlabel("time")
+ylabel("y position")
+zlabel("z position")
+grid on
+
+
 % reference https://jp.mathworks.com/help/matlab/data_analysis/plotting-data.html
