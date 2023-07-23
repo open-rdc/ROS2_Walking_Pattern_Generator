@@ -120,23 +120,23 @@ namespace webots_robot_handler
     weight_ = 3.0;  // [kg]
     length_leg_ = 171.856 / 1000 + 0.1222;  // [m] ちょっと中腰。特異点を回避。直立：219.5[mm]
     // TODO: 足踏み。歩行する着地位置を計算して適用すべき
-    // LandingPosition_ = {{0.0, 0.0, 0.037},  // 歩行パラメータからの着地位置(time, x, y)
-    //                     {0.8, 0.0, 0.0},  // 元は、0.037. 基準点を変えている. 
-    //                     {1.6, 0.0, 0.074},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
-    //                     {2.4, 0.0, 0.0},  // TODO: そもそもコレの基準点を胴体の真下でも通じるようにするべき。
-    //                     {3.2, 0.0, 0.074},
-    //                     {4.0, 0.0, 0.0},
-    //                     {4.8, 0.0, 0.074},
-    //                     {5.6, 0.0, 0.037},
-    //                     {6.4, 0.0, 0.037}};
     LandingPosition_ = {{0.0, 0.0, 0.037},  // 歩行パラメータからの着地位置(time, x, y)
-                        {0.8, 0.0, 0.074},  // 元は、0.037. 基準点を変えている. 
-                        {1.6, 0.02, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
-                        {2.4, 0.04, 0.074},  // TODO: そもそもコレの基準点を胴体の真下でも通じるようにするべき。
-                        {3.2, 0.06, 0.0},
-                        {4.0, 0.08, 0.074},
-                        {4.8, 0.08, 0.037},
-                        {5.6, 0.08, 0.037}};
+                        {0.8, 0.0, 0.0},  // 元は、0.037. 基準点を変えている. 
+                        {1.6, 0.0, 0.074},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
+                        {2.4, 0.0, 0.0},  // TODO: そもそもコレの基準点を胴体の真下でも通じるようにするべき。
+                        {3.2, 0.0, 0.074},
+                        {4.0, 0.0, 0.0},
+                        {4.8, 0.0, 0.074},
+                        {5.6, 0.0, 0.037},
+                        {6.4, 0.0, 0.037}};
+    // LandingPosition_ = {{0.0, 0.0, 0.037},  // 歩行パラメータからの着地位置(time, x, y)
+    //                     {0.8, 0.0, 0.074},  // 元は、0.037. 基準点を変えている. 
+    //                     {1.6, 0.02, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
+    //                     {2.4, 0.04, 0.074},  // TODO: そもそもコレの基準点を胴体の真下でも通じるようにするべき。
+    //                     {3.2, 0.06, 0.0},
+    //                     {4.0, 0.08, 0.074},
+    //                     {4.8, 0.08, 0.037},
+    //                     {5.6, 0.08, 0.037}};
 
     // DEBUG: Jacobian関数のテスト
     // Q_legR_ = {0, 0, -3.14/8, 3.14/4, -3.14/8, 0};
@@ -221,8 +221,8 @@ namespace webots_robot_handler
     // 歩行素片の始端の重心位置・速度 (World座標系)
     std::vector<std::array<double, 2>> CoG_2D_Pos_0;
     CoG_2D_Pos_0.push_back({0, 0.037});
-    double x_0 = 0;
-    double y_0 = 0.037;
+    // double x_0 = 0;
+    // double y_0 = 0.037;
     double dx_0 = 0;
     double dy_0 = 0;
     // 理想の重心位置・速度 (World座標系)
@@ -270,8 +270,8 @@ namespace webots_robot_handler
     dx_d = dx_bar;
     dy_d = dy_bar;
     // 評価関数を最小化する着地位置の計算
-    p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * x_0 - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * x_0 - C * dx_0);
-    p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * y_0 - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * y_0 - C * dy_0);
+    p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * CoG_2D_Pos_0[walking_step][0] - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * CoG_2D_Pos_0[walking_step][0] - C * dx_0);
+    p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * CoG_2D_Pos_0[walking_step][1] - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * CoG_2D_Pos_0[walking_step][1] - C * dy_0);
 
     // 歩行パターンの生成
     while(walking_time <= walking_time_max) {
@@ -285,13 +285,13 @@ namespace webots_robot_handler
       C = std::cosh(t / T_c);
       
       // 重心位置の計算
-      CoG_2D_Pos_world[control_step][0] = (x_0 - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
-      CoG_2D_Pos_world[control_step][1] = (y_0 - p_y_fix) * C + T_c * dy_0 * S + p_y_fix;  // position_y
-      CoG_2D_Pos_local[control_step][0] = (x_0 - p_x_fix) * C + T_c * dx_0 * S;  // position_x
-      CoG_2D_Pos_local[control_step][1] = (y_0 - p_y_fix) * C + T_c * dy_0 * S + p_y_fix;  // position_y
+      CoG_2D_Pos_world[control_step][0] = (CoG_2D_Pos_0[walking_step][0] - p_x_fix) * C + T_c * dx_0 * S + p_x_fix;  // position_x
+      CoG_2D_Pos_world[control_step][1] = (CoG_2D_Pos_0[walking_step][1] - p_y_fix) * C + T_c * dy_0 * S + p_y_fix;  // position_y
+      CoG_2D_Pos_local[control_step][0] = (CoG_2D_Pos_0[walking_step][0] - p_x_fix) * C + T_c * dx_0 * S;  // position_x
+      CoG_2D_Pos_local[control_step][1] = (CoG_2D_Pos_0[walking_step][1] - p_y_fix) * C + T_c * dy_0 * S + p_y_fix;  // position_y
       // 重心速度の計算
-      CoG_2D_Vel[control_step][0] = ((x_0 - p_x_fix) / T_c) * S + dx_0 * C;
-      CoG_2D_Vel[control_step][1] = ((y_0 - p_y_fix) / T_c) * S + dy_0 * C;
+      CoG_2D_Vel[control_step][0] = ((CoG_2D_Pos_0[walking_step][0] - p_x_fix) / T_c) * S + dx_0 * C;
+      CoG_2D_Vel[control_step][1] = ((CoG_2D_Pos_0[walking_step][1] - p_y_fix) / T_c) * S + dy_0 * C;
 
       // 支持脚切り替えの判定
       // BUG: t == 0.8 になっても、ifが実行されて、0.81になってしまう。応急処置で、T_sup - 0.01
@@ -312,8 +312,12 @@ namespace webots_robot_handler
         p_y_fix = LandingPosition_[walking_step][2];
 
         // 次の歩行素片の初期状態を定義
-        x_0 = CoG_2D_Pos_world[control_step][0];
-        y_0 = CoG_2D_Pos_world[control_step][1];
+        CoG_2D_Pos_0.push_back({
+          CoG_2D_Pos_world[control_step][0],
+          CoG_2D_Pos_world[control_step][1]
+        });
+        // x_0 = CoG_2D_Pos_world[control_step][0];
+        // y_0 = CoG_2D_Pos_world[control_step][1];
         dx_0 = CoG_2D_Vel[control_step][0];
         dy_0 = CoG_2D_Vel[control_step][1];
 
@@ -330,8 +334,8 @@ namespace webots_robot_handler
         dy_d = dy_bar;
 
         // 評価関数を最小化する着地位置の計算
-        p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * x_0 - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * x_0 - C * dx_0);
-        p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * y_0 - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * y_0 - C * dy_0);
+        p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * CoG_2D_Pos_0[walking_step][0] - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * CoG_2D_Pos_0[walking_step][0] - C * dx_0);
+        p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * CoG_2D_Pos_0[walking_step][1] - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * CoG_2D_Pos_0[walking_step][1] - C * dy_0);
         
         // 値の更新
         t = 0.01;
