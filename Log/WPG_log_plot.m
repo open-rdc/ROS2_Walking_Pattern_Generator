@@ -62,11 +62,19 @@ end
 
 f4 = figure;
 figure(f4);
-plot3(t, yr, zr, t, yl, zl)
+plot3(t4, yr, zr, t4, yl, zl)
 legend("right foot", "left foot")
 xlabel("time")
 ylabel("y position")
 zlabel("z position")
+grid on
+
+f5 = figure;
+figure(f5);
+plot(t4,xr, t4, xl)
+legend("right", "left")
+xlabel("time")
+ylabel("x position")
 grid on
 
 
