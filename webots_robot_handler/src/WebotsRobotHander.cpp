@@ -390,7 +390,7 @@ namespace webots_robot_handler
       // TODO: 両脚支持期間は支持脚切替時に重心速度が急激に変化しないようにするために設けるものである。
         // 歩行パターン生成時に、両脚支持期間を考慮すべきか？ただ単に両脚ともに地面についていれば良いのか？目標重心位置のYを0.037にすれば良いのか？
       if(t >= T_dsup/2 && t <= T_sup-T_dsup/2) {
-        swing_trajectory = height_leg_lift * std::sin((3.141592/T_sup-T_dsup)*t-T_dsup/2);  //
+        swing_trajectory = height_leg_lift * std::sin((3.141592/T_sup-T_dsup)*(t-T_dsup/2));  //
       }
       else {
         swing_trajectory = 0;
