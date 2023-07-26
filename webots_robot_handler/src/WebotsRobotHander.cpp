@@ -118,7 +118,7 @@ namespace webots_robot_handler
 
     // Dynamic Gait ====
     weight_ = 3.0;  // [kg]
-    length_leg_ = 171.856 / 1000 + 0.1222;  // [m] ちょっと中腰。特異点を回避。直立：219.5[mm]
+    length_leg_ = 171.856 / 1000;  // [m] ちょっと中腰。特異点を回避。直立：219.5[mm]
     // TODO: 足踏み。歩行する着地位置を計算して適用すべき
     // LandingPosition_ = {{0.0, 0.0, 0.037},  // 歩行パラメータからの着地位置(time, x, y)
     //                     {0.8, 0.0, 0.0},  // 元は、0.037. 基準点を変えている. 
@@ -131,12 +131,12 @@ namespace webots_robot_handler
     //                     {6.4, 0.0, 0.037}};
     LandingPosition_ = {{0.0, 0.0, 0.037},  // 歩行パラメータからの着地位置(time, x, y)
                         {0.8, 0.0, 0.074},  // 元は、0.037. 基準点を変えている. 
-                        {1.6, 0.02, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
-                        {2.4, 0.04, 0.074},  // TODO: そもそもコレの基準点を胴体の真下でも通じるようにするべき。
-                        {3.2, 0.06, 0.0},
-                        {4.0, 0.08, 0.074},
-                        {4.8, 0.08, 0.037},
-                        {5.6, 0.08, 0.037}};
+                        {1.6, 0.05, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
+                        {2.4, 0.1, 0.074},  // TODO: そもそもコレの基準点を胴体の真下でも通じるようにするべき。
+                        {3.2, 0.15, 0.0},
+                        {4.0, 0.2, 0.074},
+                        {4.8, 0.2, 0.037},
+                        {5.6, 0.2, 0.037}};
 
     // DEBUG: Jacobian関数のテスト
     // Q_legR_ = {0, 0, -3.14/8, 3.14/4, -3.14/8, 0};
@@ -400,6 +400,7 @@ namespace webots_robot_handler
       // 重心位置を元とした足位置の定義
       // CHECKME: もっとキレイな書き方があるはず。修正すべき。今は、始まりの支持脚と終わりの支持脚が同じだからコレでOK。異なった場合も書くべき。
       // 歩行開始時、終了時
+      // BUG: LandingPositionではなく、p_fix_x, y を活かしたものを参照すべき。
       if(LandingPosition_[walking_step][2] == 0.037) {
         int ref_ws; 
         if(walking_step == 0) {  // 歩行開始時
@@ -475,7 +476,7 @@ namespace webots_robot_handler
           (LandingPosition_[walking_step][2]-LandingPosition_[0][2])-(CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),  // y (基準点を右足接地点から胴体真下にするために、-0.037). 現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
           -length_leg_  // z 
         };
-        // TODO: 配列の外を参照する場合の処理を書く。walking_step-1とかwalking_step+1とか。
+        // BUG: 足踏みから歩行へ移行するときに、-X軸に足を動かしてしまう。
         Foot_3D_Pos_Swing = {
           ((LandingPosition_[walking_step+1][1]-LandingPosition_[walking_step-1][1])*(t/T_sup))-((LandingPosition_[walking_step+1][1]-LandingPosition_[walking_step-1][1]) / 2),  // 
           (LandingPosition_[walking_step-1][2]-LandingPosition_[0][2])+(((LandingPosition_[walking_step+1][2]-LandingPosition_[0][2])-(LandingPosition_[walking_step-1][2]-LandingPosition_[0][2]))*(t/T_sup)) - (CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),  // 前FP+(次FP-前FP)*t/Tsup - 重心位置
@@ -504,18 +505,18 @@ namespace webots_robot_handler
 // 
         // IK
         Q_legR_ = IK_.getIK(  // IKを解いて、各関節角度を取得
-          P_legR_,  // 脚の各リンク長
+          P_legR_waist_standard_,  // 脚の各リンク長
           Foot_3D_Pos_Swing,  // 重心位置を元にした足の位置 
           R_target_leg  // 足の回転行列。床面と並行なので、ただの単位行列。
         );
         Q_legL_ = IK_.getIK(
-          P_legL_,
+          P_legL_waist_standard_,
           Foot_3D_Pos,
           R_target_leg
         );
         
         // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
-        WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_, 6).transpose() << std::endl;
+        WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
         JacobiMatrix_leg(Q_legR_, Q_legL_);
@@ -537,18 +538,18 @@ namespace webots_robot_handler
 
         // IK
         Q_legR_ = IK_.getIK(
-          P_legR_,
+          P_legR_waist_standard_,
           Foot_3D_Pos_Swing, 
           R_target_leg
         );
         Q_legL_ = IK_.getIK(
-          P_legL_,
+          P_legL_waist_standard_,
           Foot_3D_Pos,
           R_target_leg
         );
 
         // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
-        WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_, 6).transpose() << std::endl;
+        WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
         JacobiMatrix_leg(Q_legR_, Q_legL_);
@@ -569,18 +570,18 @@ namespace webots_robot_handler
 
         // IK
         Q_legR_ = IK_.getIK(
-          P_legR_,
+          P_legR_waist_standard_,
           Foot_3D_Pos, 
           R_target_leg
         );
         Q_legL_ = IK_.getIK(
-          P_legL_,
+          P_legL_waist_standard_,
           Foot_3D_Pos_Swing,
           R_target_leg
         );
 
         // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
-        WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_, 6).transpose() << std::endl;
+        WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
         JacobiMatrix_leg(Q_legR_, Q_legL_);
