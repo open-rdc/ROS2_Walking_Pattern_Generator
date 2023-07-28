@@ -215,7 +215,7 @@ namespace webots_robot_handler
     // 時間, 時定数
     float t = 0;  // 0 ~ 支持脚切り替え時間
     float T_sup = LandingPosition_[1][0];  // 0.8. 支持脚切り替えタイミング. 歩行素片終端時間
-    float T_dsup = 0.2;
+    float T_dsup = 0.2;  // 両脚支持期間
     float T_c = std::sqrt(length_leg_ / 9.81);  // 時定数
 
     // 歩行素片の始端の重心位置・速度 (World座標系)
@@ -336,6 +336,9 @@ namespace webots_robot_handler
         // 評価関数を最小化する着地位置の計算
         p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * CoG_2D_Pos_0[walking_step][0] - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * CoG_2D_Pos_0[walking_step][0] - C * dx_0);
         p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * CoG_2D_Pos_0[walking_step][1] - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * CoG_2D_Pos_0[walking_step][1] - C * dy_0);
+
+        // DEBUG: 
+        std::cout << p_x_fix << " " << p_y_fix << std::endl;
         
         // 値の更新
         t = 0.01;
@@ -357,6 +360,9 @@ namespace webots_robot_handler
 
     // DEBUG: Log file close
     WPG_log_WalkingPttern.close();
+
+    // // DEBUG: 歩行パターンだけをやりたいから。
+    // return;
 
     // 遊脚軌道に必要な変数の定義
     float height_leg_lift = 0.08;  // 足上げ高さ [m]
@@ -501,19 +507,39 @@ namespace webots_robot_handler
       // 歩行開始、終了時
       // TODO: 今は、始まりの支持脚と終わりの支持脚が同じだからコレでOK。異なった場合も書くべき。
       if(LandingPosition_[walking_step][2] == 0.037) {
+        int ref_ws; 
+        if(walking_step == 0) {  // 歩行開始時
+          ref_ws = walking_step+1;
+        }
+        else {  // 開始時以外
+          ref_ws = walking_step-1;
+        }
+        if(LandingPosition_[ref_ws][2]-LandingPosition_[ref_ws+1][2] >= 0) {  // 左脚支持
         // 両脚支持。遊脚はないので、左右どちらも重心位置からIKを解く。
-// 
-        // IK
-        Q_legR_ = IK_.getIK(  // IKを解いて、各関節角度を取得
-          P_legR_waist_standard_,  // 脚の各リンク長
-          Foot_3D_Pos_Swing,  // 重心位置を元にした足の位置 
-          R_target_leg  // 足の回転行列。床面と並行なので、ただの単位行列。
-        );
-        Q_legL_ = IK_.getIK(
-          P_legL_waist_standard_,
-          Foot_3D_Pos,
-          R_target_leg
-        );
+          // IK
+          Q_legR_ = IK_.getIK(  // IKを解いて、各関節角度を取得
+            P_legR_waist_standard_,  // 脚の各リンク長
+            Foot_3D_Pos_Swing,  // 重心位置を元にした足の位置 
+            R_target_leg  // 足の回転行列。床面と並行なので、ただの単位行列。
+          );
+          Q_legL_ = IK_.getIK(
+            P_legL_waist_standard_,
+            Foot_3D_Pos,
+            R_target_leg
+          );
+        }
+        if(LandingPosition_[ref_ws][2]-LandingPosition_[ref_ws+1][2] < 0) {
+          Q_legR_ = IK_.getIK(  
+            P_legR_waist_standard_,
+            Foot_3D_Pos,   
+            R_target_leg  
+          );
+          Q_legL_ = IK_.getIK(
+            P_legL_waist_standard_,
+            Foot_3D_Pos_Swing,
+            R_target_leg
+          );
+        }
         
         // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
         WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
@@ -548,6 +574,9 @@ namespace webots_robot_handler
           R_target_leg
         );
 
+        // // DEBUG: 足首Pitchの角度を調整して、床面と平行にしたい。
+        // Q_legR_[4] += -0.15;
+
         // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
         WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
 
@@ -579,6 +608,9 @@ namespace webots_robot_handler
           Foot_3D_Pos_Swing,
           R_target_leg
         );
+
+        // // DEBUG: 足首Pitchの角度を調整して、床面と平行にしたい。
+        // Q_legL_[4] += -0.15;
 
         // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
         WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
