@@ -187,7 +187,7 @@ namespace webots_robot_handler
     }
   }
 
-  // TODO: 歩行パターンを生成する
+  // 歩行パターンの生成
   void WebotsRobotHandler::WalkingPatternGenerate() {
 
     // DEBUG: Logを吐くファイルを指定
@@ -335,7 +335,7 @@ namespace webots_robot_handler
         });
 
         // 修正された着地位置で歩行パラメータを上書き
-        // TODO: 上書きよりも、新規のほうが後々都合が良いかも。
+        // -TODO: 上書きよりも、新規のほうが後々都合が良いかも。
         // LandingPosition_[walking_step][1] = FixedLandingPosition[walking_step][0];
         // LandingPosition_[walking_step][2] = FixedLandingPosition[walking_step][1];
         // DEBUG: 
@@ -346,7 +346,7 @@ namespace webots_robot_handler
       }
 
       // DEBUG: plot用
-      // TODO: 複数のファイルを読み込んで、複数種類のLogを吐くようにすべき。可変長の配列をMessageをPublishが扱えれば一番いいが。
+      // -TODO: 複数のファイルを読み込んで、複数種類のLogを吐くようにすべき。可変長の配列をMessageをPublishが扱えれば一番いいが。
       WPG_log_WalkingPttern << CoG_2D_Pos_world[control_step][0] << " " << CoG_2D_Pos_world[control_step][1]-(LandingPosition_[0][2]) << " " 
                 // << CoG_2D_Pos_local[control_step][0] << " " << CoG_2D_Pos_local[control_step][1]-(LandingPosition_[0][2]) << " " 
                 << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << " " 
@@ -361,9 +361,6 @@ namespace webots_robot_handler
 
     // DEBUG: Log file close
     WPG_log_WalkingPttern.close();
-
-    // // DEBUG: 歩行パターンだけをやりたいから。
-    // return;
 
     // 遊脚軌道に必要な変数の定義
     float height_leg_lift = 0.08;  // 足上げ高さ [m]
@@ -415,6 +412,7 @@ namespace webots_robot_handler
       // 両脚支持期間を無視するように条件分岐。両脚支持期間以外で正弦波を > 0 にしてやることで、片足支持にしている。
       // TODO: 両脚支持期間は支持脚切替時に重心速度が急激に変化しないようにするために設けるものである。
         // 歩行パターン生成時に、両脚支持期間を考慮すべきか？ただ単に両脚ともに地面についていれば良いのか？目標重心位置のYを0.037にすれば良いのか？
+      // BUG: 両脚支持の時の遊脚軌道が駄目。前に出すのではなく、支持脚と同じように後ろに引く動作をしなければならない。
       if(t >= T_dsup/2 && t <= T_sup-T_dsup/2) {
         swing_trajectory = height_leg_lift * std::sin((3.141592/T_sup-T_dsup)*(t-T_dsup/2)) + 0.01;  //
       }
@@ -424,9 +422,9 @@ namespace webots_robot_handler
       
 
       // 重心位置を元とした足位置の定義
-      // CHECKME: もっとキレイな書き方があるはず。修正すべき。今は、始まりの支持脚と終わりの支持脚が同じだからコレでOK。異なった場合も書くべき。
+      // -CHECKME: もっとキレイな書き方があるはず。修正すべき。今は、始まりの支持脚と終わりの支持脚が同じだからコレでOK。異なった場合も書くべき。
       // 歩行開始時、終了時
-      // BUG: LandingPositionではなく、p_fix_x, y を活かしたものを参照すべき。
+      // -BUG: LandingPositionではなく、p_fix_x, y を活かしたものを参照すべき。
       if(LandingPosition_[walking_step][2] == 0) {
         int ref_ws; 
         if(walking_step == 0) {  // 歩行開始時
@@ -463,7 +461,7 @@ namespace webots_robot_handler
       // -TODO: 前着地位置が0.037だった場合の処理を書くべき。遊脚Y軸のwalking_step-1を含む式の解が好ましくないものになる。
         // 歩行周期の前半を、重心位置を無視して遊脚Y軸の値を変更しないようにすれば良いはず。
         // -TODO: もっとキレイにできるはず。歩行開始時の歩行周期の最後に得られた遊脚軌道のY軸を記録しておいて、そこよりも０に近い値を取らないようにすればいい。下限を設定してやればいい。
-        // TODO: ココと下の分岐は１つにまとめるべき。walking_step-1=0か、それ以外かになっている。参照するやつを判定して変数にwalking_step+-1を入れてやれば、１つにまとまる。
+        // -TODO: ココと下の分岐は１つにまとめるべき。walking_step-1=0か、それ以外かになっている。参照するやつを判定して変数にwalking_step+-1を入れてやれば、１つにまとまる。
 
       // swing trajectory
       // x: ((次FP - 前FP) * t / Tsup) - ((次FP - 前FP) / 2)   start: ((次FP - 前FP) / 2) = 0,  end: ((次FP - 前FP) / 2) = (次FP - 前FP)
@@ -484,7 +482,7 @@ namespace webots_robot_handler
       // -TODO: 次着地位置が0.037だった場合の処理を書くべき。遊脚Y軸のwalking_step-1を含む式の解が好ましくないものになる。
         // 次着地位置を参照せずに、前着地位置と次着地位置の差分を０と扱えばいい。つまり、walking_step+1をwalking_step-1に変えれば良いだけなはず。
         // -TODO: もっとキレイにできるはず。
-      // TODO: 突貫工事。LandingPositionが修正値で上書きされる前の値であれば、LandingPosition==0.037でひとまずOK。
+      // -TODO: 突貫工事。LandingPositionが修正値で上書きされる前の値であれば、LandingPosition==0.037でひとまずOK。
       else if(LandingPosition_[walking_step+1][2] == 0) {
         Foot_3D_Pos = {
           FixedLandingPosition[walking_step][0]-CoG_2D_Pos_world[control_step][0],  // x 
@@ -503,7 +501,7 @@ namespace webots_robot_handler
           FixedLandingPosition[walking_step][1]-CoG_2D_Pos_world[control_step][1],  // y 現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
           -length_leg_  // z 
         };
-        // BUG: 足踏みから歩行へ移行するときに、-X軸に足を動かしてしまう。
+        // -BUG: 足踏みから歩行へ移行するときに、-X軸に足を動かしてしまう。
         Foot_3D_Pos_Swing = {
           ((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0])*(t/T_sup))-((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0]) / 2),  // 
           FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step-1][1])*(t/T_sup))-CoG_2D_Pos_world[control_step][1],  // 前FP+(次FP-前FP)*t/Tsup - 重心位置
@@ -526,7 +524,7 @@ namespace webots_robot_handler
 
       // 支持脚の判定
       // 歩行開始、終了時
-      // TODO: 今は、始まりの支持脚と終わりの支持脚が同じだからコレでOK。異なった場合も書くべき。
+      // -TODO: 今は、始まりの支持脚と終わりの支持脚が同じだからコレでOK。異なった場合も書くべき。
       if(LandingPosition_[walking_step][2] == 0) {
         int ref_ws; 
         if(walking_step == 0) {  // 歩行開始時
@@ -569,7 +567,7 @@ namespace webots_robot_handler
         JacobiMatrix_leg(Q_legR_, Q_legL_);
 
         // 各関節速度の計算
-        // TODO: 足先速度も欲しいところ。座標変換行列を掛けていくだけで済む。
+        // TODO: 足先の速度は、行列の末列に入っている。
         jointVel_legR = Jacobi_legR_.inverse()*CoG_3D_Vel;
         jointVel_legL = Jacobi_legL_.inverse()*CoG_3D_Vel;
 
@@ -595,7 +593,7 @@ namespace webots_robot_handler
           R_target_leg
         );
 
-        // // DEBUG: 足首Pitchの角度を調整して、床面と平行にしたい。
+        // // -DEBUG: 足首Pitchの角度を調整して、床面と平行にしたい。
         // Q_legR_[4] += -0.15;
 
         // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
@@ -630,7 +628,7 @@ namespace webots_robot_handler
           R_target_leg
         );
 
-        // // DEBUG: 足首Pitchの角度を調整して、床面と平行にしたい。
+        // // -DEBUG: 足首Pitchの角度を調整して、床面と平行にしたい。
         // Q_legL_[4] += -0.15;
 
         // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
