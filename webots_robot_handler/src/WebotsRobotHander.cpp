@@ -336,8 +336,8 @@ namespace webots_robot_handler
 
         // 修正された着地位置で歩行パラメータを上書き
         // TODO: 上書きよりも、新規のほうが後々都合が良いかも。
-        LandingPosition_[walking_step][1] = FixedLandingPosition[walking_step][0];
-        LandingPosition_[walking_step][2] = FixedLandingPosition[walking_step][1];
+        // LandingPosition_[walking_step][1] = FixedLandingPosition[walking_step][0];
+        // LandingPosition_[walking_step][2] = FixedLandingPosition[walking_step][1];
         // DEBUG: 
         std::cout << FixedLandingPosition[walking_step][0] << " " << FixedLandingPosition[walking_step][1] << std::endl;
         
@@ -379,8 +379,14 @@ namespace webots_robot_handler
 
     // 位置の基準を修正（Y軸基準を右足裏から胴体中心へ）
     double InitLandingPosition_y = LandingPosition_[0][2];
-    FixedLandingPosition[walking_step][1] -= InitLandingPosition_y;
-    LandingPosition_[walking_step][2] -= InitLandingPosition_y;
+    for(u_int step = 0; step < LandingPosition_.size(); step++) {
+      LandingPosition_[step][2] -= InitLandingPosition_y;
+      FixedLandingPosition[step][1] -= InitLandingPosition_y;
+    }
+    // LandingPosition_[walking_step][2] -= InitLandingPosition_y;
+    // LandingPosition_[walking_step+1][2] -= InitLandingPosition_y;
+    // FixedLandingPosition[walking_step+1][1] -= InitLandingPosition_y;
+    // FixedLandingPosition[walking_step][1] -= InitLandingPosition_y;
 
     // IKと歩行パラメータの定義・遊脚軌道の反映
     Eigen::Vector<double, 3> Foot_3D_Pos;
@@ -395,9 +401,9 @@ namespace webots_robot_handler
         // 支持脚切替のための更新
         t = 0;
         walking_step++;
-        // 位置の基準を修正（Y軸基準を右足裏から胴体中心へ）
-        FixedLandingPosition[walking_step][1] -= InitLandingPosition_y;
-        LandingPosition_[walking_step][2] -= InitLandingPosition_y;
+        // // 位置の基準を修正（Y軸基準を右足裏から胴体中心へ）
+        // FixedLandingPosition[walking_step+1][1] -= InitLandingPosition_y;
+        // LandingPosition_[walking_step+1][2] -= InitLandingPosition_y;
       }
 
       // 位置の基準を修正（Y軸基準を右足裏から胴体中心へ）
@@ -494,7 +500,7 @@ namespace webots_robot_handler
       else {  // 片脚支持。
         Foot_3D_Pos = {
           FixedLandingPosition[walking_step][0]-CoG_2D_Pos_world[control_step][0],  // x 
-          LandingPosition_[walking_step][1]-CoG_2D_Pos_world[control_step][1],  // y 現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
+          FixedLandingPosition[walking_step][1]-CoG_2D_Pos_world[control_step][1],  // y 現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
           -length_leg_  // z 
         };
         // BUG: 足踏みから歩行へ移行するときに、-X軸に足を動かしてしまう。
@@ -574,7 +580,7 @@ namespace webots_robot_handler
         WalkingPattern_Vel_legL_.push_back({jointVel_legL[0], jointVel_legL[1], jointVel_legL[2], jointVel_legL[3], jointVel_legL[4], jointVel_legL[5]});
       }
       // 左脚支持期
-      else if(LandingPosition_[walking_step][2] > 0.037) {
+      else if(LandingPosition_[walking_step][2] > 0) {
         // 左脚支持。右脚遊脚。
 
         // IK
@@ -609,7 +615,7 @@ namespace webots_robot_handler
         WalkingPattern_Vel_legL_.push_back({jointVel_legL[0], jointVel_legL[1], jointVel_legL[2], jointVel_legL[3], jointVel_legL[4], jointVel_legL[5]});
       }
       // 右脚支持期
-      else if(LandingPosition_[walking_step][2] < 0.037) {
+      else if(LandingPosition_[walking_step][2] < 0) {
         // 右脚支持。左脚遊脚。
 
         // IK
