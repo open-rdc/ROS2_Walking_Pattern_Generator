@@ -337,6 +337,10 @@ namespace webots_robot_handler
         p_x_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * CoG_2D_Pos_0[walking_step][0] - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * CoG_2D_Pos_0[walking_step][0] - C * dx_0);
         p_y_fix = -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * CoG_2D_Pos_0[walking_step][1] - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * CoG_2D_Pos_0[walking_step][1] - C * dy_0);
 
+        // 修正された着地位置で歩行パラメータを上書き
+        // TODO: 上書きよりも、新規のほうが後々都合が良いかも。
+        LandingPosition_[walking_step][1] = p_x_fix;
+        LandingPosition_[walking_step][2] = p_y_fix;
         // DEBUG: 
         std::cout << p_x_fix << " " << p_y_fix << std::endl;
         
@@ -464,7 +468,8 @@ namespace webots_robot_handler
       // -TODO: 次着地位置が0.037だった場合の処理を書くべき。遊脚Y軸のwalking_step-1を含む式の解が好ましくないものになる。
         // 次着地位置を参照せずに、前着地位置と次着地位置の差分を０と扱えばいい。つまり、walking_step+1をwalking_step-1に変えれば良いだけなはず。
         // -TODO: もっとキレイにできるはず。
-      else if(LandingPosition_[walking_step+1][2] == 0.037) {
+      // TODO: 突貫工事。LandingPositionが修正値で上書きされる前の値であれば、LandingPosition==0.037でひとまずOK。
+      else if(std::abs(LandingPosition_[walking_step+1][2]-0.037) < 0.001) {
         Foot_3D_Pos = {
           LandingPosition_[walking_step][1]-CoG_2D_Pos_world[control_step][0],  // x 
           (LandingPosition_[walking_step][2]-LandingPosition_[0][2])-(CoG_2D_Pos_local[control_step][1]-LandingPosition_[0][2]),  // y (基準点を右足接地点から胴体真下にするために、-0.037). 現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
