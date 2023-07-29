@@ -77,5 +77,22 @@ xlabel("time")
 ylabel("x position")
 grid on
 
+f6 = figure;
+figure(f6);
+plot3(xr, yr, zr, xl, yl, zl)
+legend("right foot", "left foot")
+xlabel("x position")
+ylabel("y position")
+grid on
+zlabel("z position")
+
+load WPG_log_SwingTrajectory.dat;
+
+f7 = figure;
+figure(f7);
+plot(t4, WPG_log_SwingTrajectory)
+xlabel("time")
+ylabel("swing trajectory")
+grid on
 
 % reference https://jp.mathworks.com/help/matlab/data_analysis/plotting-data.html
