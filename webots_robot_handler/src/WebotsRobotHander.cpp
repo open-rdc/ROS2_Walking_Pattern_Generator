@@ -132,7 +132,7 @@ namespace webots_robot_handler
     LandingPosition_ = {{0.0, 0.0, 0.037},  // 歩行パラメータからの着地位置(time, x, y)
                         {0.8, 0.0, 0.074},  // 元は、0.037. 基準点を変えている. 
                         {1.6, 0.05, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
-                        {2.4, 0.1, 0.074},  // TODO: そもそもコレの基準点を胴体の真下でも通じるようにするべき。
+                        {2.4, 0.10, 0.074},  // TODO: そもそもコレの基準点を胴体の真下でも通じるようにするべき。
                         {3.2, 0.15, 0.0},
                         {4.0, 0.2, 0.074},
                         {4.8, 0.2, 0.037},
@@ -366,7 +366,7 @@ namespace webots_robot_handler
     WPG_log_WalkingPttern.close();
 
     // 遊脚軌道に必要な変数の定義
-    float height_leg_lift = 0.02;  // 足上げ高さ [m]
+    float height_leg_lift = 0.08;  // 足上げ高さ [m]
     double swing_trajectory;  // 遊脚軌道の値を記録
     t = 0;
     walking_time = 0;
@@ -417,7 +417,7 @@ namespace webots_robot_handler
         // 歩行パターン生成時に、両脚支持期間を考慮すべきか？ただ単に両脚ともに地面についていれば良いのか？目標重心位置のYを0.037にすれば良いのか？
       // BUG: 両脚支持の時の遊脚軌道が駄目。前に出すのではなく、支持脚と同じように後ろに引く動作をしなければならない。
       if(t >= T_dsup/2 && t <= T_sup-T_dsup/2) {
-        swing_trajectory = height_leg_lift * std::sin((3.141592/(T_sup-T_dsup))*(t-T_dsup/2)) + 0.06;  //
+        swing_trajectory = height_leg_lift * std::sin((3.141592/(T_sup-T_dsup))*(t-T_dsup/2));  //
         //swing_trajectory = 0;
       }
       else {
@@ -623,8 +623,14 @@ namespace webots_robot_handler
 
         // 各関節速度の計算
         // TODO: 足先の速度は、行列の末列に入っている。
-        jointVel_legR = Jacobi_legR_.inverse()*CoG_3D_Vel;
-        jointVel_legL = Jacobi_legL_.inverse()*CoG_3D_Vel;
+        if((t > T_dsup/2 && t <= T_dsup/2+0.05) || (t > (T_sup - T_dsup+0.15) && t <= (T_sup - T_dsup/2))) {
+          jointVel_legR = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
+          jointVel_legL = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
+        }
+        else {
+          jointVel_legR = Jacobi_legR_.inverse()*CoG_3D_Vel;
+          jointVel_legL = Jacobi_legL_.inverse()*CoG_3D_Vel;
+        }
 
         // 歩行パラメータの代入
         WalkingPattern_Pos_legR_.push_back(Q_legR_);
@@ -658,8 +664,14 @@ namespace webots_robot_handler
         JacobiMatrix_leg(Q_legR_, Q_legL_);
 
         // 各関節速度の計算
-        jointVel_legR = Jacobi_legR_.inverse()*CoG_3D_Vel;
-        jointVel_legL = Jacobi_legL_.inverse()*CoG_3D_Vel;
+        if((t > T_dsup/2 && t <= T_dsup/2+0.05) || (t > (T_sup - T_dsup+0.15) && t <= (T_sup - T_dsup/2))) {
+          jointVel_legR = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
+          jointVel_legL = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
+        }
+        else {
+          jointVel_legR = Jacobi_legR_.inverse()*CoG_3D_Vel;
+          jointVel_legL = Jacobi_legL_.inverse()*CoG_3D_Vel;
+        }
 
         // 歩行パラメータの代入
         WalkingPattern_Pos_legR_.push_back(Q_legR_);  // 遊脚
@@ -693,8 +705,14 @@ namespace webots_robot_handler
         JacobiMatrix_leg(Q_legR_, Q_legL_);
 
         // 各関節速度の計算
-        jointVel_legR = Jacobi_legR_.inverse()*CoG_3D_Vel;
-        jointVel_legL = Jacobi_legL_.inverse()*CoG_3D_Vel;
+        if((t > T_dsup/2 && t <= T_dsup/2+0.05) || (t > (T_sup - T_dsup+0.15) && t <= (T_sup - T_dsup/2))) {
+          jointVel_legR = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
+          jointVel_legL = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
+        }
+        else {
+          jointVel_legR = Jacobi_legR_.inverse()*CoG_3D_Vel;
+          jointVel_legL = Jacobi_legL_.inverse()*CoG_3D_Vel;
+        }
 
         // 歩行パラメータの代入
         WalkingPattern_Pos_legR_.push_back(Q_legR_);  // 支持脚
