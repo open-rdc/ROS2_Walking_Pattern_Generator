@@ -242,7 +242,7 @@ namespace webots_robot_handler
     double dy_bar = 0;
 
     // 着地位置修正の最適化での重み
-    int opt_weight_pos = 1;
+    int opt_weight_pos = 10;
     int opt_weight_vel = 1;
     // 最適化のときのマテリアル
     double D = opt_weight_pos * std::pow((std::cosh(T_sup / T_c) - 1), 2) + opt_weight_vel * std::pow((std::sinh(T_sup / T_c) / T_c), 2);  
@@ -477,14 +477,14 @@ namespace webots_robot_handler
           FixedLandingPosition[walking_step][1]-CoG_2D_Pos_world[control_step][1],  // y 現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
           -length_leg_  // z 
         };
-        if(t < T_dsup/2) {
+        if(t <= T_dsup/2) {
           Foot_3D_Pos_Swing = {
             0,  // 
             FixedLandingPosition[walking_step+1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step+1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 
             -length_leg_
           };
         }
-        else if(t > T_sup-T_dsup/2) {
+        else if(t >= T_sup-T_dsup/2) {
           Foot_3D_Pos_Swing = {
             FixedLandingPosition[walking_step+1][0]-CoG_2D_Pos_world[control_step][0],  // 
             FixedLandingPosition[walking_step+1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step+1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 
@@ -511,14 +511,14 @@ namespace webots_robot_handler
           FixedLandingPosition[walking_step][1]-CoG_2D_Pos_world[control_step][1],  // y  現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
           -length_leg_  // z 
         };
-        if(t < T_dsup/2) {
+        if(t <= T_dsup/2) {
           Foot_3D_Pos_Swing = {
             FixedLandingPosition[walking_step-1][0]-CoG_2D_Pos_world[control_step][0],  // 
             FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step-1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 
             -length_leg_
           };
         }
-        else if(t > T_sup-T_dsup/2) {
+        else if(t >= T_sup-T_dsup/2) {
           Foot_3D_Pos_Swing = {
             FixedLandingPosition[walking_step+1][0]-CoG_2D_Pos_world[control_step][0],  // 
             FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step-1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 
@@ -540,14 +540,14 @@ namespace webots_robot_handler
           FixedLandingPosition[walking_step][1]-CoG_2D_Pos_world[control_step][1],  // y 現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
           -length_leg_  // z 
         };
-        if(t < T_dsup/2) {
+        if(t <= T_dsup/2) {
           Foot_3D_Pos_Swing = {
             FixedLandingPosition[walking_step-1][0]-CoG_2D_Pos_world[control_step][0],  // 
             FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 
             -length_leg_
           };
         }
-        else if(t > T_sup-T_dsup/2) {
+        else if(t >= T_sup-T_dsup/2) {
           Foot_3D_Pos_Swing = {
             FixedLandingPosition[walking_step+1][0]-CoG_2D_Pos_world[control_step][0],  // 
             FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 

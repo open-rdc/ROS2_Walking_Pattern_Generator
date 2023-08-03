@@ -87,24 +87,25 @@ namespace kinematics
     P_target_leg_zhip2end = R_target_leg.transpose() * (P_leg[0] - P_target_leg);
 
     double a, b, c;
-    a = abs(P_leg[3](2));
-    b = abs(P_leg[4](2));
-    c = sqrt(pow(P_target_leg_zhip2end(0), 2) + pow(P_target_leg_zhip2end(1), 2) + pow(P_target_leg_zhip2end(2), 2));  // pow(A, B) == A^B =- AのB乗
+    a = std::abs(P_leg[3](2));
+    b = std::abs(P_leg[4](2));
+    c = std::sqrt(std::pow(P_target_leg_zhip2end(0), 2) + std::pow(P_target_leg_zhip2end(1), 2) + std::pow(P_target_leg_zhip2end(2), 2));  // pow(A, B) == A^B =- AのB乗
 
-    Q[3] = -1 * acos((pow(a, 2) + pow(b, 2) - pow(c, 2)) / (2 * a * b)) + pi_;
+    Q[3] = -1 * std::acos((std::pow(a, 2) + std::pow(b, 2) - std::pow(c, 2)) / (2 * a * b)) + pi_;
 
     double d;
-    d = asin((a * sin(pi_ - Q[3])) / c);
+    d = std::asin((a * sin(pi_ - Q[3])) / c);
 
-    Q[4] = -1 * atan2(P_target_leg_zhip2end(0), sign(P_target_leg_zhip2end(2)) * sqrt(pow(P_target_leg_zhip2end(1), 2) + pow(P_target_leg_zhip2end(2), 2))) - d;
-    Q[5] = atan2(P_target_leg_zhip2end(1), P_target_leg_zhip2end(2));
+    Q[4] = -1 * std::atan2(P_target_leg_zhip2end(0), sign(P_target_leg_zhip2end(2)) * std::sqrt(std::pow(P_target_leg_zhip2end(1), 2) + std::pow(P_target_leg_zhip2end(2), 2))) - d;
+    Q[5] = std::atan2(P_target_leg_zhip2end(1), P_target_leg_zhip2end(2));
 
     Matrix3d R_target_leg_begin2yhip;  // 基準から股関節(y軸関節)まで
-    R_target_leg_begin2yhip = R_target_leg * Rx(Q[5]).transpose() * Ry(Q[4]).transpose() * Ry(Q[3]).transpose();
-
-    Q[0] = atan2(-R_target_leg_begin2yhip(0, 1), R_target_leg_begin2yhip(1, 1));
-    Q[1] = atan2(R_target_leg_begin2yhip(2, 1), -R_target_leg_begin2yhip(0, 1) * sin(Q[0]) + R_target_leg_begin2yhip(1, 1) * cos(Q[0]));
-    Q[2] = atan2(-R_target_leg_begin2yhip(2, 0), R_target_leg_begin2yhip(2, 2));
+    R_target_leg_begin2yhip = R_target_leg * Rx(Q[5]).inverse() * Ry(Q[3]+Q[4]).inverse();
+    // std::cout << R_target_leg_begin2yhip << std::endl;
+    // std::cout << R_target_leg_begin2yhip(0, 1) << std::endl;
+    Q[0] = std::atan2(-R_target_leg_begin2yhip(0, 1), R_target_leg_begin2yhip(1, 1));
+    Q[1] = std::atan2(R_target_leg_begin2yhip(2, 1), -R_target_leg_begin2yhip(0, 1) * std::sin(Q[0]) + R_target_leg_begin2yhip(1, 1) * std::cos(Q[0]));
+    Q[2] = std::atan2(-R_target_leg_begin2yhip(2, 0), R_target_leg_begin2yhip(2, 2));
 
     return Q;
   }
