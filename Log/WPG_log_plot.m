@@ -39,7 +39,8 @@ grid on
 f3 = figure;
 figure(3);
 plot(t, WPG_log_WalkingPattern)
-legend(["CoG Position X world", "CoG Position Y world", "CoG Velocity X", "CoG Velocity Y", "p x fix", "p y fix", "LandingPosition X", "LandingPosition Y"], "Location", "northwest")
+% legend(["CoG Position X world", "CoG Position Y world", "CoG Velocity X", "CoG Velocity Y", "p x fix", "p y fix", "LandingPosition X", "LandingPosition Y"], "Location", "northwest")
+legend(["CoG Position X world", "CoG Position Y world", "p x fix", "p y fix", "LandingPosition X", "LandingPosition Y"], "Location", "northwest")
 xlabel("time")
 grid on
 
