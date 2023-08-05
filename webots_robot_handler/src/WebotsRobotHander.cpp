@@ -192,17 +192,20 @@ namespace webots_robot_handler
 
     // DEBUG: Logを吐くファイルを指定
     std::ofstream WPG_log_WalkingPttern;
-    std::string WPG_log_WalkingPttern_name = "src/Log/WPG_log_WalkingPattern.dat";
-    WPG_log_WalkingPttern.open(WPG_log_WalkingPttern_name, std::ios::out);
+    std::string WPG_log_WalkingPttern_path = "src/Log/WPG_log_WalkingPattern.dat";
+    WPG_log_WalkingPttern.open(WPG_log_WalkingPttern_path, std::ios::out);
     std::ofstream WPG_log_FootTrajectory;
-    std::string WPG_log_FootTrajectory_name = "src/Log/WPG_log_FootTrajectory.dat";
-    WPG_log_FootTrajectory.open(WPG_log_FootTrajectory_name, std::ios::out);
+    std::string WPG_log_FootTrajectory_path = "src/Log/WPG_log_FootTrajectory.dat";
+    WPG_log_FootTrajectory.open(WPG_log_FootTrajectory_path, std::ios::out);
     std::ofstream WPG_log_FootTrajectory_FK;
-    std::string WPG_log_FootTrajectory_FK_name = "src/Log/WPG_log_FootTrajectory_FK.dat";
-    WPG_log_FootTrajectory_FK.open(WPG_log_FootTrajectory_FK_name, std::ios::out);
+    std::string WPG_log_FootTrajectory_FK_path = "src/Log/WPG_log_FootTrajectory_FK.dat";
+    WPG_log_FootTrajectory_FK.open(WPG_log_FootTrajectory_FK_path, std::ios::out);
     std::ofstream WPG_log_SwingTrajectory;
-    std::string WPG_WPG_log_SwingTrajectory_name = "src/Log/WPG_log_SwingTrajectory.dat";
-    WPG_log_SwingTrajectory.open(WPG_WPG_log_SwingTrajectory_name, std::ios::out);
+    std::string WPG_WPG_log_SwingTrajectory_path = "src/Log/WPG_log_SwingTrajectory.dat";
+    WPG_log_SwingTrajectory.open(WPG_WPG_log_SwingTrajectory_path, std::ios::out);
+    std::ofstream WPG_log_SwingTrajectory_Vel;
+    std::string WPG_log_SwingTrajectory_Vel_path = "src/Log/WPG_log_SwingTrajectory_Vel.dat";
+    WPG_log_SwingTrajectory_Vel.open(WPG_log_SwingTrajectory_Vel_path, std::ios::out);
 
     // 制御周期
     float control_cycle = 0.01;  // [s]
@@ -366,7 +369,7 @@ namespace webots_robot_handler
     WPG_log_WalkingPttern.close();
 
     // 遊脚軌道に必要な変数の定義
-    float height_leg_lift = 0.08;  // 足上げ高さ [m]
+    float height_leg_lift = 0.025;  // 足上げ高さ [m]
     double swing_trajectory = 0.0;  // 遊脚軌道の値を記録
     double old_swing_trajectory = 0.0;  // 微分用
     double vel_swing_trajectory = 0.0;  // 遊脚軌道の速度。0.01[s]での遊脚軌道の差分 / 0.01[s] をすれば算出できるだろう。
@@ -423,13 +426,14 @@ namespace webots_robot_handler
       if(t >= T_dsup/2 && t <= T_sup-T_dsup/2) {
         swing_trajectory = height_leg_lift * std::sin((3.141592/(T_sup-T_dsup))*(t-T_dsup/2));  //
         //swing_trajectory = 0;
+        // 遊脚軌道の速度を算出
+        vel_swing_trajectory = (swing_trajectory - old_swing_trajectory) / control_cycle;
       }
       else {
         swing_trajectory = 0.0;
+        old_swing_trajectory = 0.0;  // 特に意味はない。
+        vel_swing_trajectory = 0.0;
       }
-
-      // 遊脚軌道の速度を算出
-      vel_swing_trajectory = (swing_trajectory - old_swing_trajectory) / control_cycle;
 
       // LOG:
       WPG_log_SwingTrajectory << swing_trajectory << std::endl;      
@@ -594,6 +598,8 @@ namespace webots_robot_handler
         0,
         0
       };
+      // LOG:
+      WPG_log_SwingTrajectory_Vel << CoG_3D_Vel.transpose() << " " << CoG_3D_Vel_Swing.transpose() << std::endl;
 
       // 支持脚の判定
       // 歩行開始、終了時。常に両脚支持
@@ -639,7 +645,7 @@ namespace webots_robot_handler
 
         // 各関節速度の計算
         // TODO: 足先の速度は、行列の末列に入っている。
-        if((t > T_dsup/2 && t <= T_dsup/2+0.05) || (t > (T_sup - T_dsup+0.15) && t <= (T_sup - T_dsup/2))) {
+        if((t >= T_dsup/2 && t < T_dsup/2+0.03) || (t > (T_sup - T_dsup+0.17) && t <= (T_sup - T_dsup/2))) {
           jointVel_legR = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
           jointVel_legL = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
         }
@@ -680,7 +686,7 @@ namespace webots_robot_handler
         JacobiMatrix_leg(Q_legR_, Q_legL_);
 
         // 各関節速度の計算
-        if((t > T_dsup/2 && t <= T_dsup/2+0.05) || (t > (T_sup - T_dsup+0.15) && t <= (T_sup - T_dsup/2))) {
+        if((t >= T_dsup/2 && t < T_dsup/2+0.03) || (t > (T_sup - T_dsup+0.17) && t <= (T_sup - T_dsup/2))) {
           jointVel_legR = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
           jointVel_legL = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
         }
@@ -721,7 +727,7 @@ namespace webots_robot_handler
         JacobiMatrix_leg(Q_legR_, Q_legL_);
 
         // 各関節速度の計算
-        if((t > T_dsup/2 && t <= T_dsup/2+0.05) || (t > (T_sup - T_dsup+0.15) && t <= (T_sup - T_dsup/2))) {
+        if((t >= T_dsup/2 && t < T_dsup/2+0.03) || (t > (T_sup - T_dsup+0.17) && t <= (T_sup - T_dsup/2))) {
           jointVel_legR = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
           jointVel_legL = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
         }

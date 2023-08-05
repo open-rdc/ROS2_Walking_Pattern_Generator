@@ -113,4 +113,28 @@ ylabel("z position [m]")
 legend("swing trajectory")
 grid on
 
+load WPG_log_SwingTrajectory_Vel.dat;
+
+[a8, b8] = size(WPG_log_SwingTrajectory_Vel);
+t8 = 1:a8;
+i = 0;
+for n=t8
+  i = i + 1;
+  dx_su(i) = WPG_log_SwingTrajectory_Vel(i, 1);
+  dy_su(i) = WPG_log_SwingTrajectory_Vel(i, 2);
+  dz_su(i) = WPG_log_SwingTrajectory_Vel(i, 3);
+  dx_sw(i) = WPG_log_SwingTrajectory_Vel(i, 7);
+  dy_sw(i) = WPG_log_SwingTrajectory_Vel(i, 8);
+  dz_sw(i) = WPG_log_SwingTrajectory_Vel(i, 9);
+end
+
+f8 = "WPG_log_SwingTrajectory_Vel";
+figure("name", f8);
+plot(t8, dz_sw)
+legend("dz: swing leg")
+xlabel("time")
+ylabel("z trans vel [m/s]")
+grid on
+
+
 % reference https://jp.mathworks.com/help/matlab/data_analysis/plotting-data.html
