@@ -341,8 +341,8 @@ namespace webots_robot_handler
         // -TODO: 上書きよりも、新規のほうが後々都合が良いかも。
         // LandingPosition_[walking_step][1] = FixedLandingPosition[walking_step][0];
         // LandingPosition_[walking_step][2] = FixedLandingPosition[walking_step][1];
-        // DEBUG: 
-        std::cout << FixedLandingPosition[walking_step][0] << " " << FixedLandingPosition[walking_step][1] << std::endl;
+        // -DEBUG: 
+        // std::cout << FixedLandingPosition[walking_step][0] << " " << FixedLandingPosition[walking_step][1] << std::endl;
         
         // 値の更新
         t = 0.01;

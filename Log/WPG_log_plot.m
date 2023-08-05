@@ -2,7 +2,6 @@ clear;
 close all;
 
 load WPG_log_FootTrajectory.dat;
-load WPG_log_WalkingPattern.dat;
 
 [a, b] = size(WPG_log_FootTrajectory);
 
@@ -24,24 +23,31 @@ for n=t
   z2(i) = WPG_log_FootTrajectory(i, 8);
 end
 
-f1 = figure;
-f2 = figure;
-figure(f1);
-plot3(t, xc, z1, t, y1, z1, t, y2, z2)
-legend("-", "Foot Pos of Support Leg relative to CoG Pos (t, y, z)", "Foot Pos of Swing Leg relative to CoG Pos (t, y, z)")
+f1 =  "WPG_log_FootTrajectory";
+figure('name', f1);
+plot3(t, y1, z1, t, y2, z2)
+title("支持脚・遊脚の足先位置の時間変化")
+legend("Foot Pos of Support Leg relative to CoG Pos", "Foot Pos of Swing Leg relative to CoG Pos")
+xlabel("time")
+ylabel("y position [m]")
+zlabel("z position [m]")
 grid on
 
-figure(f2);
+f2 =  "WPG_log_FootTrajectory";
+figure('name', f2);
 plot(t, xc, t, y1, t, y2)
 legend("-", "Foot Pos of Support Leg relative to CoG Pos (t, y)", "Foot Pos of Swing Leg relative to CoG Pos (t, y)")
 grid on
 
-f3 = figure;
-figure(3);
+load WPG_log_WalkingPattern.dat;
+
+f3 = "WPG_log_WalkingPattern";
+figure('name', f3);
 plot(t, WPG_log_WalkingPattern)
 % legend(["CoG Position X world", "CoG Position Y world", "CoG Velocity X", "CoG Velocity Y", "p x fix", "p y fix", "LandingPosition X", "LandingPosition Y"], "Location", "northwest")
-legend(["CoG Position X world", "CoG Position Y world", "p x fix", "p y fix", "LandingPosition X", "LandingPosition Y"], "Location", "northwest")
+legend(["CoG Position X world [m]", "CoG Position Y world [m]", "p x fix [m]", "p y fix [m]", "LandingPosition X [m]", "LandingPosition Y [m]"], "Location", "northwest")
 xlabel("time")
+ylabel("position [m]")
 grid on
 
 load WPG_log_FootTrajectory_FK.dat;
@@ -61,39 +67,50 @@ for n=t
   zl(i) = WPG_log_FootTrajectory_FK(i, 6);
 end
 
-f4 = figure;
-figure(f4);
+f4 = "WPG_log_FootTrajectory_FK";
+figure('name', f4);
 plot3(t4, yr, zr, t4, yl, zl)
-legend("right foot", "left foot")
+title("左脚・右脚の足先位置の時間変化")
+legend("Foot Pos of Right Leg relative to CoG Pos", "Foot Pos of Left Leg relative to CoG Pos")
 xlabel("time")
-ylabel("y position")
-zlabel("z position")
+ylabel("y position [m]")
+zlabel("z position [m]")
 grid on
 
-f5 = figure;
-figure(f5);
+figure("name", "hikaku")
+plot3(t, y1, z1, t, y2, z2, t4, yr, zr, t4, yl, zl)
+title("IK前（figure1）とIK->FK後（figure4）の比較")
+legend("Foot Pos of Support Leg relative to CoG Pos", "Foot Pos of Swing Leg relative to CoG Pos", "Foot Pos of Right Leg relative to CoG Pos", "Foot Pos of Left Leg relative to CoG Pos")
+xlabel("time")
+ylabel("y position [m]")
+zlabel("z position [m]")
+grid on
+
+f5 = "WPG_log_FootTrajectory_FK";
+figure('name', f5);
 plot(t4,xr, t4, xl)
-legend("right", "left")
+legend("Foot Pos of Right Leg relative to CoG Pos", "Foot Pos of Left Leg relative to CoG Pos")
 xlabel("time")
-ylabel("x position")
+ylabel("x position [m]")
 grid on
 
-f6 = figure;
-figure(f6);
+f6 = "WPG_log_FootTrajectory_FK";
+figure('name', f6);
 plot3(xr, yr, zr, xl, yl, zl)
-legend("right foot", "left foot")
-xlabel("x position")
-ylabel("y position")
+legend("Foot Pos of Right Leg relative to CoG Pos", "Foot Pos of Left Leg relative to CoG Pos")
+xlabel("x position [m]")
+ylabel("y position [m]")
 grid on
 zlabel("z position")
 
 load WPG_log_SwingTrajectory.dat;
 
-f7 = figure;
-figure(f7);
+f7 = "WPG_log_SwingTrajectory";
+figure('name', f7);
 plot(t4, WPG_log_SwingTrajectory)
 xlabel("time")
-ylabel("swing trajectory")
+ylabel("z position [m]")
+legend("swing trajectory")
 grid on
 
 % reference https://jp.mathworks.com/help/matlab/data_analysis/plotting-data.html
