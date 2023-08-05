@@ -367,7 +367,9 @@ namespace webots_robot_handler
 
     // 遊脚軌道に必要な変数の定義
     float height_leg_lift = 0.08;  // 足上げ高さ [m]
-    double swing_trajectory;  // 遊脚軌道の値を記録
+    double swing_trajectory = 0.0;  // 遊脚軌道の値を記録
+    double old_swing_trajectory = 0.0;  // 微分用
+    double vel_swing_trajectory = 0.0;  // 遊脚軌道の速度。0.01[s]での遊脚軌道の差分 / 0.01[s] をすれば算出できるだろう。
     t = 0;
     walking_time = 0;
     walking_step = 0;
@@ -392,6 +394,7 @@ namespace webots_robot_handler
     Eigen::Vector<double, 3> Foot_3D_Pos;
     Eigen::Vector<double, 3> Foot_3D_Pos_Swing;
     Eigen::Vector<double, 6> CoG_3D_Vel;
+    Eigen::Vector<double, 6> CoG_3D_Vel_Swing;
     Eigen::Vector<double, 6> jointVel_legR;
     Eigen::Vector<double, 6> jointVel_legL;
     while(walking_time <= walking_time_max) {
@@ -415,14 +418,20 @@ namespace webots_robot_handler
       // 両脚支持期間を無視するように条件分岐。両脚支持期間以外で正弦波を > 0 にしてやることで、片足支持にしている。
       // TODO: 両脚支持期間は支持脚切替時に重心速度が急激に変化しないようにするために設けるものである。
         // 歩行パターン生成時に、両脚支持期間を考慮すべきか？ただ単に両脚ともに地面についていれば良いのか？目標重心位置のYを0.037にすれば良いのか？
-      // BUG: 両脚支持の時の遊脚軌道が駄目。前に出すのではなく、支持脚と同じように後ろに引く動作をしなければならない。
+      // -BUG: 両脚支持の時の遊脚軌道が駄目。前に出すのではなく、支持脚と同じように後ろに引く動作をしなければならない。
+      old_swing_trajectory = swing_trajectory;
       if(t >= T_dsup/2 && t <= T_sup-T_dsup/2) {
         swing_trajectory = height_leg_lift * std::sin((3.141592/(T_sup-T_dsup))*(t-T_dsup/2));  //
         //swing_trajectory = 0;
       }
       else {
-        swing_trajectory = 0;
+        swing_trajectory = 0.0;
       }
+
+      // 遊脚軌道の速度を算出
+      vel_swing_trajectory = (swing_trajectory - old_swing_trajectory) / control_cycle;
+
+      // LOG:
       WPG_log_SwingTrajectory << swing_trajectory << std::endl;      
 
       // 重心位置を元とした足位置の定義
@@ -576,10 +585,18 @@ namespace webots_robot_handler
         0,  // rotation y
         0   // rotation z
       };
+      // 遊脚用の重心速度の定義
+      CoG_3D_Vel_Swing = {
+        CoG_2D_Vel[control_step][0],
+        CoG_2D_Vel[control_step][1],
+        vel_swing_trajectory,
+        0,
+        0,
+        0
+      };
 
       // 支持脚の判定
-      // 歩行開始、終了時
-      // -TODO: 今は、始まりの支持脚と終わりの支持脚が同じだからコレでOK。異なった場合も書くべき。
+      // 歩行開始、終了時。常に両脚支持
       if(LandingPosition_[walking_step][2] == 0) {
         int ref_ws; 
         if(walking_step == 0) {  // 歩行開始時
@@ -589,7 +606,6 @@ namespace webots_robot_handler
           ref_ws = walking_step-1;
         }
         if(LandingPosition_[ref_ws][2]-LandingPosition_[ref_ws+1][2] >= 0) {  // 左脚支持
-        // 両脚支持。遊脚はないので、左右どちらも重心位置からIKを解く。
           // IK
           Q_legR_ = IK_.getIK(  // IKを解いて、各関節角度を取得
             P_legR_waist_standard_,  // 脚の各リンク長
@@ -669,7 +685,7 @@ namespace webots_robot_handler
           jointVel_legL = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
         }
         else {
-          jointVel_legR = Jacobi_legR_.inverse()*CoG_3D_Vel;
+          jointVel_legR = Jacobi_legR_.inverse()*CoG_3D_Vel_Swing;
           jointVel_legL = Jacobi_legL_.inverse()*CoG_3D_Vel;
         }
 
@@ -711,7 +727,7 @@ namespace webots_robot_handler
         }
         else {
           jointVel_legR = Jacobi_legR_.inverse()*CoG_3D_Vel;
-          jointVel_legL = Jacobi_legL_.inverse()*CoG_3D_Vel;
+          jointVel_legL = Jacobi_legL_.inverse()*CoG_3D_Vel_Swing;
         }
 
         // 歩行パラメータの代入
