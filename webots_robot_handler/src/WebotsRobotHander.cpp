@@ -427,7 +427,7 @@ namespace webots_robot_handler
         swing_trajectory = height_leg_lift * std::sin((3.141592/(T_sup-T_dsup))*(t-T_dsup/2));  //
         //swing_trajectory = 0;
         // 遊脚軌道の速度を算出
-        vel_swing_trajectory = (swing_trajectory - old_swing_trajectory) / control_cycle;
+        vel_swing_trajectory = std::abs((swing_trajectory - old_swing_trajectory) / control_cycle);
       }
       else {
         swing_trajectory = 0.0;
