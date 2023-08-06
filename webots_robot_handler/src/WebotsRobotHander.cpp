@@ -369,7 +369,7 @@ namespace webots_robot_handler
     WPG_log_WalkingPttern.close();
 
     // 遊脚軌道に必要な変数の定義
-    float height_leg_lift = 0.025;  // 足上げ高さ [m]
+    float height_leg_lift = 0.03;  // 足上げ高さ [m]
     double swing_trajectory = 0.0;  // 遊脚軌道の値を記録
     double old_swing_trajectory = 0.0;  // 微分用
     double vel_swing_trajectory = 0.0;  // 遊脚軌道の速度。0.01[s]での遊脚軌道の差分 / 0.01[s] をすれば算出できるだろう。
@@ -422,8 +422,8 @@ namespace webots_robot_handler
       // TODO: 両脚支持期間は支持脚切替時に重心速度が急激に変化しないようにするために設けるものである。
         // 歩行パターン生成時に、両脚支持期間を考慮すべきか？ただ単に両脚ともに地面についていれば良いのか？目標重心位置のYを0.037にすれば良いのか？
       // -BUG: 両脚支持の時の遊脚軌道が駄目。前に出すのではなく、支持脚と同じように後ろに引く動作をしなければならない。
-      old_swing_trajectory = swing_trajectory;
       if(t >= T_dsup/2 && t <= T_sup-T_dsup/2) {
+        old_swing_trajectory = swing_trajectory;
         swing_trajectory = height_leg_lift * std::sin((3.141592/(T_sup-T_dsup))*(t-T_dsup/2));  //
         //swing_trajectory = 0;
         // 遊脚軌道の速度を算出
