@@ -110,7 +110,7 @@ figure('name', f7);
 plot(t4, WPG_log_SwingTrajectory)
 xlabel("time")
 ylabel("z position [m]")
-legend("swing trajectory")
+legend("swing trajectory", "old swing trajectory")
 grid on
 
 load WPG_log_SwingTrajectory_Vel.dat;

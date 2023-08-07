@@ -427,7 +427,7 @@ namespace webots_robot_handler
         swing_trajectory = height_leg_lift * std::sin((3.141592/(T_sup-T_dsup))*(t-T_dsup/2));  //
         //swing_trajectory = 0;
         // 遊脚軌道の速度を算出
-        vel_swing_trajectory = std::abs((swing_trajectory - old_swing_trajectory) / control_cycle);
+        vel_swing_trajectory = ((swing_trajectory - old_swing_trajectory) / control_cycle);
       }
       else {
         swing_trajectory = 0.0;
@@ -436,7 +436,7 @@ namespace webots_robot_handler
       }
 
       // LOG:
-      WPG_log_SwingTrajectory << swing_trajectory << std::endl;      
+      WPG_log_SwingTrajectory << swing_trajectory << " " << old_swing_trajectory << " " << (swing_trajectory-old_swing_trajectory) << std::endl;      
 
       // 重心位置を元とした足位置の定義
       // -CHECKME: もっとキレイな書き方があるはず。修正すべき。今は、始まりの支持脚と終わりの支持脚が同じだからコレでOK。異なった場合も書くべき。
