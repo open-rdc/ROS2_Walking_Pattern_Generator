@@ -119,16 +119,7 @@ namespace webots_robot_handler
     // Dynamic Gait ====
     weight_ = 3.0;  // [kg]
     length_leg_ = 171.856 / 1000;  // [m] ちょっと中腰。特異点を回避。直立：219.5[mm]
-    // TODO: 足踏み。歩行する着地位置を計算して適用すべき
-    // LandingPosition_ = {{0.0, 0.0, 0.037},  // 歩行パラメータからの着地位置(time, x, y)
-    //                     {0.8, 0.0, 0.0},  // 元は、0.037. 基準点を変えている. 
-    //                     {1.6, 0.0, 0.074},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
-    //                     {2.4, 0.0, 0.0},  // TODO: そもそもコレの基準点を胴体の真下でも通じるようにするべき。
-    //                     {3.2, 0.0, 0.074},
-    //                     {4.0, 0.0, 0.0},
-    //                     {4.8, 0.0, 0.074},
-    //                     {5.6, 0.0, 0.037},
-    //                     {6.4, 0.0, 0.037}};
+    // TODO: 歩行周期をココで示さずに、別パラメータとすべき。
     LandingPosition_ = {{0.0, 0.0, 0.037},  // 歩行パラメータからの着地位置(time, x, y)
                         {0.8, 0.0, 0.074},  // 元は、0.037. 基準点を変えている. 
                         {1.6, 0.05, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
@@ -190,7 +181,7 @@ namespace webots_robot_handler
   // 歩行パターンの生成
   void WebotsRobotHandler::WalkingPatternGenerate() {
 
-    // DEBUG: Logを吐くファイルを指定
+    // LOG: Logを吐くファイルを指定
     std::ofstream WPG_log_WalkingPttern;
     std::string WPG_log_WalkingPttern_path = "src/Log/WPG_log_WalkingPattern.dat";
     WPG_log_WalkingPttern.open(WPG_log_WalkingPttern_path, std::ios::out);
@@ -351,7 +342,7 @@ namespace webots_robot_handler
         t = 0.01;
       }
 
-      // DEBUG: plot用
+      // LOG: plot用
       // -TODO: 複数のファイルを読み込んで、複数種類のLogを吐くようにすべき。可変長の配列をMessageをPublishが扱えれば一番いいが。
       WPG_log_WalkingPttern << CoG_2D_Pos_world[control_step][0] << " " << CoG_2D_Pos_world[control_step][1]-(LandingPosition_[0][2]) << " " 
                 // << CoG_2D_Pos_local[control_step][0] << " " << CoG_2D_Pos_local[control_step][1]-(LandingPosition_[0][2]) << " " 
@@ -365,7 +356,7 @@ namespace webots_robot_handler
       walking_time += control_cycle;
     }
 
-    // DEBUG: Log file close
+    // LOG: Log file close
     WPG_log_WalkingPttern.close();
 
     // 遊脚軌道に必要な変数の定義
@@ -577,7 +568,7 @@ namespace webots_robot_handler
         }
       }
 
-      // DEBUG: Logの吐き出し
+      // LOG: Logの吐き出し
       WPG_log_FootTrajectory << CoG_2D_Pos_world[control_step][0] << " " << CoG_2D_Pos_world[control_step][1] << " " << Foot_3D_Pos.transpose() << " " << Foot_3D_Pos_Swing.transpose() << std::endl;
 
       // 重心速度の定義
@@ -638,6 +629,7 @@ namespace webots_robot_handler
         }
         
         // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
+        // LOG:
         WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
@@ -680,6 +672,7 @@ namespace webots_robot_handler
         // Q_legR_[4] += -0.15;
 
         // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
+        // LOG:
         WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
@@ -721,6 +714,7 @@ namespace webots_robot_handler
         // Q_legL_[4] += -0.15;
 
         // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
+        // LOG:
         WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
@@ -750,7 +744,7 @@ namespace webots_robot_handler
 
     }
     
-    // DEBUG: Log file close
+    // LOG: Log file close
     WPG_log_WalkingPttern.close();
     WPG_log_FootTrajectory.close();
     WPG_log_FootTrajectory_FK.close();
