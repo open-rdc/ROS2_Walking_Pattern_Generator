@@ -122,12 +122,12 @@ namespace webots_robot_handler
     // TODO: 歩行周期をココで示さずに、別パラメータとすべき。
     LandingPosition_ = {{0.0, 0.0, 0.037},  // 歩行パラメータからの着地位置(time, x, y)
                         {0.8, 0.0, 0.074},  // 元は、0.037. 基準点を変えている. 
-                        {1.6, 0.05, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
-                        {2.4, 0.10, 0.074},  // TODO: そもそもコレの基準点を胴体の真下でも通じるようにするべき。
-                        {3.2, 0.15, 0.0},
-                        {4.0, 0.2, 0.074},
-                        {4.8, 0.2, 0.037},
-                        {5.6, 0.2, 0.037}};
+                        {1.6, 0.02, 0.0},  // TODO: IKを解くときなど、WPを計算するとき以外は基準がずれるので、修正するように。
+                        {2.4, 0.04, 0.074},  // TODO: そもそもコレの基準点を胴体の真下でも通じるようにするべき。
+                        {3.2, 0.06, 0.0},
+                        {4.0, 0.08, 0.074},
+                        {4.8, 0.08, 0.037},
+                        {5.6, 0.08, 0.037}};
 
     // DEBUG: Jacobian関数のテスト
     // Q_legR_ = {0, 0, -3.14/8, 3.14/4, -3.14/8, 0};
@@ -212,7 +212,7 @@ namespace webots_robot_handler
     // 時間, 時定数
     float t = 0;  // 0 ~ 支持脚切り替え時間
     float T_sup = LandingPosition_[1][0];  // 0.8. 支持脚切り替えタイミング. 歩行素片終端時間
-    float T_dsup = 0.6;  // 両脚支持期間
+    float T_dsup = 0.5;  // 両脚支持期間
     float T_c = std::sqrt(length_leg_ / 9.81);  // 時定数
 
     // 歩行素片の始端の重心位置・速度 (World座標系)
@@ -483,7 +483,7 @@ namespace webots_robot_handler
         };
         if(t <= T_dsup/2) {
           Foot_3D_Pos_Swing = {
-            0,  // 
+            FixedLandingPosition[walking_step-1][0]-CoG_2D_Pos_world[control_step][0],
             FixedLandingPosition[walking_step+1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step+1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 
             -length_leg_
           };
@@ -492,12 +492,12 @@ namespace webots_robot_handler
           Foot_3D_Pos_Swing = {
             FixedLandingPosition[walking_step+1][0]-CoG_2D_Pos_world[control_step][0],  // 
             FixedLandingPosition[walking_step+1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step+1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 
-            -length_leg_ + swing_trajectory
+            -length_leg_
           };
         }
         else {
           Foot_3D_Pos_Swing = {
-            ((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0])*((t-T_dsup/2)/(T_sup))),  // t/(T_sup-T_dsup)
+            ((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0])*((t-T_dsup/2)/(T_sup-T_dsup))),
             //CoG_2D_Pos_world[control_step][0]-FixedLandingPosition[walking_step][0],
             FixedLandingPosition[walking_step+1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step+1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 次FP+(次FP-次FP)*t/Tsup - 重心位置
             -length_leg_ + swing_trajectory // z (遊脚軌道をzから引く) 
@@ -526,12 +526,12 @@ namespace webots_robot_handler
           Foot_3D_Pos_Swing = {
             FixedLandingPosition[walking_step+1][0]-CoG_2D_Pos_world[control_step][0],  // 
             FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step-1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 
-            -length_leg_ + swing_trajectory
+            -length_leg_
           };
         }
         else {
           Foot_3D_Pos_Swing = {
-            ((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0])*((t)/(T_sup-T_dsup)))-(FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0]),  // 
+            ((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0])*((t-T_dsup/2)/(T_sup-T_dsup)))-(FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0]),  // 
             //CoG_2D_Pos_world[control_step][0]-FixedLandingPosition[walking_step][0],
             FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step-1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 前FP+(前FP-前FP)*t/Tsup - 重心位置
             -length_leg_ + swing_trajectory // z (遊脚軌道をzから引く) 
@@ -555,12 +555,12 @@ namespace webots_robot_handler
           Foot_3D_Pos_Swing = {
             FixedLandingPosition[walking_step+1][0]-CoG_2D_Pos_world[control_step][0],  // 
             FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 
-            -length_leg_ + swing_trajectory
+            -length_leg_
           };
         }
         else {
           Foot_3D_Pos_Swing = {
-            ((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0])*((t)/(T_sup)))-((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0]) / 2),  // 
+            ((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0])*((t-T_dsup/2)/(T_sup-T_dsup)))-((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0]) / 2),  // 
             //CoG_2D_Pos_world[control_step][0]-FixedLandingPosition[walking_step][0],
             FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 前FP+(次FP-前FP)*t/Tsup - 重心位置
             -length_leg_ + swing_trajectory // z (遊脚軌道をzから引く) 
@@ -637,7 +637,7 @@ namespace webots_robot_handler
 
         // 各関節速度の計算
         // TODO: 足先の速度は、行列の末列に入っている。
-        if((t >= T_dsup/2 && t < T_dsup/2+0.03) || (t > (T_sup - T_dsup+0.17) && t <= (T_sup - T_dsup/2))) {
+        if((t >= T_dsup/2 && t < T_dsup/2+0.05) || (t > (T_sup - T_dsup/2-0.05) && t <= (T_sup - T_dsup/2))) {
           jointVel_legR = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
           jointVel_legL = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
         }
@@ -679,7 +679,7 @@ namespace webots_robot_handler
         JacobiMatrix_leg(Q_legR_, Q_legL_);
 
         // 各関節速度の計算
-        if((t >= T_dsup/2 && t < T_dsup/2+0.03) || (t > (T_sup - T_dsup+0.17) && t <= (T_sup - T_dsup/2))) {
+        if((t >= T_dsup/2 && t < T_dsup/2+0.05) || (t > (T_sup - T_dsup/2-0.05) && t <= (T_sup - T_dsup/2))) {
           jointVel_legR = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
           jointVel_legL = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
         }
@@ -721,7 +721,7 @@ namespace webots_robot_handler
         JacobiMatrix_leg(Q_legR_, Q_legL_);
 
         // 各関節速度の計算
-        if((t >= T_dsup/2 && t < T_dsup/2+0.03) || (t > (T_sup - T_dsup+0.17) && t <= (T_sup - T_dsup/2))) {
+        if((t >= T_dsup/2 && t < T_dsup/2+0.05) || (t > (T_sup - T_dsup/2-0.05) && t <= (T_sup - T_dsup/2))) {
           jointVel_legR = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
           jointVel_legL = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
         }
