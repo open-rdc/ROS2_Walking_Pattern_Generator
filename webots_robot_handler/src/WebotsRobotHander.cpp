@@ -212,7 +212,7 @@ namespace webots_robot_handler
     // 時間, 時定数
     float t = 0;  // 0 ~ 支持脚切り替え時間
     float T_sup = LandingPosition_[1][0];  // 0.8. 支持脚切り替えタイミング. 歩行素片終端時間
-    float T_dsup = 0.2;  // 両脚支持期間
+    float T_dsup = 0.6;  // 両脚支持期間
     float T_c = std::sqrt(length_leg_ / 9.81);  // 時定数
 
     // 歩行素片の始端の重心位置・速度 (World座標系)
