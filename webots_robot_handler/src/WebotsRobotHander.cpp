@@ -218,8 +218,6 @@ namespace webots_robot_handler
     // 歩行素片の始端の重心位置・速度 (World座標系)
     std::vector<std::array<double, 2>> CoG_2D_Pos_0;
     CoG_2D_Pos_0.push_back({0, 0.037});
-    // double x_0 = 0;
-    // double y_0 = 0.037;
     double dx_0 = 0;
     double dy_0 = 0;
     // 理想の重心位置・速度 (World座標系)
@@ -269,7 +267,8 @@ namespace webots_robot_handler
       -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * CoG_2D_Pos_0[walking_step][1] - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * CoG_2D_Pos_0[walking_step][1] - C * dy_0)
     });
 
-    // 歩行パターンの生成
+
+//=====歩行パターンの生成
     while(walking_time <= walking_time_max) {
 
       // sinh(Tsup/Tc), cosh(Tsup/Tc). 0 <= Tsup <= Tsup_max(=0.8)
@@ -281,10 +280,6 @@ namespace webots_robot_handler
         (CoG_2D_Pos_0[walking_step][0] - FixedLandingPosition[walking_step][0]) * C + T_c * dx_0 * S + FixedLandingPosition[walking_step][0],  // position_x
         (CoG_2D_Pos_0[walking_step][1] - FixedLandingPosition[walking_step][1]) * C + T_c * dy_0 * S + FixedLandingPosition[walking_step][1]  // position_y
       });
-      // CoG_2D_Pos_local.push_back({
-      //   CoG_2D_Pos_local[control_step][0] = (CoG_2D_Pos_0[walking_step][0] - FixedLandingPosition[walking_step][0]) * C + T_c * dx_0 * S,  // position_x
-      //   CoG_2D_Pos_local[control_step][1] = (CoG_2D_Pos_0[walking_step][1] - FixedLandingPosition[walking_step][1]) * C + T_c * dy_0 * S + FixedLandingPosition[walking_step][1]  // position_y
-      // });
       // 重心速度の計算
       CoG_2D_Vel.push_back({
         ((CoG_2D_Pos_0[walking_step][0] - FixedLandingPosition[walking_step][0]) / T_c) * S + dx_0 * C,
@@ -330,20 +325,12 @@ namespace webots_robot_handler
           -1 * ((opt_weight_pos * (C - 1)) / D) * (x_d - C * CoG_2D_Pos_0[walking_step][0] - T_c * S * dx_0) - ((opt_weight_vel * S) / (T_c * D)) * (dx_d - (S / T_c) * CoG_2D_Pos_0[walking_step][0] - C * dx_0),
           -1 * ((opt_weight_pos * (C - 1)) / D) * (y_d - C * CoG_2D_Pos_0[walking_step][1] - T_c * S * dy_0) - ((opt_weight_vel * S) / (T_c * D)) * (dy_d - (S / T_c) * CoG_2D_Pos_0[walking_step][1] - C * dy_0)
         });
-
-        // 修正された着地位置で歩行パラメータを上書き
-        // -TODO: 上書きよりも、新規のほうが後々都合が良いかも。
-        // LandingPosition_[walking_step][1] = FixedLandingPosition[walking_step][0];
-        // LandingPosition_[walking_step][2] = FixedLandingPosition[walking_step][1];
-        // -DEBUG: 
-        // std::cout << FixedLandingPosition[walking_step][0] << " " << FixedLandingPosition[walking_step][1] << std::endl;
         
         // 値の更新
         t = 0.01;
       }
 
       // LOG: plot用
-      // -TODO: 複数のファイルを読み込んで、複数種類のLogを吐くようにすべき。可変長の配列をMessageをPublishが扱えれば一番いいが。
       WPG_log_WalkingPttern << CoG_2D_Pos_world[control_step][0] << " " << CoG_2D_Pos_world[control_step][1]-(LandingPosition_[0][2]) << " " 
                 // << CoG_2D_Pos_local[control_step][0] << " " << CoG_2D_Pos_local[control_step][1]-(LandingPosition_[0][2]) << " " 
                 // << CoG_2D_Vel[control_step][0] << " " << CoG_2D_Vel[control_step][1] << " " 
@@ -359,19 +346,18 @@ namespace webots_robot_handler
     // LOG: Log file close
     WPG_log_WalkingPttern.close();
 
-    // 遊脚軌道に必要な変数の定義
+
+//==========
+
+    // 遊脚軌道関連
     float height_leg_lift = 0.025;  // 足上げ高さ [m]
     double swing_trajectory = 0.0;  // 遊脚軌道の値を記録
     double old_swing_trajectory = 0.0;  // 微分用
-    double vel_swing_trajectory = 0.0;  // 遊脚軌道の速度。0.01[s]での遊脚軌道の差分 / 0.01[s] をすれば算出できるだろう。
+    double vel_swing_trajectory = 0.0;  // 遊脚軌道の速度
     t = 0;
     walking_time = 0;
     walking_step = 0;
     control_step = 0;
-
-    // 重心位置から遊脚軌道（正弦波）を引く。支持脚に応じて遊脚も切り替えるから、0.8[s]ごとに切り替える。
-    // 遊脚軌道を反映するのは、IK解いて歩行パラメータを生成するloop内で一緒にやる。
-    // 遊脚軌道の式：z = height_leg_lift * sin((pi / T_sup) * t)   0 <= t <= T_sup(=0.8[s])
 
     // 位置の基準を修正（Y軸基準を右足裏から胴体中心へ）
     double InitLandingPosition_y = LandingPosition_[0][2];
@@ -379,10 +365,6 @@ namespace webots_robot_handler
       LandingPosition_[step][2] -= InitLandingPosition_y;
       FixedLandingPosition[step][1] -= InitLandingPosition_y;
     }
-    // LandingPosition_[walking_step][2] -= InitLandingPosition_y;
-    // LandingPosition_[walking_step+1][2] -= InitLandingPosition_y;
-    // FixedLandingPosition[walking_step+1][1] -= InitLandingPosition_y;
-    // FixedLandingPosition[walking_step][1] -= InitLandingPosition_y;
 
     // IKと歩行パラメータの定義・遊脚軌道の反映
     Eigen::Vector<double, 3> Foot_3D_Pos;
@@ -391,6 +373,8 @@ namespace webots_robot_handler
     Eigen::Vector<double, 6> CoG_3D_Vel_Swing;
     Eigen::Vector<double, 6> jointVel_legR;
     Eigen::Vector<double, 6> jointVel_legL;
+
+    // 各関節角度・角速度を生成
     while(walking_time <= walking_time_max) {
 
       // 支持脚切替タイミングの判定
@@ -398,42 +382,29 @@ namespace webots_robot_handler
         // 支持脚切替のための更新
         t = 0;
         walking_step++;
-        // // 位置の基準を修正（Y軸基準を右足裏から胴体中心へ）
-        // FixedLandingPosition[walking_step+1][1] -= InitLandingPosition_y;
-        // LandingPosition_[walking_step+1][2] -= InitLandingPosition_y;
       }
 
       // 位置の基準を修正（Y軸基準を右足裏から胴体中心へ）
       CoG_2D_Pos_world[control_step][1] -= InitLandingPosition_y;
-      // CoG_2D_Pos_local[control_step][1] -= InitLandingPosition_y;
-
 
       // 遊脚軌道（正弦波）の計算
-      // 両脚支持期間を無視するように条件分岐。両脚支持期間以外で正弦波を > 0 にしてやることで、片足支持にしている。
       // TODO: 両脚支持期間は支持脚切替時に重心速度が急激に変化しないようにするために設けるものである。
-        // 歩行パターン生成時に、両脚支持期間を考慮すべきか？ただ単に両脚ともに地面についていれば良いのか？目標重心位置のYを0.037にすれば良いのか？
-      // -BUG: 両脚支持の時の遊脚軌道が駄目。前に出すのではなく、支持脚と同じように後ろに引く動作をしなければならない。
-      if(t >= T_dsup/2 && t <= T_sup-T_dsup/2) {
+      if(t >= T_dsup/2 && t <= T_sup-T_dsup/2) {  // 片足支持期
         old_swing_trajectory = swing_trajectory;
-        swing_trajectory = height_leg_lift * std::sin((3.141592/(T_sup-T_dsup))*(t-T_dsup/2));  //
-        //swing_trajectory = 0;
-        // 遊脚軌道の速度を算出
+        swing_trajectory = height_leg_lift * std::sin((3.141592/(T_sup-T_dsup))*(t-T_dsup/2));  
         vel_swing_trajectory = ((swing_trajectory - old_swing_trajectory) / control_cycle);
       }
-      else {
+      else {  // 両脚支持期
         swing_trajectory = 0.0;
-        old_swing_trajectory = 0.0;  // 特に意味はない。
+        old_swing_trajectory = 0.0;
         vel_swing_trajectory = 0.0;
       }
 
-      // LOG:
+      // LOG: 遊脚軌道に関するlogの取得
       WPG_log_SwingTrajectory << swing_trajectory << " " << old_swing_trajectory << " " << (swing_trajectory-old_swing_trajectory) << std::endl;      
 
-      // 重心位置を元とした足位置の定義
-      // -CHECKME: もっとキレイな書き方があるはず。修正すべき。今は、始まりの支持脚と終わりの支持脚が同じだからコレでOK。異なった場合も書くべき。
-      // 歩行開始時、終了時
-      // -BUG: LandingPositionではなく、p_fix_x, y を活かしたものを参照すべき。
-      if(LandingPosition_[walking_step][2] == 0) {
+//=====足の軌道計算
+      if(LandingPosition_[walking_step][2] == 0) {  // 歩行開始時、終了時
         int ref_ws; 
         if(walking_step == 0) {  // 歩行開始時
           ref_ws = walking_step+1;
@@ -442,12 +413,12 @@ namespace webots_robot_handler
           ref_ws = walking_step-1;
         }
         if(LandingPosition_[ref_ws][2] >= 0) {  // 左脚支持
-          Foot_3D_Pos = {  // 左足。
+          Foot_3D_Pos = {  // 左足
             FixedLandingPosition[walking_step][0]-CoG_2D_Pos_world[control_step][0],
             0.037-CoG_2D_Pos_world[control_step][1],
             -length_leg_
           };
-          Foot_3D_Pos_Swing = {  // 右足。歩行開始と終了では、直立状態の足の位置とから重心軌道を引いてやる。
+          Foot_3D_Pos_Swing = {  // 右足
             FixedLandingPosition[walking_step][0]-CoG_2D_Pos_world[control_step][0],
             -0.037-CoG_2D_Pos_world[control_step][1],
             -length_leg_
@@ -466,113 +437,103 @@ namespace webots_robot_handler
           };
         }
       }
-      // -TODO: 前着地位置が0.037だった場合の処理を書くべき。遊脚Y軸のwalking_step-1を含む式の解が好ましくないものになる。
-        // 歩行周期の前半を、重心位置を無視して遊脚Y軸の値を変更しないようにすれば良いはず。
-        // -TODO: もっとキレイにできるはず。歩行開始時の歩行周期の最後に得られた遊脚軌道のY軸を記録しておいて、そこよりも０に近い値を取らないようにすればいい。下限を設定してやればいい。
-        // -TODO: ココと下の分岐は１つにまとめるべき。walking_step-1=0か、それ以外かになっている。参照するやつを判定して変数にwalking_step+-1を入れてやれば、１つにまとまる。
-
-      // swing trajectory
-      // x: ((次FP - 前FP) * t / Tsup) - ((次FP - 前FP) / 2)   start: ((次FP - 前FP) / 2) = 0,  end: ((次FP - 前FP) / 2) = (次FP - 前FP)
-      // y: 
-
-      else if(LandingPosition_[walking_step-1][2] == 0) {
-        Foot_3D_Pos = {
+      else if(LandingPosition_[walking_step-1][2] == 0) {  // 歩行開始から1step後
+        // 支持脚
+        Foot_3D_Pos = {  
           FixedLandingPosition[walking_step][0]-CoG_2D_Pos_world[control_step][0],  // x 
-          FixedLandingPosition[walking_step][1]-CoG_2D_Pos_world[control_step][1],  // y 現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
+          FixedLandingPosition[walking_step][1]-CoG_2D_Pos_world[control_step][1],  // y 
           -length_leg_  // z 
         };
-        if(t <= T_dsup/2) {
+        // 遊脚
+        if(t <= T_dsup/2) {  // 両脚支持（前半）
           Foot_3D_Pos_Swing = {
             FixedLandingPosition[walking_step-1][0]-CoG_2D_Pos_world[control_step][0],
-            FixedLandingPosition[walking_step+1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step+1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 
+            FixedLandingPosition[walking_step+1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step+1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1], 
             -length_leg_
           };
         }
-        else if(t >= T_sup-T_dsup/2) {
+        else if(t >= T_sup-T_dsup/2) {  // 両脚支持（後半）
           Foot_3D_Pos_Swing = {
-            FixedLandingPosition[walking_step+1][0]-CoG_2D_Pos_world[control_step][0],  // 
-            FixedLandingPosition[walking_step+1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step+1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 
+            FixedLandingPosition[walking_step+1][0]-CoG_2D_Pos_world[control_step][0], 
+            FixedLandingPosition[walking_step+1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step+1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1], 
             -length_leg_
           };
         }
-        else {
+        else {  // 片脚支持
           Foot_3D_Pos_Swing = {
             ((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0])*((t-T_dsup/2)/(T_sup-T_dsup))),
-            //CoG_2D_Pos_world[control_step][0]-FixedLandingPosition[walking_step][0],
-            FixedLandingPosition[walking_step+1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step+1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 次FP+(次FP-次FP)*t/Tsup - 重心位置
+            FixedLandingPosition[walking_step+1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step+1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],
             -length_leg_ + swing_trajectory // z (遊脚軌道をzから引く) 
           };
         }
 
       }
-      // -TODO: 次着地位置が0.037だった場合の処理を書くべき。遊脚Y軸のwalking_step-1を含む式の解が好ましくないものになる。
-        // 次着地位置を参照せずに、前着地位置と次着地位置の差分を０と扱えばいい。つまり、walking_step+1をwalking_step-1に変えれば良いだけなはず。
-        // -TODO: もっとキレイにできるはず。
-      // -TODO: 突貫工事。LandingPositionが修正値で上書きされる前の値であれば、LandingPosition==0.037でひとまずOK。
-      else if(LandingPosition_[walking_step+1][2] == 0) {
+      else if(LandingPosition_[walking_step+1][2] == 0) {  // 歩行終了から1step前
+        // 支持脚
         Foot_3D_Pos = {
           FixedLandingPosition[walking_step][0]-CoG_2D_Pos_world[control_step][0],  // x 
-          FixedLandingPosition[walking_step][1]-CoG_2D_Pos_world[control_step][1],  // y  現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
+          FixedLandingPosition[walking_step][1]-CoG_2D_Pos_world[control_step][1],  // y  
           -length_leg_  // z 
         };
-        if(t <= T_dsup/2) {
+        // 遊脚
+        if(t <= T_dsup/2) {  // 両脚支持（前半）
           Foot_3D_Pos_Swing = {
-            FixedLandingPosition[walking_step-1][0]-CoG_2D_Pos_world[control_step][0],  // 
-            FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step-1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 
+            FixedLandingPosition[walking_step-1][0]-CoG_2D_Pos_world[control_step][0],  
+            FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step-1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  
             -length_leg_
           };
         }
-        else if(t >= T_sup-T_dsup/2) {
+        else if(t >= T_sup-T_dsup/2) {  // 両脚支持（後半）
           Foot_3D_Pos_Swing = {
-            FixedLandingPosition[walking_step+1][0]-CoG_2D_Pos_world[control_step][0],  // 
-            FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step-1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 
+            FixedLandingPosition[walking_step+1][0]-CoG_2D_Pos_world[control_step][0], 
+            FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step-1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1], 
             -length_leg_
           };
         }
-        else {
+        else {  // 片脚支持
           Foot_3D_Pos_Swing = {
-            ((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0])*((t-T_dsup/2)/(T_sup-T_dsup)))-(FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0]),  // 
-            //CoG_2D_Pos_world[control_step][0]-FixedLandingPosition[walking_step][0],
-            FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step-1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 前FP+(前FP-前FP)*t/Tsup - 重心位置
-            -length_leg_ + swing_trajectory // z (遊脚軌道をzから引く) 
+            ((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0])*((t-T_dsup/2)/(T_sup-T_dsup)))-(FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0]), 
+            FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step-1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],
+            -length_leg_ + swing_trajectory
           };
         }
       }
-      else {  // 片脚支持。
+      else {  // 歩行中
+        // 支持脚
         Foot_3D_Pos = {
           FixedLandingPosition[walking_step][0]-CoG_2D_Pos_world[control_step][0],  // x 
-          FixedLandingPosition[walking_step][1]-CoG_2D_Pos_world[control_step][1],  // y 現着地位置ー現重心位置、Xなら脚を前から後ろに出すイメージ。
+          FixedLandingPosition[walking_step][1]-CoG_2D_Pos_world[control_step][1],  // y
           -length_leg_  // z 
         };
-        if(t <= T_dsup/2) {
+        // 遊脚
+        if(t <= T_dsup/2) {  // 両脚支持（前半）
           Foot_3D_Pos_Swing = {
-            FixedLandingPosition[walking_step-1][0]-CoG_2D_Pos_world[control_step][0],  // 
-            FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 
+            FixedLandingPosition[walking_step-1][0]-CoG_2D_Pos_world[control_step][0], 
+            FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1], 
             -length_leg_
           };
         }
-        else if(t >= T_sup-T_dsup/2) {
+        else if(t >= T_sup-T_dsup/2) {  // 両脚支持（後半）
           Foot_3D_Pos_Swing = {
-            FixedLandingPosition[walking_step+1][0]-CoG_2D_Pos_world[control_step][0],  // 
-            FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 
+            FixedLandingPosition[walking_step+1][0]-CoG_2D_Pos_world[control_step][0], 
+            FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1], 
             -length_leg_
           };
         }
-        else {
+        else {  // 片脚支持
           Foot_3D_Pos_Swing = {
-            ((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0])*((t-T_dsup/2)/(T_sup-T_dsup)))-((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0]) / 2),  // 
-            //CoG_2D_Pos_world[control_step][0]-FixedLandingPosition[walking_step][0],
-            FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],  // 前FP+(次FP-前FP)*t/Tsup - 重心位置
-            -length_leg_ + swing_trajectory // z (遊脚軌道をzから引く) 
+            ((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0])*((t-T_dsup/2)/(T_sup-T_dsup)))-((FixedLandingPosition[walking_step+1][0]-FixedLandingPosition[walking_step-1][0]) / 2),  
+            FixedLandingPosition[walking_step-1][1]+((FixedLandingPosition[walking_step+1][1]-FixedLandingPosition[walking_step-1][1])*(t/(T_sup)))-CoG_2D_Pos_world[control_step][1],
+            -length_leg_ + swing_trajectory 
           };
         }
       }
 
-      // LOG: Logの吐き出し
+      // LOG: 足軌道のLogの吐き出し
       WPG_log_FootTrajectory << CoG_2D_Pos_world[control_step][0] << " " << CoG_2D_Pos_world[control_step][1] << " " << Foot_3D_Pos.transpose() << " " << Foot_3D_Pos_Swing.transpose() << std::endl;
 
-      // 重心速度の定義
-      CoG_3D_Vel = {
+      // ３次元重心速度の定義
+      CoG_3D_Vel = {  // 支持脚用
         CoG_2D_Vel[control_step][0],  // liner x
         CoG_2D_Vel[control_step][1],  // liner y
         0,  // liner z
@@ -580,8 +541,7 @@ namespace webots_robot_handler
         0,  // rotation y
         0   // rotation z
       };
-      // 遊脚用の重心速度の定義
-      CoG_3D_Vel_Swing = {
+      CoG_3D_Vel_Swing = {  // 遊脚用
         CoG_2D_Vel[control_step][0],
         CoG_2D_Vel[control_step][1],
         vel_swing_trajectory,
@@ -589,17 +549,16 @@ namespace webots_robot_handler
         0,
         0
       };
-      // LOG:
+      // LOG: 重心速度のLog吐き出し
       WPG_log_SwingTrajectory_Vel << CoG_3D_Vel.transpose() << " " << CoG_3D_Vel_Swing.transpose() << std::endl;
 
-      // 支持脚の判定
-      // 歩行開始、終了時。常に両脚支持
-      if(LandingPosition_[walking_step][2] == 0) {
+//=====関節角度・角速度の算出 
+      if(LandingPosition_[walking_step][2] == 0) {  // 歩行開始、終了時
         int ref_ws; 
         if(walking_step == 0) {  // 歩行開始時
           ref_ws = walking_step+1;
         }
-        else {  // 開始時以外
+        else {  // 歩行終了時
           ref_ws = walking_step-1;
         }
         if(LandingPosition_[ref_ws][2]-LandingPosition_[ref_ws+1][2] >= 0) {  // 左脚支持
@@ -615,7 +574,7 @@ namespace webots_robot_handler
             R_target_leg
           );
         }
-        if(LandingPosition_[ref_ws][2]-LandingPosition_[ref_ws+1][2] < 0) {
+        if(LandingPosition_[ref_ws][2]-LandingPosition_[ref_ws+1][2] < 0) {  // 右脚支持
           Q_legR_ = IK_.getIK(  
             P_legR_waist_standard_,
             Foot_3D_Pos,   
@@ -627,8 +586,7 @@ namespace webots_robot_handler
             R_target_leg
           );
         }
-        
-        // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
+
         // LOG:
         WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
 
@@ -636,7 +594,6 @@ namespace webots_robot_handler
         JacobiMatrix_leg(Q_legR_, Q_legL_);
 
         // 各関節速度の計算
-        // TODO: 足先の速度は、行列の末列に入っている。
         if((t >= T_dsup/2 && t < T_dsup/2+0.05) || (t > (T_sup - T_dsup/2-0.05) && t <= (T_sup - T_dsup/2))) {
           jointVel_legR = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
           jointVel_legL = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
@@ -654,8 +611,6 @@ namespace webots_robot_handler
       }
       // 左脚支持期
       else if(LandingPosition_[walking_step][2] > 0) {
-        // 左脚支持。右脚遊脚。
-
         // IK
         Q_legR_ = IK_.getIK(
           P_legR_waist_standard_,
@@ -668,10 +623,6 @@ namespace webots_robot_handler
           R_target_leg
         );
 
-        // // -DEBUG: 足首Pitchの角度を調整して、床面と平行にしたい。
-        // Q_legR_[4] += -0.15;
-
-        // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
         // LOG:
         WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
 
@@ -696,8 +647,6 @@ namespace webots_robot_handler
       }
       // 右脚支持期
       else if(LandingPosition_[walking_step][2] < 0) {
-        // 右脚支持。左脚遊脚。
-
         // IK
         Q_legR_ = IK_.getIK(
           P_legR_waist_standard_,
@@ -710,10 +659,6 @@ namespace webots_robot_handler
           R_target_leg
         );
 
-        // // -DEBUG: 足首Pitchの角度を調整して、床面と平行にしたい。
-        // Q_legL_[4] += -0.15;
-
-        // DEBUG: IKの結果からFKを解いて、足裏中心の軌道を取得したい
         // LOG:
         WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
 
@@ -772,9 +717,7 @@ namespace webots_robot_handler
     pub_feedback_ = node_->create_publisher<msgs_package::msg::Feedback>("Feedback", custom_QoS);
     sub_control_output_ = node_->create_subscription<msgs_package::msg::ControlOutput>("ControlOutput", custom_QoS, std::bind(&WebotsRobotHandler::ControlOutput_Callback, this, _1));
 
-
-//  DEBUG: ===========================
-    // DEBUG parameter setting
+    // DEBUG: parameter setting
     DEBUG_ParameterSetting();
 
     // TODO: 歩行パターンを生成する
@@ -800,7 +743,8 @@ namespace webots_robot_handler
       wb_motor_set_velocity(motorsTag_[tag], initJointVel_[tag]);
     }
     
-    // DEBUG:
+    // DEBUG: 初期姿勢への移行が済むまで待つための変数。決め打ち
+    // TODO: IMUで初期姿勢への移行完了を検知したい。値がある一定値以内になったらフラグを解除する方式を取りたい
     wait_step = 500;
   }
 
@@ -831,7 +775,6 @@ namespace webots_robot_handler
       // DEBUG:
       if(control_step <= int(WalkingPattern_Pos_legR_.size()-1)) {
 
-        // CHECKME: setするコードを書き直す。
         // set joints angle & velocity
         for(int tag = 0; tag < 6; tag++) {
           wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[control_step][tag]*jointAng_posi_or_nega_legR_[tag]);

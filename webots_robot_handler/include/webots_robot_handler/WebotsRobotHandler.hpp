@@ -26,7 +26,7 @@ namespace webots_robot_handler
 
     private:
 
-      // Kinematicsライブラリの中に含めるべき関数
+      // TODO: Kinematicsライブラリの中に含めるべき関数
       void JacobiMatrix_leg(std::array<double, 6> Q_legR, std::array<double, 6> Q_legL);
       // マネージャからのCallback
       void ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data);
@@ -45,11 +45,6 @@ namespace webots_robot_handler
 
       // TODO: 歩行パラメータを設定すべき
       // 歩行パラメータの行列
-      // ex.
-      // [[time, x_point, y_point]
-      //  [time, x_point, y_point]
-      //            ...
-      //  [time, x_point, y_point]]
       std::vector<std::array<double, 3>> LandingPosition_;
 
       // 歩行パターンの変数（行列）
@@ -102,7 +97,7 @@ namespace webots_robot_handler
 // DEBUG:===/*
       void DEBUG_ParameterSetting(void);
 
-      // Parameter serverやURDF、Protoから読み込みたい。
+      // TODO: Parameter serverやURDF、Protoから読み込みたい。
       std::array<std::string, 20> motors_name_;
       std::array<double, 20> initJointAng_;
       std::array<double, 20> initJointVel_;
