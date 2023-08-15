@@ -138,7 +138,6 @@ namespace webots_robot_handler
   }
 
   // TODO: kinematics node でも作って、共有ライブラリにFK・IKともに入れたほうが良いと思う。
-  // TODO: 返り値をVoidではなく、Jacobianを返すべき。分かりづらい。
   Eigen::Matrix<double, 6, 6> WebotsRobotHandler::JacobiMatrix_leg(
     std::array<double, 6> Q_leg,
     std::array<Eigen::Vector3d, 6> UnitVec_leg, 

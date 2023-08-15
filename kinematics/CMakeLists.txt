@@ -17,6 +17,9 @@ add_library(IK
 add_library(FK
   src/FK.cpp
 )
+add_library(Kinematics
+  src/kinematics.cpp
+)
 
 target_compile_features(IK  # Require C99 and C++17
   PUBLIC 
@@ -28,6 +31,11 @@ target_compile_features(FK  # Require C99 and C++17
     c_std_99 
     cxx_std_17
 )  
+target_compile_features(Kinematics
+  PUBLIC
+    c_std_99
+    cxx_std_17
+)
 
 target_include_directories(IK 
   PUBLIC
@@ -41,11 +49,20 @@ target_include_directories(FK
     $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:include>
 )
+target_include_directories(Kinematics
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
+    $<INSTALL_INTERFACE:include>
+)
 
 ament_target_dependencies(IK
   "rclcpp"
 )
 ament_target_dependencies(FK
+  "rclcpp"
+)
+ament_target_dependencies(Kinematics
   "rclcpp"
 )
 
@@ -59,6 +76,10 @@ target_compile_definitions(FK
   PRIVATE 
     "KINEMATICS_BUILDING_LIBRARY"
 )
+target_compile_definitions(Kinematics
+  PRIVATE 
+    "KINEMATICS_BUILDING_LIBRARY"
+)
 
 ament_export_include_directories(
   include
@@ -67,6 +88,7 @@ ament_export_include_directories(
 ament_export_libraries(
   IK
   FK
+  Kinematics
 )
 
 ament_export_targets(
@@ -84,6 +106,7 @@ install(
 install(TARGETS 
   IK
   FK
+  Kinematics
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
