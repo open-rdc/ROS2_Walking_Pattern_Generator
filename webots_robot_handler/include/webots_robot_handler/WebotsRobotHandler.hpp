@@ -11,7 +11,7 @@
 #include "Eigen/Dense"
 #include "kinematics/FK.hpp"
 #include "kinematics/IK.hpp"
-#include "kinematics/kinematics.hpp"
+#include "kinematics/Jacobian.hpp"
 
 namespace webots_robot_handler
 {
@@ -42,7 +42,7 @@ namespace webots_robot_handler
       // 共有ライブラリの実体化
       kinematics::FK FK_;
       kinematics::IK IK_;
-      kinematics::Kinematics Kinematics_;
+      kinematics::Jacobian Jacobian_;
 
       // TODO: Parameterから読み取るべき
       // TODO: 生成に必要な変数

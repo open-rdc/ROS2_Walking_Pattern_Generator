@@ -1,5 +1,5 @@
-#ifndef KINEMATICS__KINEMATICS_HPP_
-#define KINEMATICS__KINEMATICS_HPP_
+#ifndef KINEMATICS__JACOBIAN_HPP_
+#define KINEMATICS__JACOBIAN_HPP_
 
 #include "rclcpp/rclcpp.hpp"
 #include "kinematics/visibility_control.h"
@@ -11,9 +11,9 @@
 
 namespace kinematics
 {
-  class Kinematics : public rclcpp::Node {
+  class Jacobian : public rclcpp::Node {
     public:
-      Kinematics(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+      Jacobian(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 
       Eigen::Matrix<double, 6, 6> JacobiMatrix_leg(
         std::array<double, 6> Q_leg,

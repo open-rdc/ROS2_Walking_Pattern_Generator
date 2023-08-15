@@ -17,8 +17,8 @@ add_library(IK
 add_library(FK
   src/FK.cpp
 )
-add_library(Kinematics
-  src/kinematics.cpp
+add_library(Jacobian
+  src/Jacobian.cpp
 )
 
 target_compile_features(IK  # Require C99 and C++17
@@ -31,7 +31,7 @@ target_compile_features(FK  # Require C99 and C++17
     c_std_99 
     cxx_std_17
 )  
-target_compile_features(Kinematics
+target_compile_features(Jacobian
   PUBLIC
     c_std_99
     cxx_std_17
@@ -49,7 +49,7 @@ target_include_directories(FK
     $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:include>
 )
-target_include_directories(Kinematics
+target_include_directories(Jacobian
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
@@ -62,7 +62,7 @@ ament_target_dependencies(IK
 ament_target_dependencies(FK
   "rclcpp"
 )
-ament_target_dependencies(Kinematics
+ament_target_dependencies(Jacobian
   "rclcpp"
 )
 
@@ -76,7 +76,7 @@ target_compile_definitions(FK
   PRIVATE 
     "KINEMATICS_BUILDING_LIBRARY"
 )
-target_compile_definitions(Kinematics
+target_compile_definitions(Jacobian
   PRIVATE 
     "KINEMATICS_BUILDING_LIBRARY"
 )
@@ -88,7 +88,7 @@ ament_export_include_directories(
 ament_export_libraries(
   IK
   FK
-  Kinematics
+  Jacobian
 )
 
 ament_export_targets(
@@ -106,7 +106,7 @@ install(
 install(TARGETS 
   IK
   FK
-  Kinematics
+  Jacobian
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib

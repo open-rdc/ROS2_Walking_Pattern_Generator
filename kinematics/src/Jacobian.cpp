@@ -1,4 +1,4 @@
-#include "kinematics/kinematics.hpp"
+#include "kinematics/Jacobian.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "kinematics/visibility_control.h"
@@ -12,7 +12,7 @@ using namespace Eigen;
 
 namespace kinematics
 {
-  Matrix<double, 6, 6> Kinematics::JacobiMatrix_leg(
+  Matrix<double, 6, 6> Jacobian::JacobiMatrix_leg(
     std::array<double, 6> Q_leg,
     std::array<Vector3d, 6> UnitVec_leg,
     std::array<Vector3d, 7> P_leg
@@ -48,7 +48,7 @@ namespace kinematics
     return Jacobi_leg;
   }
 
-  Kinematics::Kinematics(
+  Jacobian::Jacobian(
     const rclcpp::NodeOptions& options
-  ) : Node("Kinematics", options) {}
+  ) : Node("Jacobian", options) {}
 }
