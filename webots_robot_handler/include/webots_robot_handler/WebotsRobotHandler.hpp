@@ -11,6 +11,7 @@
 #include "Eigen/Dense"
 #include "kinematics/FK.hpp"
 #include "kinematics/IK.hpp"
+#include "kinematics/kinematics.hpp"
 
 namespace webots_robot_handler
 {
@@ -26,12 +27,12 @@ namespace webots_robot_handler
 
     private:
 
-      // TODO: Kinematicsライブラリの中に含めるべき関数
-      Eigen::Matrix<double, 6, 6> JacobiMatrix_leg(
-        std::array<double, 6> Q_leg,
-        std::array<Eigen::Vector3d, 6> UnitVec_leg,
-        std::array<Eigen::Vector3d, 7> P_leg
-      );
+      // -TODO: Kinematicsライブラリの中に含めるべき関数
+      // Eigen::Matrix<double, 6, 6> JacobiMatrix_leg(
+      //   std::array<double, 6> Q_leg,
+      //   std::array<Eigen::Vector3d, 6> UnitVec_leg,
+      //   std::array<Eigen::Vector3d, 7> P_leg
+      // );
       // マネージャからのCallback
       void ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data);
 
@@ -41,6 +42,7 @@ namespace webots_robot_handler
       // 共有ライブラリの実体化
       kinematics::FK FK_;
       kinematics::IK IK_;
+      kinematics::Kinematics Kinematics_;
 
       // TODO: Parameterから読み取るべき
       // TODO: 生成に必要な変数
@@ -60,7 +62,6 @@ namespace webots_robot_handler
       // ヤコビアンとかに必要な変数
       Eigen::Matrix<double, 6, 6> Jacobi_legR_;
       Eigen::Matrix<double, 6, 6> Jacobi_legL_;
-      // 以下、いる？
       // std::array<Eigen::Vector3d, 6> P_FK_legR_;
       // std::array<Eigen::Vector3d, 6> P_FK_legL_;
       std::array<Eigen::Vector3d, 6> UnitVec_legR_;

@@ -16,6 +16,7 @@
 #include "Eigen/Dense"
 #include "kinematics/FK.hpp"
 #include "kinematics/IK.hpp"
+#include "kinematics/kinematics.hpp"
 
 using namespace std::chrono_literals;
 using namespace Eigen;
@@ -129,7 +130,7 @@ namespace webots_robot_handler
                         {4.8, 0.12, 0.037},
                         {5.6, 0.12, 0.037}};
 
-    // DEBUG: Jacobian関数のテスト
+    // -DEBUG: Jacobian関数のテスト
     // Q_legR_ = {0, 0, -3.14/8, 3.14/4, -3.14/8, 0};
     // Q_legL_ = {0, 0, -3.14/8, 3.14/4, -3.14/8, 0};
     // JacobiMatrix_leg(Q_legR_, Q_legL_);
@@ -137,42 +138,42 @@ namespace webots_robot_handler
     // legL_ << "\n" << std::endl = JacobiMatrix_leg(Q_legL_);
   }
 
-  // TODO: kinematics node でも作って、共有ライブラリにFK・IKともに入れたほうが良いと思う。
-  Eigen::Matrix<double, 6, 6> WebotsRobotHandler::JacobiMatrix_leg(
-    std::array<double, 6> Q_leg,
-    std::array<Eigen::Vector3d, 6> UnitVec_leg, 
-    std::array<Eigen::Vector3d, 7> P_leg
-  ) {
+  // // -TODO: kinematics node でも作って、共有ライブラリにFK・IKともに入れたほうが良いと思う。
+  // Eigen::Matrix<double, 6, 6> WebotsRobotHandler::JacobiMatrix_leg(
+  //   std::array<double, 6> Q_leg,
+  //   std::array<Eigen::Vector3d, 6> UnitVec_leg, 
+  //   std::array<Eigen::Vector3d, 7> P_leg
+  // ) {
 
-    Eigen::Matrix<double, 6, 6> Jacobi_leg = MatrixXd::Zero(6, UnitVec_leg.max_size());
+  //   Eigen::Matrix<double, 6, 6> Jacobi_leg = MatrixXd::Zero(6, UnitVec_leg.max_size());
 
-    std::array<Eigen::Vector3d, 6> P_FK_leg;
-    for(int joint_point = 0; joint_point < int(UnitVec_leg.max_size()); joint_point++) {
-      P_FK_leg[joint_point] = FK_.getFK(Q_leg, P_leg, joint_point);
-      // std::cout << P_FK_leg[joint_point] << std::endl;
-    }
+  //   std::array<Eigen::Vector3d, 6> P_FK_leg;
+  //   for(int joint_point = 0; joint_point < int(UnitVec_leg.max_size()); joint_point++) {
+  //     P_FK_leg[joint_point] = FK_.getFK(Q_leg, P_leg, joint_point);
+  //     // std::cout << P_FK_leg[joint_point] << std::endl;
+  //   }
 
-    Vector3d mat_leg = Vector3d::Zero(3);
-    Vector3d pt_P_leg = Vector3d::Zero(3);
-    for(int tag = 0; tag < int(UnitVec_leg.max_size()); tag++) {
-      if(tag == int(UnitVec_leg.max_size()-1)) {
-        mat_leg = Vector3d::Zero(3);
-      }
-      else { 
-        // P_FK_leg[int(UnitVec_legR_.max_size())-1]: 股関節の座標を取得（基準座標から股関節までの距離を含まないFKの結果を取得）
-        pt_P_leg = P_FK_leg[int(UnitVec_leg.max_size())-1] - P_FK_leg[tag];
-        // std::cout << "pt_P_leg: " << pt_P_leg.transpose() << ", " << P_FK_leg[int(UnitVec_leg.max_size())-1].transpose() << ", " << P_FK_leg[tag].transpose() << std::endl;
-        mat_leg = UnitVec_leg[tag].cross(pt_P_leg);
-      }
+  //   Vector3d mat_leg = Vector3d::Zero(3);
+  //   Vector3d pt_P_leg = Vector3d::Zero(3);
+  //   for(int tag = 0; tag < int(UnitVec_leg.max_size()); tag++) {
+  //     if(tag == int(UnitVec_leg.max_size()-1)) {
+  //       mat_leg = Vector3d::Zero(3);
+  //     }
+  //     else { 
+  //       // P_FK_leg[int(UnitVec_legR_.max_size())-1]: 股関節の座標を取得（基準座標から股関節までの距離を含まないFKの結果を取得）
+  //       pt_P_leg = P_FK_leg[int(UnitVec_leg.max_size())-1] - P_FK_leg[tag];
+  //       // std::cout << "pt_P_leg: " << pt_P_leg.transpose() << ", " << P_FK_leg[int(UnitVec_leg.max_size())-1].transpose() << ", " << P_FK_leg[tag].transpose() << std::endl;
+  //       mat_leg = UnitVec_leg[tag].cross(pt_P_leg);
+  //     }
 
-      for(int i = 0; i < 3; i++) {
-        Jacobi_leg(i, tag) = mat_leg[i];
-        Jacobi_leg(i+3, tag) = UnitVec_leg[tag][i];
-      }
-    }
+  //     for(int i = 0; i < 3; i++) {
+  //       Jacobi_leg(i, tag) = mat_leg[i];
+  //       Jacobi_leg(i+3, tag) = UnitVec_leg[tag][i];
+  //     }
+  //   }
 
-    return Jacobi_leg;
-  }
+  //   return Jacobi_leg;
+  // }
 
   // 歩行パターンの生成
   void WebotsRobotHandler::WalkingPatternGenerate() {
@@ -588,8 +589,10 @@ namespace webots_robot_handler
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
         // JacobiMatrix_leg(Q_legR_, Q_legL_);
-        Jacobi_legR_ = JacobiMatrix_leg(Q_legR_, UnitVec_legR_, P_legR_waist_standard_);
-        Jacobi_legL_ = JacobiMatrix_leg(Q_legL_, UnitVec_legL_, P_legL_waist_standard_);
+        // Jacobi_legR_ = JacobiMatrix_leg(Q_legR_, UnitVec_legR_, P_legR_waist_standard_);
+        // Jacobi_legL_ = JacobiMatrix_leg(Q_legL_, UnitVec_legL_, P_legL_waist_standard_);
+        Jacobi_legR_ = Kinematics_.JacobiMatrix_leg(Q_legR_, UnitVec_legR_, P_legR_waist_standard_);
+        Jacobi_legL_ = Kinematics_.JacobiMatrix_leg(Q_legL_, UnitVec_legL_, P_legL_waist_standard_);
 
         // 各関節速度の計算
         if((t >= T_dsup/2 && t < T_dsup/2+0.05) || (t > (T_sup - T_dsup/2-0.05) && t <= (T_sup - T_dsup/2))) {
@@ -626,8 +629,10 @@ namespace webots_robot_handler
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
         // JacobiMatrix_leg(Q_legR_, Q_legL_);
-        Jacobi_legR_ = JacobiMatrix_leg(Q_legR_, UnitVec_legR_, P_legR_waist_standard_);
-        Jacobi_legL_ = JacobiMatrix_leg(Q_legL_, UnitVec_legL_, P_legL_waist_standard_);
+        // Jacobi_legR_ = JacobiMatrix_leg(Q_legR_, UnitVec_legR_, P_legR_waist_standard_);
+        // Jacobi_legL_ = JacobiMatrix_leg(Q_legL_, UnitVec_legL_, P_legL_waist_standard_);
+        Jacobi_legR_ = Kinematics_.JacobiMatrix_leg(Q_legR_, UnitVec_legR_, P_legR_waist_standard_);
+        Jacobi_legL_ = Kinematics_.JacobiMatrix_leg(Q_legL_, UnitVec_legL_, P_legL_waist_standard_);
 
         // 各関節速度の計算
         if((t >= T_dsup/2 && t < T_dsup/2+0.05) || (t > (T_sup - T_dsup/2-0.05) && t <= (T_sup - T_dsup/2))) {
@@ -664,8 +669,10 @@ namespace webots_robot_handler
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
         // JacobiMatrix_leg(Q_legR_, Q_legL_);
-        Jacobi_legR_ = JacobiMatrix_leg(Q_legR_, UnitVec_legR_, P_legR_waist_standard_);
-        Jacobi_legL_ = JacobiMatrix_leg(Q_legL_, UnitVec_legL_, P_legL_waist_standard_);
+        // Jacobi_legR_ = JacobiMatrix_leg(Q_legR_, UnitVec_legR_, P_legR_waist_standard_);
+        // Jacobi_legL_ = JacobiMatrix_leg(Q_legL_, UnitVec_legL_, P_legL_waist_standard_);
+        Jacobi_legR_ = Kinematics_.JacobiMatrix_leg(Q_legR_, UnitVec_legR_, P_legR_waist_standard_);
+        Jacobi_legL_ = Kinematics_.JacobiMatrix_leg(Q_legL_, UnitVec_legL_, P_legL_waist_standard_);
 
         // 各関節速度の計算
         if((t >= T_dsup/2 && t < T_dsup/2+0.05) || (t > (T_sup - T_dsup/2-0.05) && t <= (T_sup - T_dsup/2))) {
