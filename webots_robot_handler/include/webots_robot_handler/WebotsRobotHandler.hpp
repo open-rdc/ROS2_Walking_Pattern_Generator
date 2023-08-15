@@ -27,7 +27,11 @@ namespace webots_robot_handler
     private:
 
       // TODO: Kinematicsライブラリの中に含めるべき関数
-      void JacobiMatrix_leg(std::array<double, 6> Q_legR, std::array<double, 6> Q_legL);
+      Eigen::Matrix<double, 6, 6> JacobiMatrix_leg(
+        std::array<double, 6> Q_leg,
+        std::array<Eigen::Vector3d, 6> UnitVec_leg,
+        std::array<Eigen::Vector3d, 7> P_leg
+      );
       // マネージャからのCallback
       void ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data);
 
@@ -57,8 +61,8 @@ namespace webots_robot_handler
       Eigen::Matrix<double, 6, 6> Jacobi_legR_;
       Eigen::Matrix<double, 6, 6> Jacobi_legL_;
       // 以下、いる？
-      std::array<Eigen::Vector3d, 6> P_FK_legR_;
-      std::array<Eigen::Vector3d, 6> P_FK_legL_;
+      // std::array<Eigen::Vector3d, 6> P_FK_legR_;
+      // std::array<Eigen::Vector3d, 6> P_FK_legL_;
       std::array<Eigen::Vector3d, 6> UnitVec_legR_;
       std::array<Eigen::Vector3d, 6> UnitVec_legL_;
 
