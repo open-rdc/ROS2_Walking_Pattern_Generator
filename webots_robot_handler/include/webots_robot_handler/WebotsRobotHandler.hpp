@@ -35,6 +35,9 @@ namespace webots_robot_handler
       // );
       // マネージャからのCallback
       void ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data);
+      // DEBUG: 1つ前のcounterを記憶。データ落ちが無いかの判定に用いる。
+      int counter_old_ = -1;
+      int loss_count_ = 0;
 
 // DEBUG: Dynamic Gait ==
       void WalkingPatternGenerate(void);

@@ -654,6 +654,7 @@ namespace walking_pattern_generator
 
     // 歩行パターンを1stepごとPublish
     // TODO: データの重要性からして、ここはServiceのほうがいい気がするんだ。
+    // TODO: Pub/Subだから仕方がないが、データの受取ミスが発生する。
     for(int step = 0; step < int(WalkingPattern_Pos_legL_.size()); step++) {
       pub_msg->q_next_leg_l = WalkingPattern_Pos_legL_[step];
       pub_msg->q_next_leg_r = WalkingPattern_Pos_legR_[step];
@@ -661,7 +662,7 @@ namespace walking_pattern_generator
       pub_msg->dq_next_leg_r = WalkingPattern_Vel_legR_[step];
       pub_msg->counter = step;
 
-      RCLCPP_INFO(this->get_logger(), "publish...: [ %d ]", pub_msg->counter);
+      // RCLCPP_INFO(this->get_logger(), "publish...: [ %d ]", pub_msg->counter);
 
       pub_walking_pattern_->publish(*pub_msg);
 

@@ -707,12 +707,28 @@ namespace webots_robot_handler
 //   }
 
   // マネージャからのCallback関数
+  // TODO: Pub/Subなので、データの受取ミスが稀に起きる。stackに余裕を持たせているから1stepの抜け程度なら今は大丈夫。だが、データ落ちは０にしたい。
   void WebotsRobotHandler::ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data) {
-    RCLCPP_INFO(node_->get_logger(), "subscribe...: [ %d ]", callback_data->counter);
+    // RCLCPP_INFO(node_->get_logger(), "subscribe...: [ %d ]", callback_data->counter);
     WalkingPattern_Pos_legL_.push_back(callback_data->q_next_leg_l);
     WalkingPattern_Pos_legR_.push_back(callback_data->q_next_leg_r);
     WalkingPattern_Vel_legL_.push_back(callback_data->dq_next_leg_l);
     WalkingPattern_Vel_legR_.push_back(callback_data->dq_next_leg_r);
+
+    // LOG: Pub/Subのデータ落ちを記録
+    int diff = callback_data->counter - counter_old_;
+    if(1 != diff) {
+      loss_count_++;
+      if(2 == diff) {
+        RCLCPP_WARN(node_->get_logger(), "Pub/Sub Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+1);
+      }
+      else {
+        for(int loss_step = 1; loss_step <= diff; loss_step++) {
+          RCLCPP_WARN(node_->get_logger(), "Pub/Sub Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+loss_step);
+        }
+      }
+    }
+    counter_old_ = callback_data->counter;
   }
 
   void WebotsRobotHandler::init(
@@ -784,7 +800,7 @@ namespace webots_robot_handler
       wait_step--;
     }
     else if((wait_step == 0)  && (200 < int(WalkingPattern_Pos_legL_.size()))) {
-      // DEBUG:
+      // DEBUG: 200は決め打ち。余裕があったほうがいいだろうという判断。
       if(control_step <= int(WalkingPattern_Pos_legR_.size()-1)) {
 
         // set joints angle & velocity
