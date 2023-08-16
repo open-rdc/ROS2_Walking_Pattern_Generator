@@ -62,14 +62,14 @@ def generate_launch_description():
     parameters = [{'use_sim_time': True}]
   )
   
-  # robot_manager
-  robot_manager = Node(
-    package = "robot_manager",
-    # namespace = "walking_controller",
-    executable = "robot_manager",
-    output = "screen",
-    parameters = [{'use_sim_time': True}]
-  )
+  # # robot_manager
+  # robot_manager = Node(
+  #   package = "robot_manager",
+  #   # namespace = "walking_controller",
+  #   executable = "robot_manager",
+  #   output = "screen",
+  #   parameters = [{'use_sim_time': True}]
+  # )
 
   return launch.LaunchDescription([
     # robot_state_publisher,

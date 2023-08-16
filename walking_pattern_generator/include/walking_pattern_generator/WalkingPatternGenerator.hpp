@@ -1,5 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "msgs_package/msg/walking_pattern.hpp"
+#include "msgs_package/msg/control_output.hpp"  // DEBUG:
 #include "kinematics/IK.hpp"
 #include "kinematics/FK.hpp"
 #include "kinematics/Jacobian.hpp"
@@ -13,6 +14,11 @@ namespace walking_pattern_generator
       WalkingPatternGenerator(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
 
     private:
+      // publisher
+      // TODO: managerが完成次第、ControlOutput -> WalkingPattern に変更するべき
+      // TODO: 重要性からして、ここはServiceのほうがいい気がするんだ。
+      rclcpp::Publisher<msgs_package::msg::ControlOutput>::SharedPtr pub_walking_pattern_;
+
       // 共有ライブラリの実体化
       kinematics::FK FK_;
       kinematics::IK IK_;

@@ -3,12 +3,14 @@
 #include <fstream>
 #include "walking_pattern_generator/WalkingPatternGenerator.hpp"
 #include "msgs_package/msg/walking_pattern.hpp"
+#include "msgs_package/msg/control_output.hpp"  // DEBUG:
 #include "kinematics/FK.hpp"
 #include "kinematics/IK.hpp"
 #include "kinematics/Jacobian.hpp"
 
 #include "Eigen/Dense"
 
+using namespace std::chrono_literals;
 using namespace Eigen;
 
 namespace walking_pattern_generator
@@ -635,9 +637,36 @@ namespace walking_pattern_generator
     const rclcpp::NodeOptions &options
   ) : Node("WalkingPatternGenerator", options) {
 
+    auto custom_QoS = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile));
+
+    pub_walking_pattern_ = this->create_publisher<msgs_package::msg::ControlOutput>("ControlOutput", custom_QoS);
+    auto pub_msg = std::make_shared<msgs_package::msg::ControlOutput>();
+
+    // DEBUG: parameter setting
     DEBUG_ParameterSetting();
 
+    // 歩行パターン生成
     WalkingPatternGenerate();
+    RCLCPP_INFO(this->get_logger(), "Create Walking Pattern.");
+
+    // 確実にstep0から送れるようにsleep
+    rclcpp::sleep_for(5000ms);
+
+    // 歩行パターンを1stepごとPublish
+    // TODO: データの重要性からして、ここはServiceのほうがいい気がするんだ。
+    for(int step = 0; step < int(WalkingPattern_Pos_legL_.size()); step++) {
+      pub_msg->q_next_leg_l = WalkingPattern_Pos_legL_[step];
+      pub_msg->q_next_leg_r = WalkingPattern_Pos_legR_[step];
+      pub_msg->dq_next_leg_l = WalkingPattern_Vel_legL_[step];
+      pub_msg->dq_next_leg_r = WalkingPattern_Vel_legR_[step];
+      pub_msg->counter = step;
+
+      RCLCPP_INFO(this->get_logger(), "publish...: [ %d ]", pub_msg->counter);
+
+      pub_walking_pattern_->publish(*pub_msg);
+
+      rclcpp::sleep_for(10ms);
+    }
 
   }
 }
