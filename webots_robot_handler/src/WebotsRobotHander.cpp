@@ -65,19 +65,19 @@ namespace webots_robot_handler
     WalkingPattern_Vel_legR_.push_back(callback_data->dq_next_leg_r);
 
     // LOG: Pub/Subのデータ落ちを記録
-    int diff = callback_data->counter - counter_old_;
-    if(1 != diff) {
-      loss_count_++;
-      if(2 == diff) {
-        RCLCPP_WARN(node_->get_logger(), "Pub/Sub Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+1);
-      }
-      else {
-        for(int loss_step = 1; loss_step <= diff; loss_step++) {
-          RCLCPP_WARN(node_->get_logger(), "Pub/Sub Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+loss_step);
-        }
-      }
-    }
-    counter_old_ = callback_data->counter;
+    // int diff = callback_data->counter - counter_old_;
+    // if(1 != diff) {
+    //   loss_count_++;
+    //   if(2 == diff) {
+    //     RCLCPP_WARN(node_->get_logger(), "Pub/Sub Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+1);
+    //   }
+    //   else {
+    //     for(int loss_step = 1; loss_step <= diff; loss_step++) {
+    //       RCLCPP_WARN(node_->get_logger(), "Pub/Sub Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+loss_step);
+    //     }
+    //   }
+    // }
+    // counter_old_ = callback_data->counter;
   }
 
   void WebotsRobotHandler::init(
