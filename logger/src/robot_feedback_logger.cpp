@@ -39,6 +39,7 @@ namespace logger {
 
     private:
       void Feedback_Callback(const msgs_package::msg::Feedback::SharedPtr callback_data) {
+        std::cout << callback_data->accelerometer_now[0] << " " << callback_data->accelerometer_now[1] << " " << callback_data->accelerometer_now[2] << std::endl;
         for(double acce : callback_data->accelerometer_now) {
           WRH_log_Feedback << acce << " ";
         }
