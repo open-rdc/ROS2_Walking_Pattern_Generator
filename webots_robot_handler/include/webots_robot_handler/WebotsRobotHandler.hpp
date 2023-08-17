@@ -45,8 +45,10 @@ namespace webots_robot_handler
       // init関数以外でもrclcpp::Nodeを使えるようにするため。
       webots_ros2_driver::WebotsNode *node_;
 
-      // rclcpp::Publisher<msgs_package::msg::Feedback>::SharedPtr pub_feedback_;
+      rclcpp::Publisher<msgs_package::msg::Feedback>::SharedPtr pub_feedback_;
       rclcpp::Subscription<msgs_package::msg::ControlOutput>::SharedPtr sub_control_output_;
+
+      std::shared_ptr<msgs_package::msg::Feedback> pub_feedback_msg_;
       
       // Webots内のロボットが持つデバイスのタグを持つ。このタグをもとに、Webotsの関数はデバイスを区別する。
       WbDeviceTag motorsTag_[20];  // 全モータ２０個

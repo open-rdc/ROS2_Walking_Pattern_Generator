@@ -91,8 +91,10 @@ namespace webots_robot_handler
 
     using namespace std::placeholders;
 
-    // pub_feedback_ = node_->create_publisher<msgs_package::msg::Feedback>("Feedback", custom_QoS);
+    pub_feedback_ = node_->create_publisher<msgs_package::msg::Feedback>("Feedback", custom_QoS);
     sub_control_output_ = node_->create_subscription<msgs_package::msg::ControlOutput>("ControlOutput", custom_QoS, std::bind(&WebotsRobotHandler::ControlOutput_Callback, this, _1));
+
+    pub_feedback_msg_ = std::make_shared<msgs_package::msg::Feedback>();
 
     // DEBUG: parameter setting
     DEBUG_ParameterSetting();
@@ -119,25 +121,32 @@ namespace webots_robot_handler
     
     // DEBUG: 初期姿勢への移行が済むまで待つための変数。決め打ち
     // TODO: IMUで初期姿勢への移行完了を検知したい。値がある一定値以内になったらフラグを解除する方式を取りたい
-    wait_step = 500;
+    wait_step = 500;  // 500 * 10[ms] = 5[s]
   }
 
+  // 恐らく、.wbtのstep_timeを10[ms]に設定してても、step()が10[ms]以内で回る保証はないのだろう。
   void WebotsRobotHandler::step() {
     // RCLCPP_INFO(node_->get_logger(), "step...");
 
     // TODO: 脚、腕と、専用の配列に入れ直すのだから、getJointAng_はもっと最適化できるはず。
     // get current status 
-    // for(int tag = 0; tag < 20; tag++) {
-    //   getJointAng_[tag] = wb_position_sensor_get_value(positionSensorsTag_[tag]);
-    // }
-    // accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);
-    // gyroValue_ = wb_gyro_get_values(gyroTag_);
-    // // get leg_joints angle
+    // for(int tag : jointNum_legR_) {
+    for(int tag = 0; tag < jointNum_legR_.size(); tag++) {
+      // getJointAng_[tag] = wb_position_sensor_get_value(positionSensorsTag_[tag]);
+      Q_legR_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legR_[tag]]);
+      Q_legL_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legL_[tag]]);
+    }
+    accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);
+    gyroValue_ = wb_gyro_get_values(gyroTag_);
+
+    // publish feedback
+    pub_feedback_->publish(*pub_feedback_msg_);
+    // get leg_joints angle
     // for(int tag = 0; tag < 6; tag++) {
     //   Q_legR_[tag] = getJointAng_[jointNum_legR_[tag]];
     //   Q_legL_[tag] = getJointAng_[jointNum_legL_[tag]];
     // }
-    // DEBUG:
+    // -DEBUG:
     // auto hoge = FK_.getFK(Q_legR_, P_legR_waist_standard_, 6);
     // std::cout << hoge << std::endl;
 
