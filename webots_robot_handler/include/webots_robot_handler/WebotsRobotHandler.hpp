@@ -8,16 +8,10 @@
 #include "webots_ros2_driver/PluginInterface.hpp"
 #include "webots_ros2_driver/WebotsNode.hpp"
 
-#include "Eigen/Dense"
-#include "kinematics/FK.hpp"
-#include "kinematics/IK.hpp"
-#include "kinematics/Jacobian.hpp"
-
 namespace webots_robot_handler
 {
   class WebotsRobotHandler : public webots_ros2_driver::PluginInterface {
     public:
-    
       void init(
         webots_ros2_driver::WebotsNode *node, 
         std::unordered_map<std::string, std::string> &parameters
@@ -26,58 +20,22 @@ namespace webots_robot_handler
       void step() override;
 
     private:
-
-      // -TODO: Kinematicsライブラリの中に含めるべき関数
-      // Eigen::Matrix<double, 6, 6> JacobiMatrix_leg(
-      //   std::array<double, 6> Q_leg,
-      //   std::array<Eigen::Vector3d, 6> UnitVec_leg,
-      //   std::array<Eigen::Vector3d, 7> P_leg
-      // );
       // マネージャからのCallback
       void ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data);
       // DEBUG: 1つ前のcounterを記憶。データ落ちが無いかの判定に用いる。
       int counter_old_ = -1;
       int loss_count_ = 0;
 
-// DEBUG: Dynamic Gait ==
-      void WalkingPatternGenerate(void);
-
-      // 共有ライブラリの実体化
-      kinematics::FK FK_;
-      kinematics::IK IK_;
-      kinematics::Jacobian Jacobian_;
-
       // TODO: Parameterから読み取るべき
       // TODO: 生成に必要な変数
       float weight_;
       float length_leg_;
-
-      // TODO: 歩行パラメータを設定すべき
-      // 歩行パラメータの行列
-      std::vector<std::array<double, 3>> LandingPosition_;
 
       // 歩行パターンの変数（行列）
       std::vector<std::array<double, 6>> WalkingPattern_Pos_legR_;
       std::vector<std::array<double, 6>> WalkingPattern_Vel_legR_;
       std::vector<std::array<double, 6>> WalkingPattern_Pos_legL_;
       std::vector<std::array<double, 6>> WalkingPattern_Vel_legL_;
-
-      // ヤコビアンとかに必要な変数
-      Eigen::Matrix<double, 6, 6> Jacobi_legR_;
-      Eigen::Matrix<double, 6, 6> Jacobi_legL_;
-      // std::array<Eigen::Vector3d, 6> P_FK_legR_;
-      // std::array<Eigen::Vector3d, 6> P_FK_legL_;
-      std::array<Eigen::Vector3d, 6> UnitVec_legR_;
-      std::array<Eigen::Vector3d, 6> UnitVec_legL_;
-
-      // std::array<Eigen::Matrix3d, 6> R_legR_;
-      std::array<Eigen::Vector3d, 7> P_legR_;
-      std::array<Eigen::Vector3d, 7> P_legR_waist_standard_;
-      // std::array<Eigen::Matrix3d, 6> R_legL_;
-      std::array<Eigen::Vector3d, 7> P_legL_;
-      std::array<Eigen::Vector3d, 7> P_legL_waist_standard_;
-
-      Eigen::Matrix<double, 3, 3> R_target_leg;
 
       std::array<double, 6> Q_legR_;
       std::array<double, 6> Q_legL_;
