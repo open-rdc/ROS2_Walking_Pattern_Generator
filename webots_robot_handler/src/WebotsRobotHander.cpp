@@ -103,12 +103,12 @@ namespace webots_robot_handler
     for(int tag = 0; tag < 20; tag++) {  
       motorsTag_[tag] = wb_robot_get_device(motors_name_[tag].c_str());
       positionSensorsTag_[tag] = wb_robot_get_device((motors_name_[tag]+"S").c_str());
-      wb_position_sensor_enable(positionSensorsTag_[tag], 1);  // enable & sampling_period: 100[ms]
+      wb_position_sensor_enable(positionSensorsTag_[tag], 10);  // enable & sampling_period: 100[ms]
     }
     accelerometerTag_ = wb_robot_get_device("Accelerometer");
-    wb_accelerometer_enable(accelerometerTag_, 1);  // enable & sampling_period: 100[ms]
+    wb_accelerometer_enable(accelerometerTag_, 10);  // enable & sampling_period: 100[ms]
     gyroTag_ = wb_robot_get_device("Gyro");
-    wb_gyro_enable(gyroTag_, 1);  // enable & sampling_period: 100[ms]
+    wb_gyro_enable(gyroTag_, 10);  // enable & sampling_period: 100[ms]
 
     // set init position & value
     // TODO: 脚の初期姿勢（特に位置）はIKの解から与えたい。今は角度を決め打ちで与えているので、初期姿勢の変更がめっちゃめんどくさい。
@@ -131,13 +131,18 @@ namespace webots_robot_handler
     // TODO: 脚、腕と、専用の配列に入れ直すのだから、getJointAng_はもっと最適化できるはず。
     // get current status 
     // for(int tag : jointNum_legR_) {
-    for(int tag = 0; tag < jointNum_legR_.size(); tag++) {
+    for(int tag = 0; tag < int(jointNum_legR_.size()); tag++) {
       // getJointAng_[tag] = wb_position_sensor_get_value(positionSensorsTag_[tag]);
       Q_legR_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legR_[tag]]);
       Q_legL_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legL_[tag]]);
     }
-    accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);
-    gyroValue_ = wb_gyro_get_values(gyroTag_);
+    accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);  // TODO: 512基準の実数１つだけ。３軸全部getしたい。
+    gyroValue_ = wb_gyro_get_values(gyroTag_);  // TODO: 上に同じ。変数の型から変える必要がある。
+    // std::cout << *accelerometerValue_ << std::endl;
+    pub_feedback_msg_->q_now_leg_r = Q_legR_;
+    pub_feedback_msg_->q_now_leg_l = Q_legL_;
+    // pub_feedback_msg_->accelerometer_now = *accelerometerValue_;
+    // pub_feedback_msg_->gyro_now = *gyroValue_;
 
     // publish feedback
     pub_feedback_->publish(*pub_feedback_msg_);
