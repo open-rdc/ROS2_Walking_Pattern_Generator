@@ -138,7 +138,7 @@ namespace webots_robot_handler
     }
     accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);  // TODO: 512基準の実数１つだけ。３軸全部getしたい。
     gyroValue_ = wb_gyro_get_values(gyroTag_);  // TODO: 上に同じ。変数の型から変える必要がある。
-    // std::cout << accelerometerValue_[0] << " " << accelerometerValue_[1] << " " << accelerometerValue_[2] << std::endl;
+
     pub_feedback_msg_->q_now_leg_r = Q_legR_;
     pub_feedback_msg_->q_now_leg_l = Q_legL_;
     pub_feedback_msg_->accelerometer_now[0] = accelerometerValue_[0];
@@ -150,6 +150,7 @@ namespace webots_robot_handler
 
     // publish feedback
     pub_feedback_->publish(*pub_feedback_msg_);
+
     // get leg_joints angle
     // for(int tag = 0; tag < 6; tag++) {
     //   Q_legR_[tag] = getJointAng_[jointNum_legR_[tag]];
