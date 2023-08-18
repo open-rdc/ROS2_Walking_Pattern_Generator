@@ -69,11 +69,11 @@ namespace webots_robot_handler
     // if(1 != diff) {
     //   loss_count_++;
     //   if(2 == diff) {
-    //     RCLCPP_WARN(node_->get_logger(), "Pub/Sub Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+1);
+    //     RCLCPP_WARN(node_->get_logger(), "WalkingPattern Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+1);
     //   }
     //   else {
     //     for(int loss_step = 1; loss_step <= diff; loss_step++) {
-    //       RCLCPP_WARN(node_->get_logger(), "Pub/Sub Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+loss_step);
+    //       RCLCPP_WARN(node_->get_logger(), "WalkingPattern Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+loss_step);
     //     }
     //   }
     // }
@@ -139,6 +139,7 @@ namespace webots_robot_handler
     accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);  // TODO: 512基準の実数１つだけ。３軸全部getしたい。
     gyroValue_ = wb_gyro_get_values(gyroTag_);  // TODO: 上に同じ。変数の型から変える必要がある。
 
+    pub_feedback_msg_->step_count = simu_step;
     pub_feedback_msg_->q_now_leg_r = Q_legR_;
     pub_feedback_msg_->q_now_leg_l = Q_legL_;
     pub_feedback_msg_->accelerometer_now[0] = accelerometerValue_[0];
@@ -186,6 +187,7 @@ namespace webots_robot_handler
 
       control_step++;  // DEBUG: 
     }
+    simu_step++;
   }
 
 }

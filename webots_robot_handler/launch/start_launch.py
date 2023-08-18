@@ -83,11 +83,11 @@ def generate_launch_description():
     # fk,
     # ik,
     # walking_stabilization_controller,
+    robot_feedback_logger,
     webots,
     robotis_op2_driver,
     walking_pattern_generator,
     # robot_manager,
-    robot_feedback_logger,
     launch.actions.RegisterEventHandler(
       event_handler = launch.event_handlers.OnProcessExit(
         target_action = webots,

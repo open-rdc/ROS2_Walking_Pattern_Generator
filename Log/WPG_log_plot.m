@@ -1,6 +1,8 @@
 clear;
 close all;
 
+%{
+
 load WPG_log_FootTrajectory.dat;
 
 [a, b] = size(WPG_log_FootTrajectory);
@@ -135,6 +137,45 @@ legend("dz: swing leg")
 xlabel("time")
 ylabel("z trans vel [m/s]")
 grid on
+
+%}
+
+load WRH_log_Feedback.dat;
+
+[a9, b9] = size(WRH_log_Feedback);
+t9 = 1:a9;
+i = 0;
+for n=t9
+  i = i + 1;
+  acc_x(i) = WRH_log_Feedback(i, 2);
+  acc_y(i) = WRH_log_Feedback(i, 3);
+  acc_z(i) = WRH_log_Feedback(i, 4);
+  gyr_x(i) = WRH_log_Feedback(i, 5);
+  gyr_y(i) = WRH_log_Feedback(i, 6);
+  gyr_z(i) = WRH_log_Feedback(i, 7);
+end
+
+f9 = "WRH_log_Feedback";
+figure("name", f9);
+
+subplot(2, 3, 1)
+plot(t9, acc_x)
+
+subplot(2, 3, 2)
+plot(t9, acc_y)
+
+subplot(2, 3, 3)
+plot(t9, acc_z)
+
+subplot(2, 3, 4)
+plot(t9, gyr_x)
+
+subplot(2, 3, 5)
+plot(t9, gyr_y)
+
+subplot(2, 3, 6)
+plot(t9, gyr_z)
+
 
 
 % reference https://jp.mathworks.com/help/matlab/data_analysis/plotting-data.html

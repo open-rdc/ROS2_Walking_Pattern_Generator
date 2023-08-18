@@ -80,6 +80,8 @@ namespace webots_robot_handler
       int wait_step;  // DEBUG: 初期姿勢になるまで待機するstep数
 
       int control_step;  // DEBUG: 
+
+      int simu_step = 0;  // DEBUG:
   };
 }
 

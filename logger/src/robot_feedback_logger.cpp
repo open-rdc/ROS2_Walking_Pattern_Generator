@@ -39,7 +39,46 @@ namespace logger {
 
     private:
       void Feedback_Callback(const msgs_package::msg::Feedback::SharedPtr callback_data) {
-        // std::cout << callback_data->accelerometer_now[0] << " " << callback_data->accelerometer_now[1] << " " << callback_data->accelerometer_now[2] << std::endl;
+        // データ落ちに対処
+        // 落ちたデータの箇所は、今の最新と同値で埋める。
+        // CHECKME: データ落ちの箇所は記録しておいたほうが良い？
+        int diff = callback_data->step_count - counter_old_;
+        if(1 != diff) {
+          loss_count_++;
+          if(2 == diff) {
+            // RCLCPP_WARN(this->get_logger(), "Feedback Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+1);
+            WRH_log_Feedback << counter_old_+1 << " ";
+            for(double acce : callback_data->accelerometer_now) {
+              WRH_log_Feedback << acce << " ";
+            }
+            for(double gyro : callback_data->gyro_now) {
+              WRH_log_Feedback << gyro << " ";
+            }
+            WRH_log_Feedback << std::endl;
+
+          }
+          else {
+            for(int loss_step = 1; loss_step < diff; loss_step++) {
+              // RCLCPP_WARN(this->get_logger(), "Feedback Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+loss_step);
+              WRH_log_Feedback << counter_old_+loss_step << " ";
+              for(double acce : callback_data->accelerometer_now) {
+                WRH_log_Feedback << acce << " ";
+              }
+              for(double gyro : callback_data->gyro_now) {
+                WRH_log_Feedback << gyro << " ";
+              }
+              WRH_log_Feedback << std::endl;
+            }
+          }
+        }
+        counter_old_ = callback_data->step_count;
+        // accelerometer_old_ = callback_data->accelerometer_now;
+        // gyro_old_ = callback_data->gyro_now;
+
+        // ファイルに出力
+        // TODO: リアルタイムでグラフにプロットしたい。
+        // TODO: 行数で、ファイルを複数に分けたい。１つのファイルに出力し続けたら行数がやばいことになる。
+        WRH_log_Feedback << callback_data->step_count << " ";
         for(double acce : callback_data->accelerometer_now) {
           WRH_log_Feedback << acce << " ";
         }
@@ -53,6 +92,12 @@ namespace logger {
 
       std::ofstream WRH_log_Feedback;
       std::string WRH_log_Feedback_path = "src/Log/WRH_log_Feedback.dat";
+
+      int loss_count_ = 0;
+      int counter_old_ = 0;
+
+      // std::array<double, 3> accelerometer_old_ = {0, 0, 0};
+      // std::array<double, 3> gyro_old_ = {0, 0, 0};
 
   };
 }
