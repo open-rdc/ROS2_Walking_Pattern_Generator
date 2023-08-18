@@ -131,26 +131,26 @@ namespace webots_robot_handler
     // TODO: 脚、腕と、専用の配列に入れ直すのだから、getJointAng_はもっと最適化できるはず。
     // get current status 
     // for(int tag : jointNum_legR_) {
-    for(int tag = 0; tag < int(jointNum_legR_.size()); tag++) {
-      // getJointAng_[tag] = wb_position_sensor_get_value(positionSensorsTag_[tag]);
-      Q_legR_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legR_[tag]]);
-      Q_legL_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legL_[tag]]);
-    }
-    accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);  // TODO: 512基準の実数１つだけ。３軸全部getしたい。
-    gyroValue_ = wb_gyro_get_values(gyroTag_);  // TODO: 上に同じ。変数の型から変える必要がある。
+    // for(int tag = 0; tag < int(jointNum_legR_.size()); tag++) {
+    //   // getJointAng_[tag] = wb_position_sensor_get_value(positionSensorsTag_[tag]);
+    //   Q_legR_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legR_[tag]]);
+    //   Q_legL_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legL_[tag]]);
+    // }
+    // accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);  // TODO: 512基準の実数１つだけ。３軸全部getしたい。
+    // gyroValue_ = wb_gyro_get_values(gyroTag_);  // TODO: 上に同じ。変数の型から変える必要がある。
 
-    pub_feedback_msg_->step_count = simu_step;
-    pub_feedback_msg_->q_now_leg_r = Q_legR_;
-    pub_feedback_msg_->q_now_leg_l = Q_legL_;
-    pub_feedback_msg_->accelerometer_now[0] = accelerometerValue_[0];
-    pub_feedback_msg_->accelerometer_now[1] = accelerometerValue_[1];
-    pub_feedback_msg_->accelerometer_now[2] = accelerometerValue_[2];
-    pub_feedback_msg_->gyro_now[0] = gyroValue_[0];
-    pub_feedback_msg_->gyro_now[1] = gyroValue_[1];
-    pub_feedback_msg_->gyro_now[2] = gyroValue_[2];
+    // pub_feedback_msg_->step_count = simu_step;
+    // pub_feedback_msg_->q_now_leg_r = Q_legR_;
+    // pub_feedback_msg_->q_now_leg_l = Q_legL_;
+    // pub_feedback_msg_->accelerometer_now[0] = accelerometerValue_[0];
+    // pub_feedback_msg_->accelerometer_now[1] = accelerometerValue_[1];
+    // pub_feedback_msg_->accelerometer_now[2] = accelerometerValue_[2];
+    // pub_feedback_msg_->gyro_now[0] = gyroValue_[0];
+    // pub_feedback_msg_->gyro_now[1] = gyroValue_[1];
+    // pub_feedback_msg_->gyro_now[2] = gyroValue_[2];
 
-    // publish feedback
-    pub_feedback_->publish(*pub_feedback_msg_);
+    // // publish feedback
+    // pub_feedback_->publish(*pub_feedback_msg_);
 
     // get leg_joints angle
     // for(int tag = 0; tag < 6; tag++) {
@@ -165,10 +165,32 @@ namespace webots_robot_handler
     if(wait_step != 0) {
       wait_step--;
     }
+    // DEBUG: 200は決め打ち。余裕があったほうがいいだろうという判断。
     else if((wait_step == 0)  && (200 < int(WalkingPattern_Pos_legL_.size()))) {
-      // DEBUG: 200は決め打ち。余裕があったほうがいいだろうという判断。
-      if(control_step <= int(WalkingPattern_Pos_legR_.size()-1)) {
+      for(int tag = 0; tag < int(jointNum_legR_.size()); tag++) {
+        // getJointAng_[tag] = wb_position_sensor_get_value(positionSensorsTag_[tag]);
+        Q_legR_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legR_[tag]]);
+        Q_legL_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legL_[tag]]);
+      }
+      accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);  // TODO: 512基準の実数１つだけ。３軸全部getしたい。
+      gyroValue_ = wb_gyro_get_values(gyroTag_);  // TODO: 上に同じ。変数の型から変える必要がある。
 
+      pub_feedback_msg_->step_count = control_step;
+      pub_feedback_msg_->q_now_leg_r = Q_legR_;
+      pub_feedback_msg_->q_now_leg_l = Q_legL_;
+      pub_feedback_msg_->accelerometer_now[0] = accelerometerValue_[0];
+      pub_feedback_msg_->accelerometer_now[1] = accelerometerValue_[1];
+      pub_feedback_msg_->accelerometer_now[2] = accelerometerValue_[2];
+      pub_feedback_msg_->gyro_now[0] = gyroValue_[0];
+      pub_feedback_msg_->gyro_now[1] = gyroValue_[1];
+      pub_feedback_msg_->gyro_now[2] = gyroValue_[2];
+
+      // publish feedback
+      pub_feedback_->publish(*pub_feedback_msg_);
+
+      // 歩行パターンが存在するか
+      // TODO: control_stepは良くないのでは？
+      if(control_step <= int(WalkingPattern_Pos_legR_.size()-1)) {
         // set joints angle & velocity
         for(int tag = 0; tag < 6; tag++) {
           wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[control_step][tag]*jointAng_posi_or_nega_legR_[tag]);
@@ -187,7 +209,7 @@ namespace webots_robot_handler
 
       control_step++;  // DEBUG: 
     }
-    simu_step++;
+    // simu_step++;  // DEBUG:
   }
 
 }

@@ -160,22 +160,39 @@ figure("name", f9);
 
 subplot(2, 3, 1)
 plot(t9, acc_x)
+title("Accelerometer axis-X")
+xlabel("step")
+grid on
 
 subplot(2, 3, 2)
 plot(t9, acc_y)
+title("Accelerometer axis-Y")
+xlabel("step")
+grid on
 
 subplot(2, 3, 3)
 plot(t9, acc_z)
+title("Accelerometer axis-Z")
+xlabel("step")
+grid on
 
 subplot(2, 3, 4)
 plot(t9, gyr_x)
+title("Gyro axis-X")
+xlabel("step")
+grid on
 
 subplot(2, 3, 5)
 plot(t9, gyr_y)
+title("Gyro axis-Y")
+xlabel("step")
+grid on
 
 subplot(2, 3, 6)
 plot(t9, gyr_z)
-
+title("Gyro axis-Z")
+xlabel("step")
+grid on
 
 
 % reference https://jp.mathworks.com/help/matlab/data_analysis/plotting-data.html
