@@ -39,6 +39,40 @@ namespace logger {
 
     private:
       void Feedback_Callback(const msgs_package::msg::Feedback::SharedPtr callback_data) {
+/* Accelerometer & Gyro. Darwin-op.proto 仕様 (Pub側で対処済み)
+source: https://github.com/cyberbotics/webots/blob/master/projects/robots/robotis/darwin-op/protos/Darwin-op.proto
+
+        Accelerometer {
+          translation -0.01 0 -0.068
+          rotation 0 0 1.0 -1.5708  # z軸基準に座標を-90°回転 (x -> -y, y -> x, z -> z)
+          name "Accelerometer"
+          lookupTable [
+            -39.24 0 0 39.24 1024 0
+          ]
+        }
+        Gyro {
+          translation 0.01 0 -0.068
+          rotation 0 0 1.0 -3.1416  # z軸基準に座標を-180°回転 (x -> -x, y -> -y, z -> z)
+          name "Gyro"
+          lookupTable [
+            -27.925 0 0 27.925 1024 0
+          ]
+        }
+
+      Offset (センサデータ出力値より推測)
+      Acce
+        x: 512
+        y: 512
+        z: 640
+      Gyro
+        x: 512
+        y: 512
+        z: 512
+        
+reference:
+  acce: https://github.com/cyberbotics/webots/blob/master/docs/reference/accelerometer.md
+  gyro: https://github.com/cyberbotics/webots/blob/master/docs/reference/gyro.md
+*/
         // データ落ちに対処
         // 落ちたデータの箇所は、今の最新と同値で埋める。
         // CHECKME: データ落ちの箇所は記録しておいたほうが良い？

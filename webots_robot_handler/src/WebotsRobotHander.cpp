@@ -128,45 +128,14 @@ namespace webots_robot_handler
   void WebotsRobotHandler::step() {
     // RCLCPP_INFO(node_->get_logger(), "step...");
 
-    // TODO: 脚、腕と、専用の配列に入れ直すのだから、getJointAng_はもっと最適化できるはず。
-    // get current status 
-    // for(int tag : jointNum_legR_) {
-    // for(int tag = 0; tag < int(jointNum_legR_.size()); tag++) {
-    //   // getJointAng_[tag] = wb_position_sensor_get_value(positionSensorsTag_[tag]);
-    //   Q_legR_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legR_[tag]]);
-    //   Q_legL_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legL_[tag]]);
-    // }
-    // accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);  // TODO: 512基準の実数１つだけ。３軸全部getしたい。
-    // gyroValue_ = wb_gyro_get_values(gyroTag_);  // TODO: 上に同じ。変数の型から変える必要がある。
-
-    // pub_feedback_msg_->step_count = simu_step;
-    // pub_feedback_msg_->q_now_leg_r = Q_legR_;
-    // pub_feedback_msg_->q_now_leg_l = Q_legL_;
-    // pub_feedback_msg_->accelerometer_now[0] = accelerometerValue_[0];
-    // pub_feedback_msg_->accelerometer_now[1] = accelerometerValue_[1];
-    // pub_feedback_msg_->accelerometer_now[2] = accelerometerValue_[2];
-    // pub_feedback_msg_->gyro_now[0] = gyroValue_[0];
-    // pub_feedback_msg_->gyro_now[1] = gyroValue_[1];
-    // pub_feedback_msg_->gyro_now[2] = gyroValue_[2];
-
-    // // publish feedback
-    // pub_feedback_->publish(*pub_feedback_msg_);
-
-    // get leg_joints angle
-    // for(int tag = 0; tag < 6; tag++) {
-    //   Q_legR_[tag] = getJointAng_[jointNum_legR_[tag]];
-    //   Q_legL_[tag] = getJointAng_[jointNum_legL_[tag]];
-    // }
-    // -DEBUG:
-    // auto hoge = FK_.getFK(Q_legR_, P_legR_waist_standard_, 6);
-    // std::cout << hoge << std::endl;
-
     // DEBUG: 初期姿勢が完了するまでwait
     if(wait_step != 0) {
       wait_step--;
     }
     // DEBUG: 200は決め打ち。余裕があったほうがいいだろうという判断。
     else if((wait_step == 0)  && (200 < int(WalkingPattern_Pos_legL_.size()))) {
+
+      // get feedback data
       for(int tag = 0; tag < int(jointNum_legR_.size()); tag++) {
         // getJointAng_[tag] = wb_position_sensor_get_value(positionSensorsTag_[tag]);
         Q_legR_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legR_[tag]]);
@@ -175,20 +144,55 @@ namespace webots_robot_handler
       accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);  // TODO: 512基準の実数１つだけ。３軸全部getしたい。
       gyroValue_ = wb_gyro_get_values(gyroTag_);  // TODO: 上に同じ。変数の型から変える必要がある。
 
+/* Accelerometer & Gyro. Darwin-op.proto 仕様
+source: https://github.com/cyberbotics/webots/blob/master/projects/robots/robotis/darwin-op/protos/Darwin-op.proto
+      
+      Accelerometer {
+        translation -0.01 0 -0.068
+        rotation 0 0 1.0 -1.5708  # z軸基準に座標を-90°回転 (x -> -y, y -> x, z -> z)
+        name "Accelerometer"
+        lookupTable [
+          -39.24 0 0 39.24 1024 0
+        ]
+      }
+      Gyro {
+        translation 0.01 0 -0.068
+        rotation 0 0 1.0 -3.1416  # z軸基準に座標を-180°回転 (x -> -x, y -> -y, z -> z)
+        name "Gyro"
+        lookupTable [
+          -27.925 0 0 27.925 1024 0
+        ]
+      }
+
+    Offset (センサデータ出力値より推測)
+    Acce
+      x: 512
+      y: 512
+      z: 640
+    Gyro
+      x: 512
+      y: 512
+      z: 512
+
+reference:
+  acce: https://github.com/cyberbotics/webots/blob/master/docs/reference/accelerometer.md
+  gyro: https://github.com/cyberbotics/webots/blob/master/docs/reference/gyro.md
+*/
+
       pub_feedback_msg_->step_count = control_step;
       pub_feedback_msg_->q_now_leg_r = Q_legR_;
       pub_feedback_msg_->q_now_leg_l = Q_legL_;
-      pub_feedback_msg_->accelerometer_now[0] = accelerometerValue_[0];
-      pub_feedback_msg_->accelerometer_now[1] = accelerometerValue_[1];
-      pub_feedback_msg_->accelerometer_now[2] = accelerometerValue_[2];
-      pub_feedback_msg_->gyro_now[0] = gyroValue_[0];
-      pub_feedback_msg_->gyro_now[1] = gyroValue_[1];
-      pub_feedback_msg_->gyro_now[2] = gyroValue_[2];
+      pub_feedback_msg_->accelerometer_now[0] =  (accelerometerValue_[1]-512);  // y ->  x : x <-  y
+      pub_feedback_msg_->accelerometer_now[1] = -(accelerometerValue_[0]-512);  // x -> -y : y <- -x
+      pub_feedback_msg_->accelerometer_now[2] =  (accelerometerValue_[2]-640);  // z ->  z : z <-  z
+      pub_feedback_msg_->gyro_now[0] = -(gyroValue_[0]-512);  // x -> -x : x <- -x
+      pub_feedback_msg_->gyro_now[1] = -(gyroValue_[1]-512);  // y -> -y : y <- -y
+      pub_feedback_msg_->gyro_now[2] =  (gyroValue_[2]-512);  // z ->  z : z <-  z
 
       // publish feedback
       pub_feedback_->publish(*pub_feedback_msg_);
 
-      // 歩行パターンが存在するか
+      // 歩行パターンが存在するか. 歩行パターンを全部読み切ったかどうか
       // TODO: control_stepは良くないのでは？
       if(control_step <= int(WalkingPattern_Pos_legR_.size()-1)) {
         // set joints angle & velocity
