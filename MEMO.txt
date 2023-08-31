@@ -1,5 +1,7 @@
 MEMO
 
+このメモは古い情報。必要なし。
+
 ## Software Architecture Ver.2 ##
 
 <message_file plan>
