@@ -17,6 +17,7 @@ namespace walking_pattern_generator
       // publisher
       // TODO: managerが完成次第、ControlOutput -> WalkingPattern に変更するべき
       // TODO: 重要性からして、ここはServiceのほうがいい気がするんだ。
+      // TODO: ここの型をJointStateにして、ros2_controlに対応させる。さすればRviz2との連携も可能。
       rclcpp::Publisher<msgs_package::msg::ControlOutput>::SharedPtr pub_walking_pattern_;
 
       // 共有ライブラリの実体化
