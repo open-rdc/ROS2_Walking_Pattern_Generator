@@ -4,6 +4,7 @@
 #include "walking_pattern_generator/WalkingPatternGenerator.hpp"
 #include "msgs_package/msg/walking_pattern.hpp"
 #include "msgs_package/msg/control_output.hpp"  // DEBUG:
+#include "sensor_msgs/msg/joint_state.hpp"
 #include "kinematics/FK.hpp"
 #include "kinematics/IK.hpp"
 #include "kinematics/Jacobian.hpp"
@@ -641,6 +642,10 @@ namespace walking_pattern_generator
 
     pub_walking_pattern_ = this->create_publisher<msgs_package::msg::ControlOutput>("ControlOutput", custom_QoS);
     auto pub_msg = std::make_shared<msgs_package::msg::ControlOutput>();
+    
+    // CHECKME
+    // pub_walking_pattern_ = this->create_publisher<sensor_msgs::msg::JointState>("JointState", custom_QoS);
+    // auto pub_msg = std::make_shared<sensor_msgs::msg::JointState>();
 
     // DEBUG: parameter setting
     DEBUG_ParameterSetting();

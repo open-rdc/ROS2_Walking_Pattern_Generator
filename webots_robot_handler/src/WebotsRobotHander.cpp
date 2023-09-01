@@ -6,6 +6,7 @@
 #include <rmw/qos_profiles.h>
 #include "msgs_package/msg/control_output.hpp"
 #include "msgs_package/msg/feedback.hpp"
+#include "sensor_msgs/msg/joint_state.hpp"
 
 #include <webots/robot.h>
 #include <webots/motor.h>
@@ -54,6 +55,9 @@ namespace webots_robot_handler
     weight_ = 3.0;  // [kg]
     length_leg_ = 171.856 / 1000;  // [m] ちょっと中腰。特異点を回避。直立：219.5[mm]
   }
+
+  // CHECKME: Rviz2との連携を確認するために、JointState TopicをSubscribe
+  // void WebotsRobotHandler::ControlOutput_Callback(const sensor_msgs::msg::JointState::SharedPtr callback_data) {}
 
   // マネージャからのCallback関数
   // TODO: Pub/Subなので、データの受取ミスが稀に起きる。stackに余裕を持たせているから1stepの抜け程度なら今は大丈夫。だが、データ落ちは０にしたい。

@@ -1,6 +1,7 @@
 #include "rclcpp/rclcpp.hpp"
-#include "msgs_package/msg/walking_pattern.hpp"
+#include "msgs_package/msg/walking_pattern.hpp"  // いずれ消える？
 #include "msgs_package/msg/control_output.hpp"  // DEBUG:
+#include "sensor_msgs/msg/joint_state.hpp"
 #include "kinematics/IK.hpp"
 #include "kinematics/FK.hpp"
 #include "kinematics/Jacobian.hpp"
@@ -19,6 +20,9 @@ namespace walking_pattern_generator
       // TODO: 重要性からして、ここはServiceのほうがいい気がするんだ。
       // TODO: ここの型をJointStateにして、ros2_controlに対応させる。さすればRviz2との連携も可能。
       rclcpp::Publisher<msgs_package::msg::ControlOutput>::SharedPtr pub_walking_pattern_;
+      
+      // CHECKME
+      // rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr pub_walking_pattern_;
 
       // 共有ライブラリの実体化
       kinematics::FK FK_;
