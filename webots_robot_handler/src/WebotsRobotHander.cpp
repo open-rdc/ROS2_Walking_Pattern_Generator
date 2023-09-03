@@ -18,18 +18,18 @@ using namespace std::chrono_literals;
 
 namespace webots_robot_handler
 {
-  static const rmw_qos_profile_t custom_qos_profile =
-  {
-    RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
-    1,  // History(keep_last) Depth
-    RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,  // Reliability: best_effort or reliable
-    RMW_QOS_POLICY_DURABILITY_VOLATILE,  // Durability: transient_local or volatile
-    RMW_QOS_DEADLINE_DEFAULT,  // Deadline: default or number
-    RMW_QOS_LIFESPAN_DEFAULT,  // Lifespan: default or number
-    RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,  // Liveliness: automatic or manual_by_topic
-    RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,  // Liveliness_LeaseDuration: default or number
-    false  // avoid_ros_namespace_conventions
-  };
+  // static const rmw_qos_profile_t custom_qos_profile =
+  // {
+  //   RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
+  //   1,  // History(keep_last) Depth
+  //   RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,  // Reliability: best_effort or reliable
+  //   RMW_QOS_POLICY_DURABILITY_VOLATILE,  // Durability: transient_local or volatile
+  //   RMW_QOS_DEADLINE_DEFAULT,  // Deadline: default or number
+  //   RMW_QOS_LIFESPAN_DEFAULT,  // Lifespan: default or number
+  //   RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,  // Liveliness: automatic or manual_by_topic
+  //   RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,  // Liveliness_LeaseDuration: default or number
+  //   false  // avoid_ros_namespace_conventions
+  // };
 
   void WebotsRobotHandler::DEBUG_ParameterSetting() {
     // protoに沿った各モータの名前
@@ -57,7 +57,44 @@ namespace webots_robot_handler
   }
 
   // CHECKME: Rviz2との連携を確認するために、JointState TopicをSubscribe
-  // void WebotsRobotHandler::ControlOutput_Callback(const sensor_msgs::msg::JointState::SharedPtr callback_data) {}
+  void WebotsRobotHandler::JointStates_Callback(const sensor_msgs::msg::JointState::SharedPtr callback_data) {
+    WalkingPattern_Pos_legL_.resize(1);
+    WalkingPattern_Pos_legR_.resize(1);
+    WalkingPattern_Vel_legL_.resize(1);
+    WalkingPattern_Vel_legR_.resize(1);
+    WalkingPattern_Pos_legL_[0] = {
+      callback_data->position[8],
+      callback_data->position[9],
+      callback_data->position[10],
+      callback_data->position[11],
+      callback_data->position[12],
+      callback_data->position[13]
+    };
+    WalkingPattern_Pos_legR_[0] = {
+      callback_data->position[14],
+      callback_data->position[15],
+      callback_data->position[16],
+      callback_data->position[17],
+      callback_data->position[18],
+      callback_data->position[19]
+    };
+    WalkingPattern_Vel_legL_[0] = {
+      callback_data->velocity[8],
+      callback_data->velocity[9],
+      callback_data->velocity[10],
+      callback_data->velocity[11],
+      callback_data->velocity[12],
+      callback_data->velocity[13]
+    };
+    WalkingPattern_Vel_legR_[0] = {
+      callback_data->velocity[14],
+      callback_data->velocity[15],
+      callback_data->velocity[16],
+      callback_data->velocity[17],
+      callback_data->velocity[18],
+      callback_data->velocity[19]
+    };
+  }
 
   // マネージャからのCallback関数
   // TODO: Pub/Subなので、データの受取ミスが稀に起きる。stackに余裕を持たせているから1stepの抜け程度なら今は大丈夫。だが、データ落ちは０にしたい。
@@ -91,12 +128,15 @@ namespace webots_robot_handler
     node_ = node;  // 他関数内でも使うため
     (void)parameters;  // fake
 
-    auto custom_QoS = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile));
+    // auto custom_QoS = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile));
 
     using namespace std::placeholders;
 
-    pub_feedback_ = node_->create_publisher<msgs_package::msg::Feedback>("Feedback", custom_QoS);
-    sub_control_output_ = node_->create_subscription<msgs_package::msg::ControlOutput>("ControlOutput", custom_QoS, std::bind(&WebotsRobotHandler::ControlOutput_Callback, this, _1));
+    // pub_feedback_ = node_->create_publisher<msgs_package::msg::Feedback>("Feedback", custom_QoS);
+    // sub_control_output_ = node_->create_subscription<msgs_package::msg::ControlOutput>("ControlOutput", custom_QoS, std::bind(&WebotsRobotHandler::ControlOutput_Callback, this, _1));
+
+    // CHECKME
+    sub_joint_state_ = node_->create_subscription<sensor_msgs::msg::JointState>("joint_states", 10, std::bind(&WebotsRobotHandler::JointStates_Callback, this, _1));
 
     pub_feedback_msg_ = std::make_shared<msgs_package::msg::Feedback>();
 
@@ -198,13 +238,14 @@ reference:
 
       // 歩行パターンが存在するか. 歩行パターンを全部読み切ったかどうか
       // TODO: control_stepは良くないのでは？
-      if(control_step <= int(WalkingPattern_Pos_legR_.size()-1)) {
+      // if(control_step <= int(WalkingPattern_Pos_legR_.size()-1)) {
+      if(true) {  // DEBUG:
         // set joints angle & velocity
         for(int tag = 0; tag < 6; tag++) {
-          wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[control_step][tag]*jointAng_posi_or_nega_legR_[tag]);
-          wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], std::abs(WalkingPattern_Vel_legR_[control_step][tag]));  // マイナスだと怒られるので、絶対値を取る
-          wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[control_step][tag]*jointAng_posi_or_nega_legL_[tag]);
-          wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], std::abs(WalkingPattern_Vel_legL_[control_step][tag]));
+          wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]*jointAng_posi_or_nega_legR_[tag]);  // DEBUG: control_Step -> 0
+          wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], std::abs(WalkingPattern_Vel_legR_[0][tag]));  // マイナスだと怒られるので、絶対値を取る
+          wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]*jointAng_posi_or_nega_legL_[tag]);
+          wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], std::abs(WalkingPattern_Vel_legL_[0][tag]));
         }
 
         // // CHECKME: 読んだ歩行パターンを削除

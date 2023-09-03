@@ -19,6 +19,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(msgs_package REQUIRED)
 find_package(kinematics REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 add_executable(walking_pattern_generator
@@ -29,6 +30,7 @@ ament_target_dependencies(walking_pattern_generator
   rclcpp
   msgs_package
   kinematics
+  sensor_msgs
 )
 target_include_directories(walking_pattern_generator
   PUBLIC

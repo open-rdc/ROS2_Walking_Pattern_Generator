@@ -12,6 +12,7 @@
   <depend>rclcpp</depend>
   <depend>msgs_package</depend>
   <depend>kinematics</depend>
+  <depend>sensor_msgs</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
