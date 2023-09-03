@@ -34,17 +34,17 @@ namespace webots_robot_handler
 
       // TODO: Parameterから読み取るべき
       // TODO: 生成に必要な変数
-      float weight_;
-      float length_leg_;
+      float weight_ = 0;
+      float length_leg_ = 0;
 
       // 歩行パターンの変数（行列）
-      std::vector<std::array<double, 6>> WalkingPattern_Pos_legR_;
-      std::vector<std::array<double, 6>> WalkingPattern_Vel_legR_;
-      std::vector<std::array<double, 6>> WalkingPattern_Pos_legL_;
-      std::vector<std::array<double, 6>> WalkingPattern_Vel_legL_;
+      std::vector<std::array<double, 6>> WalkingPattern_Pos_legR_ = {{0, 0, 0, 0, 0, 0}};
+      std::vector<std::array<double, 6>> WalkingPattern_Vel_legR_ = {{0, 0, 0, 0, 0, 0}};
+      std::vector<std::array<double, 6>> WalkingPattern_Pos_legL_ = {{0, 0, 0, 0, 0, 0}};
+      std::vector<std::array<double, 6>> WalkingPattern_Vel_legL_ = {{0, 0, 0, 0, 0, 0}};
 
-      std::array<double, 6> Q_legR_;
-      std::array<double, 6> Q_legL_;
+      std::array<double, 6> Q_legR_ = {0, 0, 0, 0, 0, 0};
+      std::array<double, 6> Q_legL_ = {0, 0, 0, 0, 0, 0};
 
 // == init() ==
 

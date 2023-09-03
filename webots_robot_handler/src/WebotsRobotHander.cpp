@@ -37,9 +37,12 @@ namespace webots_robot_handler
                     ("PelvYR"), ("PelvYL"), ("PelvR"), ("PelvL"), ("LegUpperR"), ("LegUpperL"), ("LegLowerR"), ("LegLowerL"), ("AnkleR"), ("AnkleL"), ("FootR"), ("FootL"),   //leg
                     ("Neck"), ("Head")};  //body
     // 初期姿勢を設定. init joints ang [rad]. corresponding to motors_name
-    initJointAng_ = {0, 0, -0.5, 0.5, -1, 1,   // arm
-                    0, 0, 0, 0, -3.14/8, 3.14/8, 3.14/4, -3.14/4, 3.14/8, -3.14/8, 0, 0,   // leg
-                    0, 0.26};  // body
+    // initJointAng_ = {0, 0, -0.5, 0.5, -1, 1,   // arm
+    //                 0, 0, 0, 0, -3.14/8, 3.14/8, 3.14/4, -3.14/4, 3.14/8, -3.14/8, 0, 0,   // leg
+    //                 0, 0.26};  // body
+        initJointAng_ = {0, 0, -0.5, 0.5, -1, 1,   // arm
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   // leg
+                    0, 0};  // body
     // 初期姿勢に移行する時の角速度.  init joints vel [rad/s]
     initJointVel_ = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5,  // arm
                     0.5, 0.5, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5,  // log
@@ -58,6 +61,9 @@ namespace webots_robot_handler
 
   // CHECKME: Rviz2との連携を確認するために、JointState TopicをSubscribe
   void WebotsRobotHandler::JointStates_Callback(const sensor_msgs::msg::JointState::SharedPtr callback_data) {
+    // for(int i = 0; i < 20; i++) {
+    //   std::cout << callback_data->name[i] << "   " << callback_data->position[i] << "   " << callback_data->velocity[i] << std::endl;
+    // }
     WalkingPattern_Pos_legL_.resize(1);
     WalkingPattern_Pos_legR_.resize(1);
     WalkingPattern_Vel_legL_.resize(1);
@@ -94,32 +100,38 @@ namespace webots_robot_handler
       callback_data->velocity[18],
       callback_data->velocity[19]
     };
+        for(int tag = 0; tag < 6; tag++) {
+          wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]*jointAng_posi_or_nega_legR_[tag]);  // DEBUG: control_Step -> 0
+          wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], std::abs(WalkingPattern_Vel_legR_[0][tag]));  // マイナスだと怒られるので、絶対値を取る
+          wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]*jointAng_posi_or_nega_legL_[tag]);
+          wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], std::abs(WalkingPattern_Vel_legL_[0][tag]));
+        }
   }
 
   // マネージャからのCallback関数
   // TODO: Pub/Subなので、データの受取ミスが稀に起きる。stackに余裕を持たせているから1stepの抜け程度なら今は大丈夫。だが、データ落ちは０にしたい。
-  void WebotsRobotHandler::ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data) {
-    // RCLCPP_INFO(node_->get_logger(), "subscribe...: [ %d ]", callback_data->counter);
-    WalkingPattern_Pos_legL_.push_back(callback_data->q_next_leg_l);
-    WalkingPattern_Pos_legR_.push_back(callback_data->q_next_leg_r);
-    WalkingPattern_Vel_legL_.push_back(callback_data->dq_next_leg_l);
-    WalkingPattern_Vel_legR_.push_back(callback_data->dq_next_leg_r);
+  // void WebotsRobotHandler::ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data) {
+  //   // RCLCPP_INFO(node_->get_logger(), "subscribe...: [ %d ]", callback_data->counter);
+  //   WalkingPattern_Pos_legL_.push_back(callback_data->q_next_leg_l);
+  //   WalkingPattern_Pos_legR_.push_back(callback_data->q_next_leg_r);
+  //   WalkingPattern_Vel_legL_.push_back(callback_data->dq_next_leg_l);
+  //   WalkingPattern_Vel_legR_.push_back(callback_data->dq_next_leg_r);
 
-    // LOG: Pub/Subのデータ落ちを記録
-    // int diff = callback_data->counter - counter_old_;
-    // if(1 != diff) {
-    //   loss_count_++;
-    //   if(2 == diff) {
-    //     RCLCPP_WARN(node_->get_logger(), "WalkingPattern Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+1);
-    //   }
-    //   else {
-    //     for(int loss_step = 1; loss_step <= diff; loss_step++) {
-    //       RCLCPP_WARN(node_->get_logger(), "WalkingPattern Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+loss_step);
-    //     }
-    //   }
-    // }
-    // counter_old_ = callback_data->counter;
-  }
+  //   // LOG: Pub/Subのデータ落ちを記録
+  //   // int diff = callback_data->counter - counter_old_;
+  //   // if(1 != diff) {
+  //   //   loss_count_++;
+  //   //   if(2 == diff) {
+  //   //     RCLCPP_WARN(node_->get_logger(), "WalkingPattern Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+1);
+  //   //   }
+  //   //   else {
+  //   //     for(int loss_step = 1; loss_step <= diff; loss_step++) {
+  //   //       RCLCPP_WARN(node_->get_logger(), "WalkingPattern Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+loss_step);
+  //   //     }
+  //   //   }
+  //   // }
+  //   // counter_old_ = callback_data->counter;
+  // }
 
   void WebotsRobotHandler::init(
     webots_ros2_driver::WebotsNode *node,
@@ -177,7 +189,8 @@ namespace webots_robot_handler
       wait_step--;
     }
     // DEBUG: 200は決め打ち。余裕があったほうがいいだろうという判断。
-    else if((wait_step == 0)  && (200 < int(WalkingPattern_Pos_legL_.size()))) {
+    // else if((wait_step == 0)  && (0 <= int(WalkingPattern_Pos_legL_.size()))) {
+    else if((wait_step == 0)) {
 
       // get feedback data
       for(int tag = 0; tag < int(jointNum_legR_.size()); tag++) {
@@ -234,19 +247,22 @@ reference:
       pub_feedback_msg_->gyro_now[2] =  (gyroValue_[2]-512);  // z ->  z : z <-  z
 
       // publish feedback
-      pub_feedback_->publish(*pub_feedback_msg_);
+      // pub_feedback_->publish(*pub_feedback_msg_);
 
       // 歩行パターンが存在するか. 歩行パターンを全部読み切ったかどうか
       // TODO: control_stepは良くないのでは？
       // if(control_step <= int(WalkingPattern_Pos_legR_.size()-1)) {
       if(true) {  // DEBUG:
         // set joints angle & velocity
-        for(int tag = 0; tag < 6; tag++) {
-          wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]*jointAng_posi_or_nega_legR_[tag]);  // DEBUG: control_Step -> 0
-          wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], std::abs(WalkingPattern_Vel_legR_[0][tag]));  // マイナスだと怒られるので、絶対値を取る
-          wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]*jointAng_posi_or_nega_legL_[tag]);
-          wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], std::abs(WalkingPattern_Vel_legL_[0][tag]));
-        }
+        // for(int i = 0; i < 6; i++) {
+        //   std::cout << WalkingPattern_Pos_legL_[0][i] << "   " << WalkingPattern_Pos_legR_[0][i] << "   " << WalkingPattern_Vel_legL_[0][i] << "   " << WalkingPattern_Vel_legR_[0][i];
+        // }
+        // for(int tag = 0; tag < 6; tag++) {
+        //   wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]*jointAng_posi_or_nega_legR_[tag]);  // DEBUG: control_Step -> 0
+        //   wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], std::abs(WalkingPattern_Vel_legR_[0][tag]));  // マイナスだと怒られるので、絶対値を取る
+        //   wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]*jointAng_posi_or_nega_legL_[tag]);
+        //   wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], std::abs(WalkingPattern_Vel_legL_[0][tag]));
+        // }
 
         // // CHECKME: 読んだ歩行パターンを削除
         // WalkingPattern_Pos_legR_.erase(WalkingPattern_Pos_legR_.begin());  // CHECKME: 始端の削除。.begin()のほうが可読性が高いと思う。
@@ -262,6 +278,10 @@ reference:
   }
 
 }
+
+/*ERROR
+[ERROR] [driver-3]: process has died [pid 31087, exit code -11, cmd '/opt/ros/humble/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_hyd9q3m9 --params-file /tmp/launch_params_avs0yvpn'].
+*/
 
 PLUGINLIB_EXPORT_CLASS (
   webots_robot_handler::WebotsRobotHandler,
