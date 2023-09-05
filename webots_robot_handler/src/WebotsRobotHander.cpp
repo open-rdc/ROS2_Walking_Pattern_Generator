@@ -68,8 +68,8 @@ namespace webots_robot_handler
     // }
     WalkingPattern_Pos_legL_.resize(1);
     WalkingPattern_Pos_legR_.resize(1);
-    WalkingPattern_Vel_legL_.resize(1);
-    WalkingPattern_Vel_legR_.resize(1);
+    // WalkingPattern_Vel_legL_.resize(1);
+    // WalkingPattern_Vel_legR_.resize(1);
     WalkingPattern_Pos_legL_[0] = {
       callback_data->position[8],
       callback_data->position[9],
@@ -86,27 +86,27 @@ namespace webots_robot_handler
       callback_data->position[18],
       callback_data->position[19]
     };
-    WalkingPattern_Vel_legL_[0] = {
-      callback_data->velocity[8],
-      callback_data->velocity[9],
-      callback_data->velocity[10],
-      callback_data->velocity[11],
-      callback_data->velocity[12],
-      callback_data->velocity[13]
-    };
-    WalkingPattern_Vel_legR_[0] = {
-      callback_data->velocity[14],
-      callback_data->velocity[15],
-      callback_data->velocity[16],
-      callback_data->velocity[17],
-      callback_data->velocity[18],
-      callback_data->velocity[19]
-    };
+    // WalkingPattern_Vel_legL_[0] = {
+    //   callback_data->velocity[8],
+    //   callback_data->velocity[9],
+    //   callback_data->velocity[10],
+    //   callback_data->velocity[11],
+    //   callback_data->velocity[12],
+    //   callback_data->velocity[13]
+    // };
+    // WalkingPattern_Vel_legR_[0] = {
+    //   callback_data->velocity[14],
+    //   callback_data->velocity[15],
+    //   callback_data->velocity[16],
+    //   callback_data->velocity[17],
+    //   callback_data->velocity[18],
+    //   callback_data->velocity[19]
+    // };
         for(int tag = 0; tag < 6; tag++) {
-          wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]*jointAng_posi_or_nega_legR_[tag]);  // DEBUG: control_Step -> 0
-          wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], std::abs(WalkingPattern_Vel_legR_[0][tag]));  // マイナスだと怒られるので、絶対値を取る
-          wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]*jointAng_posi_or_nega_legL_[tag]);
-          wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], std::abs(WalkingPattern_Vel_legL_[0][tag]));
+          wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]);  // DEBUG: control_Step -> 0
+          // wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], std::abs(WalkingPattern_Vel_legR_[0][tag]));  // マイナスだと怒られるので、絶対値を取る
+          wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]);
+          // wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], std::abs(WalkingPattern_Vel_legL_[0][tag]));
         }
   }
 
@@ -152,7 +152,7 @@ namespace webots_robot_handler
     // CHECKME
     sub_joint_state_ = node_->create_subscription<sensor_msgs::msg::JointState>("joint_states", 10, std::bind(&WebotsRobotHandler::JointStates_Callback, this, _1));
 
-    pub_feedback_msg_ = std::make_shared<msgs_package::msg::Feedback>();
+//    pub_feedback_msg_ = std::make_shared<msgs_package::msg::Feedback>();
 
     // DEBUG: parameter setting
     DEBUG_ParameterSetting();
@@ -168,40 +168,40 @@ namespace webots_robot_handler
     gyroTag_ = wb_robot_get_device("Gyro");
     wb_gyro_enable(gyroTag_, 1);  // enable & sampling_period: 100[ms]
 
-    // set init position & value
-    // TODO: 脚の初期姿勢（特に位置）はIKの解から与えたい。今は角度を決め打ちで与えているので、初期姿勢の変更がめっちゃめんどくさい。
-    // jointNum_legR_とかを使って、ここでIKを解いてinitJointAng_の指定列に結果を代入すればOK
-    for(int tag = 0; tag < 20; tag++) {  
-      getJointAng_[tag] = 0;
-      wb_motor_set_position(motorsTag_[tag], initJointAng_[tag]);
-      wb_motor_set_velocity(motorsTag_[tag], initJointVel_[tag]);
-    }
+    // // set init position & value
+    // // TODO: 脚の初期姿勢（特に位置）はIKの解から与えたい。今は角度を決め打ちで与えているので、初期姿勢の変更がめっちゃめんどくさい。
+    // // jointNum_legR_とかを使って、ここでIKを解いてinitJointAng_の指定列に結果を代入すればOK
+    // for(int tag = 0; tag < 20; tag++) {  
+    //   getJointAng_[tag] = 0;
+    //   wb_motor_set_position(motorsTag_[tag], initJointAng_[tag]);
+    //   wb_motor_set_velocity(motorsTag_[tag], initJointVel_[tag]);
+    // }
     
-    // DEBUG: 初期姿勢への移行が済むまで待つための変数。決め打ち
-    // TODO: IMUで初期姿勢への移行完了を検知したい。値がある一定値以内になったらフラグを解除する方式を取りたい
-    wait_step = 500;  // 500 * 10[ms] = 5[s]
+    // // DEBUG: 初期姿勢への移行が済むまで待つための変数。決め打ち
+    // // TODO: IMUで初期姿勢への移行完了を検知したい。値がある一定値以内になったらフラグを解除する方式を取りたい
+    // wait_step = 500;  // 500 * 10[ms] = 5[s]
   }
 
   // 恐らく、.wbtのstep_timeを10[ms]に設定してても、step()が10[ms]以内で回る保証はないのだろう。
   void WebotsRobotHandler::step() {
     // RCLCPP_INFO(node_->get_logger(), "step...");
 
-    // DEBUG: 初期姿勢が完了するまでwait
-    if(wait_step != 0) {
-      wait_step--;
-    }
-    // DEBUG: 200は決め打ち。余裕があったほうがいいだろうという判断。
-    // else if((wait_step == 0)  && (0 <= int(WalkingPattern_Pos_legL_.size()))) {
-    else if((wait_step == 0)) {
+    // // DEBUG: 初期姿勢が完了するまでwait
+    // if(wait_step != 0) {
+    //   wait_step--;
+    // }
+    // // DEBUG: 200は決め打ち。余裕があったほうがいいだろうという判断。
+    // // else if((wait_step == 0)  && (0 <= int(WalkingPattern_Pos_legL_.size()))) {
+    // else if((wait_step == 0)) {
 
-      // get feedback data
-      for(int tag = 0; tag < int(jointNum_legR_.size()); tag++) {
-        // getJointAng_[tag] = wb_position_sensor_get_value(positionSensorsTag_[tag]);
-        Q_legR_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legR_[tag]]);
-        Q_legL_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legL_[tag]]);
-      }
-      accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);  // TODO: 512基準の実数１つだけ。３軸全部getしたい。
-      gyroValue_ = wb_gyro_get_values(gyroTag_);  // TODO: 上に同じ。変数の型から変える必要がある。
+    //   // get feedback data
+    //   for(int tag = 0; tag < int(jointNum_legR_.size()); tag++) {
+    //     // getJointAng_[tag] = wb_position_sensor_get_value(positionSensorsTag_[tag]);
+    //     Q_legR_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legR_[tag]]);
+    //     Q_legL_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legL_[tag]]);
+    //   }
+    //   accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);  // TODO: 512基準の実数１つだけ。３軸全部getしたい。
+    //   gyroValue_ = wb_gyro_get_values(gyroTag_);  // TODO: 上に同じ。変数の型から変える必要がある。
 
 /* Accelerometer & Gyro. Darwin-op.proto 仕様
 source: https://github.com/cyberbotics/webots/blob/master/projects/robots/robotis/darwin-op/protos/Darwin-op.proto
@@ -238,15 +238,15 @@ reference:
   gyro: https://github.com/cyberbotics/webots/blob/master/docs/reference/gyro.md
 */
 
-      pub_feedback_msg_->step_count = control_step;
-      pub_feedback_msg_->q_now_leg_r = Q_legR_;
-      pub_feedback_msg_->q_now_leg_l = Q_legL_;
-      pub_feedback_msg_->accelerometer_now[0] =  (accelerometerValue_[1]-512);  // y ->  x : x <-  y
-      pub_feedback_msg_->accelerometer_now[1] = -(accelerometerValue_[0]-512);  // x -> -y : y <- -x
-      pub_feedback_msg_->accelerometer_now[2] =  (accelerometerValue_[2]-640);  // z ->  z : z <-  z
-      pub_feedback_msg_->gyro_now[0] = -(gyroValue_[0]-512);  // x -> -x : x <- -x
-      pub_feedback_msg_->gyro_now[1] = -(gyroValue_[1]-512);  // y -> -y : y <- -y
-      pub_feedback_msg_->gyro_now[2] =  (gyroValue_[2]-512);  // z ->  z : z <-  z
+      // pub_feedback_msg_->step_count = control_step;
+      // pub_feedback_msg_->q_now_leg_r = Q_legR_;
+      // pub_feedback_msg_->q_now_leg_l = Q_legL_;
+      // pub_feedback_msg_->accelerometer_now[0] =  (accelerometerValue_[1]-512);  // y ->  x : x <-  y
+      // pub_feedback_msg_->accelerometer_now[1] = -(accelerometerValue_[0]-512);  // x -> -y : y <- -x
+      // pub_feedback_msg_->accelerometer_now[2] =  (accelerometerValue_[2]-640);  // z ->  z : z <-  z
+      // pub_feedback_msg_->gyro_now[0] = -(gyroValue_[0]-512);  // x -> -x : x <- -x
+      // pub_feedback_msg_->gyro_now[1] = -(gyroValue_[1]-512);  // y -> -y : y <- -y
+      // pub_feedback_msg_->gyro_now[2] =  (gyroValue_[2]-512);  // z ->  z : z <-  z
 
       // publish feedback
       // pub_feedback_->publish(*pub_feedback_msg_);
@@ -272,9 +272,9 @@ reference:
         // WalkingPattern_Pos_legL_.erase(WalkingPattern_Pos_legL_.begin()); 
         // WalkingPattern_Vel_legL_.erase(WalkingPattern_Vel_legL_.begin()); 
 
-      }
+      // }
 
-      control_step++;  // DEBUG: 
+      // control_step++;  // DEBUG: 
     }
     // simu_step++;  // DEBUG:
   }
