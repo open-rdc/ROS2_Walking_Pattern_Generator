@@ -40,9 +40,12 @@ namespace webots_robot_handler
     // initJointAng_ = {0, 0, -0.5, 0.5, -1, 1,   // arm
     //                 0, 0, 0, 0, -3.14/8, 3.14/8, 3.14/4, -3.14/4, 3.14/8, -3.14/8, 0, 0,   // leg
     //                 0, 0.26};  // body
-        initJointAng_ = {0, 0, -0.5, 0.5, -1, 1,   // arm
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   // leg
+    initJointAng_ = {0, 0, 0, 0, 0, 0,   // arm
+                    0, 0, 0, 0, -3.14/8, 3.14/8, 3.14/4, -3.14/4, 3.14/8, -3.14/8, 0, 0,   // leg
                     0, 0};  // body
+        // initJointAng_ = {0, 0, -0.5, 0.5, -1, 1,   // arm
+        //             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   // leg
+        //             0, 0};  // body
     // 初期姿勢に移行する時の角速度.  init joints vel [rad/s]
     initJointVel_ = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5,  // arm
                     0.5, 0.5, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5,  // log
@@ -86,28 +89,22 @@ namespace webots_robot_handler
       callback_data->position[18],
       callback_data->position[19]
     };
-    // WalkingPattern_Vel_legL_[0] = {
-    //   callback_data->velocity[8],
-    //   callback_data->velocity[9],
-    //   callback_data->velocity[10],
-    //   callback_data->velocity[11],
-    //   callback_data->velocity[12],
-    //   callback_data->velocity[13]
-    // };
-    // WalkingPattern_Vel_legR_[0] = {
-    //   callback_data->velocity[14],
-    //   callback_data->velocity[15],
-    //   callback_data->velocity[16],
-    //   callback_data->velocity[17],
-    //   callback_data->velocity[18],
-    //   callback_data->velocity[19]
-    // };
-        for(int tag = 0; tag < 6; tag++) {
-          wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]);  // DEBUG: control_Step -> 0
-          // wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], std::abs(WalkingPattern_Vel_legR_[0][tag]));  // マイナスだと怒られるので、絶対値を取る
-          wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]);
-          // wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], std::abs(WalkingPattern_Vel_legL_[0][tag]));
-        }
+    WalkingPattern_Vel_legL_[0] = {
+      callback_data->velocity[8],
+      callback_data->velocity[9],
+      callback_data->velocity[10],
+      callback_data->velocity[11],
+      callback_data->velocity[12],
+      callback_data->velocity[13]
+    };
+    WalkingPattern_Vel_legR_[0] = {
+      callback_data->velocity[14],
+      callback_data->velocity[15],
+      callback_data->velocity[16],
+      callback_data->velocity[17],
+      callback_data->velocity[18],
+      callback_data->velocity[19]
+    };
   }
 
   // マネージャからのCallback関数
@@ -168,18 +165,18 @@ namespace webots_robot_handler
     gyroTag_ = wb_robot_get_device("Gyro");
     wb_gyro_enable(gyroTag_, 1);  // enable & sampling_period: 100[ms]
 
-    // // set init position & value
-    // // TODO: 脚の初期姿勢（特に位置）はIKの解から与えたい。今は角度を決め打ちで与えているので、初期姿勢の変更がめっちゃめんどくさい。
-    // // jointNum_legR_とかを使って、ここでIKを解いてinitJointAng_の指定列に結果を代入すればOK
-    // for(int tag = 0; tag < 20; tag++) {  
-    //   getJointAng_[tag] = 0;
-    //   wb_motor_set_position(motorsTag_[tag], initJointAng_[tag]);
-    //   wb_motor_set_velocity(motorsTag_[tag], initJointVel_[tag]);
-    // }
+    // set init position & value
+    // TODO: 脚の初期姿勢（特に位置）はIKの解から与えたい。今は角度を決め打ちで与えているので、初期姿勢の変更がめっちゃめんどくさい。
+    // jointNum_legR_とかを使って、ここでIKを解いてinitJointAng_の指定列に結果を代入すればOK
+    for(int tag = 0; tag < 20; tag++) {  
+      getJointAng_[tag] = 0;
+      wb_motor_set_position(motorsTag_[tag], initJointAng_[tag]);
+      wb_motor_set_velocity(motorsTag_[tag], initJointVel_[tag]);
+    }
     
     // // DEBUG: 初期姿勢への移行が済むまで待つための変数。決め打ち
     // // TODO: IMUで初期姿勢への移行完了を検知したい。値がある一定値以内になったらフラグを解除する方式を取りたい
-    // wait_step = 500;  // 500 * 10[ms] = 5[s]
+    wait_step = 500;  // 500 * 10[ms] = 5[s]
   }
 
   // 恐らく、.wbtのstep_timeを10[ms]に設定してても、step()が10[ms]以内で回る保証はないのだろう。
@@ -187,9 +184,10 @@ namespace webots_robot_handler
     // RCLCPP_INFO(node_->get_logger(), "step...");
 
     // // DEBUG: 初期姿勢が完了するまでwait
-    // if(wait_step != 0) {
-    //   wait_step--;
-    // }
+    if(wait_step != 0) {
+      wait_step--;
+    }
+    else {
     // // DEBUG: 200は決め打ち。余裕があったほうがいいだろうという判断。
     // // else if((wait_step == 0)  && (0 <= int(WalkingPattern_Pos_legL_.size()))) {
     // else if((wait_step == 0)) {
@@ -254,7 +252,7 @@ reference:
       // 歩行パターンが存在するか. 歩行パターンを全部読み切ったかどうか
       // TODO: control_stepは良くないのでは？
       // if(control_step <= int(WalkingPattern_Pos_legR_.size()-1)) {
-      if(true) {  // DEBUG:
+      // if(true) {  // DEBUG:
         // set joints angle & velocity
         // for(int i = 0; i < 6; i++) {
         //   std::cout << WalkingPattern_Pos_legL_[0][i] << "   " << WalkingPattern_Pos_legR_[0][i] << "   " << WalkingPattern_Vel_legL_[0][i] << "   " << WalkingPattern_Vel_legR_[0][i];
@@ -265,7 +263,12 @@ reference:
         //   wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]*jointAng_posi_or_nega_legL_[tag]);
         //   wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], std::abs(WalkingPattern_Vel_legL_[0][tag]));
         // }
-
+        for(int tag = 0; tag < 6; tag++) {
+          wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]);  // DEBUG: control_Step -> 0
+          wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Vel_legR_[0][tag]);  // マイナスだと怒られるので、絶対値を取る
+          wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]);
+          wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Vel_legL_[0][tag]);
+        }
         // // CHECKME: 読んだ歩行パターンを削除
         // WalkingPattern_Pos_legR_.erase(WalkingPattern_Pos_legR_.begin());  // CHECKME: 始端の削除。.begin()のほうが可読性が高いと思う。
         // WalkingPattern_Vel_legR_.erase(WalkingPattern_Vel_legR_.begin());  
@@ -275,8 +278,9 @@ reference:
       // }
 
       // control_step++;  // DEBUG: 
-    }
+    // }
     // simu_step++;  // DEBUG:
+  }
   }
 
 }
