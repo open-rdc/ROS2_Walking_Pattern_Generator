@@ -4,6 +4,10 @@ Walking Pattern Generator using ROS_2 for Humanoid Robots<br>
 (Under Construction...)<br>
 <br>
 
+## software architecture (transitioning)
+![software architecture](https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/assets/91410662/65bc44c6-189f-4462-aab7-3f36bd31621c)
+
+
 活動を記録しているブログ<br>
 [odome, ロボット開発記録, はてなブログ](https://odome.hatenablog.com/)<br>
 
