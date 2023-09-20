@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(robot_manager)
+project(test_walking_pattern_generator)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -7,17 +7,9 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
-
-ament_export_include_directories(
-  include
-)
-
-install(
-  DIRECTORY include/
-  DESTINATION include
-)
+find_package(robot_manager REQUIRED)
+find_package(pluginlib REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
