@@ -10,13 +10,31 @@ find_package(ament_cmake REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 
+add_executable(robot_manager
+  src/robot_manager.cpp
+)
+target_include_directories(robot_manager
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+  PRIVATE
+    include
+)
+ament_target_dependencies(robot_manager
+  rclcpp
+  "pluginlib"
+)
+
 ament_export_include_directories(
   include
 )
-
 install(
   DIRECTORY include/
   DESTINATION include
+)
+
+install(TARGETS robot_manager
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)
