@@ -11,7 +11,9 @@ int main(int argc, char** argv) {
   try
   {
     std::shared_ptr<plugin_base::WalkingPatternGenerator> test_WPG = test_loader.createSharedInstance("walking_pattern_generator::LinearInvertedPendulumModel");
-    test_WPG->walking_pattern_generator();
+    plugin_base::FootStep *foot_step_ptr;
+    plugin_base::WalkingPattern *walking_pattern_ptr;
+    test_WPG->walking_pattern_generator(foot_step_ptr, walking_pattern_ptr);
   }
   catch(pluginlib::PluginlibException& ex)
   {
