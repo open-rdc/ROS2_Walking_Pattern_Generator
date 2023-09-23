@@ -7,8 +7,53 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_ros REQUIRED)
+find_package(rclcpp REQUIRED)
 find_package(robot_manager REQUIRED)
 find_package(pluginlib REQUIRED)
+
+pluginlib_export_plugin_description_file(robot_manager plugins.xml)
+
+add_library(foot_step_planner
+  src/foot_step_planner.cpp
+)
+ament_target_dependencies(foot_step_planner
+  robot_manager
+  rclcpp
+  pluginlib
+)
+target_include_directories(foot_step_planner
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+  PRIVATE
+    include
+)
+
+target_compile_definitions(foot_step_planner
+  PRIVATE
+    "FOOT_STEP_PLANNER_BUILDING_LIBRARY"
+)
+
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+install(TARGETS foot_step_planner
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+ament_export_include_directories(
+  include
+)
+ament_export_libraries(
+  foot_step_planner
+)
+ament_export_targets(
+  export_${PROJECT_NAME}
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

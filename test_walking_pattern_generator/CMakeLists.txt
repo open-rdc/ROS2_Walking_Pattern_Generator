@@ -32,7 +32,7 @@ target_include_directories(test_walking_pattern_generator
 
 target_compile_definitions(test_walking_pattern_generator
   PRIVATE
-  "TEST_WALKING_PATTERN_GENERATOR_BUILDING_LIBRARY"
+    "TEST_WALKING_PATTERN_GENERATOR_BUILDING_LIBRARY"
 )
 
 install(
