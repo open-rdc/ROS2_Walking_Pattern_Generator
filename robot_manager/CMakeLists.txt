@@ -17,12 +17,17 @@ target_include_directories(robot_manager
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
-  PRIVATE
-    include
+  # PRIVATE
+  #   include
+)
+target_compile_features(robot_manager
+  PUBLIC
+    c_std_99
+    cxx_std_17
 )
 ament_target_dependencies(robot_manager
   rclcpp
-  "pluginlib"
+  pluginlib
 )
 
 ament_export_include_directories(

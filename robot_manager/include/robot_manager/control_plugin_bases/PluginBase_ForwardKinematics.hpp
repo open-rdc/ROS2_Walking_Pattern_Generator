@@ -1,7 +1,7 @@
-#ifndef ROBOT_MANAGER_FORWARD_KINEMATICS_BASE_HPP
-#define ROBOT_MANAGER_FORWARD_KINEMTAICS_BASE_HPP
+#ifndef ROBOT_MANAGER_PLUGIN_BASE_FORWARD_KINEMATICS_HPP
+#define ROBOT_MANAGER_PLUGIN_BASE_FORWARD_KINEMTAICS_HPP
 
-namespace plugin_base 
+namespace control_plugin_base 
 {
   class ForwardKinematics {
     public:

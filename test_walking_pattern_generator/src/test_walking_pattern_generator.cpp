@@ -1,29 +1,32 @@
 #include "rclcpp/rclcpp.hpp"
-#include "robot_manager/plugin_bases/WalkingPatternGenerator_base.hpp"
-
+#include "robot_manager/control_plugin_bases/PluginBase_FootStepPlanner.hpp"
+#include "robot_manager/control_plugin_bases/PluginBase_WalkingPatternGenerator.hpp"
 
 namespace walking_pattern_generator
 {
-  class LinearInvertedPendulumModel : public plugin_base::WalkingPatternGenerator
+  class LinearInvertedPendulumModel : public control_plugin_base::WalkingPatternGenerator
   {
     public:
-      void walking_pattern_generator(
-        const plugin_base::FootStep *foot_step_ptr_,
-        plugin_base::WalkingPattern *walking_pattern_ptr_
+      std::unique_ptr<control_plugin_base::WalkingPattern> walking_pattern_generator(
+        const std::shared_ptr<control_plugin_base::FootStep> foot_step_ptr_
       ) override
       {
+        auto walking_pattern_ptr_ = std::make_unique<control_plugin_base::WalkingPattern>();
         walking_pattern_ptr_->cog_pos = {{1, 2, 3}};
         walking_pattern_ptr_->cog_vel = {{4, 5, 6}};
         walking_pattern_ptr_->zmp_pos = {{7, 8}};
+
         std::cout << "Here is linear inverted pendulum model class." << std::endl;
+
+        return walking_pattern_ptr_;
       }
     private:
-      plugin_base::FootStep *foot_step_ptr_;
-      plugin_base::WalkingPattern *walking_pattern_ptr_;
+      // control_plugin_base::FootStep *foot_step_ptr_;
+      // control_plugin_base::WalkingPattern *walking_pattern_ptr_;
   };
 }
 
 
 #include <pluginlib/class_list_macros.hpp>
 
-PLUGINLIB_EXPORT_CLASS(walking_pattern_generator::LinearInvertedPendulumModel, plugin_base::WalkingPatternGenerator)
+PLUGINLIB_EXPORT_CLASS(walking_pattern_generator::LinearInvertedPendulumModel, control_plugin_base::WalkingPatternGenerator)

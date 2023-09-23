@@ -1,7 +1,7 @@
-#ifndef ROBOT_MANAGER_CONVERT_INTO_JOINT_STATES_BASE_HPP
-#define ROBOT_MANAGER_CONVERT_INTO_JOINT_STATES_BASE_HPP
+#ifndef ROBOT_MANAGER_PLUGIN_BASE_CONVERT_INTO_JOINT_STATES_HPP
+#define ROBOT_MANAGER_PLUGIN_BASE_CONVERT_INTO_JOINT_STATES_HPP
 
-namespace plugin_base 
+namespace control_plugin_base 
 {
   class ConvertIntoJointStates {
     public:
