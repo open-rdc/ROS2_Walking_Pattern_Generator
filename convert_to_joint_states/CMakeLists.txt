@@ -7,8 +7,54 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_ros REQUIRED)
+find_package(rclcpp REQUIRED)
 find_package(robot_manager REQUIRED)
 find_package(pluginlib REQUIRED)
+
+pluginlib_export_plugin_description_file(robot_manager plugins.xml)
+
+add_library(${PROJECT_NAME}
+  src/ConvertToJointStates.cpp
+)
+ament_target_dependencies(${PROJECT_NAME}
+  rclcpp
+  robot_manager
+  pluginlib
+)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+  PRIVATE
+    include
+)
+
+target_compile_definitions(${PROJECT_NAME}
+  PRIVATE
+    "CONVERT_TO_JOINT_STATES_BUILDING_LIBRARY"
+)
+
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+install(TARGETS ${PROJECT_NAME}
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+ament_export_include_directories(
+  include
+)
+ament_export_libraries(
+  ${PROJECT_NAME}
+)
+ament_export_targets(
+  export_${PROJECT_NAME}
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
