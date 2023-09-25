@@ -18,6 +18,7 @@
                 "/home/ubu22/ROS2_Workspaces/WPG_ws/src/walking_pattern_generator/include/**",
                 "/home/ubu22/ROS2_Workspaces/WPG_ws/src/walking_stabilization_controller/include/**",
                 "/home/ubu22/ROS2_Workspaces/WPG_ws/src/webots_robot_handler/include/**",
+                "/home/ubu22/ROS2_Workspaces/WPG_ws/src/**",
                 "/usr/include/**",
                 "/home/ubu22/ROS2_Workspaces/WPG_ws/build/msgs_package/rosidl_generator_cpp",
                 "/home/ubu22/ROS2_Workspaces/Test_ws/**",
