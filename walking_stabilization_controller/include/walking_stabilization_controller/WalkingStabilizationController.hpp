@@ -1,3 +1,6 @@
+#ifndef WALKING_STABILIZATION_CONTROLLER_HPP
+#define WALKING_STABILIZATION_CONTROLLER_HPP
+
 #include "rclcpp/rclcpp.hpp"
 #include "robot_manager/control_plugin_bases/PluginBase_WalkingPatternGenerator.hpp"
 #include "robot_manager/control_plugin_bases/PluginBase_WalkingStabilizationController.hpp"
@@ -13,3 +16,5 @@ namespace walking_stabilization_controller
     private:
   };
 }
+
+#endif

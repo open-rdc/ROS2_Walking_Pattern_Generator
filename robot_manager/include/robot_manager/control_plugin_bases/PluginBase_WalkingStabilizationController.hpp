@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <array>
+#include "robot_manager/control_plugin_bases/PluginBase_WalkingPatternGenerator.hpp"
 
 namespace control_plugin_base
 {

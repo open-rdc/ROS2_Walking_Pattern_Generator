@@ -22,40 +22,27 @@ find_package(rclcpp REQUIRED)
 find_package(robot_manager REQUIRED)
 find_package(pluginlib REQUIRED)
 
-pluginlib_export_plugin_description_file(${PROJECT_NAME} plugins.xml)
+pluginlib_export_plugin_description_file(robot_manager plugins.xml)
 
-add_library(${PROJECT_NAME}
+add_library(walking_stabilization_controller
   src/WalkingStabilizationController.cpp
 )
-add_executable(${PROJECT_NAME}
-  src/WalkingStabilizationController.cpp
-  src/WalkingStabilizationController_main.cpp
-)
-ament_target_dependencies(${PROJECT_NAME}
+ament_target_dependencies(walking_stabilization_controller
   rclcpp
-  msgs_package
-  kinematics
+  robot_manager
+  pluginlib
 )
-target_include_directories(${PROJECT_NAME}
+target_include_directories(walking_stabilization_controller
   PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-	$<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
-	$<INSTALL_INTERFACE:include>
+	  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	  $<INSTALL_INTERFACE:include>
+  PRIVATE
+    include
 )
-target_compile_features(${PROJECT_NAME}
-  PUBLIC
-	c_std_99
-	cxx_std_17
-)
-target_compile_definitions(${PROJECT_NAME}
+
+target_compile_definitions(walking_stabilization_controller
   PRIVATE
 	"WALKING_STABILIZATION_CONTROLLER_BUILDING_LIBRARY"
-)
-ament_export_include_directories(
-  include
-)
-ament_export_libraries(
-  ${PROJECT_NAME}
 )
 
 install(
@@ -64,12 +51,21 @@ install(
   DESTINATION
 	include
 )
-install(TARGETS
-  ${PROJECT_NAME}
-  EXPORT export_${PROJECT_NAME}
+install(TARGETS walking_stabilization_controller
+  EXPORT export_walking_stabilization_controller
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
+)
+
+ament_export_include_directories(
+  include
+)
+ament_export_libraries(
+  walking_stabilization_controller
+)
+ament_export_targets(
+  export_walking_stabilization_controller
 )
 
 if(BUILD_TESTING)
