@@ -8,21 +8,19 @@ namespace walking_pattern_generator
   {
     public:
       std::unique_ptr<control_plugin_base::WalkingPattern> walking_pattern_generator(
-        const std::shared_ptr<control_plugin_base::FootStep> foot_step_ptr_
+        const std::shared_ptr<control_plugin_base::FootStep> foot_step_ptr
       ) override
       {
-        auto walking_pattern_ptr_ = std::make_unique<control_plugin_base::WalkingPattern>();
-        walking_pattern_ptr_->cog_pos = {{1, 2, 3}};
-        walking_pattern_ptr_->cog_vel = {{4, 5, 6}};
-        walking_pattern_ptr_->zmp_pos = {{7, 8}};
+        auto walking_pattern_ptr = std::make_unique<control_plugin_base::WalkingPattern>();
+        walking_pattern_ptr->cog_pos = {{1, 2, 3}};
+        walking_pattern_ptr->cog_vel = {{4, 5, 6}};
+        walking_pattern_ptr->zmp_pos = {{7, 8}};
 
         std::cout << "Here is linear inverted pendulum model class." << std::endl;
 
-        return walking_pattern_ptr_;
+        return walking_pattern_ptr;
       }
     private:
-      // control_plugin_base::FootStep *foot_step_ptr_;
-      // control_plugin_base::WalkingPattern *walking_pattern_ptr_;
   };
 }
 

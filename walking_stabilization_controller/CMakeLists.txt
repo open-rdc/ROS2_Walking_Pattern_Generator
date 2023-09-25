@@ -17,14 +17,16 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_ros REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(msgs_package REQUIRED)
-find_package(kinematics REQUIRED)
-find_package(Eigen3 REQUIRED)
+find_package(robot_manager REQUIRED)
+find_package(pluginlib REQUIRED)
 
-# add_library(${PROJECT_NAME}
-#   src/WalkingStabilizationController.cpp
-# )
+pluginlib_export_plugin_description_file(${PROJECT_NAME} plugins.xml)
+
+add_library(${PROJECT_NAME}
+  src/WalkingStabilizationController.cpp
+)
 add_executable(${PROJECT_NAME}
   src/WalkingStabilizationController.cpp
   src/WalkingStabilizationController_main.cpp
@@ -36,18 +38,18 @@ ament_target_dependencies(${PROJECT_NAME}
 )
 target_include_directories(${PROJECT_NAME}
   PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
-    $<INSTALL_INTERFACE:include>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	$<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
+	$<INSTALL_INTERFACE:include>
 )
 target_compile_features(${PROJECT_NAME}
   PUBLIC
-    c_std_99
-    cxx_std_17
+	c_std_99
+	cxx_std_17
 )
 target_compile_definitions(${PROJECT_NAME}
   PRIVATE
-    "WALKING_STABILIZATION_CONTROLLER_BUILDING_LIBRARY"
+	"WALKING_STABILIZATION_CONTROLLER_BUILDING_LIBRARY"
 )
 ament_export_include_directories(
   include
@@ -58,9 +60,9 @@ ament_export_libraries(
 
 install(
   DIRECTORY
-    include/
+	include/
   DESTINATION
-    include
+	include
 )
 install(TARGETS
   ${PROJECT_NAME}
@@ -76,3 +78,5 @@ if(BUILD_TESTING)
 endif()
 
 ament_package()
+
+

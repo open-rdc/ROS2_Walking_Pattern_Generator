@@ -1,0 +1,5 @@
+<library path="walking_stabilization_controller">
+  <class type="walking_stabilization_controller::Default_WalkingStabilizationController" base_class_type="control_plugin_base::WalkingStabilizationController">
+    <description>Default walking_stabilization_controller plugin.</description>
+  </class>
+</library>

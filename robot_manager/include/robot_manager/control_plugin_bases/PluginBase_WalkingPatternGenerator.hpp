@@ -15,7 +15,7 @@ namespace control_plugin_base
   class WalkingPatternGenerator {
     public:
       virtual std::unique_ptr<WalkingPattern> walking_pattern_generator(
-        const std::shared_ptr<FootStep> foot_step_ptr_  //  output from foot_step_planner
+        const std::shared_ptr<FootStep> foot_step_ptr  //  output from foot_step_planner
       ) = 0;
       virtual ~WalkingPatternGenerator(){}
 

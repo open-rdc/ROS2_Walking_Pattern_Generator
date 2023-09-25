@@ -7,13 +7,14 @@ namespace foot_step_planner
   {
     public:
       std::unique_ptr<control_plugin_base::FootStep> foot_step_planner(void) override {
-        auto foot_step_planner = std::make_unique<control_plugin_base::FootStep>();
-        foot_step_planner->zmp_pos = {{1, 2}};
+        auto foot_step_ptr = std::make_unique<control_plugin_base::FootStep>();
+        foot_step_ptr->zmp_pos = {{1, 2}};
 
         std::cout << "Here is default foot step planner class." << std::endl;
 
-        return foot_step_planner;
+        return foot_step_ptr;
       }
+    private:
   };
 }
 
