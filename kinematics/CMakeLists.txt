@@ -9,92 +9,85 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_ros REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(robot_manager REQUIRED)
+find_package(pluginlib REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-add_library(IK 
-  src/IK.cpp
-)
-add_library(FK
-  src/FK.cpp
-)
-add_library(Jacobian
-  src/Jacobian.cpp
-)
+pluginlib_export_plugin_description_file(robot_manager plugins.xml)
 
-target_compile_features(IK  # Require C99 and C++17
-  PUBLIC 
-    c_std_99 
-    cxx_std_17
+add_library(kinematics
+  src/ForwardKinematics.cpp
 )
-target_compile_features(FK  # Require C99 and C++17
+# add_library(InverseKinematics 
+#   src/InverseKinematics.cpp
+# )
+# add_library(Jacobian
+#   src/Jacobian.cpp
+# )
+
+ament_target_dependencies(kinematics
+  rclcpp
+  pluginlib
+  robot_manager
+)
+# ament_target_dependencies(InverseKinematics
+#   rclcpp
+#   pluginlib
+#   robot_manager
+# )
+# ament_target_dependencies(Jacobian
+#   rclcpp
+#   pluginlib
+#   robot_manager
+# )
+
+target_compile_features(kinematics  # Require C99 and C++17
   PUBLIC 
     c_std_99 
     cxx_std_17
 )  
-target_compile_features(Jacobian
-  PUBLIC
-    c_std_99
-    cxx_std_17
-)
+# target_compile_features(InverseKinematics  # Require C99 and C++17
+#   PUBLIC 
+#     c_std_99 
+#     cxx_std_17
+# )
+# target_compile_features(Jacobian
+#   PUBLIC
+#     c_std_99
+#     cxx_std_17
+# )
 
-target_include_directories(IK 
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
-    $<INSTALL_INTERFACE:include>
-)
-target_include_directories(FK
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
-    $<INSTALL_INTERFACE:include>
-)
-target_include_directories(Jacobian
+target_include_directories(kinematics
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:include>
 )
+# target_include_directories(InverseKinematics 
+#   PUBLIC
+#     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#     $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
+#     $<INSTALL_INTERFACE:include>
+# )
+# target_include_directories(Jacobian
+#   PUBLIC
+#     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#     $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
+#     $<INSTALL_INTERFACE:include>
+# )
 
-ament_target_dependencies(IK
-  "rclcpp"
-)
-ament_target_dependencies(FK
-  "rclcpp"
-)
-ament_target_dependencies(Jacobian
-  "rclcpp"
-)
-
-# Causes the visibility macros to use dllexport rather than dllimport,
-# which is appropriate when building the dll but not consuming it.
-target_compile_definitions(IK
+target_compile_definitions(kinematics
   PRIVATE 
     "KINEMATICS_BUILDING_LIBRARY"
 )
-target_compile_definitions(FK
-  PRIVATE 
-    "KINEMATICS_BUILDING_LIBRARY"
-)
-target_compile_definitions(Jacobian
-  PRIVATE 
-    "KINEMATICS_BUILDING_LIBRARY"
-)
-
-ament_export_include_directories(
-  include
-)
-
-ament_export_libraries(
-  IK
-  FK
-  Jacobian
-)
-
-ament_export_targets(
-  export_${PROJECT_NAME}
-  HAS_LIBRARY_TARGET
-)
+# target_compile_definitions(InverseKinematics
+#   PRIVATE 
+#     "KINEMATICS_BUILDING_LIBRARY"
+# )
+# target_compile_definitions(Jacobian
+#   PRIVATE 
+#     "KINEMATICS_BUILDING_LIBRARY"
+# )
 
 install(
   DIRECTORY 
@@ -102,15 +95,29 @@ install(
   DESTINATION 
     include
 )
-
-install(TARGETS 
-  IK
-  FK
-  Jacobian
+install(TARGETS kinematics
+  # ForwardKinematics
+  # Jacobian
+  # InverseKinematics
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
+)
+
+
+ament_export_include_directories(
+  include
+)
+ament_export_libraries(
+  kinematics
+  # ForwardKinematics
+  # InverseKinematics
+  # Jacobian
+)
+ament_export_targets(
+  export_${PROJECT_NAME}
+  HAS_LIBRARY_TARGET
 )
 
 if(BUILD_TESTING)

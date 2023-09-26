@@ -8,6 +8,7 @@ namespace control_plugin_base
       virtual void inverse_kinematics() = 0;
       virtual ~InverseKinemtics(){}
     protected:
+    
       InverseKinemtics(){}
   };
 }

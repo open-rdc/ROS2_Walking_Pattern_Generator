@@ -1,0 +1,5 @@
+<library path="kinematics">
+  <class type="kinematics::Default_ForwardKinematics" base_class_type="control_plugin_base::ForwardKinematics">
+    <description>Default forward_kinematics plugin.</description>
+  </class>
+</library>
