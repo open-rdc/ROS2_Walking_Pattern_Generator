@@ -6,6 +6,7 @@
 #include "robot_manager/control_plugin_bases/PluginBase_WalkingStabilizationController.hpp"
 #include "robot_manager/control_plugin_bases/PluginBase_ConvertToJointStates.hpp"
 #include "robot_manager/control_plugin_bases/PluginBase_ForwardKinematics.hpp"
+#include "robot_manager/control_plugin_bases/PluginBase_InverseKinematics.hpp"
 
 #include "Eigen/Dense"
 using namespace Eigen;
@@ -19,6 +20,7 @@ int main(int argc, char** argv) {
   pluginlib::ClassLoader<control_plugin_base::WalkingStabilizationController> wsc_loader("robot_manager", "control_plugin_base::WalkingStabilizationController");
   pluginlib::ClassLoader<control_plugin_base::ConvertToJointStates> ctjs_loader("robot_manager", "control_plugin_base::ConvertToJointStates");
   pluginlib::ClassLoader<control_plugin_base::ForwardKinematics> fk_loader("robot_manager", "control_plugin_base::ForwardKinematics");
+  pluginlib::ClassLoader<control_plugin_base::InverseKinematics> ik_loader("robot_manager", "control_plugin_base::InverseKinematics");
 
   try
   {
@@ -27,6 +29,7 @@ int main(int argc, char** argv) {
     std::shared_ptr<control_plugin_base::WalkingStabilizationController> wsc = wsc_loader.createSharedInstance("walking_stabilization_controller::Default_WalkingStabilizationController");
     std::shared_ptr<control_plugin_base::ConvertToJointStates> ctjs = ctjs_loader.createSharedInstance("convert_to_joint_states::Default_ConvertToJointStates");
     std::shared_ptr<control_plugin_base::ForwardKinematics> fk = fk_loader.createSharedInstance("kinematics::Default_ForwardKinematics");
+    std::shared_ptr<control_plugin_base::InverseKinematics> ik = ik_loader.createSharedInstance("kinematics::Default_InverseKinematics");
 
 // Foot_Step_Planner
     std::shared_ptr<control_plugin_base::FootStep> foot_step_ptr = fsp->foot_step_planner();
@@ -56,6 +59,9 @@ int main(int argc, char** argv) {
     //   fk->forward_kinematics(legR_states_ptr);
     //   std::cout << "[DEBUG]: [FK]: joint_point" << point << ", end_effecter_position: { " << legR_states_ptr->end_eff_pos[0] << ", " << legR_states_ptr->end_eff_pos[1] << ", " << legR_states_ptr->end_eff_pos[2] << " }" << std::endl;
     // }
+
+    // DEBUG: IKの動作確認
+
   }
   catch(pluginlib::PluginlibException& ex)
   {

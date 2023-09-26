@@ -11,7 +11,7 @@ namespace convert_to_joint_states
     leg_joint_states_pat_ptr->joint_vel_pat_legL = {{3, 4, 5, 6, 7, 8}};
     leg_joint_states_pat_ptr->joint_vel_pat_legR = {{9, 0, 1, 2, 3, 4}};
 
-    std::cout << "Here is default walking stabilization controller class." << std::endl;
+    std::cout << "Here is default convert to joint states class." << std::endl;
 
     return leg_joint_states_pat_ptr;
   }

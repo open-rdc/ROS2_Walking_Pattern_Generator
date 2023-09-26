@@ -1,24 +1,18 @@
-#ifndef KINEMATICS__IK_HPP_
-#define KINEMATICS__IK_HPP_
+#ifndef INVERSE_KINEMATICS_HPP
+#define INVERSE_KINEMATICS_HPP
 
 #include "rclcpp/rclcpp.hpp"
-#include "kinematics/visibility_control.h"
+#include "robot_manager/control_plugin_bases/PluginBase_InverseKinematics.hpp"
 
-#include "iostream"
-#include "cmath"
 #include "Eigen/Dense"
 
 namespace kinematics
 {
-  class IK : public rclcpp::Node {
+  class Default_InverseKinematics : public control_plugin_base::InverseKinematics {
     public:
-      IK(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
-  
-      std::array<double, 6> getIK(
-        std::array<Eigen::Vector3d, 7> P_leg,
-        Eigen::Vector3d P_target_leg,
-        Eigen::Matrix3d R_target_leg
-      );
+      void inverse_kinematics(
+        std::shared_ptr<control_plugin_base::LegStates> leg_states_ptr
+      ) override;
 
       // 便利関数として、他ライブラリにまとめたい
       Eigen::Vector3d Array2Vector(std::array<double, 3> array);  // std::array型をEigen::Vector3d型に変換（３次元）
@@ -33,23 +27,6 @@ namespace kinematics
       double sign(double arg = 0);  // return 1 or -1 (argが>=0なら1, <0なら-1を返す)
 
       const float pi_ = 3.141593;  // 四捨五入済み
-
-//       std::array<Eigen::Matrix3d, 6> R_legR_;
-//       std::array<Eigen::Vector3d, 7> P_legR_;
-//       std::array<Eigen::Matrix3d, 6> R_legL_;
-//       std::array<Eigen::Vector3d, 7> P_legL_;
-//       std::array<double, 6> Q_legR_;
-//       std::array<double, 6> Q_legL_;
-
-//       Eigen::Vector3d P_target_legR_;
-//       Eigen::Matrix3d R_target_legR_;
-//       Eigen::Vector3d P_target_legL_;
-//       Eigen::Matrix3d R_target_legL_;
-
-// // DEBUG===/*
-//       void DEBUG_ParameterSetting(void);
-// DEBUG===*/
-
   };
 
 }  

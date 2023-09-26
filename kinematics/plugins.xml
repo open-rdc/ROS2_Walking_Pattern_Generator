@@ -2,4 +2,7 @@
   <class type="kinematics::Default_ForwardKinematics" base_class_type="control_plugin_base::ForwardKinematics">
     <description>Default forward_kinematics plugin.</description>
   </class>
+  <class type="kinematics::Default_InverseKinematics" base_class_type="control_plugin_base::InverseKinematics">
+    <description>Default inverse_kinematics plugin.</description>
+  </class>
 </library>
