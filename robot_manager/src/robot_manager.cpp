@@ -40,22 +40,22 @@ int main(int argc, char** argv) {
 // Convert_to_Joint_States
     std::shared_ptr<control_plugin_base::LegJointStatesPattern> leg_joint_states_pat_ptr = ctjs->convert_into_joint_states(walking_stabilization_ptr);
 
-    // DEBUG: FKの動作確認
-    std::shared_ptr<control_plugin_base::LegStates> legR_states_ptr = std::make_shared<control_plugin_base::LegStates>();
-    legR_states_ptr->joint_ang = {0, 0, 0, 0, 0, 0};  // rad
-    legR_states_ptr->link_len = { Vector3d{0,0,1},
-                                  Vector3d{0,0,1},
-                                  Vector3d{0,0,1},
-                                  Vector3d{0,0,1},
-                                  Vector3d{0,0,1},
-                                  Vector3d{0,0,1},
-                                  Vector3d{0,0,1}
-    };
-    for(int8_t point = 0; point < 7; point++) {
-      legR_states_ptr->joint_point = point;
-      fk->forward_kinematics(legR_states_ptr);
-      std::cout << "[DEBUG]: [FK]: joint_point" << point << ", end_effecter_position: { " << legR_states_ptr->end_eff_pos[0] << ", " << legR_states_ptr->end_eff_pos[1] << ", " << legR_states_ptr->end_eff_pos[2] << " }" << std::endl;
-    }
+    // -DEBUG: FKの動作確認
+    // std::shared_ptr<control_plugin_base::LegStates> legR_states_ptr = std::make_shared<control_plugin_base::LegStates>();
+    // legR_states_ptr->joint_ang = {1.57, 1.57, 0, 0, 0, 0};  // rad
+    // legR_states_ptr->link_len = { Vector3d{0,0,-1},
+    //                               Vector3d{0,0,-1},
+    //                               Vector3d{0,0,-1},
+    //                               Vector3d{0,0,-1},
+    //                               Vector3d{0,0,-1},
+    //                               Vector3d{0,0,-1},
+    //                               Vector3d{0,0,-1}
+    // };
+    // for(int8_t point = 0; point < 7; point++) {
+    //   legR_states_ptr->joint_point = point;
+    //   fk->forward_kinematics(legR_states_ptr);
+    //   std::cout << "[DEBUG]: [FK]: joint_point" << point << ", end_effecter_position: { " << legR_states_ptr->end_eff_pos[0] << ", " << legR_states_ptr->end_eff_pos[1] << ", " << legR_states_ptr->end_eff_pos[2] << " }" << std::endl;
+    // }
   }
   catch(pluginlib::PluginlibException& ex)
   {
