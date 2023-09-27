@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
     std::shared_ptr<control_plugin_base::LegJointStatesPattern> leg_joint_states_pat_ptr = ctjs->convert_into_joint_states(walking_stabilization_ptr);
 
     // -DEBUG: FKの動作確認
-    // std::shared_ptr<control_plugin_base::LegStates> legR_states_ptr = std::make_shared<control_plugin_base::LegStates>();
+    // std::shared_ptr<control_plugin_base::LegStates_FK> legR_states_ptr = std::make_shared<control_plugin_base::LegStates_FK>();
     // legR_states_ptr->joint_ang = {1.57, 1.57, 0, 0, 0, 0};  // rad
     // legR_states_ptr->link_len = { Vector3d{0,0,-1},
     //                               Vector3d{0,0,-1},
@@ -61,6 +61,27 @@ int main(int argc, char** argv) {
     // }
 
     // DEBUG: IKの動作確認
+    std::shared_ptr<control_plugin_base::LegStates_IK> legR_states_ptr = std::make_shared<control_plugin_base::LegStates_IK>();
+    legR_states_ptr->end_eff_pos = {0, 0, -7};
+    legR_states_ptr->end_eff_rot = Matrix3d{{1, 0, 0},
+                                            {0, 1, 0},
+                                            {0, 0, 1}
+    };
+    legR_states_ptr->link_len = { Vector3d{0,0,-1},
+                                  Vector3d{0,0,-1},
+                                  Vector3d{0,0,-1},
+                                  Vector3d{0,0,-1},
+                                  Vector3d{0,0,-1},
+                                  Vector3d{0,0,-1},
+                                  Vector3d{0,0,-1}
+    };
+    ik->inverse_kinematics(legR_states_ptr);
+    std::cout << "[DEBUG]: [FK]: end_pos_{" << legR_states_ptr->end_eff_pos.transpose() << "}, joint_ang_{" << legR_states_ptr->joint_ang[0] << ", "
+                                                                                                << legR_states_ptr->joint_ang[1] << ", "
+                                                                                                << legR_states_ptr->joint_ang[2] << ", "
+                                                                                                << legR_states_ptr->joint_ang[3] << ", "
+                                                                                                << legR_states_ptr->joint_ang[4] << ", "
+                                                                                                << legR_states_ptr->joint_ang[5] << "} "<< std::endl; 
 
   }
   catch(pluginlib::PluginlibException& ex)

@@ -8,7 +8,7 @@ namespace control_plugin_base
 {
   // FK, IK, Jac. 全て同じ型を使うのはわかりにくい希ガス。
   // TODO: 型は全て一箇所にまとめたい。ライブラリとか。
-  struct LegStates {
+  struct LegStates_FK {
     Eigen::Vector3d end_eff_pos;
     Eigen::Matrix3d end_eff_rot;
     std::array<Eigen::Vector3d, 7> link_len;
@@ -21,7 +21,7 @@ namespace control_plugin_base
   class ForwardKinematics {
     public:
       virtual void forward_kinematics(
-        std::shared_ptr<LegStates> leg_states_ptr
+        std::shared_ptr<LegStates_FK> leg_states_ptr
       ) = 0;
       virtual ~ForwardKinematics(){}
     

@@ -50,7 +50,7 @@ namespace kinematics
 
   // IK (ROBOTIS-OP2's Leg only. analytical method)
   void Default_InverseKinematics::inverse_kinematics(
-    std::shared_ptr<control_plugin_base::LegStates> leg_states_ptr
+    std::shared_ptr<control_plugin_base::LegStates_IK> leg_states_ptr
   ) {
     std::array<double, 6> Q;
     Vector3d P_target_leg_zhip2end;  // 股関節(z軸関節)から末端まで
