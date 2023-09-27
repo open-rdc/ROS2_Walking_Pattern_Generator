@@ -1,17 +1,14 @@
-#ifndef KINEMATICS__JACOBIAN_HPP_
-#define KINEMATICS__JACOBIAN_HPP_
+#ifndef JACOBIAN_HPP
+#define JACOBIAN_HPP
 
 #include "rclcpp/rclcpp.hpp"
-#include "kinematics/visibility_control.h"
-
-#include "kinematics/FK.hpp"
-#include "kinematics/IK.hpp"
+#include "robot_manager/control_plugin_bases/PluginBase_Jacobian.hpp"
 
 #include "Eigen/Dense"
 
 namespace kinematics
 {
-  class Jacobian : public rclcpp::Node {
+  class Default_Jacobian : public rclcpp::Node {
     public:
       Jacobian(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
 

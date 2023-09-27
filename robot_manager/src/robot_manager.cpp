@@ -43,46 +43,46 @@ int main(int argc, char** argv) {
 // Convert_to_Joint_States
     std::shared_ptr<control_plugin_base::LegJointStatesPattern> leg_joint_states_pat_ptr = ctjs->convert_into_joint_states(walking_stabilization_ptr);
 
-    // -DEBUG: FKの動作確認
-    // std::shared_ptr<control_plugin_base::LegStates_FK> legR_states_ptr = std::make_shared<control_plugin_base::LegStates_FK>();
-    // legR_states_ptr->joint_ang = {1.57, 1.57, 0, 0, 0, 0};  // rad
-    // legR_states_ptr->link_len = { Vector3d{0,0,-1},
-    //                               Vector3d{0,0,-1},
-    //                               Vector3d{0,0,-1},
-    //                               Vector3d{0,0,-1},
-    //                               Vector3d{0,0,-1},
-    //                               Vector3d{0,0,-1},
-    //                               Vector3d{0,0,-1}
-    // };
-    // for(int8_t point = 0; point < 7; point++) {
-    //   legR_states_ptr->joint_point = point;
-    //   fk->forward_kinematics(legR_states_ptr);
-    //   std::cout << "[DEBUG]: [FK]: joint_point" << point << ", end_effecter_position: { " << legR_states_ptr->end_eff_pos[0] << ", " << legR_states_ptr->end_eff_pos[1] << ", " << legR_states_ptr->end_eff_pos[2] << " }" << std::endl;
-    // }
-
-    // DEBUG: IKの動作確認
-    std::shared_ptr<control_plugin_base::LegStates_IK> legR_states_ptr = std::make_shared<control_plugin_base::LegStates_IK>();
-    legR_states_ptr->end_eff_pos = {0, 0, -7};
-    legR_states_ptr->end_eff_rot = Matrix3d{{1, 0, 0},
+    // DEBUG: IK&FKの動作確認
+    std::shared_ptr<control_plugin_base::LegStates_IK> legR_states_IK_ptr = std::make_shared<control_plugin_base::LegStates_IK>();  // 変数名、FKと間違えやすい。
+    legR_states_IK_ptr->end_eff_pos = {-0.000, -0.1, -0.063};
+    legR_states_IK_ptr->end_eff_rot = Matrix3d{{1, 0, 0},
                                             {0, 1, 0},
                                             {0, 0, 1}
     };
-    legR_states_ptr->link_len = { Vector3d{0,0,-1},
-                                  Vector3d{0,0,-1},
-                                  Vector3d{0,0,-1},
-                                  Vector3d{0,0,-1},
-                                  Vector3d{0,0,-1},
-                                  Vector3d{0,0,-1},
-                                  Vector3d{0,0,-1}
+    legR_states_IK_ptr->link_len = {Vector3d{-0.005,-0.037,0},
+                                    Vector3d{0,0,0},
+                                    Vector3d{0,0,0},
+                                    Vector3d{0,0,-0.093},
+                                    Vector3d{0,0,-0.093},
+                                    Vector3d{0,0,0},
+                                    Vector3d{0,0,0}
     };
-    ik->inverse_kinematics(legR_states_ptr);
-    std::cout << "[DEBUG]: [FK]: end_pos_{" << legR_states_ptr->end_eff_pos.transpose() << "}, joint_ang_{" << legR_states_ptr->joint_ang[0] << ", "
-                                                                                                << legR_states_ptr->joint_ang[1] << ", "
-                                                                                                << legR_states_ptr->joint_ang[2] << ", "
-                                                                                                << legR_states_ptr->joint_ang[3] << ", "
-                                                                                                << legR_states_ptr->joint_ang[4] << ", "
-                                                                                                << legR_states_ptr->joint_ang[5] << "} "<< std::endl; 
+    ik->inverse_kinematics(legR_states_IK_ptr);
+    std::cout << "[DEBUG]: [FK]: end_pos_{" << legR_states_IK_ptr->end_eff_pos.transpose() << "}, joint_ang_{"  << legR_states_IK_ptr->joint_ang[0] << ", "
+                                                                                                                << legR_states_IK_ptr->joint_ang[1] << ", "
+                                                                                                                << legR_states_IK_ptr->joint_ang[2] << ", "
+                                                                                                                << legR_states_IK_ptr->joint_ang[3] << ", "
+                                                                                                                << legR_states_IK_ptr->joint_ang[4] << ", "
+                                                                                                                << legR_states_IK_ptr->joint_ang[5] << "} "<< std::endl; 
 
+    std::shared_ptr<control_plugin_base::LegStates_FK> legR_states_FK_ptr = std::make_shared<control_plugin_base::LegStates_FK>();
+    legR_states_FK_ptr->joint_ang = legR_states_IK_ptr->joint_ang;  // rad
+    legR_states_FK_ptr->link_len = {Vector3d{-0.005,-0.037,0},
+                                    Vector3d{0,0,0},
+                                    Vector3d{0,0,0},
+                                    Vector3d{0,0,-0.093},
+                                    Vector3d{0,0,-0.093},
+                                    Vector3d{0,0,0},
+                                    Vector3d{0,0,0}
+    };
+    legR_states_FK_ptr->joint_point = 6;
+    fk->forward_kinematics(legR_states_FK_ptr);
+    std::cout << "[DEBUG]: [FK]: joint_point " << 6 << ", end_effecter_position: { "<< legR_states_FK_ptr->end_eff_pos[0]
+                                                                            << ", " << legR_states_FK_ptr->end_eff_pos[1] 
+                                                                            << ", " << legR_states_FK_ptr->end_eff_pos[2] << " }" << std::endl;
+
+  
   }
   catch(pluginlib::PluginlibException& ex)
   {

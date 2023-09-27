@@ -10,10 +10,10 @@ namespace control_plugin_base
   // TODO: 型は全て一箇所にまとめたい。ライブラリとか。
   struct LegStates_FK {
     Eigen::Vector3d end_eff_pos;
-    Eigen::Matrix3d end_eff_rot;
+    // Eigen::Matrix3d end_eff_rot;
     std::array<Eigen::Vector3d, 7> link_len;
     std::array<Eigen::Matrix3d, 6> joint_rot;
-    std::array<Eigen::Vector3d, 6> unit_vec;
+    // std::array<Eigen::Vector3d, 6> unit_vec;
     std::array<double, 6> joint_ang;
     int8_t joint_point;  // FK用。TODO: こいつを外に出したい、別引数したい。
   };

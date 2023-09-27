@@ -48,7 +48,7 @@ namespace kinematics
   ) {
     leg_states_ptr->joint_rot = Default_ForwardKinematics::getR_leg(leg_states_ptr->joint_ang);
 
-    std::cout << "Here is default forward kinematics class."  << std::endl;
+    // std::cout << "Here is default forward kinematics class."  << std::endl;
 
     // CHECKME: 全て値を参照しに行っているが、値のコピーとのオーバーヘッドを比較するべき。参照のオーバーヘッドが溜まってバカにならないかも。
     switch(leg_states_ptr->joint_point) {
