@@ -18,6 +18,7 @@ pluginlib_export_plugin_description_file(robot_manager plugins.xml)
 add_library(kinematics
   src/ForwardKinematics.cpp
   src/InverseKinematics.cpp
+  src/Jacobian.cpp
 )
 # add_library(InverseKinematics 
 #   src/InverseKinematics.cpp

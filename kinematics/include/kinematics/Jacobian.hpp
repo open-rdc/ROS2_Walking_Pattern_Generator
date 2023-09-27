@@ -2,25 +2,25 @@
 #define JACOBIAN_HPP
 
 #include "rclcpp/rclcpp.hpp"
+#include "pluginlib/class_loader.hpp"
 #include "robot_manager/control_plugin_bases/PluginBase_Jacobian.hpp"
+#include "robot_manager/control_plugin_bases/PluginBase_ForwardKinematics.hpp"
 
 #include "Eigen/Dense"
 
 namespace kinematics
 {
-  class Default_Jacobian : public rclcpp::Node {
+  class Default_Jacobian : public control_plugin_base::Jacobian {
     public:
-      Jacobian(const rclcpp::NodeOptions& options = rclcpp::NodeOptions());
+      Default_Jacobian();
 
-      Eigen::Matrix<double, 6, 6> JacobiMatrix_leg(
-        std::array<double, 6> Q_leg,
-        std::array<Eigen::Vector3d, 6> UnitVec_leg,
-        std::array<Eigen::Vector3d, 7> P_leg
-      );
+      void jacobian(
+        const std::shared_ptr<control_plugin_base::LegStates_ToJac> leg_states_jac_ptr,
+        Eigen::Matrix<double, 6, 6>& leg_jacobian
+      ) override;
 
     private:
-      kinematics::FK FK_;
-
+      std::shared_ptr<control_plugin_base::ForwardKinematics> fk_;
   };
 }
 
