@@ -12,13 +12,13 @@ namespace kinematics
     leg_jacobian_ptr = MatrixXd::Zero(6, leg_states_jac_ptr->unit_vec.max_size());
 
     std::array<Eigen::Vector3d, 6> P_FK_leg;
-    std::shared_ptr<control_plugin_base::LegStates_FK> leg_states_fk_ptr = std::make_shared<control_plugin_base::LegStates_FK>();
+    Vector3d end_eff_pos = {0, 0, 0};
+    std::shared_ptr<control_plugin_base::LegStates_ToFK> leg_states_fk_ptr = std::make_shared<control_plugin_base::LegStates_ToFK>();
     leg_states_fk_ptr->joint_ang = leg_states_jac_ptr->joint_ang;
     leg_states_fk_ptr->link_len = leg_states_jac_ptr->link_len;
     for(int joint_point = 0; joint_point < int(leg_states_jac_ptr->unit_vec.max_size()); joint_point++) {
-      leg_states_fk_ptr->joint_point = joint_point;
-      fk_->forward_kinematics(leg_states_fk_ptr);
-      P_FK_leg[joint_point] = leg_states_fk_ptr->end_eff_pos;
+      fk_->forward_kinematics(leg_states_fk_ptr, joint_point, end_eff_pos);
+      P_FK_leg[joint_point] = end_eff_pos;
       // std::cout << P_FK_leg[joint_point].transpose() << std::endl;
     }
 

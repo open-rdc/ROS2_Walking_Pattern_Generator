@@ -50,7 +50,8 @@ namespace kinematics
 
   // IK (ROBOTIS-OP2's Leg only. analytical method)
   void Default_InverseKinematics::inverse_kinematics(
-    std::shared_ptr<control_plugin_base::LegStates_IK> leg_states_ptr
+    const std::shared_ptr<control_plugin_base::LegStates_ToIK> leg_states_ptr,
+    std::array<double, 6>& joint_ang_ptr
   ) {
     std::array<double, 6> Q;
     Vector3d P_target_leg_zhip2end;  // 股関節(z軸関節)から末端まで
@@ -77,7 +78,7 @@ namespace kinematics
     Q[1] = std::atan2(R_target_leg_begin2yhip(2, 1), -R_target_leg_begin2yhip(0, 1) * std::sin(Q[0]) + R_target_leg_begin2yhip(1, 1) * std::cos(Q[0]));
     Q[2] = std::atan2(-R_target_leg_begin2yhip(2, 0), R_target_leg_begin2yhip(2, 2));
 
-    leg_states_ptr->joint_ang = Q;
+    joint_ang_ptr = Q;
   }
 }
 

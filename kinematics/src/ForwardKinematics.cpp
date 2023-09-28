@@ -41,64 +41,76 @@ namespace kinematics
     return {Rz(Q_leg[0]), Rx(Q_leg[1]), Ry(Q_leg[2]), Ry(Q_leg[3]), Ry(Q_leg[4]), Rx(Q_leg[5])};
   }
 
+  void Default_ForwardKinematics::forward_kinematics(
+    std::shared_ptr<control_plugin_base::LegStates_ToFK> leg_states_ptr,
+    Eigen::Vector3d& end_eff_pos_ptr
+  ) {
+    Default_ForwardKinematics::forward_kinematics(
+      leg_states_ptr,
+      6,
+      end_eff_pos_ptr
+    );
+  }
 
   // 関数のオーバーライドをして、joint_pointを入れずに導出できるようにする。 or forで再帰的に回す。
   void Default_ForwardKinematics::forward_kinematics(
-    std::shared_ptr<control_plugin_base::LegStates_FK> leg_states_ptr
+    std::shared_ptr<control_plugin_base::LegStates_ToFK> leg_states_ptr,
+    int joint_point,
+    Eigen::Vector3d& end_eff_pos_ptr
   ) {
-    leg_states_ptr->joint_rot = Default_ForwardKinematics::getR_leg(leg_states_ptr->joint_ang);
+    std::array<Eigen::Matrix3d, 6> joint_rot = Default_ForwardKinematics::getR_leg(leg_states_ptr->joint_ang);
 
     // std::cout << "Here is default forward kinematics class."  << std::endl;
 
     // CHECKME: 全て値を参照しに行っているが、値のコピーとのオーバーヘッドを比較するべき。参照のオーバーヘッドが溜まってバカにならないかも。
-    switch(leg_states_ptr->joint_point) {
+    switch(joint_point) {
       case 0:
-        leg_states_ptr->end_eff_pos = 
+        end_eff_pos_ptr = 
             leg_states_ptr->link_len[0];
         break;
       case 1:
-        leg_states_ptr->end_eff_pos = 
-            leg_states_ptr->joint_rot[0] * leg_states_ptr->link_len[1]
+        end_eff_pos_ptr = 
+            joint_rot[0] * leg_states_ptr->link_len[1]
           + leg_states_ptr->link_len[0];
         break;
       case 2:
-        leg_states_ptr->end_eff_pos = 
-            leg_states_ptr->joint_rot[0] * leg_states_ptr->joint_rot[1] * leg_states_ptr->link_len[2]
-          + leg_states_ptr->joint_rot[0] * leg_states_ptr->link_len[1]
+        end_eff_pos_ptr = 
+            joint_rot[0] * joint_rot[1] * leg_states_ptr->link_len[2]
+          + joint_rot[0] * leg_states_ptr->link_len[1]
           + leg_states_ptr->link_len[0];
         break;
       case 3:
-        leg_states_ptr->end_eff_pos = 
-            leg_states_ptr->joint_rot[0] * leg_states_ptr->joint_rot[1] * leg_states_ptr->joint_rot[2] * leg_states_ptr->link_len[3]
-          + leg_states_ptr->joint_rot[0] * leg_states_ptr->joint_rot[1] * leg_states_ptr->link_len[2]
-          + leg_states_ptr->joint_rot[0] * leg_states_ptr->link_len[1]
+        end_eff_pos_ptr = 
+            joint_rot[0] * joint_rot[1] * joint_rot[2] * leg_states_ptr->link_len[3]
+          + joint_rot[0] * joint_rot[1] * leg_states_ptr->link_len[2]
+          + joint_rot[0] * leg_states_ptr->link_len[1]
           + leg_states_ptr->link_len[0];
         break;
       case 4:
-        leg_states_ptr->end_eff_pos = 
-            leg_states_ptr->joint_rot[0] * leg_states_ptr->joint_rot[1] * leg_states_ptr->joint_rot[2] * leg_states_ptr->joint_rot[3] * leg_states_ptr->link_len[4]
-          + leg_states_ptr->joint_rot[0] * leg_states_ptr->joint_rot[1] * leg_states_ptr->joint_rot[2] * leg_states_ptr->link_len[3]
-          + leg_states_ptr->joint_rot[0] * leg_states_ptr->joint_rot[1] * leg_states_ptr->link_len[2]
-          + leg_states_ptr->joint_rot[0] * leg_states_ptr->link_len[1]
+        end_eff_pos_ptr = 
+            joint_rot[0] * joint_rot[1] * joint_rot[2] * joint_rot[3] * leg_states_ptr->link_len[4]
+          + joint_rot[0] * joint_rot[1] * joint_rot[2] * leg_states_ptr->link_len[3]
+          + joint_rot[0] * joint_rot[1] * leg_states_ptr->link_len[2]
+          + joint_rot[0] * leg_states_ptr->link_len[1]
           + leg_states_ptr->link_len[0];
         break;
       case 5:
-        leg_states_ptr->end_eff_pos = 
-            leg_states_ptr->joint_rot[0] * leg_states_ptr->joint_rot[1] * leg_states_ptr->joint_rot[2] * leg_states_ptr->joint_rot[3] * leg_states_ptr->joint_rot[4] * leg_states_ptr->link_len[5]
-          + leg_states_ptr->joint_rot[0] * leg_states_ptr->joint_rot[1] * leg_states_ptr->joint_rot[2] * leg_states_ptr->joint_rot[3] * leg_states_ptr->link_len[4]
-          + leg_states_ptr->joint_rot[0] * leg_states_ptr->joint_rot[1] * leg_states_ptr->joint_rot[2] * leg_states_ptr->link_len[3]
-          + leg_states_ptr->joint_rot[0] * leg_states_ptr->joint_rot[1] * leg_states_ptr->link_len[2]
-          + leg_states_ptr->joint_rot[0] * leg_states_ptr->link_len[1]
+        end_eff_pos_ptr = 
+            joint_rot[0] * joint_rot[1] * joint_rot[2] * joint_rot[3] * joint_rot[4] * leg_states_ptr->link_len[5]
+          + joint_rot[0] * joint_rot[1] * joint_rot[2] * joint_rot[3] * leg_states_ptr->link_len[4]
+          + joint_rot[0] * joint_rot[1] * joint_rot[2] * leg_states_ptr->link_len[3]
+          + joint_rot[0] * joint_rot[1] * leg_states_ptr->link_len[2]
+          + joint_rot[0] * leg_states_ptr->link_len[1]
           + leg_states_ptr->link_len[0];
         break;
       case 6:
-        leg_states_ptr->end_eff_pos = 
-            leg_states_ptr->joint_rot[0] * leg_states_ptr->joint_rot[1] * leg_states_ptr->joint_rot[2] * leg_states_ptr->joint_rot[3] * leg_states_ptr->joint_rot[4] * leg_states_ptr->joint_rot[5] * leg_states_ptr->link_len[6]
-          + leg_states_ptr->joint_rot[0] * leg_states_ptr->joint_rot[1] * leg_states_ptr->joint_rot[2] * leg_states_ptr->joint_rot[3] * leg_states_ptr->joint_rot[4] * leg_states_ptr->link_len[5]
-          + leg_states_ptr->joint_rot[0] * leg_states_ptr->joint_rot[1] * leg_states_ptr->joint_rot[2] * leg_states_ptr->joint_rot[3] * leg_states_ptr->link_len[4]
-          + leg_states_ptr->joint_rot[0] * leg_states_ptr->joint_rot[1] * leg_states_ptr->joint_rot[2] * leg_states_ptr->link_len[3]
-          + leg_states_ptr->joint_rot[0] * leg_states_ptr->joint_rot[1] * leg_states_ptr->link_len[2]
-          + leg_states_ptr->joint_rot[0] * leg_states_ptr->link_len[1]
+        end_eff_pos_ptr = 
+            joint_rot[0] * joint_rot[1] * joint_rot[2] * joint_rot[3] * joint_rot[4] * joint_rot[5] * leg_states_ptr->link_len[6]
+          + joint_rot[0] * joint_rot[1] * joint_rot[2] * joint_rot[3] * joint_rot[4] * leg_states_ptr->link_len[5]
+          + joint_rot[0] * joint_rot[1] * joint_rot[2] * joint_rot[3] * leg_states_ptr->link_len[4]
+          + joint_rot[0] * joint_rot[1] * joint_rot[2] * leg_states_ptr->link_len[3]
+          + joint_rot[0] * joint_rot[1] * leg_states_ptr->link_len[2]
+          + joint_rot[0] * leg_states_ptr->link_len[1]
           + leg_states_ptr->link_len[0];
         break;
     }

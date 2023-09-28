@@ -11,7 +11,8 @@ namespace kinematics
   class Default_InverseKinematics : public control_plugin_base::InverseKinematics {
     public:
       void inverse_kinematics(
-        std::shared_ptr<control_plugin_base::LegStates_IK> leg_states_ptr
+        const std::shared_ptr<control_plugin_base::LegStates_ToIK> leg_states_ptr,
+        std::array<double, 6>& joint_ang_ptr
       ) override;
 
       // 便利関数として、他ライブラリにまとめたい

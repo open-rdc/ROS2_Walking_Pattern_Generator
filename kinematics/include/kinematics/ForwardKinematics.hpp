@@ -11,7 +11,13 @@ namespace kinematics
   class Default_ForwardKinematics : public control_plugin_base::ForwardKinematics {
     public:
       void forward_kinematics(
-        std::shared_ptr<control_plugin_base::LegStates_FK> leg_states_ptr  // 返り値と引数を同じ構造体に入れるのは良くない。
+        std::shared_ptr<control_plugin_base::LegStates_ToFK> leg_states_ptr,
+        Eigen::Vector3d& end_eff_pos_ptr
+      ) override;
+      void forward_kinematics(
+        std::shared_ptr<control_plugin_base::LegStates_ToFK> leg_states_ptr,
+        int joint_point,
+        Eigen::Vector3d& end_eff_pos_ptr
       ) override;
 
       std::array<Eigen::Matrix3d, 6> getR_leg(
