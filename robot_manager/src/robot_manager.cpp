@@ -48,10 +48,10 @@ int main(int argc, char** argv) {
 
     // DEBUG: IK&FKの動作確認
     std::shared_ptr<control_plugin_base::LegStates_IK> legR_states_IK_ptr = std::make_shared<control_plugin_base::LegStates_IK>();  // 変数名、FKと間違えやすい。
-    legR_states_IK_ptr->end_eff_pos = {-0.000, -0.1, -0.063};
-    legR_states_IK_ptr->end_eff_rot = Matrix3d{{1, 0, 0},
-                                            {0, 1, 0},
-                                            {0, 0, 1}
+    legR_states_IK_ptr->end_eff_pos = {-0.03, -0.1, -0.10};
+    legR_states_IK_ptr->end_eff_rot = Matrix3d{ {1, 0, 0},
+                                                {0, 1, 0},
+                                                {0, 0, 1}
     };
     legR_states_IK_ptr->link_len = {Vector3d{-0.005,-0.037,0},
                                     Vector3d{0,0,0},
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
                                     Vector3d{0,0,0}
     };
     ik->inverse_kinematics(legR_states_IK_ptr);
-    std::cout << "[DEBUG]: [FK]: end_pos_{" << legR_states_IK_ptr->end_eff_pos.transpose() << "}, joint_ang_{"  << legR_states_IK_ptr->joint_ang[0] << ", "
+    std::cout << "[DEBUG]: [IK]: end_pos_{" << legR_states_IK_ptr->end_eff_pos.transpose() << "}, joint_ang_{"  << legR_states_IK_ptr->joint_ang[0] << ", "
                                                                                                                 << legR_states_IK_ptr->joint_ang[1] << ", "
                                                                                                                 << legR_states_IK_ptr->joint_ang[2] << ", "
                                                                                                                 << legR_states_IK_ptr->joint_ang[3] << ", "
@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
       Vector3d(0, 1, 0),
       Vector3d(1, 0, 0)
     };
-    Eigen::Matrix<double, 6, 6> legR_jacobian_ptr;
+    Matrix<double, 6, 6> legR_jacobian_ptr;
     jac->jacobian(legR_states_jac_ptr, legR_jacobian_ptr);  /// (引数, 返り値)
     std::cout << legR_jacobian_ptr << std::endl;
   }

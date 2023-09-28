@@ -10,6 +10,8 @@
 
 namespace kinematics
 {
+  pluginlib::ClassLoader<control_plugin_base::ForwardKinematics> fk_loader("robot_manager", "control_plugin_base::ForwardKinematics");
+
   class Default_Jacobian : public control_plugin_base::Jacobian {
     public:
       Default_Jacobian();
