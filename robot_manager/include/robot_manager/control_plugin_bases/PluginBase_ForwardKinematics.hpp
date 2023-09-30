@@ -18,7 +18,7 @@ namespace control_plugin_base
         std::shared_ptr<LegStates_ToFK> leg_states_ptr,
         Eigen::Vector3d& end_eff_pos_ptr
       ) = 0;
-      virtual void forward_kinematics(
+      virtual void forward_kinematics(  // overload. jacobian計算時に用いる、始端の関節から特定の関節（joint_point）までの順運動学計算
         std::shared_ptr<control_plugin_base::LegStates_ToFK> leg_states_ptr,
         int joint_point,
         Eigen::Vector3d& end_eff_pos_ptr
