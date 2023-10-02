@@ -4,6 +4,10 @@
 #include "rclcpp/rclcpp.hpp"
 #include "robot_manager/control_plugin_bases/PluginBase_ConvertToJointStates.hpp"
 
+// IK, JacobianのPluginをIncludeする必要がある。
+
+#include "Eigen/Dense"
+
 namespace convert_to_joint_states
 {
   class Default_ConvertToJointStates : public control_plugin_base::ConvertToJointStates 
