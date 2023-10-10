@@ -11,6 +11,7 @@ find_package(ament_cmake_ros REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(robot_manager REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 pluginlib_export_plugin_description_file(robot_manager plugins.xml)
 
@@ -25,6 +26,7 @@ ament_target_dependencies(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:include>
   PRIVATE
     include

@@ -68,8 +68,12 @@ namespace convert_to_joint_states
     Eigen::Vector<double, 3> Foot_3D_Pos_Swing;
     Eigen::Vector<double, 6> CoG_3D_Vel;
     Eigen::Vector<double, 6> CoG_3D_Vel_Swing;
+    std::array<double, 6> Q_legR{0, 0, 0, 0, 0, 0};
+    std::array<double, 6> Q_legL{0, 0, 0, 0, 0, 0};
     Eigen::Vector<double, 6> jointVel_legR;
     Eigen::Vector<double, 6> jointVel_legL;
+    Eigen::Matrix<double, 6, 6> Jacobi_legR = Eigen::MatrixXd::Zero(6, 6);
+    Eigen::Matrix<double, 6, 6> Jacobi_legL = Eigen::MatrixXd::Zero(6, 6);
 
     // 各関節角度・角速度を生成
     while(walking_time <= walking_time_max) {
@@ -260,39 +264,41 @@ namespace convert_to_joint_states
         }
         if(walking_stabilization_ptr->zmp_pos_fix[ref_ws][1]-walking_stabilization_ptr->zmp_pos_fix[ref_ws+1][1] >= 0) {  // 左脚支持
           // IK
-          Q_legR_ = IK_.getIK(  // IKを解いて、各関節角度を取得
-            P_legR_waist_standard_,  // 脚の各リンク長
-            Foot_3D_Pos_Swing,  // 重心位置を元にした足の位置 
-            R_target_leg  // 足の回転行列。床面と並行なので、ただの単位行列。
+          legR_states_ik_ptr_->end_eff_pos = Foot_3D_Pos_Swing;
+          ik_->inverse_kinematics(
+            legR_states_ik_ptr_,  // 引数
+            Q_legR  // 返り値の参照渡し
           );
-          Q_legL_ = IK_.getIK(
-            P_legL_waist_standard_,
-            Foot_3D_Pos,
-            R_target_leg
+          legL_states_ik_ptr_->end_eff_pos = Foot_3D_Pos;
+          ik_->inverse_kinematics(
+            legL_states_ik_ptr_,
+            Q_legL
           );
         }
         if(walking_stabilization_ptr->zmp_pos_fix[ref_ws][1]-walking_stabilization_ptr->zmp_pos_fix[ref_ws+1][1] < 0) {  // 右脚支持
-          Q_legR_ = IK_.getIK(  
-            P_legR_waist_standard_,
-            Foot_3D_Pos,   
-            R_target_leg  
+          legR_states_ik_ptr_->end_eff_pos = Foot_3D_Pos;
+          ik_->inverse_kinematics(  
+            legR_states_ik_ptr_,
+            Q_legR
           );
-          Q_legL_ = IK_.getIK(
-            P_legL_waist_standard_,
-            Foot_3D_Pos_Swing,
-            R_target_leg
+          legL_states_ik_ptr_->end_eff_pos = Foot_3D_Pos_Swing;
+          ik_->inverse_kinematics(
+            legL_states_ik_ptr_,
+            Q_legL
           );
         }
 
         // LOG:
-        //WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
+        //WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL, P_legL_waist_standard_, 6).transpose() << std::endl;
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
-        // JacobiMatrix_leg(Q_legR_, Q_legL_);
-        // Jacobi_legR_ = JacobiMatrix_leg(Q_legR_, UnitVec_legR_, P_legR_waist_standard_);
-        // Jacobi_legL_ = JacobiMatrix_leg(Q_legL_, UnitVec_legL_, P_legL_waist_standard_);
-        Jacobi_legR_ = Jacobian_.JacobiMatrix_leg(Q_legR_, UnitVec_legR_, P_legR_waist_standard_);
-        Jacobi_legL_ = Jacobian_.JacobiMatrix_leg(Q_legL_, UnitVec_legL_, P_legL_waist_standard_);
+        // JacobiMatrix_leg(Q_legR, Q_legL);
+        // Jacobi_legR = JacobiMatrix_leg(Q_legR, UnitVec_legR_, P_legR_waist_standard_);
+        // Jacobi_legL = JacobiMatrix_leg(Q_legL, UnitVec_legL_, P_legL_waist_standard_);
+        legR_states_jac_ptr_->joint_ang = Q_legR;
+        jac_->jacobian(legR_states_jac_ptr_, Jacobi_legR);
+        legR_states_jac_ptr_->joint_ang = Q_legL;
+        jac_->jacobian(legL_states_jac_ptr_, Jacobi_legL);
 
         // 各関節速度の計算
         if((t >= T_dsup/2 && t < T_dsup/2+0.05) || (t > (T_sup - T_dsup/2-0.05) && t <= (T_sup - T_dsup/2))) {
@@ -300,39 +306,41 @@ namespace convert_to_joint_states
           jointVel_legL = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
         }
         else {
-          jointVel_legR = Jacobi_legR_.inverse()*CoG_3D_Vel;
-          jointVel_legL = Jacobi_legL_.inverse()*CoG_3D_Vel;
+          jointVel_legR = Jacobi_legR.inverse()*CoG_3D_Vel;
+          jointVel_legL = Jacobi_legL.inverse()*CoG_3D_Vel;
         }
 
         // 歩行パラメータの代入
-        leg_joint_states_pat_ptr->joint_ang_pat_legR.push_back(Q_legR_);
+        leg_joint_states_pat_ptr->joint_ang_pat_legR.push_back(Q_legR);
         leg_joint_states_pat_ptr->joint_vel_pat_legR.push_back({jointVel_legR[0], jointVel_legR[1], jointVel_legR[2], jointVel_legR[3], jointVel_legR[4], jointVel_legR[5]});  // eigen::vectorをstd::arrayに変換するためにこうしている。
-        leg_joint_states_pat_ptr->joint_ang_pat_legL.push_back(Q_legL_);
+        leg_joint_states_pat_ptr->joint_ang_pat_legL.push_back(Q_legL);
         leg_joint_states_pat_ptr->joint_vel_pat_legL.push_back({jointVel_legL[0], jointVel_legL[1], jointVel_legL[2], jointVel_legL[3], jointVel_legL[4], jointVel_legL[5]});
       }
       // 左脚支持期
       else if(walking_stabilization_ptr->zmp_pos_fix[walking_step][1] > 0) {
         // IK
-        Q_legR_ = IK_.getIK(
-          P_legR_waist_standard_,
-          Foot_3D_Pos_Swing, 
-          R_target_leg
+        legR_states_ik_ptr_->end_eff_pos = Foot_3D_Pos_Swing;
+        ik_->inverse_kinematics(
+          legR_states_ik_ptr_,  // 引数
+          Q_legR  // 返り値の参照渡し
         );
-        Q_legL_ = IK_.getIK(
-          P_legL_waist_standard_,
-          Foot_3D_Pos,
-          R_target_leg
+        legL_states_ik_ptr_->end_eff_pos = Foot_3D_Pos;
+        ik_->inverse_kinematics(
+          legL_states_ik_ptr_,
+          Q_legL
         );
 
         // LOG:
-        //WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
+        //WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL, P_legL_waist_standard_, 6).transpose() << std::endl;
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
-        // JacobiMatrix_leg(Q_legR_, Q_legL_);
-        // Jacobi_legR_ = JacobiMatrix_leg(Q_legR_, UnitVec_legR_, P_legR_waist_standard_);
-        // Jacobi_legL_ = JacobiMatrix_leg(Q_legL_, UnitVec_legL_, P_legL_waist_standard_);
-        Jacobi_legR_ = Jacobian_.JacobiMatrix_leg(Q_legR_, UnitVec_legR_, P_legR_waist_standard_);
-        Jacobi_legL_ = Jacobian_.JacobiMatrix_leg(Q_legL_, UnitVec_legL_, P_legL_waist_standard_);
+        // JacobiMatrix_leg(Q_legR, Q_legL);
+        // Jacobi_legR = JacobiMatrix_leg(Q_legR, UnitVec_legR_, P_legR_waist_standard_);
+        // Jacobi_legL = JacobiMatrix_leg(Q_legL, UnitVec_legL_, P_legL_waist_standard_);
+        legR_states_jac_ptr_->joint_ang = Q_legR;
+        jac_->jacobian(legR_states_jac_ptr_, Jacobi_legR);
+        legR_states_jac_ptr_->joint_ang = Q_legL;
+        jac_->jacobian(legL_states_jac_ptr_, Jacobi_legL);
 
         // 各関節速度の計算
         if((t >= T_dsup/2 && t < T_dsup/2+0.05) || (t > (T_sup - T_dsup/2-0.05) && t <= (T_sup - T_dsup/2))) {
@@ -340,39 +348,41 @@ namespace convert_to_joint_states
           jointVel_legL = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
         }
         else {
-          jointVel_legR = Jacobi_legR_.inverse()*CoG_3D_Vel_Swing;
-          jointVel_legL = Jacobi_legL_.inverse()*CoG_3D_Vel;
+          jointVel_legR = Jacobi_legR.inverse()*CoG_3D_Vel_Swing;
+          jointVel_legL = Jacobi_legL.inverse()*CoG_3D_Vel;
         }
 
         // 歩行パラメータの代入
-        leg_joint_states_pat_ptr->joint_ang_pat_legR.push_back(Q_legR_);  // 遊脚
+        leg_joint_states_pat_ptr->joint_ang_pat_legR.push_back(Q_legR);  // 遊脚
         leg_joint_states_pat_ptr->joint_vel_pat_legR.push_back({jointVel_legR[0], jointVel_legR[1], jointVel_legR[2], jointVel_legR[3], jointVel_legR[4], jointVel_legR[5]});
-        leg_joint_states_pat_ptr->joint_ang_pat_legL.push_back(Q_legL_);  // 支持脚
+        leg_joint_states_pat_ptr->joint_ang_pat_legL.push_back(Q_legL);  // 支持脚
         leg_joint_states_pat_ptr->joint_vel_pat_legL.push_back({jointVel_legL[0], jointVel_legL[1], jointVel_legL[2], jointVel_legL[3], jointVel_legL[4], jointVel_legL[5]});
       }
       // 右脚支持期
       else if(walking_stabilization_ptr->zmp_pos_fix[walking_step][1] < 0) {
         // IK
-        Q_legR_ = IK_.getIK(
-          P_legR_waist_standard_,
-          Foot_3D_Pos, 
-          R_target_leg
+        legR_states_ik_ptr_->end_eff_pos = Foot_3D_Pos;
+        ik_->inverse_kinematics(  
+          legR_states_ik_ptr_,
+          Q_legR
         );
-        Q_legL_ = IK_.getIK(
-          P_legL_waist_standard_,
-          Foot_3D_Pos_Swing,
-          R_target_leg
+        legL_states_ik_ptr_->end_eff_pos = Foot_3D_Pos_Swing;
+        ik_->inverse_kinematics(
+          legL_states_ik_ptr_,
+          Q_legL
         );
 
         // LOG:
-        //WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
+        //WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL, P_legL_waist_standard_, 6).transpose() << std::endl;
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
-        // JacobiMatrix_leg(Q_legR_, Q_legL_);
-        // Jacobi_legR_ = JacobiMatrix_leg(Q_legR_, UnitVec_legR_, P_legR_waist_standard_);
-        // Jacobi_legL_ = JacobiMatrix_leg(Q_legL_, UnitVec_legL_, P_legL_waist_standard_);
-        Jacobi_legR_ = Jacobian_.JacobiMatrix_leg(Q_legR_, UnitVec_legR_, P_legR_waist_standard_);
-        Jacobi_legL_ = Jacobian_.JacobiMatrix_leg(Q_legL_, UnitVec_legL_, P_legL_waist_standard_);
+        // JacobiMatrix_leg(Q_legR, Q_legL);
+        // Jacobi_legR = JacobiMatrix_leg(Q_legR, UnitVec_legR_, P_legR_waist_standard_);
+        // Jacobi_legL = JacobiMatrix_leg(Q_legL, UnitVec_legL_, P_legL_waist_standard_);
+        legR_states_jac_ptr_->joint_ang = Q_legR;
+        jac_->jacobian(legR_states_jac_ptr_, Jacobi_legR);
+        legR_states_jac_ptr_->joint_ang = Q_legL;
+        jac_->jacobian(legL_states_jac_ptr_, Jacobi_legL);
 
         // 各関節速度の計算
         if((t >= T_dsup/2 && t < T_dsup/2+0.05) || (t > (T_sup - T_dsup/2-0.05) && t <= (T_sup - T_dsup/2))) {
@@ -380,14 +390,14 @@ namespace convert_to_joint_states
           jointVel_legL = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
         }
         else {
-          jointVel_legR = Jacobi_legR_.inverse()*CoG_3D_Vel;
-          jointVel_legL = Jacobi_legL_.inverse()*CoG_3D_Vel_Swing;
+          jointVel_legR = Jacobi_legR.inverse()*CoG_3D_Vel;
+          jointVel_legL = Jacobi_legL.inverse()*CoG_3D_Vel_Swing;
         }
 
         // 歩行パラメータの代入
-        leg_joint_states_pat_ptr->joint_ang_pat_legR.push_back(Q_legR_);  // 支持脚
+        leg_joint_states_pat_ptr->joint_ang_pat_legR.push_back(Q_legR);  // 支持脚
         leg_joint_states_pat_ptr->joint_vel_pat_legR.push_back({jointVel_legR[0], jointVel_legR[1], jointVel_legR[2], jointVel_legR[3], jointVel_legR[4], jointVel_legR[5]});
-        leg_joint_states_pat_ptr->joint_ang_pat_legL.push_back(Q_legL_);  // 遊脚
+        leg_joint_states_pat_ptr->joint_ang_pat_legL.push_back(Q_legL);  // 遊脚
         leg_joint_states_pat_ptr->joint_vel_pat_legL.push_back({jointVel_legL[0], jointVel_legL[1], jointVel_legL[2], jointVel_legL[3], jointVel_legL[4], jointVel_legL[5]});
       }
 
@@ -407,6 +417,59 @@ namespace convert_to_joint_states
 //==COPY==
 
     return leg_joint_states_pat_ptr;
+  }
+
+  Default_ConvertToJointStates::Default_ConvertToJointStates() {
+    ik_ = ik_loader.createSharedInstance("kinematics::Default_InverseKinematics");
+    jac_ = jac_loader.createSharedInstance("kinematics::Default_Jacobian");
+
+    // DEBUG
+    UnitVec_legL_ = {
+      Eigen::Vector3d(0, 0, 1),
+      Eigen::Vector3d(1, 0, 0),
+      Eigen::Vector3d(0, 1, 0),
+      Eigen::Vector3d(0, 1, 0),
+      Eigen::Vector3d(0, 1, 0),
+      Eigen::Vector3d(1, 0, 0)
+    };
+    UnitVec_legR_ = {
+      Eigen::Vector3d(0, 0, 1),
+      Eigen::Vector3d(1, 0, 0),
+      Eigen::Vector3d(0, 1, 0),
+      Eigen::Vector3d(0, 1, 0),
+      Eigen::Vector3d(0, 1, 0),
+      Eigen::Vector3d(1, 0, 0)
+    };
+    // 脚の関節位置。基準を腰（ｚ軸が股関節と等しい）に修正
+    P_legR_waist_standard_ = {  // 右脚
+      Eigen::Vector3d(-0.005, -0.037, 0),  // o(基準) -> 1
+      Eigen::Vector3d(0, 0, 0),  // 1 -> 2
+      Eigen::Vector3d(0, 0, 0),  // 2 -> 3
+      Eigen::Vector3d(0, 0, -0.093),  // 3 -> 4
+      Eigen::Vector3d(0, 0, -0.093),  // 4 -> 5
+      Eigen::Vector3d(0, 0, 0),  // 5 -> 6
+      Eigen::Vector3d(0, 0, 0)  // 6 -> a(足裏)
+    };
+    P_legL_waist_standard_ = {  // 左脚
+      Eigen::Vector3d(-0.005, 0.037, 0),
+      Eigen::Vector3d(0, 0, 0),
+      Eigen::Vector3d(0, 0, 0),
+      Eigen::Vector3d(0, 0, -0.093),
+      Eigen::Vector3d(0, 0, -0.093),
+      Eigen::Vector3d(0, 0, 0),
+      Eigen::Vector3d(0, 0, 0)
+    };
+    end_eff_rot = Eigen::Matrix3d::Identity();
+
+    legL_states_ik_ptr_->end_eff_rot = end_eff_rot;
+    legR_states_ik_ptr_->end_eff_rot = end_eff_rot;
+    legL_states_ik_ptr_->link_len = P_legL_waist_standard_;
+    legR_states_ik_ptr_->link_len = P_legR_waist_standard_;
+
+    legL_states_jac_ptr_->link_len = P_legL_waist_standard_;
+    legR_states_jac_ptr_->link_len = P_legR_waist_standard_;
+    legL_states_jac_ptr_->unit_vec = UnitVec_legL_;
+    legR_states_jac_ptr_->unit_vec = UnitVec_legR_;
   }
 }
 
