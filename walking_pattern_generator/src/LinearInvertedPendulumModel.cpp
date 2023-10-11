@@ -68,6 +68,8 @@ namespace walking_pattern_generator
     S = std::sinh(T_sup / T_c);
     C = std::cosh(T_sup / T_c);
     // 次の歩行素片のパラメータを計算 
+      // TODO: ココ、未定義動作。配列の外を参照している。修正するべき。
+      // CHECKME: １歩先の着地位置が常に定義されていないと思われ。これが歩行パターン生成のバグになっている可能性がある。修正するべき。
     x_bar = (foot_step_ptr->zmp_pos[walking_step + 1][0] - foot_step_ptr->zmp_pos[walking_step][0]) / 2;
     y_bar = (foot_step_ptr->zmp_pos[walking_step + 1][1] - foot_step_ptr->zmp_pos[walking_step][1]) / 2;
     dx_bar = ((C + 1) / (T_c * S)) * x_bar;

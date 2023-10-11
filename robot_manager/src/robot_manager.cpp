@@ -10,6 +10,7 @@
 #include "robot_manager/control_plugin_bases/PluginBase_Jacobian.hpp"
 
 #include "Eigen/Dense"
+
 using namespace Eigen;
 
 int main(int argc, char** argv) {
