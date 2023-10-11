@@ -164,6 +164,8 @@ namespace walking_pattern_generator
     // LOG: Log file close
     WPG_log_WalkingPttern.close();
 
+    std::cout << "Here is wpg_linear_inverted_pendulum_model plugin." << std::endl;
+
     return walking_pattern_ptr;
   }
 }

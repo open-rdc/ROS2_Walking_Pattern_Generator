@@ -20,17 +20,17 @@ int main(int argc, char** argv) {
   pluginlib::ClassLoader<control_plugin_base::WalkingPatternGenerator> wpg_loader("robot_manager", "control_plugin_base::WalkingPatternGenerator");
   pluginlib::ClassLoader<control_plugin_base::FootStepPlanner> fsp_loader("robot_manager", "control_plugin_base::FootStepPlanner");
   pluginlib::ClassLoader<control_plugin_base::WalkingStabilizationController> wsc_loader("robot_manager", "control_plugin_base::WalkingStabilizationController");
-  pluginlib::ClassLoader<control_plugin_base::ConvertToJointStates> ctjs_loader("robot_manager", "control_plugin_base::ConvertToJointStates");
+  // pluginlib::ClassLoader<control_plugin_base::ConvertToJointStates> ctjs_loader("robot_manager", "control_plugin_base::ConvertToJointStates");
   // pluginlib::ClassLoader<control_plugin_base::ForwardKinematics> fk_loader("robot_manager", "control_plugin_base::ForwardKinematics");
   // pluginlib::ClassLoader<control_plugin_base::InverseKinematics> ik_loader("robot_manager", "control_plugin_base::InverseKinematics");
   // pluginlib::ClassLoader<control_plugin_base::Jacobian> jac_loader("robot_manager", "control_plugin_base::Jacobian");
 
   try
   {
-    std::shared_ptr<control_plugin_base::WalkingPatternGenerator> wpg = wpg_loader.createSharedInstance("walking_pattern_generator::LinearInvertedPendulumModel");
+    std::shared_ptr<control_plugin_base::WalkingPatternGenerator> wpg = wpg_loader.createSharedInstance("walking_pattern_generator::WPG_LinearInvertedPendulumModel");
     std::shared_ptr<control_plugin_base::FootStepPlanner> fsp = fsp_loader.createSharedInstance("foot_step_planner::Default_FootStepPlanner");
     std::shared_ptr<control_plugin_base::WalkingStabilizationController> wsc = wsc_loader.createSharedInstance("walking_stabilization_controller::Default_WalkingStabilizationController");
-    std::shared_ptr<control_plugin_base::ConvertToJointStates> ctjs = ctjs_loader.createSharedInstance("convert_to_joint_states::Default_ConvertToJointStates");
+    // std::shared_ptr<control_plugin_base::ConvertToJointStates> ctjs = ctjs_loader.createSharedInstance("convert_to_joint_states::Default_ConvertToJointStates");
     // std::shared_ptr<control_plugin_base::ForwardKinematics> fk = fk_loader.createSharedInstance("kinematics::Default_ForwardKinematics");
     // std::shared_ptr<control_plugin_base::InverseKinematics> ik = ik_loader.createSharedInstance("kinematics::Default_InverseKinematics");
     // std::shared_ptr<control_plugin_base::Jacobian> jac = jac_loader.createSharedInstance("kinematics::Default_Jacobian");
@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
     std::shared_ptr<control_plugin_base::WalkingStabilization> walking_stabilization_ptr = wsc->walking_stabilization_controller(walking_pattern_ptr);
 
 // Convert_to_Joint_States
-    std::shared_ptr<control_plugin_base::LegJointStatesPattern> leg_joint_states_pat_ptr = ctjs->convert_into_joint_states(walking_stabilization_ptr);
+    // std::shared_ptr<control_plugin_base::LegJointStatesPattern> leg_joint_states_pat_ptr = ctjs->convert_into_joint_states(walking_stabilization_ptr);
 
     // // DEBUG: IK&FKの動作確認
     // std::array<double, 6> legR_joint_ang;

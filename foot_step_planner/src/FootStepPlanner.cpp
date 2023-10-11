@@ -18,6 +18,8 @@ namespace foot_step_planner
     };
     foot_step_ptr->waist_height = 171.856 / 1000;  // 腰高さ
 
+    std::cout << "Here is default foot_step_controller plugin." << std::endl;
+
     return foot_step_ptr;
   }
 }

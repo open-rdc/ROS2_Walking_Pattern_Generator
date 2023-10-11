@@ -32,9 +32,6 @@ namespace convert_to_joint_states
   };
 */
 
-    std::cout << "Here is default convert to joint states class." << std::endl;
-
-//==COPY==
     // robot
     float length_leg = 171.856 / 1000;
 
@@ -414,7 +411,7 @@ namespace convert_to_joint_states
     //WPG_log_FootTrajectory_FK.close();
     // WPG_log_SwingTrajectory.close();
 
-//==COPY==
+    std::cout << "Here is default convert_to_joint_states plugin." << std::endl;
 
     return leg_joint_states_pat_ptr;
   }
