@@ -1,0 +1,5 @@
+<library path="walking_pattern_generator">
+  <class type="walking_pattern_generator::WPG_LinearInvertedPendulumModel" base_class_type="control_plugin_base::WalkingPatternGenerator">
+    <description>Linear Inverted Pendulum Model plugin.</description>
+  </class>
+</library>
