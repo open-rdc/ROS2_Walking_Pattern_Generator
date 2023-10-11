@@ -15,7 +15,7 @@ find_package(pluginlib REQUIRED)
 pluginlib_export_plugin_description_file(robot_manager plugins.xml)
 
 add_library(foot_step_planner
-  src/foot_step_planner.cpp
+  src/FootStepPlanner.cpp
 )
 ament_target_dependencies(foot_step_planner
   robot_manager

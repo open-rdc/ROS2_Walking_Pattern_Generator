@@ -8,6 +8,7 @@ namespace control_plugin_base
 {
   struct FootStep {
     std::vector<std::array<double, 2>> zmp_pos;
+    double walking_step_time;
   };
 
   class FootStepPlanner {
