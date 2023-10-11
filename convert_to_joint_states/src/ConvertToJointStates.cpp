@@ -43,8 +43,8 @@ namespace convert_to_joint_states
 
     // 時間
     float t = 0;
-    float T_sup = 0.8;
-    float T_dsup = 0.5;
+    float T_sup = 0.8;  // 歩行周期
+    float T_dsup = 0.5;  // 両脚支持期間
     float walking_time = 0;
     float walking_time_max = 5.6;  // TODO: この、歩行パラメータ最終着地時間[s]は引数で得る必要がある
 

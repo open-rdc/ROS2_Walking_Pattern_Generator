@@ -16,6 +16,7 @@ namespace foot_step_planner
       {0.12, 0.037},
       {0.12, 0.037}
     };
+    foot_step_ptr->waist_height = 171.856 / 1000;  // 腰高さ
 
     return foot_step_ptr;
   }
