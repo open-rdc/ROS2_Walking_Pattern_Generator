@@ -68,8 +68,6 @@ namespace walking_pattern_generator
     S = std::sinh(T_sup / T_c);
     C = std::cosh(T_sup / T_c);
     // 次の歩行素片のパラメータを計算 
-      // TODO: ココ、未定義動作。配列の外を参照している。修正するべき。
-      // CHECKME: １歩先の着地位置が常に定義されていないと思われ。これが歩行パターン生成のバグになっている可能性がある。修正するべき。
     x_bar = (foot_step_ptr->zmp_pos[walking_step + 1][0] - foot_step_ptr->zmp_pos[walking_step][0]) / 2;
     y_bar = (foot_step_ptr->zmp_pos[walking_step + 1][1] - foot_step_ptr->zmp_pos[walking_step][1]) / 2;
     dx_bar = ((C + 1) / (T_c * S)) * x_bar;
@@ -148,15 +146,39 @@ namespace walking_pattern_generator
         t = 0.01;
       }
 
-      // LOG: plot用
-      WPG_log_WalkingPttern << walking_pattern_ptr->cog_pos[control_step][0] << " " << walking_pattern_ptr->cog_pos[control_step][1]-(foot_step_ptr->zmp_pos[0][1]) << " " 
-                // << CoG_2D_Pos_local[control_step][0] << " " << CoG_2D_Pos_local[control_step][1]-(foot_step_ptr->zmp_pos[0][1]) << " " 
-                // << walking_pattern_ptr->cog_vel[control_step][0] << " " << walking_pattern_ptr->cog_vel[control_step][1] << " " 
-                << walking_pattern_ptr->zmp_pos[walking_step][0] << " " << walking_pattern_ptr->zmp_pos[walking_step][1]-(foot_step_ptr->zmp_pos[0][1]) << " " 
+      // 値の更新
+      control_step++;
+      walking_time += control_cycle;
+    }
+
+    // Y座標値の修正（右足->胴体）
+      // TODO: バカバカしいので、はじめから胴体投影点で歩行パターンを生成するようにしたい。
+    for(long unsigned int step = 0; step < walking_pattern_ptr->cog_pos.size()-1; step++) {
+      walking_pattern_ptr->cog_pos[step][1] -= foot_step_ptr->zmp_pos[0][1];
+    }
+    for(long unsigned int step = 0; walking_pattern_ptr->zmp_pos.size()-1; step++) {
+      walking_pattern_ptr->zmp_pos[step][1] -= foot_step_ptr->zmp_pos[0][1];
+    }
+
+    // LOG: plot用
+      // TODO: 胴体投影点で歩行パターンを生成すればココも不要になって、生成のループ内に記述できる。
+    walking_step = 0;
+    walking_time = 0;
+    control_step= 0;
+    t = 0;
+    walking_pattern_ptr->zmp_pos[walking_step][1] -= foot_step_ptr->zmp_pos[0][1];
+    while(walking_time <= walking_time_max) {
+      if(t < T_sup - 0.01) {
+        t += control_cycle;
+      }
+      else if(t >= T_sup - 0.01) {
+        walking_step++;
+        t = 0.01;
+      }
+      WPG_log_WalkingPttern << walking_pattern_ptr->cog_pos[control_step][0] << " " << walking_pattern_ptr->cog_pos[control_step][1] << " " 
+                << walking_pattern_ptr->zmp_pos[walking_step][0] << " " << walking_pattern_ptr->zmp_pos[walking_step][1] << " " 
                 << foot_step_ptr->zmp_pos[walking_step][0] << " " << foot_step_ptr->zmp_pos[walking_step][1]-(foot_step_ptr->zmp_pos[0][1])
       << std::endl;
-
-      // 値の更新
       control_step++;
       walking_time += control_cycle;
     }
