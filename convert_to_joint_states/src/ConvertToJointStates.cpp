@@ -417,11 +417,8 @@ namespace convert_to_joint_states
   }
 
   Default_ConvertToJointStates::Default_ConvertToJointStates() {
-    std::cout << "hoge"  << std::endl;
     ik_ = ik_loader.createSharedInstance("kinematics::Default_InverseKinematics");
-    std::cout << "gore" << std::endl;
     jac_ = jac_loader.createSharedInstance("kinematics::Default_Jacobian");
-    std::cout << "choge" << std::endl;
 
     // DEBUG
     UnitVec_legL_ = {
@@ -460,9 +457,7 @@ namespace convert_to_joint_states
       Eigen::Vector3d(0, 0, 0)
     };
     end_eff_rot = Eigen::Matrix3d::Identity();
-    std::cout << "hohhogege" << std::endl;
 
-// BUG: 以下、segmentation faultしている。
     legL_states_ik_ptr_->end_eff_rot = end_eff_rot;
     legR_states_ik_ptr_->end_eff_rot = end_eff_rot;
     legL_states_ik_ptr_->link_len = P_legL_waist_standard_;
@@ -472,7 +467,6 @@ namespace convert_to_joint_states
     legR_states_jac_ptr_->link_len = P_legR_waist_standard_;
     legL_states_jac_ptr_->unit_vec = UnitVec_legL_;
     legR_states_jac_ptr_->unit_vec = UnitVec_legR_;
-    std::cout << "iterator ctjs" << std::endl;  // BUG: ココまでにSegmentation Faultしている
   }
 }
 

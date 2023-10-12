@@ -30,10 +30,10 @@ namespace convert_to_joint_states
       std::shared_ptr<control_plugin_base::InverseKinematics> ik_;
       std::shared_ptr<control_plugin_base::Jacobian> jac_;
 
-      std::shared_ptr<control_plugin_base::LegStates_ToIK> legL_states_ik_ptr_;
-      std::shared_ptr<control_plugin_base::LegStates_ToIK> legR_states_ik_ptr_;
-      std::shared_ptr<control_plugin_base::LegStates_ToJac> legL_states_jac_ptr_;
-      std::shared_ptr<control_plugin_base::LegStates_ToJac> legR_states_jac_ptr_;
+      std::shared_ptr<control_plugin_base::LegStates_ToIK> legL_states_ik_ptr_ = std::make_shared<control_plugin_base::LegStates_ToIK>();
+      std::shared_ptr<control_plugin_base::LegStates_ToIK> legR_states_ik_ptr_ = std::make_shared<control_plugin_base::LegStates_ToIK>();
+      std::shared_ptr<control_plugin_base::LegStates_ToJac> legL_states_jac_ptr_ = std::make_shared<control_plugin_base::LegStates_ToJac>();
+      std::shared_ptr<control_plugin_base::LegStates_ToJac> legR_states_jac_ptr_ = std::make_shared<control_plugin_base::LegStates_ToJac>();
 
       std::array<Eigen::Vector3d, 6> UnitVec_legL_;
       std::array<Eigen::Vector3d, 6> UnitVec_legR_;
