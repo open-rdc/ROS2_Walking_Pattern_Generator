@@ -13,6 +13,7 @@ namespace walking_pattern_generator
       WPG_LinearInvertedPendulumModel(){}
 
     private:
+      ~WPG_LinearInvertedPendulumModel(){}
 
   };
 }

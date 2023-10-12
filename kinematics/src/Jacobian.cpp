@@ -8,7 +8,6 @@ namespace kinematics
     const std::shared_ptr<control_plugin_base::LegStates_ToJac> leg_states_jac_ptr,
     Eigen::Matrix<double, 6, 6>& leg_jacobian_ptr
   ) {
-    std::cout << "Call Jac" << std::endl;
     leg_jacobian_ptr = MatrixXd::Zero(6, leg_states_jac_ptr->unit_vec.max_size());
 
     std::array<Eigen::Vector3d, 6> P_FK_leg;
