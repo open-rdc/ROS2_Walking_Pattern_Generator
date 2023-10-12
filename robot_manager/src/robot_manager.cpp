@@ -25,8 +25,8 @@ int main(int argc, char** argv) {
   // pluginlib::ClassLoader<control_plugin_base::InverseKinematics> ik_loader("robot_manager", "control_plugin_base::InverseKinematics");
   // pluginlib::ClassLoader<control_plugin_base::Jacobian> jac_loader("robot_manager", "control_plugin_base::Jacobian");
 
-  // try
-  // {
+  try
+  {
     std::shared_ptr<control_plugin_base::WalkingPatternGenerator> wpg = wpg_loader.createSharedInstance("walking_pattern_generator::WPG_LinearInvertedPendulumModel");
     std::shared_ptr<control_plugin_base::FootStepPlanner> fsp = fsp_loader.createSharedInstance("foot_step_planner::Default_FootStepPlanner");
     std::shared_ptr<control_plugin_base::WalkingStabilizationController> wsc = wsc_loader.createSharedInstance("walking_stabilization_controller::Default_WalkingStabilizationController");
@@ -36,15 +36,19 @@ int main(int argc, char** argv) {
     // std::shared_ptr<control_plugin_base::Jacobian> jac = jac_loader.createSharedInstance("kinematics::Default_Jacobian");
 
 // Foot_Step_Planner
+    std::cout << "foot step planner" << std::endl;
     std::shared_ptr<control_plugin_base::FootStep> foot_step_ptr = fsp->foot_step_planner();
 
 // Walking_Pattern_Generator
+    std::cout << "walking pattern generator" << std::endl;
     std::shared_ptr<control_plugin_base::WalkingPattern> walking_pattern_ptr = wpg->walking_pattern_generator(foot_step_ptr);
 
 // Walking_Stabilization_Controller
+    std::cout << "walking stabilization controller" << std::endl;
     std::shared_ptr<control_plugin_base::WalkingStabilization> walking_stabilization_ptr = wsc->walking_stabilization_controller(walking_pattern_ptr);
 
 // Convert_to_Joint_States
+    std::cout << "convert to joint states" << std::endl;
     std::shared_ptr<control_plugin_base::LegJointStatesPattern> leg_joint_states_pat_ptr = ctjs->convert_into_joint_states(walking_stabilization_ptr);
 
     // // DEBUG: IK&FKの動作確認
@@ -97,11 +101,11 @@ int main(int argc, char** argv) {
     // jac->jacobian(legR_states_jac_ptr, legR_jacobian);  /// (引数, 返り値)
     // std::cout << legR_jacobian << std::endl;
     
-  // }
-  // catch(pluginlib::PluginlibException& ex)
-  // {
-  //   printf("ERROR!!: %s\n", ex.what());
-  // }
+  }
+  catch(pluginlib::PluginlibException& ex)
+  {
+    printf("ERROR!!: %s\n", ex.what());
+  }
   
   return 0;
 }

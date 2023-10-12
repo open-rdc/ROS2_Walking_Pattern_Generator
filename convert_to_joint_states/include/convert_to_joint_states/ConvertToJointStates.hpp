@@ -14,7 +14,7 @@
 
 namespace convert_to_joint_states
 {
-  pluginlib::ClassLoader<control_plugin_base::InverseKinematics> ik_loader("robot_manager", "control_plugin_base::InverseKinemtaics");
+  pluginlib::ClassLoader<control_plugin_base::InverseKinematics> ik_loader("robot_manager", "control_plugin_base::InverseKinematics");
   pluginlib::ClassLoader<control_plugin_base::Jacobian> jac_loader("robot_manager", "control_plugin_base::Jacobian");
 
   class Default_ConvertToJointStates : public control_plugin_base::ConvertToJointStates 
