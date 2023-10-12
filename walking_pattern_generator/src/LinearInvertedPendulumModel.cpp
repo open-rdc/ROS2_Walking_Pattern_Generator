@@ -151,12 +151,15 @@ namespace walking_pattern_generator
       walking_time += control_cycle;
     }
 
+// BUG: ココで、Segmentation Fault
     // Y座標値の修正（右足->胴体）
       // TODO: バカバカしいので、はじめから胴体投影点で歩行パターンを生成するようにしたい。
-    for(long unsigned int step = 0; step < walking_pattern_ptr->cog_pos.size()-1; step++) {
+    for(long unsigned int step = 0; step < walking_pattern_ptr->cog_pos.size(); step++) {
+      std::cout << step << std::endl;
       walking_pattern_ptr->cog_pos[step][1] -= foot_step_ptr->zmp_pos[0][1];
     }
-    for(long unsigned int step = 0; walking_pattern_ptr->zmp_pos.size()-1; step++) {
+    for(long unsigned int step = 0; step < walking_pattern_ptr->zmp_pos.size(); step++) {
+      std::cout << step << std::endl;
       walking_pattern_ptr->zmp_pos[step][1] -= foot_step_ptr->zmp_pos[0][1];
     }
 
@@ -166,7 +169,6 @@ namespace walking_pattern_generator
     walking_time = 0;
     control_step= 0;
     t = 0;
-    walking_pattern_ptr->zmp_pos[walking_step][1] -= foot_step_ptr->zmp_pos[0][1];
     while(walking_time <= walking_time_max) {
       if(t < T_sup - 0.01) {
         t += control_cycle;
