@@ -15,6 +15,7 @@ namespace kinematics
   class Default_Jacobian : public control_plugin_base::Jacobian {
     public:
       Default_Jacobian();
+      ~Default_Jacobian(){}
 
       void jacobian(
         const std::shared_ptr<control_plugin_base::LegStates_ToJac> leg_states_jac_ptr,

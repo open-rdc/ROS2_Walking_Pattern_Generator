@@ -20,11 +20,12 @@ namespace convert_to_joint_states
   class Default_ConvertToJointStates : public control_plugin_base::ConvertToJointStates 
   {
     public:
+      Default_ConvertToJointStates();
+      ~Default_ConvertToJointStates(){}
+
       std::unique_ptr<control_plugin_base::LegJointStatesPattern> convert_into_joint_states(
         const std::shared_ptr<control_plugin_base::WalkingStabilization> walking_stabilization_ptr
       ) override;
-
-      Default_ConvertToJointStates();
       
     private:
       std::shared_ptr<control_plugin_base::InverseKinematics> ik_;

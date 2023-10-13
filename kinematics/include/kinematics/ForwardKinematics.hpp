@@ -10,6 +10,9 @@ namespace kinematics
 {
   class Default_ForwardKinematics : public control_plugin_base::ForwardKinematics {
     public:
+      Default_ForwardKinematics(){}
+      ~Default_ForwardKinematics(){}
+
       void forward_kinematics(
         std::shared_ptr<control_plugin_base::LegStates_ToFK> leg_states_ptr,
         Eigen::Vector3d& end_eff_pos_ptr

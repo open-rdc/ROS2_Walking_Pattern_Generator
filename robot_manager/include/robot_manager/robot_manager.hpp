@@ -8,8 +8,8 @@ namespace robot_manager
   class RobotManager {
     public:
       RobotManager();
+      ~RobotManager(){}
     
     private:
-      ~RobotManager(){}
   };
 }

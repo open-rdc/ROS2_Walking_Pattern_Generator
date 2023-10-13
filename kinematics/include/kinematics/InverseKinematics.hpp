@@ -10,6 +10,9 @@ namespace kinematics
 {
   class Default_InverseKinematics : public control_plugin_base::InverseKinematics {
     public:
+      Default_InverseKinematics(){}
+      ~Default_InverseKinematics(){}
+
       void inverse_kinematics(
         const std::shared_ptr<control_plugin_base::LegStates_ToIK> leg_states_ptr,
         std::array<double, 6>& joint_ang_ptr
@@ -28,6 +31,8 @@ namespace kinematics
       double sign(double arg = 0);  // return 1 or -1 (argが>=0なら1, <0なら-1を返す)
 
       const float pi_ = 3.141593;  // 四捨五入済み
+    
+    private:
   };
 
 }  
