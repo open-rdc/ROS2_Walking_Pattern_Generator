@@ -69,8 +69,8 @@ namespace webots_robot_handler
     // for(int i = 0; i < 20; i++) {
     //   std::cout << callback_data->name[i] << "   " << callback_data->position[i] << "   " << callback_data->velocity[i] << std::endl;
     // }
-    WalkingPattern_Pos_legL_.resize(1);
-    WalkingPattern_Pos_legR_.resize(1);
+    // WalkingPattern_Pos_legL_.resize(1);
+    // WalkingPattern_Pos_legR_.resize(1);
     // WalkingPattern_Vel_legL_.resize(1);
     // WalkingPattern_Vel_legR_.resize(1);
     WalkingPattern_Pos_legL_[0] = {
@@ -107,31 +107,6 @@ namespace webots_robot_handler
     };
   }
 
-  // マネージャからのCallback関数
-  // TODO: Pub/Subなので、データの受取ミスが稀に起きる。stackに余裕を持たせているから1stepの抜け程度なら今は大丈夫。だが、データ落ちは０にしたい。
-  // void WebotsRobotHandler::ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data) {
-  //   // RCLCPP_INFO(node_->get_logger(), "subscribe...: [ %d ]", callback_data->counter);
-  //   WalkingPattern_Pos_legL_.push_back(callback_data->q_next_leg_l);
-  //   WalkingPattern_Pos_legR_.push_back(callback_data->q_next_leg_r);
-  //   WalkingPattern_Vel_legL_.push_back(callback_data->dq_next_leg_l);
-  //   WalkingPattern_Vel_legR_.push_back(callback_data->dq_next_leg_r);
-
-  //   // LOG: Pub/Subのデータ落ちを記録
-  //   // int diff = callback_data->counter - counter_old_;
-  //   // if(1 != diff) {
-  //   //   loss_count_++;
-  //   //   if(2 == diff) {
-  //   //     RCLCPP_WARN(node_->get_logger(), "WalkingPattern Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+1);
-  //   //   }
-  //   //   else {
-  //   //     for(int loss_step = 1; loss_step <= diff; loss_step++) {
-  //   //       RCLCPP_WARN(node_->get_logger(), "WalkingPattern Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+loss_step);
-  //   //     }
-  //   //   }
-  //   // }
-  //   // counter_old_ = callback_data->counter;
-  // }
-
   void WebotsRobotHandler::init(
     webots_ros2_driver::WebotsNode *node,
     std::unordered_map<std::string, std::string> &parameters
@@ -143,13 +118,8 @@ namespace webots_robot_handler
 
     using namespace std::placeholders;
 
-    // pub_feedback_ = node_->create_publisher<msgs_package::msg::Feedback>("Feedback", custom_QoS);
-    // sub_control_output_ = node_->create_subscription<msgs_package::msg::ControlOutput>("ControlOutput", custom_QoS, std::bind(&WebotsRobotHandler::ControlOutput_Callback, this, _1));
-
     // CHECKME
     sub_joint_state_ = node_->create_subscription<sensor_msgs::msg::JointState>("joint_states", 10, std::bind(&WebotsRobotHandler::JointStates_Callback, this, _1));
-
-//    pub_feedback_msg_ = std::make_shared<msgs_package::msg::Feedback>();
 
     // DEBUG: parameter setting
     DEBUG_ParameterSetting();
@@ -188,99 +158,13 @@ namespace webots_robot_handler
       wait_step--;
     }
     else {
-    // // DEBUG: 200は決め打ち。余裕があったほうがいいだろうという判断。
-    // // else if((wait_step == 0)  && (0 <= int(WalkingPattern_Pos_legL_.size()))) {
-    // else if((wait_step == 0)) {
-
-    //   // get feedback data
-    //   for(int tag = 0; tag < int(jointNum_legR_.size()); tag++) {
-    //     // getJointAng_[tag] = wb_position_sensor_get_value(positionSensorsTag_[tag]);
-    //     Q_legR_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legR_[tag]]);
-    //     Q_legL_[tag] =  wb_position_sensor_get_value(positionSensorsTag_[jointNum_legL_[tag]]);
-    //   }
-    //   accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);  // TODO: 512基準の実数１つだけ。３軸全部getしたい。
-    //   gyroValue_ = wb_gyro_get_values(gyroTag_);  // TODO: 上に同じ。変数の型から変える必要がある。
-
-/* Accelerometer & Gyro. Darwin-op.proto 仕様
-source: https://github.com/cyberbotics/webots/blob/master/projects/robots/robotis/darwin-op/protos/Darwin-op.proto
-      
-      Accelerometer {
-        translation -0.01 0 -0.068
-        rotation 0 0 1.0 -1.5708  # z軸基準に座標を-90°回転 (x -> -y, y -> x, z -> z)
-        name "Accelerometer"
-        lookupTable [
-          -39.24 0 0 39.24 1024 0
-        ]
+      for(int tag = 0; tag < 6; tag++) {
+        wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]);  // DEBUG: control_Step -> 0
+        wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Vel_legR_[0][tag]);
+        wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]);
+        wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Vel_legL_[0][tag]);
       }
-      Gyro {
-        translation 0.01 0 -0.068
-        rotation 0 0 1.0 -3.1416  # z軸基準に座標を-180°回転 (x -> -x, y -> -y, z -> z)
-        name "Gyro"
-        lookupTable [
-          -27.925 0 0 27.925 1024 0
-        ]
-      }
-
-    Offset (センサデータ出力値より推測)
-    Acce
-      x: 512
-      y: 512
-      z: 640
-    Gyro
-      x: 512
-      y: 512
-      z: 512
-
-reference:
-  acce: https://github.com/cyberbotics/webots/blob/master/docs/reference/accelerometer.md
-  gyro: https://github.com/cyberbotics/webots/blob/master/docs/reference/gyro.md
-*/
-
-      // pub_feedback_msg_->step_count = control_step;
-      // pub_feedback_msg_->q_now_leg_r = Q_legR_;
-      // pub_feedback_msg_->q_now_leg_l = Q_legL_;
-      // pub_feedback_msg_->accelerometer_now[0] =  (accelerometerValue_[1]-512);  // y ->  x : x <-  y
-      // pub_feedback_msg_->accelerometer_now[1] = -(accelerometerValue_[0]-512);  // x -> -y : y <- -x
-      // pub_feedback_msg_->accelerometer_now[2] =  (accelerometerValue_[2]-640);  // z ->  z : z <-  z
-      // pub_feedback_msg_->gyro_now[0] = -(gyroValue_[0]-512);  // x -> -x : x <- -x
-      // pub_feedback_msg_->gyro_now[1] = -(gyroValue_[1]-512);  // y -> -y : y <- -y
-      // pub_feedback_msg_->gyro_now[2] =  (gyroValue_[2]-512);  // z ->  z : z <-  z
-
-      // publish feedback
-      // pub_feedback_->publish(*pub_feedback_msg_);
-
-      // 歩行パターンが存在するか. 歩行パターンを全部読み切ったかどうか
-      // TODO: control_stepは良くないのでは？
-      // if(control_step <= int(WalkingPattern_Pos_legR_.size()-1)) {
-      // if(true) {  // DEBUG:
-        // set joints angle & velocity
-        // for(int i = 0; i < 6; i++) {
-        //   std::cout << WalkingPattern_Pos_legL_[0][i] << "   " << WalkingPattern_Pos_legR_[0][i] << "   " << WalkingPattern_Vel_legL_[0][i] << "   " << WalkingPattern_Vel_legR_[0][i];
-        // }
-        // for(int tag = 0; tag < 6; tag++) {
-        //   wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]*jointAng_posi_or_nega_legR_[tag]);  // DEBUG: control_Step -> 0
-        //   wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], std::abs(WalkingPattern_Vel_legR_[0][tag]));  // マイナスだと怒られるので、絶対値を取る
-        //   wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]*jointAng_posi_or_nega_legL_[tag]);
-        //   wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], std::abs(WalkingPattern_Vel_legL_[0][tag]));
-        // }
-        for(int tag = 0; tag < 6; tag++) {
-          wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]);  // DEBUG: control_Step -> 0
-          wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Vel_legR_[0][tag]);  // マイナスだと怒られるので、絶対値を取る
-          wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]);
-          wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Vel_legL_[0][tag]);
-        }
-        // // CHECKME: 読んだ歩行パターンを削除
-        // WalkingPattern_Pos_legR_.erase(WalkingPattern_Pos_legR_.begin());  // CHECKME: 始端の削除。.begin()のほうが可読性が高いと思う。
-        // WalkingPattern_Vel_legR_.erase(WalkingPattern_Vel_legR_.begin());  
-        // WalkingPattern_Pos_legL_.erase(WalkingPattern_Pos_legL_.begin()); 
-        // WalkingPattern_Vel_legL_.erase(WalkingPattern_Vel_legL_.begin()); 
-
-      // }
-
-      // control_step++;  // DEBUG: 
-    // }
-    // simu_step++;  // DEBUG:
-  }
+    }
   }
 
 }

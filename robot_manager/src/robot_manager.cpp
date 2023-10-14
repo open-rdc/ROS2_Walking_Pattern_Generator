@@ -1,17 +1,97 @@
-#include "rclcpp/rclcpp.hpp"
-#include "pluginlib/class_loader.hpp"
-
-#include "robot_manager/control_plugin_bases/PluginBase_FootStepPlanner.hpp"
-#include "robot_manager/control_plugin_bases/PluginBase_WalkingPatternGenerator.hpp"
-#include "robot_manager/control_plugin_bases/PluginBase_WalkingStabilizationController.hpp"
-#include "robot_manager/control_plugin_bases/PluginBase_ConvertToJointStates.hpp"
-#include "robot_manager/control_plugin_bases/PluginBase_ForwardKinematics.hpp"
-#include "robot_manager/control_plugin_bases/PluginBase_InverseKinematics.hpp"
-#include "robot_manager/control_plugin_bases/PluginBase_Jacobian.hpp"
+#include "robot_manager/robot_manager.hpp"
 
 #include "Eigen/Dense"
 
 using namespace Eigen;
+
+namespace robot_manager
+{
+  void Step() {
+    // 歩行パターンを1stepごとPublish
+    // TODO: データの重要性からして、ここはServiceのほうがいい気がするんだ。
+    // TODO: Pub/Subだから仕方がないが、データの受取ミスが発生する。
+    for(int step = 0; step < int(WalkingPattern_Pos_legL_.size()); step++) {
+      // pub_msg->q_next_leg_l = WalkingPattern_Pos_legL_[step];
+      // pub_msg->q_next_leg_r = WalkingPattern_Pos_legR_[step];
+      // pub_msg->dq_next_leg_l = WalkingPattern_Vel_legL_[step];
+      // pub_msg->dq_next_leg_r = WalkingPattern_Vel_legR_[step];
+      // pub_msg->counter = step;
+      // RCLCPP_INFO(this->get_logger(), "publish...: [ %d ]", pub_msg->counter);
+      auto now_time = rclcpp::Clock().now();
+      pub_msg->header.stamp = now_time;
+      for(uint8_t th = 0; th < 6; th++) {
+        pub_msg->position.at(legL_num.at(th)) = WalkingPattern_Pos_legL_.at(step).at(th) * jointAng_posi_or_nega_legL_.at(th);
+        pub_msg->position.at(legR_num.at(th)) = WalkingPattern_Pos_legR_.at(step).at(th) * jointAng_posi_or_nega_legR_.at(th); 
+        pub_msg->velocity.at(legL_num.at(th)) = std::abs(WalkingPattern_Vel_legL_.at(step).at(th));
+        pub_msg->velocity.at(legR_num.at(th)) = std::abs(WalkingPattern_Vel_legR_.at(step).at(th));
+      }
+      pub_walking_pattern_->publish(*pub_msg);
+      rclcpp::sleep_for(10ms);
+    }
+  }
+
+  RobotManager::RobotManager() {
+    // CHECKME
+    pub_walking_pattern_ = this->create_publisher<sensor_msgs::msg::JointState>("joint_states", 5);
+    auto pub_msg = std::make_shared<sensor_msgs::msg::JointState>();
+
+    // DEBUG: parameter setting
+    DEBUG_ParameterSetting();
+
+    // 歩行パターン生成
+    WalkingPatternGenerate();
+    RCLCPP_INFO(this->get_logger(), "Create Walking Pattern.");
+
+    // DEBUG: etting /joint_states pub_msg
+    // TODO: これはParameterServerからやりたい。
+    std::vector<std::string> name = {
+        "head_pan",
+        "head_tilt",
+        "l_sho_pitch",
+        "l_sho_roll",
+        "l_el",
+        "r_sho_pitch",
+        "r_sho_roll",
+        "r_el",
+        "l_hip_yaw",
+        "l_hip_roll",
+        "l_hip_pitch",
+        "l_knee",
+        "l_ank_pitch",
+        "l_ank_roll",
+        "r_hip_yaw",
+        "r_hip_roll",
+        "r_hip_pitch",
+        "r_knee",
+        "r_ank_pitch",
+        "r_ank_roll"
+    };
+    std::array<uint8_t, 6> legL_num = { 8,  9, 10, 11, 12, 13};
+    std::array<uint8_t, 6> legR_num = {14, 15, 16, 17, 18, 19};
+    std::array<int8_t, 6> jointAng_posi_or_nega_legR_ = {-1, -1, 1, 1, -1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
+    std::array<int8_t, 6> jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
+    pub_msg->name.resize(20);
+    pub_msg->position.resize(20);
+    pub_msg->velocity.resize(20);
+    for(uint8_t th = 0; th < 20; th++) {
+      pub_msg->name.at(th) = name.at(th);
+      pub_msg->position.at(th) = 0.0;
+      pub_msg->velocity.at(th) = 0.0;
+    }
+
+    // 確実にstep0から送れるようにsleep
+    // TODO: Handler側が何かしらのシグナルを出したらPubするようにしたい。
+    for(uint16_t step = 0; step < 1000; step++) {
+      auto now_time = rclcpp::Clock().now();
+      pub_msg->header.stamp = now_time;
+      pub_walking_pattern_->publish(*pub_msg);
+      rclcpp::sleep_for(10ms);
+    }
+    RCLCPP_INFO(this->get_logger(), "Publisher.");
+
+
+  }
+}
 
 int main(int argc, char** argv) {
   (void) argc;
