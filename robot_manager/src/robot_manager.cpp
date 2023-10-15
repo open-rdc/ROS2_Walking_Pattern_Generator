@@ -1,48 +1,66 @@
 #include "robot_manager/robot_manager.hpp"
 
-#include "Eigen/Dense"
-
-using namespace Eigen;
+using namespace std::chrono_literals;
 
 namespace robot_manager
 {
-  void Step() {
+  void RobotManager::Step() {
+
+    // Foot_Step_Planner
+    std::cout << "foot step planner" << std::endl;
+    foot_step_ptr_ = fsp_->foot_step_planner();
+
+    // Walking_Pattern_Generator
+    std::cout << "walking pattern generator" << std::endl;
+    walking_pattern_ptr_ = wpg_->walking_pattern_generator(foot_step_ptr_);
+
+    // Walking_Stabilization_Controller
+    std::cout << "walking stabilization controller" << std::endl;
+    walking_stabilization_ptr_ = wsc_->walking_stabilization_controller(walking_pattern_ptr_);
+
+    // Convert_to_Joint_States
+    std::cout << "convert to joint states" << std::endl;
+    leg_joint_states_pat_ptr_ = ctjs_->convert_into_joint_states(walking_stabilization_ptr_);
+
     // 歩行パターンを1stepごとPublish
     // TODO: データの重要性からして、ここはServiceのほうがいい気がするんだ。
-    // TODO: Pub/Subだから仕方がないが、データの受取ミスが発生する。
-    for(int step = 0; step < int(WalkingPattern_Pos_legL_.size()); step++) {
-      // pub_msg->q_next_leg_l = WalkingPattern_Pos_legL_[step];
-      // pub_msg->q_next_leg_r = WalkingPattern_Pos_legR_[step];
-      // pub_msg->dq_next_leg_l = WalkingPattern_Vel_legL_[step];
-      // pub_msg->dq_next_leg_r = WalkingPattern_Vel_legR_[step];
-      // pub_msg->counter = step;
-      // RCLCPP_INFO(this->get_logger(), "publish...: [ %d ]", pub_msg->counter);
-      auto now_time = rclcpp::Clock().now();
-      pub_msg->header.stamp = now_time;
-      for(uint8_t th = 0; th < 6; th++) {
-        pub_msg->position.at(legL_num.at(th)) = WalkingPattern_Pos_legL_.at(step).at(th) * jointAng_posi_or_nega_legL_.at(th);
-        pub_msg->position.at(legR_num.at(th)) = WalkingPattern_Pos_legR_.at(step).at(th) * jointAng_posi_or_nega_legR_.at(th); 
-        pub_msg->velocity.at(legL_num.at(th)) = std::abs(WalkingPattern_Vel_legL_.at(step).at(th));
-        pub_msg->velocity.at(legR_num.at(th)) = std::abs(WalkingPattern_Vel_legR_.at(step).at(th));
-      }
-      pub_walking_pattern_->publish(*pub_msg);
-      rclcpp::sleep_for(10ms);
+    // TODO: Pub/Subだから仕方がないが、データの受取ミスが発生する可能性がある。
+    auto now_time = rclcpp::Clock().now();
+    pub_joint_states_msg_->header.stamp = now_time;
+    for(uint8_t th = 0; th < 6; th++) {
+      // CHECKME: WSCとCTJSの型を単位Step用に修正したら、配列に[0]が不要になる。
+      pub_joint_states_msg_->position.at(legL_num_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legL[0].at(th) * jointAng_posi_or_nega_legL_.at(th);
+      pub_joint_states_msg_->position.at(legR_num_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legR[0].at(th) * jointAng_posi_or_nega_legR_.at(th); 
+      pub_joint_states_msg_->velocity.at(legL_num_.at(th)) = std::abs(leg_joint_states_pat_ptr_->joint_vel_pat_legL[0].at(th));
+      pub_joint_states_msg_->velocity.at(legR_num_.at(th)) = std::abs(leg_joint_states_pat_ptr_->joint_vel_pat_legR[0].at(th));
     }
+    pub_joint_states_->publish(*pub_joint_states_msg_);
   }
 
-  RobotManager::RobotManager() {
-    // CHECKME
-    pub_walking_pattern_ = this->create_publisher<sensor_msgs::msg::JointState>("joint_states", 5);
-    auto pub_msg = std::make_shared<sensor_msgs::msg::JointState>();
+  RobotManager::RobotManager(
+    const rclcpp::NodeOptions& options
+  ) : Node("RobotManager", options) {
+    // plugins
+    try {
+      // load classes
+      pluginlib::ClassLoader<control_plugin_base::WalkingPatternGenerator> wpg_loader("robot_manager", "control_plugin_base::WalkingPatternGenerator");
+      pluginlib::ClassLoader<control_plugin_base::FootStepPlanner> fsp_loader("robot_manager", "control_plugin_base::FootStepPlanner");
+      pluginlib::ClassLoader<control_plugin_base::WalkingStabilizationController> wsc_loader("robot_manager", "control_plugin_base::WalkingStabilizationController");
+      pluginlib::ClassLoader<control_plugin_base::ConvertToJointStates> ctjs_loader("robot_manager", "control_plugin_base::ConvertToJointStates");
+      // create instances
+      fsp_ = fsp_loader.createSharedInstance("foot_step_planner::Default_FootStepPlanner");
+      wpg_ = wpg_loader.createSharedInstance("walking_pattern_generator::WPG_LinearInvertedPendulumModel");
+      wsc_ = wsc_loader.createSharedInstance("walking_stabilization_controller::Default_WalkingStabilizationController");
+      ctjs_ = ctjs_loader.createSharedInstance("convert_to_joint_states::Default_ConvertToJointStates");
+    }
+    catch(pluginlib::PluginlibException& ex) {
+      RCLCPP_ERROR(this->get_logger(), "%s", ex.what());
+    }
 
-    // DEBUG: parameter setting
-    DEBUG_ParameterSetting();
+    // publisher
+    pub_joint_states_ = this->create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
 
-    // 歩行パターン生成
-    WalkingPatternGenerate();
-    RCLCPP_INFO(this->get_logger(), "Create Walking Pattern.");
-
-    // DEBUG: etting /joint_states pub_msg
+    // DEBUG: setting /joint_states pub_joint_states_msg_
     // TODO: これはParameterServerからやりたい。
     std::vector<std::string> name = {
         "head_pan",
@@ -66,25 +84,25 @@ namespace robot_manager
         "r_ank_pitch",
         "r_ank_roll"
     };
-    std::array<uint8_t, 6> legL_num = { 8,  9, 10, 11, 12, 13};
-    std::array<uint8_t, 6> legR_num = {14, 15, 16, 17, 18, 19};
-    std::array<int8_t, 6> jointAng_posi_or_nega_legR_ = {-1, -1, 1, 1, -1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
-    std::array<int8_t, 6> jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
-    pub_msg->name.resize(20);
-    pub_msg->position.resize(20);
-    pub_msg->velocity.resize(20);
+    legL_num_ = { 8,  9, 10, 11, 12, 13};
+    legR_num_ = {14, 15, 16, 17, 18, 19};
+    jointAng_posi_or_nega_legR_ = {-1, -1, 1, 1, -1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
+    jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
+    pub_joint_states_msg_->name.resize(20);
+    pub_joint_states_msg_->position.resize(20);
+    pub_joint_states_msg_->velocity.resize(20);
     for(uint8_t th = 0; th < 20; th++) {
-      pub_msg->name.at(th) = name.at(th);
-      pub_msg->position.at(th) = 0.0;
-      pub_msg->velocity.at(th) = 0.0;
+      pub_joint_states_msg_->name.at(th) = name.at(th);
+      pub_joint_states_msg_->position.at(th) = 0.0;
+      pub_joint_states_msg_->velocity.at(th) = 0.0;
     }
 
     // 確実にstep0から送れるようにsleep
     // TODO: Handler側が何かしらのシグナルを出したらPubするようにしたい。
     for(uint16_t step = 0; step < 1000; step++) {
       auto now_time = rclcpp::Clock().now();
-      pub_msg->header.stamp = now_time;
-      pub_walking_pattern_->publish(*pub_msg);
+      pub_joint_states_msg_->header.stamp = now_time;
+      pub_joint_states_->publish(*pub_joint_states_msg_);
       rclcpp::sleep_for(10ms);
     }
     RCLCPP_INFO(this->get_logger(), "Publisher.");
@@ -93,43 +111,47 @@ namespace robot_manager
   }
 }
 
-int main(int argc, char** argv) {
-  (void) argc;
-  (void) argv;
+// int main(int argc, char** argv) {
+//   (void) argc;
+//   (void) argv;
 
-  pluginlib::ClassLoader<control_plugin_base::WalkingPatternGenerator> wpg_loader("robot_manager", "control_plugin_base::WalkingPatternGenerator");
-  pluginlib::ClassLoader<control_plugin_base::FootStepPlanner> fsp_loader("robot_manager", "control_plugin_base::FootStepPlanner");
-  pluginlib::ClassLoader<control_plugin_base::WalkingStabilizationController> wsc_loader("robot_manager", "control_plugin_base::WalkingStabilizationController");
-  pluginlib::ClassLoader<control_plugin_base::ConvertToJointStates> ctjs_loader("robot_manager", "control_plugin_base::ConvertToJointStates");
-  // pluginlib::ClassLoader<control_plugin_base::ForwardKinematics> fk_loader("robot_manager", "control_plugin_base::ForwardKinematics");
-  // pluginlib::ClassLoader<control_plugin_base::InverseKinematics> ik_loader("robot_manager", "control_plugin_base::InverseKinematics");
-  // pluginlib::ClassLoader<control_plugin_base::Jacobian> jac_loader("robot_manager", "control_plugin_base::Jacobian");
+//   // pluginlib::ClassLoader<control_plugin_base::ForwardKinematics> fk_loader("robot_manager", "control_plugin_base::ForwardKinematics");
+//   // pluginlib::ClassLoader<control_plugin_base::InverseKinematics> ik_loader("robot_manager", "control_plugin_base::InverseKinematics");
+//   // pluginlib::ClassLoader<control_plugin_base::Jacobian> jac_loader("robot_manager", "control_plugin_base::Jacobian");
 
-  try
-  {
-    std::shared_ptr<control_plugin_base::WalkingPatternGenerator> wpg = wpg_loader.createSharedInstance("walking_pattern_generator::WPG_LinearInvertedPendulumModel");
-    std::shared_ptr<control_plugin_base::FootStepPlanner> fsp = fsp_loader.createSharedInstance("foot_step_planner::Default_FootStepPlanner");
-    std::shared_ptr<control_plugin_base::WalkingStabilizationController> wsc = wsc_loader.createSharedInstance("walking_stabilization_controller::Default_WalkingStabilizationController");
-    std::shared_ptr<control_plugin_base::ConvertToJointStates> ctjs = ctjs_loader.createSharedInstance("convert_to_joint_states::Default_ConvertToJointStates");
-    // std::shared_ptr<control_plugin_base::ForwardKinematics> fk = fk_loader.createSharedInstance("kinematics::Default_ForwardKinematics");
-    // std::shared_ptr<control_plugin_base::InverseKinematics> ik = ik_loader.createSharedInstance("kinematics::Default_InverseKinematics");
-    // std::shared_ptr<control_plugin_base::Jacobian> jac = jac_loader.createSharedInstance("kinematics::Default_Jacobian");
+//   try
+//   {
+//     fsp_ = fsp_loader.createSharedInstance("foot_step_planner::Default_FootStepPlanner");
+//     wpg_ = wpg_loader.createSharedInstance("walking_pattern_generator::WPG_LinearInvertedPendulumModel");
+//     wsc_ = wsc_loader.createSharedInstance("walking_stabilization_controller::Default_WalkingStabilizationController");
+//     ctjs_ = ctjs_loader.createSharedInstance("convert_to_joint_states::Default_ConvertToJointStates");
+//     // std::shared_ptr<control_plugin_base::ForwardKinematics> fk = fk_loader.createSharedInstance("kinematics::Default_ForwardKinematics");
+//     // std::shared_ptr<control_plugin_base::InverseKinematics> ik = ik_loader.createSharedInstance("kinematics::Default_InverseKinematics");
+//     // std::shared_ptr<control_plugin_base::Jacobian> jac = jac_loader.createSharedInstance("kinematics::Default_Jacobian");
 
-// Foot_Step_Planner
-    std::cout << "foot step planner" << std::endl;
-    std::shared_ptr<control_plugin_base::FootStep> foot_step_ptr = fsp->foot_step_planner();
+// // Foot_Step_Planner
+//     std::cout << "foot step planner" << std::endl;
+//     foot_step_ptr_ = fsp_->foot_step_planner();
 
-// Walking_Pattern_Generator
-    std::cout << "walking pattern generator" << std::endl;
-    std::shared_ptr<control_plugin_base::WalkingPattern> walking_pattern_ptr = wpg->walking_pattern_generator(foot_step_ptr);
+// // Walking_Pattern_Generator
+//     std::cout << "walking pattern generator" << std::endl;
+//     walking_pattern_ptr_ = wpg_->walking_pattern_generator(foot_step_ptr);
 
-// Walking_Stabilization_Controller
-    std::cout << "walking stabilization controller" << std::endl;
-    std::shared_ptr<control_plugin_base::WalkingStabilization> walking_stabilization_ptr = wsc->walking_stabilization_controller(walking_pattern_ptr);
+// // Walking_Stabilization_Controller
+//     std::cout << "walking stabilization controller" << std::endl;
+//     walking_stabilization_ptr_ = wsc_->walking_stabilization_controller(walking_pattern_ptr);
 
-// Convert_to_Joint_States
-    std::cout << "convert to joint states" << std::endl;
-    std::shared_ptr<control_plugin_base::LegJointStatesPattern> leg_joint_states_pat_ptr = ctjs->convert_into_joint_states(walking_stabilization_ptr);
+// // Convert_to_Joint_States
+//     std::cout << "convert to joint states" << std::endl;
+//     leg_joint_states_pat_ptr_ = ctjs_->convert_into_joint_states(walking_stabilization_ptr);
+//   }
+//   catch(pluginlib::PluginlibException& ex)
+//   {
+//     printf("ERROR!!: %s\n", ex.what());
+//   }
+  
+//   return 0;
+// }
 
     // // DEBUG: IK&FKの動作確認
     // std::array<double, 6> legR_joint_ang;
@@ -180,12 +202,3 @@ int main(int argc, char** argv) {
     // Matrix<double, 6, 6> legR_jacobian;
     // jac->jacobian(legR_states_jac_ptr, legR_jacobian);  /// (引数, 返り値)
     // std::cout << legR_jacobian << std::endl;
-    
-  }
-  catch(pluginlib::PluginlibException& ex)
-  {
-    printf("ERROR!!: %s\n", ex.what());
-  }
-  
-  return 0;
-}
