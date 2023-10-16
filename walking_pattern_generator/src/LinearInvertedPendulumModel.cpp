@@ -189,6 +189,165 @@ namespace walking_pattern_generator
 
     // std::cout << "Here is wpg_linear_inverted_pendulum_model plugin." << std::endl;
 
+// TODO: CTJSから足の軌道計算プログラムを移行
+//     while(walking_time <= walking_time_max) {
+
+//       // 支持脚切替タイミングの判定
+//       if(t >= T_sup - 0.01) {
+//         // 支持脚切替のための更新
+//         t = 0;
+//         walking_step++;
+//       }
+
+//       // // 位置の基準を修正（Y軸基準を右足裏から胴体中心へ）
+//       // walking_stabilization_ptr->cog_pos_fix[control_step][1] -= Initwalking_stabilization_ptr->zmp_pos_fixy;
+
+//       // 遊脚軌道（正弦波）の計算
+//       // TODO: 両脚支持期間は支持脚切替時に重心速度が急激に変化しないようにするために設けるものである。
+//       if(t >= T_dsup/2 && t <= T_sup-T_dsup/2) {  // 片足支持期
+//         old_swing_trajectory = swing_trajectory;
+//         swing_trajectory = height_leg_lift * std::sin((3.141592/(T_sup-T_dsup))*(t-T_dsup/2));  
+//         vel_swing_trajectory = ((swing_trajectory - old_swing_trajectory) / control_cycle);
+//       }
+//       else {  // 両脚支持期
+//         swing_trajectory = 0.0;
+//         old_swing_trajectory = 0.0;
+//         vel_swing_trajectory = 0.0;
+//       }
+
+//       // LOG: 遊脚軌道に関するlogの取得
+//       // WPG_log_SwingTrajectory << swing_trajectory << " " << old_swing_trajectory << " " << (swing_trajectory-old_swing_trajectory) << std::endl;      
+
+// //=====足の軌道計算
+// // TODO: ココはWalkingPatternGeneratorに実装するべき。そのほうがコードもまとまる。
+//   // walking_stepとcontrol_stepを使っている、かつstepの前後も用いているので、毎step呼ばれて計算を行うのが汚くなる。
+//       if(walking_stabilization_ptr->zmp_pos_fix[walking_step][1] == 0) {  // 歩行開始時、終了時
+//         int ref_ws; 
+//         if(walking_step == 0) {  // 歩行開始時
+//           ref_ws = walking_step+1;
+//         }
+//         else {  // 開始時以外
+//           ref_ws = walking_step-1;
+//         }
+//         if(walking_stabilization_ptr->zmp_pos_fix[ref_ws][1] >= 0) {  // 左脚支持
+//           Foot_3D_Pos = {  // 左足
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],
+//             0.037-walking_stabilization_ptr->cog_pos_fix[control_step][1],
+//             -length_leg
+//           };
+//           Foot_3D_Pos_Swing = {  // 右足
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],
+//             -0.037-walking_stabilization_ptr->cog_pos_fix[control_step][1],
+//             -length_leg
+//           };
+//         }
+//         else if(walking_stabilization_ptr->zmp_pos_fix[ref_ws][1] < 0) {  // 右脚支持
+//           Foot_3D_Pos = {  // 右足
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],
+//             -0.037-walking_stabilization_ptr->cog_pos_fix[control_step][1],
+//             -length_leg
+//           };
+//           Foot_3D_Pos_Swing = {  // 左足
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],
+//             0.037-walking_stabilization_ptr->cog_pos_fix[control_step][1],
+//             -length_leg
+//           };
+//         }
+//       }
+//       else if(walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1] == 0) {  // 歩行開始から1step後
+//         // 支持脚
+//         Foot_3D_Pos = {  
+//           walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],  // x 
+//           walking_stabilization_ptr->zmp_pos_fix[walking_step][1]-walking_stabilization_ptr->cog_pos_fix[control_step][1],  // y 
+//           -length_leg  // z 
+//         };
+//         // 遊脚
+//         if(t <= T_dsup/2) {  // 両脚支持（前半）
+//           Foot_3D_Pos_Swing = {
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1])*(t/(T_sup)))-walking_stabilization_ptr->cog_pos_fix[control_step][1], 
+//             -length_leg
+//           };
+//         }
+//         else if(t >= T_sup-T_dsup/2) {  // 両脚支持（後半）
+//           Foot_3D_Pos_Swing = {
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0], 
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1])*(t/(T_sup)))-walking_stabilization_ptr->cog_pos_fix[control_step][1], 
+//             -length_leg
+//           };
+//         }
+//         else {  // 片脚支持
+//           Foot_3D_Pos_Swing = {
+//             ((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0])*((t-T_dsup/2)/(T_sup-T_dsup))),
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1])*(t/(T_sup)))-walking_stabilization_ptr->cog_pos_fix[control_step][1],
+//             -length_leg + swing_trajectory // z (遊脚軌道をzから引く) 
+//           };
+//         }
+
+//       }
+//       else if(walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1] == 0) {  // 歩行終了から1step前
+//         // 支持脚
+//         Foot_3D_Pos = {
+//           walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],  // x 
+//           walking_stabilization_ptr->zmp_pos_fix[walking_step][1]-walking_stabilization_ptr->cog_pos_fix[control_step][1],  // y  
+//           -length_leg  // z 
+//         };
+//         // 遊脚
+//         if(t <= T_dsup/2) {  // 両脚支持（前半）
+//           Foot_3D_Pos_Swing = {
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],  
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(T_sup)))-walking_stabilization_ptr->cog_pos_fix[control_step][1],  
+//             -length_leg
+//           };
+//         }
+//         else if(t >= T_sup-T_dsup/2) {  // 両脚支持（後半）
+//           Foot_3D_Pos_Swing = {
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0], 
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(T_sup)))-walking_stabilization_ptr->cog_pos_fix[control_step][1], 
+//             -length_leg
+//           };
+//         }
+//         else {  // 片脚支持
+//           Foot_3D_Pos_Swing = {
+//             ((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0])*((t-T_dsup/2)/(T_sup-T_dsup)))-(walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0]), 
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(T_sup)))-walking_stabilization_ptr->cog_pos_fix[control_step][1],
+//             -length_leg + swing_trajectory
+//           };
+//         }
+//       }
+//       else {  // 歩行中
+//         // 支持脚
+//         Foot_3D_Pos = {
+//           walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],  // x 
+//           walking_stabilization_ptr->zmp_pos_fix[walking_step][1]-walking_stabilization_ptr->cog_pos_fix[control_step][1],  // y
+//           -length_leg  // z 
+//         };
+//         // 遊脚
+//         if(t <= T_dsup/2) {  // 両脚支持（前半）
+//           Foot_3D_Pos_Swing = {
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0], 
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(T_sup)))-walking_stabilization_ptr->cog_pos_fix[control_step][1], 
+//             -length_leg
+//           };
+//         }
+//         else if(t >= T_sup-T_dsup/2) {  // 両脚支持（後半）
+//           Foot_3D_Pos_Swing = {
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0], 
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(T_sup)))-walking_stabilization_ptr->cog_pos_fix[control_step][1], 
+//             -length_leg
+//           };
+//         }
+//         else {  // 片脚支持
+//           Foot_3D_Pos_Swing = {
+//             ((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0])*((t-T_dsup/2)/(T_sup-T_dsup)))-((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0]) / 2),  
+//             walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(T_sup)))-walking_stabilization_ptr->cog_pos_fix[control_step][1],
+//             -length_leg + swing_trajectory 
+//           };
+//         }
+//       }
+
+
+
     return walking_pattern_ptr;
   }
 }

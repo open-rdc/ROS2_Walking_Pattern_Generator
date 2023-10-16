@@ -12,9 +12,11 @@ find_package(ament_cmake REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 add_executable(robot_manager
   src/robot_manager.cpp
+  src/robot_manager_main.cpp
 )
 target_include_directories(robot_manager
   PUBLIC
@@ -32,6 +34,7 @@ target_compile_features(robot_manager
 ament_target_dependencies(robot_manager
   rclcpp
   pluginlib
+  sensor_msgs
 )
 
 ament_export_include_directories(

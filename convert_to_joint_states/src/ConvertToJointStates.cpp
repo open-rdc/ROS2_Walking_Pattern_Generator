@@ -102,6 +102,8 @@ namespace convert_to_joint_states
       // WPG_log_SwingTrajectory << swing_trajectory << " " << old_swing_trajectory << " " << (swing_trajectory-old_swing_trajectory) << std::endl;      
 
 //=====足の軌道計算
+// TODO: ココはWalkingPatternGeneratorに実装するべき。そのほうがコードもまとまる。
+  // walking_stepとcontrol_stepを使っている、かつstepの前後も用いているので、毎step呼ばれて計算を行うのが汚くなる。
       if(walking_stabilization_ptr->zmp_pos_fix[walking_step][1] == 0) {  // 歩行開始時、終了時
         int ref_ws; 
         if(walking_step == 0) {  // 歩行開始時
