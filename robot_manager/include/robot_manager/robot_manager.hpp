@@ -11,7 +11,7 @@
 #include "Eigen/Dense"
 
 namespace robot_manager
-{
+{  
   class RobotManager : public rclcpp::Node {
     public:
       RobotManager(
@@ -20,11 +20,17 @@ namespace robot_manager
       ~RobotManager(){}
     
     private:
+      // load class
+      pluginlib::ClassLoader<control_plugin_base::FootStepPlanner> fsp_loader_;
+      pluginlib::ClassLoader<control_plugin_base::WalkingPatternGenerator> wpg_loader_;
+      pluginlib::ClassLoader<control_plugin_base::WalkingStabilizationController> wsc_loader_;
+      pluginlib::ClassLoader<control_plugin_base::ConvertToJointStates> ctjs_loader_;
+
       // plugin instances
-      std::shared_ptr<control_plugin_base::FootStepPlanner> fsp_ = std::make_shared<control_plugin_base::FootStepPlanner>();
-      std::shared_ptr<control_plugin_base::WalkingPatternGenerator> wpg_ = std::make_shared<control_plugin_base::WalkingPatternGenerator>();
-      std::shared_ptr<control_plugin_base::WalkingStabilizationController> wsc_ = std::make_shared<control_plugin_base::WalkingStabilizationController>();
-      std::shared_ptr<control_plugin_base::ConvertToJointStates> ctjs_ = std::make_shared<control_plugin_base::ConvertToJointStates>();
+      std::shared_ptr<control_plugin_base::FootStepPlanner> fsp_ = nullptr;
+      std::shared_ptr<control_plugin_base::WalkingPatternGenerator> wpg_ = nullptr;
+      std::shared_ptr<control_plugin_base::WalkingStabilizationController> wsc_ = nullptr;
+      std::shared_ptr<control_plugin_base::ConvertToJointStates> ctjs_ = nullptr;
 
       // plugin arguments & return values
       std::shared_ptr<control_plugin_base::FootStep> foot_step_ptr_ = std::make_shared<control_plugin_base::FootStep>();

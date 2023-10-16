@@ -51,19 +51,19 @@ namespace robot_manager
 
   RobotManager::RobotManager(
     const rclcpp::NodeOptions& options
-  ) : Node("RobotManager", options) {
+  ) : Node("RobotManager", options),
+    // load class
+    fsp_loader_("robot_manager", "control_plugin_base::FootStepPlanner"),
+    wpg_loader_("robot_manager", "control_plugin_base::WalkingPatternGenerator"),
+    wsc_loader_("robot_manager", "control_plugin_base::WalkingStabilizationController"),
+    ctjs_loader_("robot_manager", "control_plugin_base::ConvertToJointStates") {
     // plugins
     try {
-      // load classes
-      pluginlib::ClassLoader<control_plugin_base::WalkingPatternGenerator> wpg_loader("robot_manager", "control_plugin_base::WalkingPatternGenerator");
-      pluginlib::ClassLoader<control_plugin_base::FootStepPlanner> fsp_loader("robot_manager", "control_plugin_base::FootStepPlanner");
-      pluginlib::ClassLoader<control_plugin_base::WalkingStabilizationController> wsc_loader("robot_manager", "control_plugin_base::WalkingStabilizationController");
-      pluginlib::ClassLoader<control_plugin_base::ConvertToJointStates> ctjs_loader("robot_manager", "control_plugin_base::ConvertToJointStates");
       // create instances
-      fsp_ = fsp_loader.createSharedInstance("foot_step_planner::Default_FootStepPlanner");
-      wpg_ = wpg_loader.createSharedInstance("walking_pattern_generator::WPG_LinearInvertedPendulumModel");
-      wsc_ = wsc_loader.createSharedInstance("walking_stabilization_controller::Default_WalkingStabilizationController");
-      ctjs_ = ctjs_loader.createSharedInstance("convert_to_joint_states::Default_ConvertToJointStates");
+      fsp_ = fsp_loader_.createSharedInstance("foot_step_planner::Default_FootStepPlanner");
+      wpg_ = wpg_loader_.createSharedInstance("walking_pattern_generator::WPG_LinearInvertedPendulumModel");
+      wsc_ = wsc_loader_.createSharedInstance("walking_stabilization_controller::Default_WalkingStabilizationController");
+      ctjs_ = ctjs_loader_.createSharedInstance("convert_to_joint_states::Default_ConvertToJointStates");
     }
     catch(pluginlib::PluginlibException& ex) {
       RCLCPP_ERROR(this->get_logger(), "%s", ex.what());
