@@ -8,9 +8,9 @@
 namespace control_plugin_base
 {
   struct WalkingPattern {
-    std::vector<std::array<double, 3>> cog_pos;
-    std::vector<std::array<double, 3>> cog_vel;
-    std::vector<std::array<double, 2>> zmp_pos;
+    std::vector<std::array<double, 3>> cog_pos_ref;
+    std::vector<std::array<double, 3>> cog_vel_ref;
+    std::vector<std::array<double, 2>> foot_pos_ref;
   }; 
   
   class WalkingPatternGenerator {

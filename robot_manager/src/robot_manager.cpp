@@ -6,20 +6,25 @@ namespace robot_manager
 {
   void RobotManager::Step() {
 
-    // Foot_Step_Planner
-    std::cout << "foot step planner" << std::endl;
-    foot_step_ptr_ = fsp_->foot_step_planner();
+    // online or offline generate
+      // TODO: 既存のFSとWPGに追加するようにしたい。代入での上書きだと既存のパターンが失われるから、オフライン生成しかできない。
+      // TODO: １回のオンライン生成にかける時間を指定できるようにしたい。10msではなく100msで20歩分の生成とか。別のStepLoopにして、Sleepで周期させる案。
+    if(ONLINE_GENERATE_ == true || control_step_ == 0) {
+      // Foot_Step_Planner (stack)
+      // std::cout << "foot step planner" << std::endl;
+      foot_step_ptr_ = fsp_->foot_step_planner();
 
-    // Walking_Pattern_Generator
-    std::cout << "walking pattern generator" << std::endl;
-    walking_pattern_ptr_ = wpg_->walking_pattern_generator(foot_step_ptr_);
+      // Walking_Pattern_Generator (stack)
+      // std::cout << "walking pattern generator" << std::endl;
+      walking_pattern_ptr_ = wpg_->walking_pattern_generator(foot_step_ptr_);
+    }
 
-    // Walking_Stabilization_Controller
-    std::cout << "walking stabilization controller" << std::endl;
+    // Walking_Stabilization_Controller (1step)
+    // std::cout << "walking stabilization controller" << std::endl;
     walking_stabilization_ptr_ = wsc_->walking_stabilization_controller(walking_pattern_ptr_);
 
-    // Convert_to_Joint_States
-    std::cout << "convert to joint states" << std::endl;
+    // Convert_to_Joint_States (1step)
+    // std::cout << "convert to joint states" << std::endl;
     leg_joint_states_pat_ptr_ = ctjs_->convert_into_joint_states(walking_stabilization_ptr_);
 
     // 歩行パターンを1stepごとPublish
@@ -35,6 +40,9 @@ namespace robot_manager
       pub_joint_states_msg_->velocity.at(legR_num_.at(th)) = std::abs(leg_joint_states_pat_ptr_->joint_vel_pat_legR[0].at(th));
     }
     pub_joint_states_->publish(*pub_joint_states_msg_);
+
+    // update
+    control_step_++;
   }
 
   RobotManager::RobotManager(
@@ -60,7 +68,7 @@ namespace robot_manager
     // publisher
     pub_joint_states_ = this->create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
 
-    // DEBUG: setting /joint_states pub_joint_states_msg_
+    // setting /joint_states pub_joint_states_msg_
     // TODO: これはParameterServerからやりたい。
     std::vector<std::string> name = {
         "head_pan",
@@ -96,6 +104,10 @@ namespace robot_manager
       pub_joint_states_msg_->position.at(th) = 0.0;
       pub_joint_states_msg_->velocity.at(th) = 0.0;
     }
+
+    // Setting parameters
+      // TODO: ParameterServerとかから得た値を使いたい
+    ONLINE_GENERATE_ = false;
 
     // 確実にstep0から送れるようにsleep
     // TODO: Handler側が何かしらのシグナルを出したらPubするようにしたい。

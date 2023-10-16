@@ -7,7 +7,7 @@
 namespace control_plugin_base 
 {
   struct FootStep {
-    std::vector<std::array<double, 2>> zmp_pos;
+    std::vector<std::array<double, 2>> foot_pos;
     double waist_height;
     double walking_step_time;
   };
