@@ -56,40 +56,40 @@ def generate_launch_description():
     ]
   )
 
-  # walking_pattern_generator
-  walking_pattern_generator = Node(
-    package = "walking_pattern_generator",
-    executable = "walking_pattern_generator",
-    output = "screen",
-    parameters = [{'use_sim_time': True}]
-  )
-  
-  # # robot_manager
-  # robot_manager = Node(
-  #   package = "robot_manager",
-  #   # namespace = "walking_controller",
-  #   executable = "robot_manager",
+  # # walking_pattern_generator
+  # walking_pattern_generator = Node(
+  #   package = "walking_pattern_generator",
+  #   executable = "walking_pattern_generator",
   #   output = "screen",
   #   parameters = [{'use_sim_time': True}]
   # )
   
-  robot_feedback_logger = Node(
-    package = "logger",
-    executable = "robot_feedback_logger",
+  # robot_manager
+  robot_manager = Node(
+    package = "robot_manager",
+    # namespace = "walking_controller",
+    executable = "robot_manager",
     output = "screen",
-    parameters = [{'use_sim_time': True}]  # CHECKME: ココ、いらなくない？
+    parameters = [{'use_sim_time': True}]
   )
+  
+  # robot_feedback_logger = Node(
+  #   package = "logger",
+  #   executable = "robot_feedback_logger",
+  #   output = "screen",
+  #   parameters = [{'use_sim_time': True}]  # CHECKME: ココ、いらなくない？
+  # )
 
   return launch.LaunchDescription([
     # robot_state_publisher,
     # fk,
     # ik,
     # walking_stabilization_controller,
-    robot_feedback_logger,
+    # robot_feedback_logger,
     webots,
     robotis_op2_driver,
-    walking_pattern_generator,
-    # robot_manager,
+    # walking_pattern_generator,
+    robot_manager,
     launch.actions.RegisterEventHandler(
       event_handler = launch.event_handlers.OnProcessExit(
         target_action = webots,
