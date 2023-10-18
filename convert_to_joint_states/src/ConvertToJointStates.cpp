@@ -413,7 +413,7 @@ namespace convert_to_joint_states
     //WPG_log_FootTrajectory_FK.close();
     // WPG_log_SwingTrajectory.close();
 
-    std::cout << "Here is default convert_to_joint_states plugin." << std::endl;
+    // std::cout << "Here is default convert_to_joint_states plugin." << std::endl;
 
     return leg_joint_states_pat_ptr;
   }

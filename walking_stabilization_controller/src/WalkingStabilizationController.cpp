@@ -10,7 +10,7 @@ namespace walking_stabilization_controller
     walking_stabilization_ptr->cog_vel_fix = walking_pattern_ptr->cog_vel_ref;
     walking_stabilization_ptr->zmp_pos_fix = walking_pattern_ptr->foot_pos_ref;
 
-    std::cout << "Here is default walking stabilization controller class." << std::endl;
+    // std::cout << "Here is default walking stabilization controller class." << std::endl;
 
     return walking_stabilization_ptr;
   }

@@ -108,7 +108,7 @@ namespace walking_pattern_generator
         // 値の更新
         t += control_cycle;
         // 着地位置の維持（重心要素の配列の要素数と一致させるため）
-        walking_pattern_ptr->foot_pos_ref.push_back(walking_pattern_ptr->foot_pos_ref.back());
+        // walking_pattern_ptr->foot_pos_ref.push_back(walking_pattern_ptr->foot_pos_ref.back());
       }
       else if(t >= T_sup - 0.01) {
         // stepの更新
@@ -177,7 +177,7 @@ namespace walking_pattern_generator
         t = 0.01;
       }
       WPG_log_WalkingPttern << walking_pattern_ptr->cog_pos_ref[control_step][0] << " " << walking_pattern_ptr->cog_pos_ref[control_step][1] << " " 
-                << walking_pattern_ptr->foot_pos_ref[control_step][0] << " " << walking_pattern_ptr->foot_pos_ref[control_step][1] << " " 
+                << walking_pattern_ptr->foot_pos_ref[walking_step][0] << " " << walking_pattern_ptr->foot_pos_ref[walking_step][1] << " " 
                 << foot_step_ptr->foot_pos[walking_step][0] << " " << foot_step_ptr->foot_pos[walking_step][1]-(foot_step_ptr->foot_pos[0][1])
       << std::endl;
       control_step++;
