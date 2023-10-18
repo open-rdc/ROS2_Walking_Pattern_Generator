@@ -74,7 +74,7 @@ namespace convert_to_joint_states
     Eigen::Matrix<double, 6, 6> Jacobi_legL = Eigen::MatrixXd::Zero(6, 6);
 
     // DEBUG: 着地位置の基準を修正
-    double init_y = foot_step_ptr->foot_pos[0][2];
+    double init_y = foot_step_ptr->foot_pos[0][1];
     std::vector<std::array<double, 2>> foot_pos = foot_step_ptr->foot_pos;
     for(u_int32_t step = 0; step < foot_step_ptr->foot_pos.size(); step++) {
       foot_pos[step][1] -= init_y;
