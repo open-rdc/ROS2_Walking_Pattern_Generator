@@ -190,6 +190,14 @@ namespace walking_pattern_generator
     // std::cout << "Here is wpg_linear_inverted_pendulum_model plugin." << std::endl;
 
 // TODO: CTJSから足の軌道計算プログラムを移行
+    // // DEBUG: 着地位置の基準を修正
+    // double init_y = foot_step_ptr->foot_pos[0][1];
+    // std::vector<std::array<double, 2>> foot_pos = foot_step_ptr->foot_pos;
+    // for(u_int32_t step = 0; step < foot_step_ptr->foot_pos.size(); step++) {
+    //   foot_pos[step][1] -= init_y;
+    // }
+    
+//     // 各関節角度・角速度を生成
 //     while(walking_time <= walking_time_max) {
 
 //       // 支持脚切替タイミングの判定
@@ -221,7 +229,7 @@ namespace walking_pattern_generator
 // //=====足の軌道計算
 // // TODO: ココはWalkingPatternGeneratorに実装するべき。そのほうがコードもまとまる。
 //   // walking_stepとcontrol_stepを使っている、かつstepの前後も用いているので、毎step呼ばれて計算を行うのが汚くなる。
-//       if(walking_stabilization_ptr->zmp_pos_fix[walking_step][1] == 0) {  // 歩行開始時、終了時
+//       if(foot_pos[walking_step][1] == 0) {  // 歩行開始時、終了時
 //         int ref_ws; 
 //         if(walking_step == 0) {  // 歩行開始時
 //           ref_ws = walking_step+1;
@@ -229,7 +237,7 @@ namespace walking_pattern_generator
 //         else {  // 開始時以外
 //           ref_ws = walking_step-1;
 //         }
-//         if(walking_stabilization_ptr->zmp_pos_fix[ref_ws][1] >= 0) {  // 左脚支持
+//         if(foot_pos[ref_ws][1] >= 0) {  // 左脚支持
 //           Foot_3D_Pos = {  // 左足
 //             walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],
 //             0.037-walking_stabilization_ptr->cog_pos_fix[control_step][1],
@@ -241,7 +249,7 @@ namespace walking_pattern_generator
 //             -length_leg
 //           };
 //         }
-//         else if(walking_stabilization_ptr->zmp_pos_fix[ref_ws][1] < 0) {  // 右脚支持
+//         else if(foot_pos[ref_ws][1] < 0) {  // 右脚支持
 //           Foot_3D_Pos = {  // 右足
 //             walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],
 //             -0.037-walking_stabilization_ptr->cog_pos_fix[control_step][1],
@@ -254,7 +262,7 @@ namespace walking_pattern_generator
 //           };
 //         }
 //       }
-//       else if(walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1] == 0) {  // 歩行開始から1step後
+//       else if(foot_pos[walking_step-1][1] == 0) {  // 歩行開始から1step後
 //         // 支持脚
 //         Foot_3D_Pos = {  
 //           walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],  // x 
@@ -285,7 +293,7 @@ namespace walking_pattern_generator
 //         }
 
 //       }
-//       else if(walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1] == 0) {  // 歩行終了から1step前
+//       else if(foot_pos[walking_step+1][1] == 0) {  // 歩行終了から1step前
 //         // 支持脚
 //         Foot_3D_Pos = {
 //           walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],  // x 
@@ -345,7 +353,6 @@ namespace walking_pattern_generator
 //           };
 //         }
 //       }
-
 
 
     return walking_pattern_ptr;

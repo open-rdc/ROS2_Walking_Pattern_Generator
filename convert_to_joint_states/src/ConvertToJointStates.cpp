@@ -430,7 +430,7 @@ namespace convert_to_joint_states
     ik_ = ik_loader.createSharedInstance("kinematics::Default_InverseKinematics");
     jac_ = jac_loader.createSharedInstance("kinematics::Default_Jacobian");
 
-    // DEBUG
+    // TODO: Parameterから得たい。それか引数で得たい。
     UnitVec_legL_ = {
       Eigen::Vector3d(0, 0, 1),
       Eigen::Vector3d(1, 0, 0),
