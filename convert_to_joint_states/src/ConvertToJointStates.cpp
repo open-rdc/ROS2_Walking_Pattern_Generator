@@ -9,7 +9,8 @@
 namespace convert_to_joint_states
 {
   std::unique_ptr<control_plugin_base::LegJointStatesPattern> Default_ConvertToJointStates::convert_into_joint_states(
-    const std::shared_ptr<control_plugin_base::WalkingStabilization> walking_stabilization_ptr
+    const std::shared_ptr<control_plugin_base::WalkingStabilization> walking_stabilization_ptr,
+    const std::shared_ptr<control_plugin_base::FootStep> foot_step_ptr
   ) {
     auto leg_joint_states_pat_ptr = std::make_unique<control_plugin_base::LegJointStatesPattern>();
     // leg_joint_states_pat_ptr->joint_ang_pat_legL = {{1, 2, 3, 4, 5, 6}};
@@ -72,6 +73,13 @@ namespace convert_to_joint_states
     Eigen::Matrix<double, 6, 6> Jacobi_legR = Eigen::MatrixXd::Zero(6, 6);
     Eigen::Matrix<double, 6, 6> Jacobi_legL = Eigen::MatrixXd::Zero(6, 6);
 
+    // DEBUG: 着地位置の基準を修正
+    double init_y = foot_step_ptr->foot_pos[0][2];
+    std::vector<std::array<double, 2>> foot_pos = foot_step_ptr->foot_pos;
+    for(u_int32_t step = 0; step < foot_step_ptr->foot_pos.size(); step++) {
+      foot_pos[step][1] -= init_y;
+    }
+
     // 各関節角度・角速度を生成
     while(walking_time <= walking_time_max) {
 
@@ -104,7 +112,7 @@ namespace convert_to_joint_states
 //=====足の軌道計算
 // TODO: ココはWalkingPatternGeneratorに実装するべき。そのほうがコードもまとまる。
   // walking_stepとcontrol_stepを使っている、かつstepの前後も用いているので、毎step呼ばれて計算を行うのが汚くなる。
-      if(walking_stabilization_ptr->zmp_pos_fix[walking_step][1] == 0) {  // 歩行開始時、終了時
+      if(foot_pos[walking_step][1] == 0) {  // 歩行開始時、終了時
         int ref_ws; 
         if(walking_step == 0) {  // 歩行開始時
           ref_ws = walking_step+1;
@@ -112,7 +120,7 @@ namespace convert_to_joint_states
         else {  // 開始時以外
           ref_ws = walking_step-1;
         }
-        if(walking_stabilization_ptr->zmp_pos_fix[ref_ws][1] >= 0) {  // 左脚支持
+        if(foot_pos[ref_ws][1] >= 0) {  // 左脚支持
           Foot_3D_Pos = {  // 左足
             walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],
             0.037-walking_stabilization_ptr->cog_pos_fix[control_step][1],
@@ -124,7 +132,7 @@ namespace convert_to_joint_states
             -length_leg
           };
         }
-        else if(walking_stabilization_ptr->zmp_pos_fix[ref_ws][1] < 0) {  // 右脚支持
+        else if(foot_pos[ref_ws][1] < 0) {  // 右脚支持
           Foot_3D_Pos = {  // 右足
             walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],
             -0.037-walking_stabilization_ptr->cog_pos_fix[control_step][1],
@@ -137,7 +145,7 @@ namespace convert_to_joint_states
           };
         }
       }
-      else if(walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1] == 0) {  // 歩行開始から1step後
+      else if(foot_pos[walking_step-1][1] == 0) {  // 歩行開始から1step後
         // 支持脚
         Foot_3D_Pos = {  
           walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],  // x 
@@ -168,7 +176,7 @@ namespace convert_to_joint_states
         }
 
       }
-      else if(walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1] == 0) {  // 歩行終了から1step前
+      else if(foot_pos[walking_step+1][1] == 0) {  // 歩行終了から1step前
         // 支持脚
         Foot_3D_Pos = {
           walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],  // x 
@@ -253,7 +261,7 @@ namespace convert_to_joint_states
       // WPG_log_SwingTrajectory_Vel << CoG_3D_Vel.transpose() << " " << CoG_3D_Vel_Swing.transpose() << std::endl;
 
 //=====関節角度・角速度の算出 
-      if(walking_stabilization_ptr->zmp_pos_fix[walking_step][1] == 0) {  // 歩行開始、終了時
+      if(foot_pos[walking_step][1] == 0) {  // 歩行開始、終了時
         int ref_ws; 
         if(walking_step == 0) {  // 歩行開始時
           ref_ws = walking_step+1;
@@ -261,7 +269,7 @@ namespace convert_to_joint_states
         else {  // 歩行終了時
           ref_ws = walking_step-1;
         }
-        if(walking_stabilization_ptr->zmp_pos_fix[ref_ws][1]-walking_stabilization_ptr->zmp_pos_fix[ref_ws+1][1] >= 0) {  // 左脚支持
+        if(foot_pos[ref_ws][1]-foot_pos[ref_ws+1][1] >= 0) {  // 左脚支持
           // IK
           legR_states_ik_ptr_->end_eff_pos = Foot_3D_Pos_Swing;
           ik_->inverse_kinematics(
@@ -274,7 +282,7 @@ namespace convert_to_joint_states
             Q_legL
           );
         }
-        if(walking_stabilization_ptr->zmp_pos_fix[ref_ws][1]-walking_stabilization_ptr->zmp_pos_fix[ref_ws+1][1] < 0) {  // 右脚支持
+        if(foot_pos[ref_ws][1]-foot_pos[ref_ws+1][1] < 0) {  // 右脚支持
           legR_states_ik_ptr_->end_eff_pos = Foot_3D_Pos;
           ik_->inverse_kinematics(  
             legR_states_ik_ptr_,
@@ -296,7 +304,7 @@ namespace convert_to_joint_states
         // Jacobi_legL = JacobiMatrix_leg(Q_legL, UnitVec_legL_, P_legL_waist_standard_);
         legR_states_jac_ptr_->joint_ang = Q_legR;
         jac_->jacobian(legR_states_jac_ptr_, Jacobi_legR);
-        legR_states_jac_ptr_->joint_ang = Q_legL;
+        legL_states_jac_ptr_->joint_ang = Q_legL;
         jac_->jacobian(legL_states_jac_ptr_, Jacobi_legL);
 
         // 各関節速度の計算
@@ -316,7 +324,7 @@ namespace convert_to_joint_states
         leg_joint_states_pat_ptr->joint_vel_pat_legL.push_back({jointVel_legL[0], jointVel_legL[1], jointVel_legL[2], jointVel_legL[3], jointVel_legL[4], jointVel_legL[5]});
       }
       // 左脚支持期
-      else if(walking_stabilization_ptr->zmp_pos_fix[walking_step][1] > 0) {
+      else if(foot_pos[walking_step][1] > 0) {
         // IK
         legR_states_ik_ptr_->end_eff_pos = Foot_3D_Pos_Swing;
         ik_->inverse_kinematics(
@@ -338,7 +346,7 @@ namespace convert_to_joint_states
         // Jacobi_legL = JacobiMatrix_leg(Q_legL, UnitVec_legL_, P_legL_waist_standard_);
         legR_states_jac_ptr_->joint_ang = Q_legR;
         jac_->jacobian(legR_states_jac_ptr_, Jacobi_legR);
-        legR_states_jac_ptr_->joint_ang = Q_legL;
+        legL_states_jac_ptr_->joint_ang = Q_legL;
         jac_->jacobian(legL_states_jac_ptr_, Jacobi_legL);
 
         // 各関節速度の計算
@@ -358,7 +366,7 @@ namespace convert_to_joint_states
         leg_joint_states_pat_ptr->joint_vel_pat_legL.push_back({jointVel_legL[0], jointVel_legL[1], jointVel_legL[2], jointVel_legL[3], jointVel_legL[4], jointVel_legL[5]});
       }
       // 右脚支持期
-      else if(walking_stabilization_ptr->zmp_pos_fix[walking_step][1] < 0) {
+      else if(foot_pos[walking_step][1] < 0) {
         // IK
         legR_states_ik_ptr_->end_eff_pos = Foot_3D_Pos;
         ik_->inverse_kinematics(  
@@ -380,7 +388,7 @@ namespace convert_to_joint_states
         // Jacobi_legL = JacobiMatrix_leg(Q_legL, UnitVec_legL_, P_legL_waist_standard_);
         legR_states_jac_ptr_->joint_ang = Q_legR;
         jac_->jacobian(legR_states_jac_ptr_, Jacobi_legR);
-        legR_states_jac_ptr_->joint_ang = Q_legL;
+        legL_states_jac_ptr_->joint_ang = Q_legL;
         jac_->jacobian(legL_states_jac_ptr_, Jacobi_legL);
 
         // 各関節速度の計算

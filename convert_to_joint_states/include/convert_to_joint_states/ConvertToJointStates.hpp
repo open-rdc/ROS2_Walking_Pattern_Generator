@@ -24,7 +24,8 @@ namespace convert_to_joint_states
       ~Default_ConvertToJointStates(){}
 
       std::unique_ptr<control_plugin_base::LegJointStatesPattern> convert_into_joint_states(
-        const std::shared_ptr<control_plugin_base::WalkingStabilization> walking_stabilization_ptr
+        const std::shared_ptr<control_plugin_base::WalkingStabilization> walking_stabilization_ptr,
+        const std::shared_ptr<control_plugin_base::FootStep> foot_step_ptr
       ) override;
       
     private:

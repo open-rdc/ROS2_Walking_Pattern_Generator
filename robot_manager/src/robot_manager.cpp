@@ -125,7 +125,7 @@ namespace robot_manager
 
 // DEBUG: CTJS内の軌道計算をWPGに移行する前の、Pluginで行けるか否かの確認
   // TODO: WSCとCTJSの毎step化が行けたら、ここは不要。
-    if(ONLINE_GENERATE_ == true || control_step_ == 0) {
+    //if(ONLINE_GENERATE_ == true || control_step_ == 0) {
       // Foot_Step_Planner (stack)
       // std::cout << "foot step planner" << std::endl;
       foot_step_ptr_ = fsp_->foot_step_planner();
@@ -133,7 +133,7 @@ namespace robot_manager
       // Walking_Pattern_Generator (stack)
       // std::cout << "walking pattern generator" << std::endl;
       walking_pattern_ptr_ = wpg_->walking_pattern_generator(foot_step_ptr_);
-    }
+    //}
 
     // Walking_Stabilization_Controller (1step)
     // std::cout << "walking stabilization controller" << std::endl;
@@ -141,7 +141,7 @@ namespace robot_manager
 
     // Convert_to_Joint_States (1step)
     // std::cout << "convert to joint states" << std::endl;
-    leg_joint_states_pat_ptr_ = ctjs_->convert_into_joint_states(walking_stabilization_ptr_);
+    leg_joint_states_pat_ptr_ = ctjs_->convert_into_joint_states(walking_stabilization_ptr_, foot_step_ptr_);
 
     wall_timer_ = this->create_wall_timer(10ms, std::bind(&RobotManager::Step, this));
   }

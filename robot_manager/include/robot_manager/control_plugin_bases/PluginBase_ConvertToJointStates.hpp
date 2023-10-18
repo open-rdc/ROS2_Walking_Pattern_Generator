@@ -4,6 +4,7 @@
 #include <vector>
 #include <array>
 #include "robot_manager/control_plugin_bases/PluginBase_WalkingStabilizationController.hpp"
+#include "robot_manager/control_plugin_bases/PluginBase_FootStepPlanner.hpp"
 
 namespace control_plugin_base 
 {
@@ -17,7 +18,8 @@ namespace control_plugin_base
   class ConvertToJointStates {
     public:
       virtual std::unique_ptr<LegJointStatesPattern> convert_into_joint_states(
-        const std::shared_ptr<WalkingStabilization> walking_stabilization_ptr
+        const std::shared_ptr<WalkingStabilization> walking_stabilization_ptr,
+        const std::shared_ptr<FootStep> foot_step_ptr
       ) = 0;
       virtual ~ConvertToJointStates(){}
       
