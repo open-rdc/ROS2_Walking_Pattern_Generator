@@ -114,7 +114,8 @@ namespace robot_manager
     ONLINE_GENERATE_ = false;
 
     // 確実にstep0から送れるようにsleep
-    // TODO: Handler側が何かしらのシグナルを出したらPubするようにしたい。
+      // TODO: Handler側が何かしらのシグナルを出したらPubするようにしたい。
+      // TODO: ここも、Debug_ModeのMode切り替えで、有効・無効を選択したい。
     for(uint16_t step = 0; step < 1000; step++) {
       auto now_time = rclcpp::Clock().now();
       pub_joint_states_msg_->header.stamp = now_time;
@@ -137,13 +138,13 @@ namespace robot_manager
 
     // Walking_Stabilization_Controller (1step)
     // std::cout << "walking stabilization controller" << std::endl;
-    walking_stabilization_ptr_ = wsc_->walking_stabilization_controller(walking_pattern_ptr_);
+    // walking_stabilization_ptr_ = wsc_->walking_stabilization_controller(walking_pattern_ptr_);
 
     // Convert_to_Joint_States (1step)
     // std::cout << "convert to joint states" << std::endl;
-    leg_joint_states_pat_ptr_ = ctjs_->convert_into_joint_states(walking_stabilization_ptr_, foot_step_ptr_);
+    // leg_joint_states_pat_ptr_ = ctjs_->convert_into_joint_states(walking_stabilization_ptr_, foot_step_ptr_);
 
-    wall_timer_ = this->create_wall_timer(10ms, std::bind(&RobotManager::Step, this));
+    // wall_timer_ = this->create_wall_timer(10ms, std::bind(&RobotManager::Step, this));
   }
 
 }

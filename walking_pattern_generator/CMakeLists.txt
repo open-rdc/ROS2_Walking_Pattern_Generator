@@ -23,7 +23,7 @@ find_package(pluginlib REQUIRED)
 # find_package(msgs_package REQUIRED)
 # find_package(kinematics REQUIRED)
 # find_package(sensor_msgs REQUIRED)
-# find_package(Eigen3 REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 # add_executable(walking_pattern_generator
 #   src/WalkingPatternGenerator.cpp
@@ -57,6 +57,7 @@ ament_target_dependencies(walking_pattern_generator
 target_include_directories(walking_pattern_generator
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${EIGEN3_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:include>
   PRIVATE
     include

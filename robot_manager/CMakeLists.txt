@@ -39,6 +39,7 @@ ament_target_dependencies(robot_manager
 
 ament_export_include_directories(
   include
+  ${EIGEN3_INCLUDE_DIR}
 )
 install(
   DIRECTORY include/
