@@ -190,8 +190,9 @@ namespace walking_pattern_generator
     // LOG: Log file close
     WPG_log_WalkingPttern.close();
 
-
+/*
 // TODO: CTJSから足の軌道計算プログラムを移行
+  // CHECKME: よく考えれば、WSCでの修正でこの軌道も変わるので意味がない可能性がある。ので、コメントアウトしてCTJSに任せる。
 
     // DEBUG: 着地位置の基準を修正
     double init_y = foot_step_ptr->foot_pos[0][1];
@@ -377,7 +378,7 @@ namespace walking_pattern_generator
       t += CONTROL_CYCLE;
       walking_time += CONTROL_CYCLE;
     }
-
+*/
 
     // std::cout << "Here is wpg_linear_inverted_pendulum_model plugin." << std::endl;
 

@@ -12,8 +12,8 @@ namespace control_plugin_base
   struct WalkingPattern {
     std::vector<std::array<double, 3>> cc_cog_pos_ref;  // 重心位置
     std::vector<std::array<double, 3>> cc_cog_vel_ref;  // 重心速度
-    std::vector<Eigen::Vector<double, 3>> cc_foot_sup_pos_ref;  // 支持脚足先位置
-    std::vector<Eigen::Vector<double, 3>> cc_foot_swing_pos_ref;  // 遊脚足先位置
+    // std::vector<Eigen::Vector<double, 3>> cc_foot_sup_pos_ref;  // 支持脚足先位置
+    // std::vector<Eigen::Vector<double, 3>> cc_foot_swing_pos_ref;  // 遊脚足先位置
     std::vector<std::array<double, 2>> wc_foot_land_pos_ref;  // 着地位置
   }; 
   
