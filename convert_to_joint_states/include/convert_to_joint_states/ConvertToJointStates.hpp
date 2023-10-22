@@ -8,8 +8,6 @@
 #include "robot_manager/control_plugin_bases/PluginBase_InverseKinematics.hpp"
 #include "robot_manager/control_plugin_bases/PluginBase_Jacobian.hpp"
 
-// IK, JacobianのPluginをIncludeする必要がある。
-
 #include "Eigen/Dense"
 
 #include <fstream>
@@ -28,7 +26,6 @@ namespace convert_to_joint_states
       std::unique_ptr<control_plugin_base::LegJointStatesPattern> convert_into_joint_states(
         const std::shared_ptr<control_plugin_base::WalkingStabilization> walking_stabilization_ptr,
         const std::shared_ptr<control_plugin_base::FootStep> foot_step_ptr,
-        float walking_time,
         uint32_t walking_step,
         uint32_t control_step,
         float t
@@ -49,10 +46,10 @@ namespace convert_to_joint_states
       std::array<Eigen::Vector3d, 7> P_legR_waist_standard_;
       Eigen::Matrix3d end_eff_rot;
 
-      std::ofstream WPG_log_FootTrajectory;
-      std::string WPG_log_FootTrajectory_path = "src/Log/WPG_log_FootTrajectory.dat";
-      std::ofstream WPG_log_SwingTrajectory;
-      std::string WPG_WPG_log_SwingTrajectory_path = "src/Log/WPG_log_SwingTrajectory.dat";
+      // std::ofstream WPG_log_FootTrajectory;
+      // std::string WPG_log_FootTrajectory_path = "src/Log/WPG_log_FootTrajectory.dat";
+      // std::ofstream WPG_log_SwingTrajectory;
+      // std::string WPG_WPG_log_SwingTrajectory_path = "src/Log/WPG_log_SwingTrajectory.dat";
 
       // parameters
 

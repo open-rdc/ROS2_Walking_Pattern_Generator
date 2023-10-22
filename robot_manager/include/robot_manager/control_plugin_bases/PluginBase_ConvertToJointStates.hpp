@@ -20,7 +20,6 @@ namespace control_plugin_base
       virtual std::unique_ptr<LegJointStatesPattern> convert_into_joint_states(
         const std::shared_ptr<WalkingStabilization> walking_stabilization_ptr,
         const std::shared_ptr<FootStep> foot_step_ptr,
-        float walking_time,
         uint32_t walking_step,
         uint32_t control_step,
         float t

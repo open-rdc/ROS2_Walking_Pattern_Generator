@@ -41,7 +41,7 @@ namespace robot_manager
       std::shared_ptr<control_plugin_base::LegJointStatesPattern> leg_joint_states_pat_ptr_ = std::make_shared<control_plugin_base::LegJointStatesPattern>();      
 
       // step & timer
-      void Step();
+      void Step_Offline();
       float control_cycle_ = 0;
       uint32_t control_step_ = 0;
       float t_ = 0;
@@ -68,6 +68,8 @@ namespace robot_manager
 
       // Debug Mode
         // TODO: ココにDebug用のPublisherを定義。Loggerに合わせる。
+      bool DebugMode_ = false;
+      bool UsingSimulator_ = true;
       std::chrono::system_clock::time_point start_time_;
       std::chrono::system_clock::time_point end_time_;
       double latency_;

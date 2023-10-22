@@ -5,25 +5,12 @@ using namespace std::chrono_literals;
 
 namespace robot_manager
 {
-  void RobotManager::Step() {
+  void RobotManager::Step_Offline() {
+
     if(t_ >= T_sup_ - 0.01) {
       t_ = 0;
       walking_step_++;
     }
-// DEBUG: WSCとCTJSの毎Step化が行われるまで、コンストラクタで歩行パターンの生成Pluginを実行する
-  // CTJSを毎Step化しないと、10[ms]に収まらない可能性があるため、このような処置をとった。（未測定だけどね）
-    // // online or offline generate
-    //   // TODO: 既存のFSとWPGに追加するようにしたい。代入での上書きだと既存のパターンが失われるから、オフライン生成しかできない。
-    //   // TODO: １回のオンライン生成にかける時間を指定できるようにしたい。10msではなく100msで20歩分の生成とか。別のStepLoopにして、Sleepで周期させる案。
-    // if(ONLINE_GENERATE_ == true || control_step_ == 0) {
-    //   // Foot_Step_Planner (stack)
-    //   // std::cout << "foot step planner" << std::endl;
-    //   foot_step_ptr_ = fsp_->foot_step_planner();
-
-    //   // Walking_Pattern_Generator (stack)
-    //   // std::cout << "walking pattern generator" << std::endl;
-    //   walking_pattern_ptr_ = wpg_->walking_pattern_generator(foot_step_ptr_);
-    // }
 
     if(control_step_ < walking_pattern_ptr_->cc_cog_pos_ref.size()) { 
       // Walking_Stabilization_Controller (1step)
@@ -40,7 +27,6 @@ namespace robot_manager
       leg_joint_states_pat_ptr_ = ctjs_->convert_into_joint_states(
         walking_stabilization_ptr_, 
         foot_step_ptr_, 
-        walking_time_, 
         walking_step_, 
         control_step_, 
         t_
@@ -59,7 +45,7 @@ namespace robot_manager
     // TODO: Pub/Subだから仕方がないが、データの受取ミスが発生する可能性がある。
     auto now_time = rclcpp::Clock().now();
     pub_joint_states_msg_->header.stamp = now_time;
-    if(control_step_ < walking_pattern_ptr_->cc_cog_pos_ref.size()) {  // DEBUG
+    if(control_step_ < walking_pattern_ptr_->cc_cog_pos_ref.size()) {
       for(uint8_t th = 0; th < 6; th++) {
         // CHECKME: WSCとCTJSの型を単位Step用に修正したら、配列に[control_step_]が不要になる。
         pub_joint_states_msg_->position.at(legL_num_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legL.at(th) * jointAng_posi_or_nega_legL_.at(th);
@@ -140,6 +126,8 @@ namespace robot_manager
     // Setting parameters
       // TODO: ParameterServerとかから得た値を使いたい
     ONLINE_GENERATE_ = false;
+    DebugMode_ = false;
+    UsingSimulator_ = true;
 
     // timer
     control_cycle_ = 0.01;  // 10[ms]
@@ -147,18 +135,18 @@ namespace robot_manager
 
     // 確実にstep0から送れるようにsleep
       // TODO: Handler側が何かしらのシグナルを出したらPubするようにしたい。
-      // TODO: ここも、Debug_ModeのMode切り替えで、有効・無効を選択したい。
-    for(uint16_t step = 0; step < 1000; step++) {
-      auto now_time = rclcpp::Clock().now();
-      pub_joint_states_msg_->header.stamp = now_time;
-      pub_joint_states_->publish(*pub_joint_states_msg_);
-      rclcpp::sleep_for(10ms);
+    if(UsingSimulator_ == true) {
+      for(uint16_t step = 0; step < 1000; step++) {
+        auto now_time = rclcpp::Clock().now();
+        pub_joint_states_msg_->header.stamp = now_time;
+        pub_joint_states_->publish(*pub_joint_states_msg_);
+        rclcpp::sleep_for(10ms);
+      }
     }
     RCLCPP_INFO(this->get_logger(), "Publisher.");
 
-// DEBUG: CTJS内の軌道計算をWPGに移行する前の、Pluginで行けるか否かの確認
-  // TODO: WSCとCTJSの毎step化が行けたら、ここは不要。
-    //if(ONLINE_GENERATE_ == true || control_step_ == 0) {
+    // オフラインパターン生成
+    if(ONLINE_GENERATE_ == false) {
       // Foot_Step_Planner (stack)
       // std::cout << "foot step planner" << std::endl;
       start_time_ = std::chrono::system_clock::now();
@@ -174,25 +162,9 @@ namespace robot_manager
       end_time_ = std::chrono::system_clock::now();
       latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
       std::cout << "WPG time [ms] : " << latency_ << std::endl;
-    //}
+    }
 
-    // Walking_Stabilization_Controller (1step)
-    // std::cout << "walking stabilization controller" << std::endl;
-    // start_time_ = std::chrono::system_clock::now();
-    // walking_stabilization_ptr_ = wsc_->walking_stabilization_controller(walking_pattern_ptr_);
-    // end_time_ = std::chrono::system_clock::now();
-    // latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
-    // std::cout << "WSC time [ms] : " << latency_ << std::endl;
-
-    // Convert_to_Joint_States (1step)
-    // std::cout << "convert to joint states" << std::endl;
-    // start_time_ = std::chrono::system_clock::now();
-    // leg_joint_states_pat_ptr_ = ctjs_->convert_into_joint_states(walking_stabilization_ptr_, foot_step_ptr_, walking_time_, walking_step_, control_step_, t_);
-    // end_time_ = std::chrono::system_clock::now();
-    // latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
-    // std::cout << "CTJS time [ms] : " << latency_ << std::endl;
-
-    wall_timer_ = this->create_wall_timer(10ms, std::bind(&RobotManager::Step, this));
+    wall_timer_ = this->create_wall_timer(10ms, std::bind(&RobotManager::Step_Offline, this));
   }
 
 }
