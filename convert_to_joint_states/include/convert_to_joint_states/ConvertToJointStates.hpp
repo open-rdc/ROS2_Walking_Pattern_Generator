@@ -12,6 +12,8 @@
 
 #include "Eigen/Dense"
 
+#include <fstream>
+
 namespace convert_to_joint_states
 {
   pluginlib::ClassLoader<control_plugin_base::InverseKinematics> ik_loader("robot_manager", "control_plugin_base::InverseKinematics");
@@ -46,6 +48,18 @@ namespace convert_to_joint_states
       std::array<Eigen::Vector3d, 7> P_legL_waist_standard_;
       std::array<Eigen::Vector3d, 7> P_legR_waist_standard_;
       Eigen::Matrix3d end_eff_rot;
+
+      std::ofstream WPG_log_FootTrajectory;
+      std::string WPG_log_FootTrajectory_path = "src/Log/WPG_log_FootTrajectory.dat";
+      std::ofstream WPG_log_SwingTrajectory;
+      std::string WPG_WPG_log_SwingTrajectory_path = "src/Log/WPG_log_SwingTrajectory.dat";
+
+      // parameters
+
+      // trajectory
+      double swing_trajectory = 0.0;  // 遊脚軌道の値を記録
+      double old_swing_trajectory = 0.0;  // 微分用
+      double vel_swing_trajectory = 0.0;  // 遊脚軌道の速度
   };
 }
 

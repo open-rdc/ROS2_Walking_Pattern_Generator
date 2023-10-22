@@ -52,9 +52,9 @@ namespace convert_to_joint_states
 
     // 遊脚軌道関連
     float height_leg_lift = 0.025;  // 足上げ高さ [m]
-    double swing_trajectory = 0.0;  // 遊脚軌道の値を記録
-    double old_swing_trajectory = 0.0;  // 微分用
-    double vel_swing_trajectory = 0.0;  // 遊脚軌道の速度
+    // double swing_trajectory = 0.0;  // 遊脚軌道の値を記録
+    // double old_swing_trajectory = 0.0;  // 微分用
+    // double vel_swing_trajectory = 0.0;  // 遊脚軌道の速度
     // int walking_step = 0;
     // int control_step = 0;
 
@@ -99,19 +99,19 @@ namespace convert_to_joint_states
 
       // 遊脚軌道（正弦波）の計算
       // TODO: 両脚支持期間は支持脚切替時に重心速度が急激に変化しないようにするために設けるものである。
-      if(t >= T_dsup/2 && t <= T_sup-T_dsup/2) {  // 片足支持期
-        old_swing_trajectory = swing_trajectory;
-        swing_trajectory = height_leg_lift * std::sin((3.141592/(T_sup-T_dsup))*(t-T_dsup/2));  
-        vel_swing_trajectory = ((swing_trajectory - old_swing_trajectory) / control_cycle);
-      }
-      else {  // 両脚支持期
-        swing_trajectory = 0.0;
-        old_swing_trajectory = 0.0;
-        vel_swing_trajectory = 0.0;
-      }
+    if(t >= T_dsup/2 && t <= T_sup-T_dsup/2) {  // 片足支持期
+      old_swing_trajectory = swing_trajectory;
+      swing_trajectory = height_leg_lift * std::sin((3.141592/(T_sup-T_dsup))*(t-T_dsup/2));  
+      vel_swing_trajectory = ((swing_trajectory - old_swing_trajectory) / control_cycle);
+    }
+    else {  // 両脚支持期
+      swing_trajectory = 0.0;
+      old_swing_trajectory = 0.0;
+      vel_swing_trajectory = 0.0;
+    }
 
-      // LOG: 遊脚軌道に関するlogの取得
-      // WPG_log_SwingTrajectory << swing_trajectory << " " << old_swing_trajectory << " " << (swing_trajectory-old_swing_trajectory) << std::endl;      
+    // LOG: 遊脚軌道に関するlogの取得
+    WPG_log_SwingTrajectory << swing_trajectory << " " << old_swing_trajectory << " " << (swing_trajectory-old_swing_trajectory) << std::endl;      
 
 //=====足の軌道計算
 // TODO: ココはWalkingPatternGeneratorに実装するべき。そのほうがコードもまとまる。
@@ -242,7 +242,7 @@ namespace convert_to_joint_states
       }
 
       // LOG: 足軌道のLogの吐き出し
-      //WPG_log_FootTrajectory << walking_stabilization_ptr->cog_pos_fix[control_step][0] << " " << walking_stabilization_ptr->cog_pos_fix[control_step][1] << " " << Foot_3D_Pos.transpose() << " " << Foot_3D_Pos_Swing.transpose() << std::endl;
+      WPG_log_FootTrajectory << walking_stabilization_ptr->cog_pos_fix[control_step][0] << " " << walking_stabilization_ptr->cog_pos_fix[control_step][1] << " " << Foot_3D_Pos.transpose() << " " << Foot_3D_Pos_Swing.transpose() << std::endl;
 
       // ３次元重心速度の定義
       CoG_3D_Vel = {  // 支持脚用
@@ -300,7 +300,7 @@ namespace convert_to_joint_states
         }
 
         // LOG:
-        //WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL, P_legL_waist_standard_, 6).transpose() << std::endl;
+        // WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL, P_legL_waist_standard_, 6).transpose() << std::endl;
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
         // JacobiMatrix_leg(Q_legR, Q_legL);
@@ -342,7 +342,7 @@ namespace convert_to_joint_states
         );
 
         // LOG:
-        //WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL, P_legL_waist_standard_, 6).transpose() << std::endl;
+        // WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL, P_legL_waist_standard_, 6).transpose() << std::endl;
 
         // Jacobianの計算、Jacobianを記憶するクラス変数の更新
         // JacobiMatrix_leg(Q_legR, Q_legL);
@@ -431,6 +431,9 @@ namespace convert_to_joint_states
   }
 
   Default_ConvertToJointStates::Default_ConvertToJointStates() {
+      WPG_log_FootTrajectory.open(WPG_log_FootTrajectory_path, std::ios::out);
+      WPG_log_SwingTrajectory.open(WPG_WPG_log_SwingTrajectory_path, std::ios::out);
+    
     ik_ = ik_loader.createSharedInstance("kinematics::Default_InverseKinematics");
     jac_ = jac_loader.createSharedInstance("kinematics::Default_Jacobian");
 

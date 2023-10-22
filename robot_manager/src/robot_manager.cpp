@@ -148,13 +148,13 @@ namespace robot_manager
     // 確実にstep0から送れるようにsleep
       // TODO: Handler側が何かしらのシグナルを出したらPubするようにしたい。
       // TODO: ここも、Debug_ModeのMode切り替えで、有効・無効を選択したい。
-    // for(uint16_t step = 0; step < 1000; step++) {
-    //   auto now_time = rclcpp::Clock().now();
-    //   pub_joint_states_msg_->header.stamp = now_time;
-    //   pub_joint_states_->publish(*pub_joint_states_msg_);
-    //   rclcpp::sleep_for(10ms);
-    // }
-    // RCLCPP_INFO(this->get_logger(), "Publisher.");
+    for(uint16_t step = 0; step < 1000; step++) {
+      auto now_time = rclcpp::Clock().now();
+      pub_joint_states_msg_->header.stamp = now_time;
+      pub_joint_states_->publish(*pub_joint_states_msg_);
+      rclcpp::sleep_for(10ms);
+    }
+    RCLCPP_INFO(this->get_logger(), "Publisher.");
 
 // DEBUG: CTJS内の軌道計算をWPGに移行する前の、Pluginで行けるか否かの確認
   // TODO: WSCとCTJSの毎step化が行けたら、ここは不要。
