@@ -25,13 +25,33 @@ namespace robot_manager
     //   walking_pattern_ptr_ = wpg_->walking_pattern_generator(foot_step_ptr_);
     // }
 
-    // // Walking_Stabilization_Controller (1step)
-    // // std::cout << "walking stabilization controller" << std::endl;
-    // walking_stabilization_ptr_ = wsc_->walking_stabilization_controller(walking_pattern_ptr_);
+    if(control_step_ < walking_pattern_ptr_->cc_cog_pos_ref.size()) { 
+      // Walking_Stabilization_Controller (1step)
+      // std::cout << "walking stabilization controller" << std::endl;
+      start_time_ = std::chrono::system_clock::now();
+      walking_stabilization_ptr_ = wsc_->walking_stabilization_controller(walking_pattern_ptr_);
+      end_time_ = std::chrono::system_clock::now();
+      latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
+      std::cout << "WSC time [ms] : " << latency_ << std::endl;
 
-    // // Convert_to_Joint_States (1step)
-    // // std::cout << "convert to joint states" << std::endl;
-    // leg_joint_states_pat_ptr_ = ctjs_->convert_into_joint_states(walking_stabilization_ptr_);
+      // Convert_to_Joint_States (1step)
+      // std::cout << "convert to joint states" << std::endl;
+      start_time_ = std::chrono::system_clock::now();
+      leg_joint_states_pat_ptr_ = ctjs_->convert_into_joint_states(
+        walking_stabilization_ptr_, 
+        foot_step_ptr_, 
+        walking_time_, 
+        walking_step_, 
+        control_step_, 
+        t_
+      );
+      end_time_ = std::chrono::system_clock::now();
+      latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
+      latency_ctjs_max_ = latency_ > latency_ctjs_max_ ? latency_ : latency_ctjs_max_;
+      latency_ctjs_min_ = latency_ < latency_ctjs_min_ ? latency_ : latency_ctjs_min_;
+      std::cout << "CTJS time [ms] : " << latency_ << ", max [ms] : " << latency_ctjs_max_ << ", min [ms] : " << latency_ctjs_min_ <<  std::endl;
+      // std::cout << control_step_ << std::endl;
+    }
 // ここまでDEBUG
 
     // 歩行パターンを1stepごとPublish
@@ -39,14 +59,15 @@ namespace robot_manager
     // TODO: Pub/Subだから仕方がないが、データの受取ミスが発生する可能性がある。
     auto now_time = rclcpp::Clock().now();
     pub_joint_states_msg_->header.stamp = now_time;
-    if(control_step_ < leg_joint_states_pat_ptr_->joint_ang_pat_legL.size()) {  // DEBUG
+    if(control_step_ < walking_pattern_ptr_->cc_cog_pos_ref.size()) {  // DEBUG
       for(uint8_t th = 0; th < 6; th++) {
         // CHECKME: WSCとCTJSの型を単位Step用に修正したら、配列に[control_step_]が不要になる。
-        pub_joint_states_msg_->position.at(legL_num_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legL[control_step_].at(th) * jointAng_posi_or_nega_legL_.at(th);
-        pub_joint_states_msg_->position.at(legR_num_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legR[control_step_].at(th) * jointAng_posi_or_nega_legR_.at(th); 
-        pub_joint_states_msg_->velocity.at(legL_num_.at(th)) = std::abs(leg_joint_states_pat_ptr_->joint_vel_pat_legL[control_step_].at(th));
-        pub_joint_states_msg_->velocity.at(legR_num_.at(th)) = std::abs(leg_joint_states_pat_ptr_->joint_vel_pat_legR[control_step_].at(th));
+        pub_joint_states_msg_->position.at(legL_num_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legL.at(th) * jointAng_posi_or_nega_legL_.at(th);
+        pub_joint_states_msg_->position.at(legR_num_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legR.at(th) * jointAng_posi_or_nega_legR_.at(th); 
+        pub_joint_states_msg_->velocity.at(legL_num_.at(th)) = std::abs(leg_joint_states_pat_ptr_->joint_vel_pat_legL.at(th));
+        pub_joint_states_msg_->velocity.at(legR_num_.at(th)) = std::abs(leg_joint_states_pat_ptr_->joint_vel_pat_legR.at(th));
       }
+      // std::cout << control_step_ << std::endl;
     }
     pub_joint_states_->publish(*pub_joint_states_msg_);
 
@@ -157,19 +178,19 @@ namespace robot_manager
 
     // Walking_Stabilization_Controller (1step)
     // std::cout << "walking stabilization controller" << std::endl;
-    start_time_ = std::chrono::system_clock::now();
-    walking_stabilization_ptr_ = wsc_->walking_stabilization_controller(walking_pattern_ptr_);
-    end_time_ = std::chrono::system_clock::now();
-    latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
-    std::cout << "WSC time [ms] : " << latency_ << std::endl;
+    // start_time_ = std::chrono::system_clock::now();
+    // walking_stabilization_ptr_ = wsc_->walking_stabilization_controller(walking_pattern_ptr_);
+    // end_time_ = std::chrono::system_clock::now();
+    // latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
+    // std::cout << "WSC time [ms] : " << latency_ << std::endl;
 
     // Convert_to_Joint_States (1step)
     // std::cout << "convert to joint states" << std::endl;
-    start_time_ = std::chrono::system_clock::now();
-    leg_joint_states_pat_ptr_ = ctjs_->convert_into_joint_states(walking_stabilization_ptr_, foot_step_ptr_);
-    end_time_ = std::chrono::system_clock::now();
-    latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
-    std::cout << "CTJS time [ms] : " << latency_ << std::endl;
+    // start_time_ = std::chrono::system_clock::now();
+    // leg_joint_states_pat_ptr_ = ctjs_->convert_into_joint_states(walking_stabilization_ptr_, foot_step_ptr_, walking_time_, walking_step_, control_step_, t_);
+    // end_time_ = std::chrono::system_clock::now();
+    // latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
+    // std::cout << "CTJS time [ms] : " << latency_ << std::endl;
 
     wall_timer_ = this->create_wall_timer(10ms, std::bind(&RobotManager::Step, this));
   }

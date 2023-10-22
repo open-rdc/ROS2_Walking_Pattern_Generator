@@ -71,5 +71,7 @@ namespace robot_manager
       std::chrono::system_clock::time_point start_time_;
       std::chrono::system_clock::time_point end_time_;
       double latency_;
+      double latency_ctjs_max_ = 0;
+      double latency_ctjs_min_ = 9999;
   };
 }

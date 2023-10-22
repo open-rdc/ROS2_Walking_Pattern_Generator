@@ -10,7 +10,11 @@ namespace convert_to_joint_states
 {
   std::unique_ptr<control_plugin_base::LegJointStatesPattern> Default_ConvertToJointStates::convert_into_joint_states(
     const std::shared_ptr<control_plugin_base::WalkingStabilization> walking_stabilization_ptr,
-    const std::shared_ptr<control_plugin_base::FootStep> foot_step_ptr
+    const std::shared_ptr<control_plugin_base::FootStep> foot_step_ptr,
+    float walking_time,
+    uint32_t walking_step,
+    uint32_t control_step,
+    float t
   ) {
     auto leg_joint_states_pat_ptr = std::make_unique<control_plugin_base::LegJointStatesPattern>();
     // leg_joint_states_pat_ptr->joint_ang_pat_legL = {{1, 2, 3, 4, 5, 6}};
@@ -40,10 +44,10 @@ namespace convert_to_joint_states
     float control_cycle = 0.01;
 
     // 時間
-    float t = 0;
+    // float t = 0;
     float T_sup = 0.8;  // 歩行周期
     float T_dsup = 0.5;  // 両脚支持期間
-    float walking_time = 0;
+    // float walking_time = 0;
     float walking_time_max = 5.6;  // TODO: この、歩行パラメータ最終着地時間[s]は引数で得る必要がある
 
     // 遊脚軌道関連
@@ -51,8 +55,8 @@ namespace convert_to_joint_states
     double swing_trajectory = 0.0;  // 遊脚軌道の値を記録
     double old_swing_trajectory = 0.0;  // 微分用
     double vel_swing_trajectory = 0.0;  // 遊脚軌道の速度
-    int walking_step = 0;
-    int control_step = 0;
+    // int walking_step = 0;
+    // int control_step = 0;
 
     // // 位置の基準を修正（Y軸基準を右足裏から胴体中心へ）
     // double Initwalking_stabilization_ptr->zmp_pos_fixy = walking_stabilization_ptr->zmp_pos_fix[0][1];
@@ -81,14 +85,14 @@ namespace convert_to_joint_states
     }
 
     // 各関節角度・角速度を生成
-    while(walking_time <= walking_time_max) {
+    // while(walking_time <= walking_time_max) {
 
-      // 支持脚切替タイミングの判定
-      if(t >= T_sup - 0.01) {
-        // 支持脚切替のための更新
-        t = 0;
-        walking_step++;
-      }
+    //   // 支持脚切替タイミングの判定
+    //   if(t >= T_sup - 0.01) {
+    //     // 支持脚切替のための更新
+    //     t = 0;
+    //     walking_step++;
+    //   }
 
       // // 位置の基準を修正（Y軸基準を右足裏から胴体中心へ）
       // walking_stabilization_ptr->cog_pos_fix[control_step][1] -= Initwalking_stabilization_ptr->zmp_pos_fixy;
@@ -318,10 +322,10 @@ namespace convert_to_joint_states
         }
 
         // 歩行パラメータの代入
-        leg_joint_states_pat_ptr->joint_ang_pat_legR.push_back(Q_legR);
-        leg_joint_states_pat_ptr->joint_vel_pat_legR.push_back({jointVel_legR[0], jointVel_legR[1], jointVel_legR[2], jointVel_legR[3], jointVel_legR[4], jointVel_legR[5]});  // eigen::vectorをstd::arrayに変換するためにこうしている。
-        leg_joint_states_pat_ptr->joint_ang_pat_legL.push_back(Q_legL);
-        leg_joint_states_pat_ptr->joint_vel_pat_legL.push_back({jointVel_legL[0], jointVel_legL[1], jointVel_legL[2], jointVel_legL[3], jointVel_legL[4], jointVel_legL[5]});
+        leg_joint_states_pat_ptr->joint_ang_pat_legR = Q_legR;
+        leg_joint_states_pat_ptr->joint_vel_pat_legR = {jointVel_legR[0], jointVel_legR[1], jointVel_legR[2], jointVel_legR[3], jointVel_legR[4], jointVel_legR[5]};  // eigen::vectorをstd::arrayに変換するためにこうしている。
+        leg_joint_states_pat_ptr->joint_ang_pat_legL = Q_legL;
+        leg_joint_states_pat_ptr->joint_vel_pat_legL = {jointVel_legL[0], jointVel_legL[1], jointVel_legL[2], jointVel_legL[3], jointVel_legL[4], jointVel_legL[5]};
       }
       // 左脚支持期
       else if(foot_pos[walking_step][1] > 0) {
@@ -360,10 +364,10 @@ namespace convert_to_joint_states
         }
 
         // 歩行パラメータの代入
-        leg_joint_states_pat_ptr->joint_ang_pat_legR.push_back(Q_legR);  // 遊脚
-        leg_joint_states_pat_ptr->joint_vel_pat_legR.push_back({jointVel_legR[0], jointVel_legR[1], jointVel_legR[2], jointVel_legR[3], jointVel_legR[4], jointVel_legR[5]});
-        leg_joint_states_pat_ptr->joint_ang_pat_legL.push_back(Q_legL);  // 支持脚
-        leg_joint_states_pat_ptr->joint_vel_pat_legL.push_back({jointVel_legL[0], jointVel_legL[1], jointVel_legL[2], jointVel_legL[3], jointVel_legL[4], jointVel_legL[5]});
+        leg_joint_states_pat_ptr->joint_ang_pat_legR = Q_legR;  // 遊脚
+        leg_joint_states_pat_ptr->joint_vel_pat_legR = {jointVel_legR[0], jointVel_legR[1], jointVel_legR[2], jointVel_legR[3], jointVel_legR[4], jointVel_legR[5]};
+        leg_joint_states_pat_ptr->joint_ang_pat_legL = Q_legL;  // 支持脚
+        leg_joint_states_pat_ptr->joint_vel_pat_legL = {jointVel_legL[0], jointVel_legL[1], jointVel_legL[2], jointVel_legL[3], jointVel_legL[4], jointVel_legL[5]};
       }
       // 右脚支持期
       else if(foot_pos[walking_step][1] < 0) {
@@ -402,18 +406,18 @@ namespace convert_to_joint_states
         }
 
         // 歩行パラメータの代入
-        leg_joint_states_pat_ptr->joint_ang_pat_legR.push_back(Q_legR);  // 支持脚
-        leg_joint_states_pat_ptr->joint_vel_pat_legR.push_back({jointVel_legR[0], jointVel_legR[1], jointVel_legR[2], jointVel_legR[3], jointVel_legR[4], jointVel_legR[5]});
-        leg_joint_states_pat_ptr->joint_ang_pat_legL.push_back(Q_legL);  // 遊脚
-        leg_joint_states_pat_ptr->joint_vel_pat_legL.push_back({jointVel_legL[0], jointVel_legL[1], jointVel_legL[2], jointVel_legL[3], jointVel_legL[4], jointVel_legL[5]});
+        leg_joint_states_pat_ptr->joint_ang_pat_legR = Q_legR;  // 支持脚
+        leg_joint_states_pat_ptr->joint_vel_pat_legR = {jointVel_legR[0], jointVel_legR[1], jointVel_legR[2], jointVel_legR[3], jointVel_legR[4], jointVel_legR[5]};
+        leg_joint_states_pat_ptr->joint_ang_pat_legL = Q_legL;  // 遊脚
+        leg_joint_states_pat_ptr->joint_vel_pat_legL = {jointVel_legL[0], jointVel_legL[1], jointVel_legL[2], jointVel_legL[3], jointVel_legL[4], jointVel_legL[5]};
       }
 
-      // 更新
-      control_step++;
-      t += control_cycle;
-      walking_time += control_cycle;
+      // // 更新
+      // control_step++;
+      // t += control_cycle;
+      // walking_time += control_cycle;
 
-    }
+    // }
     
     // LOG: Log file close
     //WPG_log_WalkingPttern.close();
