@@ -20,11 +20,6 @@ namespace walking_pattern_generator
     // 歩行パラメータの最終着地時間[s]を抽出
     float walking_time_max = foot_step_ptr->walking_step_time * (foot_step_ptr->foot_pos.size()-1);
 
-    // 重心位置・速度を保持する変数（重心は腰に位置するものとする）
-    // std::vector<std::array<double, 2>> walking_pattern_ptr->cc_cog_pos_ref;  // {{x0,y0},{x1,y1},{x2,y2}}
-    // std::vector<std::array<double, 2>> CoG_2D_Pos_local;
-    // std::vector<std::array<double, 2>> walking_pattern_ptr->cc_cog_vel_ref;
-
     // 時間, 時定数
     float t = 0;  // 0 ~ 支持脚切り替え時間
     float T_sup = foot_step_ptr->walking_step_time;  // 支持脚切り替えタイミング. 歩行素片終端時間
@@ -41,8 +36,6 @@ namespace walking_pattern_generator
     double y_d = 0;
     double dx_d = 0;
     double dy_d = 0;
-    // 支持脚着地位置・修正着地位置
-    // std::vector<std::array<double, 2>> walking_pattern_ptr->wc_foot_land_pos_ref;
     // 歩行素片のパラメータ
     double x_bar = 0;
     double y_bar = 0;
@@ -55,14 +48,12 @@ namespace walking_pattern_generator
     // 最適化のときのマテリアル
     double D = opt_weight_pos * std::pow((std::cosh(T_sup / T_c) - 1), 2) + opt_weight_vel * std::pow((std::sinh(T_sup / T_c) / T_c), 2);  
 
-    // loop. 0: CONTROL_CYCLE: walking_time_max
+    // time
     int control_step = 0;
     int walking_step = 0;
     float walking_time = 0;
     double S, C;  // sinh, cosh の短縮
     
-    // 初期着地位置はfoot_step_ptr->foot_posと同等なので、そちらを参照。
-
   // 初期着地位置の修正
     // sinh, cosh
     S = std::sinh(T_sup / T_c);

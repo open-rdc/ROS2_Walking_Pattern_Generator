@@ -19,7 +19,7 @@ namespace robot_manager
       walking_stabilization_ptr_ = wsc_->walking_stabilization_controller(walking_pattern_ptr_);
       end_time_ = std::chrono::system_clock::now();
       latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
-      std::cout << "WSC time [ms] : " << latency_ << std::endl;
+      // std::cout << "WSC time [ms] : " << latency_ << std::endl;
 
       // Convert_to_Joint_States (1step)
       // std::cout << "convert to joint states" << std::endl;
@@ -35,12 +35,10 @@ namespace robot_manager
       latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
       latency_ctjs_max_ = latency_ > latency_ctjs_max_ ? latency_ : latency_ctjs_max_;
       latency_ctjs_min_ = latency_ < latency_ctjs_min_ ? latency_ : latency_ctjs_min_;
-      std::cout << "CTJS time [ms] : " << latency_ << ", max [ms] : " << latency_ctjs_max_ << ", min [ms] : " << latency_ctjs_min_ <<  std::endl;
+      // std::cout << "CTJS time [ms] : " << latency_ << ", max [ms] : " << latency_ctjs_max_ << ", min [ms] : " << latency_ctjs_min_ <<  std::endl;
       // std::cout << control_step_ << std::endl;
     }
-// ここまでDEBUG
 
-    // 歩行パターンを1stepごとPublish
     // TODO: データの重要性からして、ここはServiceのほうがいい気がするんだ。
     // TODO: Pub/Subだから仕方がないが、データの受取ミスが発生する可能性がある。
     auto now_time = rclcpp::Clock().now();
@@ -143,7 +141,7 @@ namespace robot_manager
         rclcpp::sleep_for(10ms);
       }
     }
-    RCLCPP_INFO(this->get_logger(), "Publisher.");
+    RCLCPP_INFO(this->get_logger(), "Start Control Cycle.");
 
     // オフラインパターン生成
     if(ONLINE_GENERATE_ == false) {
@@ -153,7 +151,7 @@ namespace robot_manager
       foot_step_ptr_ = fsp_->foot_step_planner();
       end_time_ = std::chrono::system_clock::now();
       latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
-      std::cout << "FSP time [ms] : " << latency_ << std::endl;
+      // std::cout << "FSP time [ms] : " << latency_ << std::endl;
 
       // Walking_Pattern_Generator (stack)
       // std::cout << "walking pattern generator" << std::endl;
@@ -161,7 +159,7 @@ namespace robot_manager
       walking_pattern_ptr_ = wpg_->walking_pattern_generator(foot_step_ptr_);
       end_time_ = std::chrono::system_clock::now();
       latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
-      std::cout << "WPG time [ms] : " << latency_ << std::endl;
+      // std::cout << "WPG time [ms] : " << latency_ << std::endl;
     }
 
     wall_timer_ = this->create_wall_timer(10ms, std::bind(&RobotManager::Step_Offline, this));
