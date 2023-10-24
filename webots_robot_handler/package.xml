@@ -12,7 +12,7 @@
   <exec_depend>launch_ros</exec_depend>
 
   <depend>rclcpp</depend>
-  <depend>msgs_package</depend>
+  <!-- <depend>msgs_package</depend> -->
   <depend>webots_ros2_driver</depend>
   <depend>kinematics</depend>
   <depend>sensor_msgs</depend>
