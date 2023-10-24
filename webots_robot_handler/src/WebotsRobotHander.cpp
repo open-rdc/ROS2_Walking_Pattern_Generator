@@ -4,6 +4,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include <fstream>  // Logをファイルに吐くため
 #include <rmw/qos_profiles.h>
+#include "msgs_package/msg/control_output.hpp"
+#include "msgs_package/msg/feedback.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 
 #include <webots/robot.h>

@@ -8,6 +8,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(msgs_package REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -15,6 +16,7 @@ find_package(rclcpp REQUIRED)
 add_executable(robot_feedback_logger src/robot_feedback_logger.cpp)
 ament_target_dependencies(robot_feedback_logger
   rclcpp
+  msgs_package
 )
 target_include_directories(robot_feedback_logger PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

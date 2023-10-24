@@ -1,0 +1,14 @@
+# req: WSC, WPJ <=> res: Kinematics
+
+int8 fk_point
+float64[9] r_target_r  
+float64[3] p_target_r  
+float64[6] q_target_r  
+float64[9] r_target_l  
+float64[3] p_target_l  
+float64[6] q_target_l  
+---
+float64[3] p_result_r  
+float64[6] q_result_r  
+float64[3] p_result_l  
+float64[6] q_result_l  
