@@ -19,7 +19,6 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 
-find_package(msgs_package REQUIRED)
 find_package(kinematics REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
@@ -43,7 +42,6 @@ ament_target_dependencies(${PROJECT_NAME}
   sensor_msgs
   # webots_ros2_control
   # controller_manager
-  msgs_package
 )
 target_include_directories(${PROJECT_NAME}
   PUBLIC

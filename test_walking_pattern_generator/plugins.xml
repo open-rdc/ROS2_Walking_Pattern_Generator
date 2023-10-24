@@ -1,5 +1,0 @@
-<library path="test_walking_pattern_generator">
-  <class type="walking_pattern_generator::LinearInvertedPendulumModel" base_class_type="control_plugin_base::WalkingPatternGenerator">
-    <description>Test: WalkingPatternGenerator plugin.</description>
-  </class>
-</library>
