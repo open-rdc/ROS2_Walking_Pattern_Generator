@@ -7,9 +7,11 @@
   <maintainer email="yuu5364yuu@gmail.com">Yusuke Yamasaki</maintainer>
   <license>Apache License 2.0</license>
 
-  <buildtool_depend>ament_cmake_ros</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>rclcpp</depend>
+  <depend>robot_manager</depend>
+  <depend>pluginlib</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

@@ -1,26 +1,39 @@
 # ROS2_Walking_Pattern_Generator
-Walking Pattern Generator using ROS2 for Humanoid Robots<br>
+Walking Pattern Generator using ROS_2 for Humanoid Robots<br>
 <br>
 (Under Construction...)<br>
 <br>
 
-## 静歩行の実装 (**static_gait branch only**)
-現在のVersionでは、静歩行動作をシミュレーションすることができます。Development eviromentに環境を合わせた後、以下のコマンド群を実行すればできます。<br>
+## software architecture (transitioning)
+![software architecture](https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/assets/91410662/65bc44c6-189f-4462-aab7-3f36bd31621c)
 
+
+活動を記録しているブログ<br>
+[odome, ロボット開発記録, はてなブログ](https://odome.hatenablog.com/)<br>
+
+## Branch
+* devel_static_gait : 静歩行の開発用branch
+* static_gait : 静歩行のリリースbranch
+* devel_dynamic_gait : 動歩行の開発用branch
+* preparation : リリースに向けた整備などをおこなうbranch
+
+# Install
+This repository only. Need ROS_2_Humble, Webots_R2023a and webots_ros2 too. Check this out for [Development enviroment](#development-environment).<br> 
+This is example.
 ```bash
 mkdir -p ~/ros2_ws/src/
 cd ~/ros2_ws/src/
-git clone https://github.com/open-rdc/ROS2_Walking_Pattern_Generator.git
+git clone https://github.com/open-rdc/ROS2_Walking_Pattern_Generator.git  # WARN: Branch to be cloned.
 cd ..
 colcon build --symlink-install
 . install/setup.bash
-ros2 launch webots_robot_handler start_launch.py
 ```
 
-以下、静歩行シミュレーションの動画です。<br>
-
-https://user-images.githubusercontent.com/91410662/231434693-c9bd6288-f6b9-442e-affd-260f978284c8.mp4
-
+## Usage
+This only.
+```bash
+ros2 launch webots_robot_handler start_launch.py
+```
 
 ## Development environment
 * OS: [Xubuntu 22.04](https://xubuntu.org/)<br>
@@ -38,14 +51,15 @@ https://user-images.githubusercontent.com/91410662/231434693-c9bd6288-f6b9-442e-
     * walking_stabilization_controller node<br>
   * webots_robot_handler (webots_ros2 C++ plugin)<br>
     * ROBOTIS OP 2 node (plugin)<br>
-  <!-- * kinematics<br>
-    * FK_SrvServer node<br>
-    * IK_SrvServer node<br> -->
+  * kinematics<br>
+    * FK library<br>
+    * IK library<br>
+    * Jacobian library<br>
 <br>
 
-![image](https://user-images.githubusercontent.com/91410662/234569468-f75ff588-d25a-49c7-9ceb-60174b0049f0.png)
+<!-- ![image](https://user-images.githubusercontent.com/91410662/234569468-f75ff588-d25a-49c7-9ceb-60174b0049f0.png)
 <div align="center">Configulation Plan</div>
-<br>
+<br> -->
 
 <!-- ![image](https://user-images.githubusercontent.com/91410662/228191771-cca5eb6a-7219-4a2e-819b-28e3249042ab.png)
 <div align="center">rqt_graph</div>
@@ -53,7 +67,7 @@ https://user-images.githubusercontent.com/91410662/231434693-c9bd6288-f6b9-442e-
 <br> -->
 
 ## Robot Configulation
-* Used Robot: ROBOTIS OP2 ([official](http://en.robotis.com/model/board.php?bo_table=print_en&wr_id=39)<br>
+* Used Robot: ROBOTIS OP2 ([official](http://en.robotis.com/model/board.php?bo_table=print_en&wr_id=39))<br>
   * Webots simulation source data ([GitHub, cyberbotics, Webots, Darwin-op.proto](https://github.com/cyberbotics/webots/blob/master/projects/robots/robotis/darwin-op/protos/Darwin-op.proto
 ))<br>
   * Joint Status: [STATUS.txt](https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/blob/main/STATUS.txt)

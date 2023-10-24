@@ -1,14 +1,14 @@
 # req: WSC, WPJ <=> res: Kinematics
 
-# char arm_or_leg  # char "A" or "L"
-float64[9] r_target_r  # Eigen::Matrix3d => std::array<double, 9>
-float64[3] p_target_r  # Eigen::Vector3d => std::array<double, 3>
-float64[6] q_target_r  # std::array<double, 6>, [rad]
-float64[9] r_target_l  # Eigen::Matrix3d => std::array<double, 9>
-float64[3] p_target_l  # Eigen::Vector3d => std::array<double, 3>
-float64[6] q_target_l  # std::array<double, 6>, [rad]
+int8 fk_point
+float64[9] r_target_r  
+float64[3] p_target_r  
+float64[6] q_target_r  
+float64[9] r_target_l  
+float64[3] p_target_l  
+float64[6] q_target_l  
 ---
-float64[3] p_result_r  # IK_result, std::array<double, 3> => Eigen::Vector3d
-float64[6] q_result_r  # FK_result, std::array<double, 6>, [rad]
-float64[3] p_result_l  # IK_result, std::array<double, 3> => Eigen::Vector3d
-float64[6] q_result_l  # FK_result, std::array<double, 6>, [rad]
+float64[3] p_result_r  
+float64[6] q_result_r  
+float64[3] p_result_l  
+float64[6] q_result_l  

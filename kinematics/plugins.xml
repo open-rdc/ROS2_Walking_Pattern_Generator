@@ -1,0 +1,11 @@
+<library path="kinematics">
+  <class type="kinematics::Default_ForwardKinematics" base_class_type="control_plugin_base::ForwardKinematics">
+    <description>Default forward_kinematics plugin.</description>
+  </class>
+  <class type="kinematics::Default_InverseKinematics" base_class_type="control_plugin_base::InverseKinematics">
+    <description>Default inverse_kinematics plugin.</description>
+  </class>
+  <class type="kinematics::Default_Jacobian" base_class_type="control_plugin_base::Jacobian">
+    <description>Default jacobian plugin.</description>
+  </class>
+</library>
