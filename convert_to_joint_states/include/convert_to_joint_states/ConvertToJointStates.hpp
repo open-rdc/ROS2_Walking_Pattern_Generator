@@ -32,6 +32,8 @@ namespace convert_to_joint_states
       ) override;
       
     private:
+      // std::unique_ptr<control_plugin_base::LegJointStatesPattern> leg_joint_states_pat_ptr_ = std::make_unique<control_plugin_base::LegJointStatesPattern>();
+
       std::shared_ptr<control_plugin_base::InverseKinematics> ik_;
       std::shared_ptr<control_plugin_base::Jacobian> jac_;
 
@@ -40,23 +42,42 @@ namespace convert_to_joint_states
       std::shared_ptr<control_plugin_base::LegStates_ToJac> legL_states_jac_ptr_ = std::make_shared<control_plugin_base::LegStates_ToJac>();
       std::shared_ptr<control_plugin_base::LegStates_ToJac> legR_states_jac_ptr_ = std::make_shared<control_plugin_base::LegStates_ToJac>();
 
+      // parameters
+      // robot
       std::array<Eigen::Vector3d, 6> UnitVec_legL_;
       std::array<Eigen::Vector3d, 6> UnitVec_legR_;
       std::array<Eigen::Vector3d, 7> P_legL_waist_standard_;
       std::array<Eigen::Vector3d, 7> P_legR_waist_standard_;
-      Eigen::Matrix3d end_eff_rot;
+      Eigen::Matrix3d end_eff_rot_;
+      float length_leg_ = 0;
+
+      // time
+      float control_cycle_ = 0;
+      float T_sup_ = 0;
+      float T_dsup_ = 0;
 
       // std::ofstream WPG_log_FootTrajectory;
       // std::string WPG_log_FootTrajectory_path = "src/Log/WPG_log_FootTrajectory.dat";
       // std::ofstream WPG_log_SwingTrajectory;
       // std::string WPG_WPG_log_SwingTrajectory_path = "src/Log/WPG_log_SwingTrajectory.dat";
 
-      // parameters
-
       // trajectory
-      double swing_trajectory = 0.0;  // 遊脚軌道の値を記録
-      double old_swing_trajectory = 0.0;  // 微分用
-      double vel_swing_trajectory = 0.0;  // 遊脚軌道の速度
+      double swing_trajectory_ = 0.0;  // 遊脚軌道の値を記録
+      double old_swing_trajectory_ = 0.0;  // 微分用
+      double vel_swing_trajectory_ = 0.0;  // 遊脚軌道の速度
+      float height_leg_lift_ = 0;  // 遊脚軌道の足上げ高さ
+
+      // IKと歩行パラメータの定義・遊脚軌道の反映
+      Eigen::Vector<double, 3> Foot_3D_Pos_;
+      Eigen::Vector<double, 3> Foot_3D_Pos_Swing_;
+      Eigen::Vector<double, 6> CoG_3D_Vel_;
+      Eigen::Vector<double, 6> CoG_3D_Vel_Swing_;
+      std::array<double, 6> Q_legR_{0, 0, 0, 0, 0, 0};
+      std::array<double, 6> Q_legL_{0, 0, 0, 0, 0, 0};
+      Eigen::Vector<double, 6> jointVel_legR_;
+      Eigen::Vector<double, 6> jointVel_legL_;
+      Eigen::Matrix<double, 6, 6> Jacobi_legR_ = Eigen::MatrixXd::Zero(6, 6);
+      Eigen::Matrix<double, 6, 6> Jacobi_legL_ = Eigen::MatrixXd::Zero(6, 6);
   };
 }
 
