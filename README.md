@@ -1,8 +1,8 @@
 > This README was created by translating the Japanese text using Google Translate.
 
 # ROS2_Walking_Pattern_Generator
-Walking Controller using ROS_2 for Humanoid Robots
-<br>
+Walking Controller using ROS_2 for Humanoid Robots.
+<br><br>
 A walking control software for humanoid robots using ROS 2. We are proceeding with development with an emphasis on scalability, versatility, and simplicity, and we plan to be able to make humanoid robots walk without any advanced work.<br>
 <br>
 
