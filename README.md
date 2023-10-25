@@ -8,7 +8,7 @@ A walking control software for humanoid robots using ROS 2. We are proceeding wi
 
 ## Emviroment
 It is compatible with the following OS:<br>
-* Ubuntu 22.04 ([official]())
+* Ubuntu 22.04 ([official](https://ubuntu.com/desktop))
 
 Not tested on other OSes, but may work.<br>
 
@@ -66,7 +66,7 @@ https://github.com/Yusuke-Yamasaki-555/memo_thesis/assets/91410662/bb742085-ff0e
 This software is licensed under [Apache License 2.0](https://opensource.org/license/apache-2-0/).
 
 ## Author
-developer & maintainer : Yusuke-Yamasaki-555 ([GitHub](), [X (twitter)](), [blog (jp)](https://odome.hatenablog.com/))
+developer & maintainer : Yusuke-Yamasaki-555 ([GitHub](https://github.com/Yusuke-Yamasaki-555), [X (twitter)](https://twitter.com/OdoOdomeme555), [blog (jp)](https://odome.hatenablog.com/))
 
 
 
