@@ -38,9 +38,6 @@ The version of this dependency is determined based on your development environme
 ```bash
 mkdir -p ~/ros2_ws/src/ && cd ~/ros2_ws/src/
 git clone https://github.com/open-rdc/ROS2_Walking_Pattern_Generator.git
-cd ..
-colcon build --symlink-install
-. install/setup.bash
 ```
 
 ### Step3
