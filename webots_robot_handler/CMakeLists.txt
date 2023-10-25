@@ -20,7 +20,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 
 # find_package(msgs_package REQUIRED)
-find_package(kinematics REQUIRED)
+# find_package(kinematics REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
 find_package(Eigen3 REQUIRED)
@@ -39,7 +39,7 @@ ament_target_dependencies(${PROJECT_NAME}
   pluginlib
   rclcpp
   webots_ros2_driver
-  kinematics
+  # kinematics
   sensor_msgs
   # webots_ros2_control
   # controller_manager

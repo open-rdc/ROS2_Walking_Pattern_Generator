@@ -16,32 +16,6 @@ namespace convert_to_joint_states
     float t
   ) {
     std::unique_ptr<control_plugin_base::LegJointStatesPattern> leg_joint_states_pat_ptr = std::make_unique<control_plugin_base::LegJointStatesPattern>();
-    // auto leg_joint_states_pat_ptr = std::make_unique<control_plugin_base::LegJointStatesPattern>();
-
-    // // robot
-    // float length_leg_ = 171.856 / 1000;
-
-    // // control cycle
-    // float control_cycle_ = 0.01;
-
-    // // 時間
-    // float T_sup_ = 0.8;  // 歩行周期
-    // float T_dsup_ = 0.5;  // 両脚支持期間
-
-    // // 遊脚軌道関連
-    // float height_leg_lift_ = 0.025;  // 足上げ高さ [m]
-
-    // // IKと歩行パラメータの定義・遊脚軌道の反映
-    // Eigen::Vector<double, 3> Foot_3D_Pos_;
-    // Eigen::Vector<double, 3> Foot_3D_Pos_Swing_;
-    // Eigen::Vector<double, 6> CoG_3D_Vel_;
-    // Eigen::Vector<double, 6> CoG_3D_Vel_Swing_;
-    // std::array<double, 6> Q_legR_{0, 0, 0, 0, 0, 0};
-    // std::array<double, 6> Q_legL_{0, 0, 0, 0, 0, 0};
-    // Eigen::Vector<double, 6> jointVel_legR_;
-    // Eigen::Vector<double, 6> jointVel_legL_;
-    // Eigen::Matrix<double, 6, 6> Jacobi_legR_ = Eigen::MatrixXd::Zero(6, 6);
-    // Eigen::Matrix<double, 6, 6> Jacobi_legL_ = Eigen::MatrixXd::Zero(6, 6);
 
     // DEBUG: 着地位置の基準を修正
       // TODO: こいつも他で実行するべき。引数に入ってくる段階で修正されているべき。

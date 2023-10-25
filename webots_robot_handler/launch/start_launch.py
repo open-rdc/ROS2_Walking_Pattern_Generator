@@ -105,7 +105,4 @@ def generate_launch_description():
 
 [driver-3] [WARN] [1693453176.244747602] [ROBOTIS_OP2]: The direct declaration of the driver node in the launch file is deprecated. Please use the new WebotsController node instead.
 [ドライバー-3] [警告] [1693453176.244747602] [ROBOTIS_OP2]: 起動ファイル内のドライバー ノードの直接宣言は非推奨です。 代わりに新しい WebotsController ノードを使用してください。
-
-[walking_pattern_generator-4] [WARN] [1693453170.223203109] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
-[walking_pattern_generator-4] [警告] [1693453170.223203109] [rcl.logging_rosout]: 指定されたノード名に対してパブリッシャーはすでに登録されています。 同じ名前の複数のノードが原因である場合、そのロガー名のすべてのログが既存のパブリッシャー経由で送信されます。 その名前を持つノードが破棄されるとすぐに、パブリッシャーの登録が解除され、その名前のそれ以上のログが rosout トピックでパブリッシュされなくなります。
 """
