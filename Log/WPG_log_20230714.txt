@@ -1,0 +1,12 @@
+INFO: 'ROBOTIS_OP2' extern controller: waiting for connection on ipc://1234/ROBOTIS_OP2 or on tcp://<ip_address>:1234/ROBOTIS_OP2
+INFO: 'ROBOTIS_OP2' extern controller: connected.
+WARNING: DEF ROBOTIS_OP2 RobotisOp2 (PROTO) > DEF DPelvYL HingeJoint > Solid > DEF DPelvL HingeJoint > Solid > DEF DLegUpperL HingeJoint > Solid > DEF DLegLowerL HingeJoint > Solid > DEF DAnkleL HingeJoint > Solid > DEF DFootL HingeJoint > RotationalMotor: too big requested position: 2.73542 > 0.6
+WARNING: DEF ROBOTIS_OP2 RobotisOp2 (PROTO) > DEF DPelvYR HingeJoint > RotationalMotor: too big requested position: 3.14159 > 0.66
+WARNING: DEF ROBOTIS_OP2 RobotisOp2 (PROTO) > DEF DPelvYR HingeJoint > Solid > DEF DPelvR HingeJoint > Solid > DEF DLegUpperR HingeJoint > Solid > DEF DLegLowerR HingeJoint > Solid > DEF DAnkleR HingeJoint > RotationalMotor: too low requested position: -2.72103 < -1.24
+WARNING: DEF ROBOTIS_OP2 RobotisOp2 (PROTO) > DEF DPelvYR HingeJoint > Solid > DEF DPelvR HingeJoint > Solid > DEF DLegUpperR HingeJoint > Solid > DEF DLegLowerR HingeJoint > Solid > DEF DAnkleR HingeJoint > Solid > DEF DFootR HingeJoint > RotationalMotor: too low requested position: -3.14108 < -0.68
+WARNING: DEF ROBOTIS_OP2 RobotisOp2 (PROTO) > DEF DPelvYL HingeJoint > Solid > DEF DPelvL HingeJoint > Solid > DEF DLegUpperL HingeJoint > Solid > DEF DLegLowerL HingeJoint > Solid > DEF DAnkleL HingeJoint > Solid > DEF DFootL HingeJoint > RotationalMotor: too big requested position: 2.73542 > 0.6
+WARNING: DEF ROBOTIS_OP2 RobotisOp2 (PROTO) > DEF DPelvYR HingeJoint > RotationalMotor: too big requested position: 3.14159 > 0.66
+
+
+[driver-2] Error: wb_motor_set_position() called with an invalid 'position' argument (NaN).
+[driver-2] Error: wb_motor_set_velocity() called with an invalid 'velocity' argument.(NaN)

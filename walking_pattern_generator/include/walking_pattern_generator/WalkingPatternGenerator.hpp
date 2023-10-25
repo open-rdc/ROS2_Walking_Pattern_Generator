@@ -1,6 +1,12 @@
 #include "rclcpp/rclcpp.hpp"
-#include "msgs_package/msg/to_walking_stabilization_controller_message.hpp"
-#include "msgs_package/srv/to_kinematics_message.hpp"
+#include "msgs_package/msg/walking_pattern.hpp"  // いずれ消える？
+#include "msgs_package/msg/control_output.hpp"  // DEBUG:
+#include "sensor_msgs/msg/joint_state.hpp"
+#include "kinematics/IK.hpp"
+#include "kinematics/FK.hpp"
+#include "kinematics/Jacobian.hpp"
+
+#include "Eigen/Dense"
 
 namespace walking_pattern_generator
 {
@@ -9,36 +15,60 @@ namespace walking_pattern_generator
       WalkingPatternGenerator(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
 
     private:
-      rclcpp::Publisher<msgs_package::msg::ToWalkingStabilizationControllerMessage>::SharedPtr toWSC_pub_;
-      rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_FK_clnt_;
-      rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_IK_clnt_;
+      // publisher
+      // TODO: managerが完成次第、ControlOutput -> WalkingPattern に変更するべき
+      // TODO: 重要性からして、ここはServiceのほうがいい気がするんだ。
+      // TODO: ここの型をJointStateにして、ros2_controlに対応させる。さすればRviz2との連携も可能。
+      // rclcpp::Publisher<msgs_package::msg::ControlOutput>::SharedPtr pub_walking_pattern_;
+      
+      // CHECKME
+      rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr pub_walking_pattern_;
 
-      // get FK, IK result. set publish data.
-      std::array<double, 3> p_target_r_;
-      std::array<double, 3> p_target_l_;
-      std::array<double, 6> q_target_r_;
-      std::array<double, 6> q_target_l_;
+      // 共有ライブラリの実体化
+      kinematics::FK FK_;
+      kinematics::IK IK_;
+      kinematics::Jacobian Jacobian_;
 
-      // timer
-      rclcpp::TimerBase::SharedPtr step_pub_;
+      // 動歩行パターン生成関数
+      void WalkingPatternGenerate(void);
 
-      // PARAMETER
-      bool publish_ok_check_;
-      int step_counter_;
-      int loop_number_;
-      // 逆運動学からJointAngleを導出する
-      std::array<std::array<double, 3>, 4> walking_pattern_P_R_;
-      std::array<std::array<double, 3>, 4> walking_pattern_P_L_;
-      // jointVelも、逆動力学（？）で導出したい。
-      std::array<std::array<double, 6>, 4> walking_pattern_jointVel_R_;
-      std::array<std::array<double, 6>, 4> walking_pattern_jointVel_L_;
+      // 歩行パターンの行列. 各関節の角度・回転速度を保存
+      std::vector<std::array<double, 6>> WalkingPattern_Pos_legR_;
+      std::vector<std::array<double, 6>> WalkingPattern_Pos_legL_;
+      std::vector<std::array<double, 6>> WalkingPattern_Vel_legR_;
+      std::vector<std::array<double, 6>> WalkingPattern_Vel_legL_;
 
-      void step_WPG_pub(void);
+      // ヤコビアン
+      Eigen::Matrix<double, 6, 6> Jacobi_legR_;
+      Eigen::Matrix<double, 6, 6> Jacobi_legL_;
 
-      void callback_res(const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future);
+      // 関節角度
+      std::array<double, 6> Q_legR_;
+      std::array<double, 6> Q_legL_;
 
-// DEBUG===/*
+
+// TODO: Parameterとして扱いたい変数達
       void DEBUG_ParameterSetting(void);
-// DEBUG===*/
+
+      float weight_;  // 重量[kg]
+      float length_leg_;  // 脚の長さ[m]. これが腰の高さとなる。
+
+      // 歩行パラメータ
+      std::vector<std::array<double, 3>> LandingPosition_;
+
+      // 目標足先姿勢行列
+      Eigen::Matrix<double, 3, 3> R_target_leg;
+
+      // 脚の単位行列
+      std::array<Eigen::Vector3d, 6> UnitVec_legR_;
+      std::array<Eigen::Vector3d, 6> UnitVec_legL_;
+
+      // 脚のリンク長
+        // proto準拠
+      std::array<Eigen::Vector3d, 7> P_legR_;
+      std::array<Eigen::Vector3d, 7> P_legL_;
+        // 腰位置に合わせる
+      std::array<Eigen::Vector3d, 7> P_legR_waist_standard_;
+      std::array<Eigen::Vector3d, 7> P_legL_waist_standard_;
   };
 }

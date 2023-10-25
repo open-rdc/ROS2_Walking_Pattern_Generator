@@ -1,0 +1,5 @@
+<library path="foot_step_planner">
+  <class type="foot_step_planner::Default_FootStepPlanner" base_class_type="control_plugin_base::FootStepPlanner">
+    <description>Default foot_step_planner plugin.</description>
+  </class>
+</library>
