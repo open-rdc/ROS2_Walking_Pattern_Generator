@@ -6,13 +6,13 @@ Walking Controller using ROS_2 for Humanoid Robots.
 A walking control software for humanoid robots using ROS 2. We are proceeding with development with an emphasis on scalability, versatility, and simplicity, and we plan to be able to make humanoid robots walk without any advanced work.<br>
 <br>
 
-## Emviroment
+## Emvironment
 It is compatible with the following OS:<br>
 * Ubuntu 22.04 ([official](https://ubuntu.com/desktop))
 
 Not tested on other OSes, but may work.<br>
 
-## Depenencies
+## Dependencies
 It depends on the following software:<br>
 * ROS 2 Humble ([official](https://docs.ros.org/en/humble/index.html))
 * Eigen 3.4 ([official](https://eigen.tuxfamily.org/index.php?title=Main_Page))
