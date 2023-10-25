@@ -2,10 +2,11 @@
 #include "pluginlib/class_list_macros.hpp"
 
 #include "rclcpp/rclcpp.hpp"
-#include <rmw/qos_profiles.h>
-#include "iostream"
-#include <chrono>
-#include "msgs_package/srv/to_webots_robot_handler_message.hpp"
+#include <fstream>  // Logをファイルに吐くため
+// #include <rmw/qos_profiles.h>
+// #include "msgs_package/msg/control_output.hpp"
+// #include "msgs_package/msg/feedback.hpp"
+#include "sensor_msgs/msg/joint_state.hpp"
 
 #include <webots/robot.h>
 #include <webots/motor.h>
@@ -13,154 +14,164 @@
 #include <webots/accelerometer.h>
 #include <webots/gyro.h>
 
-
 using namespace std::chrono_literals;
-using namespace std::placeholders;
-
 
 namespace webots_robot_handler
 {
-  // auto time = rclcpp::Clock{}.now().seconds();
-  // auto time_max = time - time;
-  // auto time_min = time + time;
-  // int hoge = 0;
-
-  static const rmw_qos_profile_t custom_qos_profile =
-  {
-    RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
-    1,  // History(keep_last) Depth
-    RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,  // Reliability: best_effort or reliable
-    RMW_QOS_POLICY_DURABILITY_VOLATILE,  // Durability: transient_local or volatile
-    RMW_QOS_DEADLINE_DEFAULT,  // Deadline: default or number
-    RMW_QOS_LIFESPAN_DEFAULT,  // Lifespan: default or number
-    RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,  // Liveliness: automatic or manual_by_topic
-    RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,  // Liveliness_LeaseDuration: default or number
-    false  // avoid_ros_namespace_conventions
-  };
+  // static const rmw_qos_profile_t custom_qos_profile =
+  // {
+  //   RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
+  //   1,  // History(keep_last) Depth
+  //   RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,  // Reliability: best_effort or reliable
+  //   RMW_QOS_POLICY_DURABILITY_VOLATILE,  // Durability: transient_local or volatile
+  //   RMW_QOS_DEADLINE_DEFAULT,  // Deadline: default or number
+  //   RMW_QOS_LIFESPAN_DEFAULT,  // Lifespan: default or number
+  //   RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,  // Liveliness: automatic or manual_by_topic
+  //   RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,  // Liveliness_LeaseDuration: default or number
+  //   false  // avoid_ros_namespace_conventions
+  // };
 
   void WebotsRobotHandler::DEBUG_ParameterSetting() {
-    motors_name_ = {("ShoulderR"), ("ShoulderL"), ("ArmUpperR"), ("ArmUpperL"), ("ArmLowerR"), ("ArmLowerL"), 
-                    ("PelvYR"), ("PelvYL"), ("PelvR"), ("PelvL"), ("LegUpperR"), ("LegUpperL"), ("LegLowerR"), ("LegLowerL"), ("AnkleR"), ("AnkleL"), ("FootR"), ("FootL"), 
-                    ("Neck"), ("Head")};
-    initJointAng_ = {0, 0, -0.5, 0.5, -1, 1, 
-                     0, 0, 0, 0, -3.14/8, 3.14/8, 3.14/4, -3.14/4, 3.14/8, -3.14/8, 0, 0, 
-                     0, 0.26};  // init joints ang [rad]. corresponding to motors_name
-    initJointVel_ = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.5, 0.5};  // init joints vel [rad/s]
+    // protoに沿った各モータの名前
+    motors_name_ = {("ShoulderR"), ("ShoulderL"), ("ArmUpperR"), ("ArmUpperL"), ("ArmLowerR"), ("ArmLowerL"),   // arm
+                    ("PelvYR"), ("PelvYL"), ("PelvR"), ("PelvL"), ("LegUpperR"), ("LegUpperL"), ("LegLowerR"), ("LegLowerL"), ("AnkleR"), ("AnkleL"), ("FootR"), ("FootL"),   //leg
+                    ("Neck"), ("Head")};  //body
+    // 初期姿勢を設定. init joints ang [rad]. corresponding to motors_name
+    // initJointAng_ = {0, 0, -0.5, 0.5, -1, 1,   // arm
+    //                 0, 0, 0, 0, -3.14/8, 3.14/8, 3.14/4, -3.14/4, 3.14/8, -3.14/8, 0, 0,   // leg
+    //                 0, 0.26};  // body
+    initJointAng_ = {0, 0, 0, 0, 0, 0,   // arm
+                    0, 0, 0, 0, -3.14/8, 3.14/8, 3.14/4, -3.14/4, 3.14/8, -3.14/8, 0, 0,   // leg
+                    0, 0};  // body
+        // initJointAng_ = {0, 0, -0.5, 0.5, -1, 1,   // arm
+        //             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   // leg
+        //             0, 0};  // body
+    // 初期姿勢に移行する時の角速度.  init joints vel [rad/s]
+    initJointVel_ = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5,  // arm
+                    0.5, 0.5, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5, 0.25, 0.25, 0.5, 0.5,  // log
+                    0.5, 0.5};  // body
 
+    // 脚のラベル一覧
     jointNum_legR_ = {6, 8, 10, 12, 14, 16};  // joint numbers (motorsTag[20] & positionSensorsTag[20])(right leg)
     jointNum_legL_ = {7, 9, 11, 13, 15, 17};  // joint numbers (motorsTag[20] & positionSensorsTag[20])(left leg)
-    jointAng_posi_or_nega_legR_ = {-1, -1, 1, 1, -1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
-    jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
+    // IKなどは右手系で解いているが、ロボットで左手系を採用している関節が幾つかある。それに対応する為の配列。
+    // jointAng_posi_or_nega_legR_ = {-1, -1, 1, 1, -1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
+    // jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
+    jointAng_posi_or_nega_legR_ = {1, 1, 1, 1, 1, 1};  //
+    jointAng_posi_or_nega_legL_ = {1, 1, 1, 1, 1, 1}; // URDF側で回転系の補間を行っている。ので、Handler側で行う必要はない。
+
+    weight_ = 3.0;  // [kg]
+    length_leg_ = 171.856 / 1000;  // [m] ちょっと中腰。特異点を回避。直立：219.5[mm]
+  }
+
+  // CHECKME: Rviz2との連携を確認するために、JointState TopicをSubscribe
+  void WebotsRobotHandler::JointStates_Callback(const sensor_msgs::msg::JointState::SharedPtr callback_data) {
+    // for(int i = 0; i < 20; i++) {
+    //   std::cout << callback_data->name[i] << "   " << callback_data->position[i] << "   " << callback_data->velocity[i] << std::endl;
+    // }
+    // WalkingPattern_Pos_legL_.resize(1);
+    // WalkingPattern_Pos_legR_.resize(1);
+    // WalkingPattern_Vel_legL_.resize(1);
+    // WalkingPattern_Vel_legR_.resize(1);
+    WalkingPattern_Pos_legL_[0] = {
+      callback_data->position[8],
+      callback_data->position[9],
+      callback_data->position[10],
+      callback_data->position[11],
+      callback_data->position[12],
+      callback_data->position[13]
+    };
+    WalkingPattern_Pos_legR_[0] = {
+      callback_data->position[14],
+      callback_data->position[15],
+      callback_data->position[16],
+      callback_data->position[17],
+      callback_data->position[18],
+      callback_data->position[19]
+    };
+    WalkingPattern_Vel_legL_[0] = {
+      callback_data->velocity[8],
+      callback_data->velocity[9],
+      callback_data->velocity[10],
+      callback_data->velocity[11],
+      callback_data->velocity[12],
+      callback_data->velocity[13]
+    };
+    WalkingPattern_Vel_legR_[0] = {
+      callback_data->velocity[14],
+      callback_data->velocity[15],
+      callback_data->velocity[16],
+      callback_data->velocity[17],
+      callback_data->velocity[18],
+      callback_data->velocity[19]
+    };
   }
 
   void WebotsRobotHandler::init(
     webots_ros2_driver::WebotsNode *node,
     std::unordered_map<std::string, std::string> &parameters
   ) {
-    node_ = node;
-    auto a = parameters;
+    node_ = node;  // 他関数内でも使うため
+    (void)parameters;  // fake
 
-    // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Start up WebotsRobotHandler. Hello WebotsRobotHandler!!");
+    // auto custom_QoS = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile));
 
-    toWRH_clnt_ = node_->create_client<msgs_package::srv::ToWebotsRobotHandlerMessage>(
-      "FB_StabilizationController",
-      custom_qos_profile
-    );
+    using namespace std::placeholders;
 
-    // check service server
-    while(!toWRH_clnt_->wait_for_service(1s)) {
-      if(!rclcpp::ok()) {
-        RCLCPP_ERROR(node_->get_logger(), "ERROR!!: FB_StabilizationController service is dead.");
-        return;
-      }
-      // RCLCPP_INFO(node_->get_logger(), "Waiting for FB_StabilizationController service...");
-    }
+    // CHECKME
+    sub_joint_state_ = node_->create_subscription<sensor_msgs::msg::JointState>("joint_states", 10, std::bind(&WebotsRobotHandler::JointStates_Callback, this, _1));
 
-    // DEBUG parameter setting
+    // DEBUG: parameter setting
     DEBUG_ParameterSetting();
 
-    for(int i = 0; i < 20; i++) {  // get motor tags & position_sensor tags
-      motorsTag_[i] = wb_robot_get_device(motors_name_[i].c_str());
-      positionSensorsTag_[i] = wb_robot_get_device((motors_name_[i]+"S").c_str());
-      wb_position_sensor_enable(positionSensorsTag_[i], 100);
+    // get motor tags & position_sensor tags
+    for(int tag = 0; tag < 20; tag++) {  
+      motorsTag_[tag] = wb_robot_get_device(motors_name_[tag].c_str());
+      positionSensorsTag_[tag] = wb_robot_get_device((motors_name_[tag]+"S").c_str());
+      wb_position_sensor_enable(positionSensorsTag_[tag], 1);  // enable & sampling_period: 100[ms]
     }
     accelerometerTag_ = wb_robot_get_device("Accelerometer");
-    wb_accelerometer_enable(accelerometerTag_, 100);  // enable & sampling_period: 100[ms]
+    wb_accelerometer_enable(accelerometerTag_, 1);  // enable & sampling_period: 100[ms]
     gyroTag_ = wb_robot_get_device("Gyro");
-    wb_gyro_enable(gyroTag_, 100);
+    wb_gyro_enable(gyroTag_, 1);  // enable & sampling_period: 100[ms]
 
-    // RCLCPP_INFO(node_->get_logger(), "Set init joints_angle.");
-
-    for(int i = 0; i < 20; i++) {  // set init position & value
-      getJointAng_[i] = 0;
-      wb_motor_set_position(motorsTag_[i], initJointAng_[i]);
-      wb_motor_set_velocity(motorsTag_[i], initJointVel_[i]);
+    // set init position & value
+    // TODO: 脚の初期姿勢（特に位置）はIKの解から与えたい。今は角度を決め打ちで与えているので、初期姿勢の変更がめっちゃめんどくさい。
+    // jointNum_legR_とかを使って、ここでIKを解いてinitJointAng_の指定列に結果を代入すればOK
+    for(int tag = 0; tag < 20; tag++) {  
+      getJointAng_[tag] = 0;
+      wb_motor_set_position(motorsTag_[tag], initJointAng_[tag]);
+      wb_motor_set_velocity(motorsTag_[tag], initJointVel_[tag]);
     }
-
-    // RCLCPP_INFO(node_->get_logger(), "Finish init, Start step.");
+    
+    // // DEBUG: 初期姿勢への移行が済むまで待つための変数。決め打ち
+    // // TODO: IMUで初期姿勢への移行完了を検知したい。値がある一定値以内になったらフラグを解除する方式を取りたい
+    wait_step = 500;  // 500 * 10[ms] = 5[s]
   }
 
-
-  void WebotsRobotHandler::callback_res(
-    rclcpp::Client<msgs_package::srv::ToWebotsRobotHandlerMessage>::SharedFuture future
-  ) {
-    // set joints angle & velocity
-    for(int i = 0; i < 6; i++) {
-      wb_motor_set_position(motorsTag_[jointNum_legR_[i]], future.get()->q_fix_r[i]*jointAng_posi_or_nega_legR_[i]);
-      wb_motor_set_velocity(motorsTag_[jointNum_legR_[i]], future.get()->dq_fix_r[i]);
-      wb_motor_set_position(motorsTag_[jointNum_legL_[i]], future.get()->q_fix_l[i]*jointAng_posi_or_nega_legL_[i]);
-      wb_motor_set_velocity(motorsTag_[jointNum_legL_[i]], future.get()->dq_fix_l[i]);
-    }
-
-    // RCLCPP_INFO(node_->get_logger(), time - rclcpp::Clock{}.now().seconds());
-    // auto time2 = rclcpp::Clock{}.now().seconds();
-    // if(hoge > 20){
-    //   auto time_dev = time2 - time;
-    //   if(time_max < time_dev){time_max = time_dev;}
-    //   if(time_min > time_dev){time_min = time_dev;}
-    //   std::cout << "[WebotsRobotHandler]: " << time_dev << "    max: " << time_max <<  "    min: " << time_min << std::endl;
-    // }
-    // hoge++;
-    // time = time2;
-    // RCLCPP_INFO(node_->get_logger(), "Set Robot Motion");
-  }
-
-
+  // 恐らく、.wbtのstep_timeを10[ms]に設定してても、step()が10[ms]以内で回る保証はないのだろう。
   void WebotsRobotHandler::step() {
     // RCLCPP_INFO(node_->get_logger(), "step...");
-    
-    // [DEBUG] wait until the inital movement is over.
-    if(count < 200) { /*std::cout << count << std::endl;*/ count++; }
-    else if(count >= 200) {
 
-
-      // get sensor data
-      for(int i = 0; i < 20; i++) {
-        getJointAng_[i] = wb_position_sensor_get_value(positionSensorsTag_[i]);
-      }
-      accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);
-      gyroValue_ = wb_gyro_get_values(gyroTag_);
-    
-      auto toWRH_req = std::make_shared<msgs_package::srv::ToWebotsRobotHandlerMessage::Request>();
-
-      toWRH_req->accelerometer_now = {accelerometerValue_[0], accelerometerValue_[1], accelerometerValue_[2]};
-      toWRH_req->gyro_now = {gyroValue_[0], gyroValue_[1], gyroValue_[2]};
-      toWRH_req->q_now_r = {getJointAng_[6], getJointAng_[8], getJointAng_[10], getJointAng_[12], getJointAng_[14], getJointAng_[16]};
-      toWRH_req->q_now_l = {getJointAng_[7], getJointAng_[9], getJointAng_[11], getJointAng_[13], getJointAng_[15], getJointAng_[17]};
-
-      // RCLCPP_INFO(node_->get_logger(), "Request to WSC...");
-      toWRH_clnt_->async_send_request(
-        toWRH_req, 
-        std::bind(&WebotsRobotHandler::callback_res, this, _1)
-      );
-
+    // // DEBUG: 初期姿勢が完了するまでwait
+    if(wait_step != 0) {
+      wait_step--;
     }
-
-    wb_robot_step(1);  // stepの動作周期を固定するために、掛かった処理時間 + a = WPGと同じ制御周期 となるようにしたい。
-
+    else {
+      for(int tag = 0; tag < 6; tag++) {
+        wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]);  // DEBUG: control_Step -> 0
+        wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Vel_legR_[0][tag]);
+        wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]);
+        wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Vel_legL_[0][tag]);
+      }
+    }
   }
+
 }
 
+/*ERROR
+[ERROR] [driver-3]: process has died [pid 31087, exit code -11, cmd '/opt/ros/humble/lib/webots_ros2_driver/driver --ros-args --params-file /tmp/launch_params_hyd9q3m9 --params-file /tmp/launch_params_avs0yvpn'].
+*/
 
 PLUGINLIB_EXPORT_CLASS (
   webots_robot_handler::WebotsRobotHandler,

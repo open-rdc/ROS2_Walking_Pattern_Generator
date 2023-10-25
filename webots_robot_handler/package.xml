@@ -12,14 +12,16 @@
   <exec_depend>launch_ros</exec_depend>
 
   <depend>rclcpp</depend>
-  <depend>msgs_package</depend>
+  <!-- <depend>msgs_package</depend> -->
   <depend>webots_ros2_driver</depend>
+  <depend>kinematics</depend>
+  <depend>sensor_msgs</depend>
   <!-- <depend>webots_ros2_control</depend>
   <depend>controller_manager</depend>
   <depend>builtin_interfaces</depend>
   <depend>robot_state_publisher</depend> -->
   <depend>pluginlib</depend>
-  <depend>rclcpp_components</depend>
+  <!-- <depend>rclcpp_components</depend> -->
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

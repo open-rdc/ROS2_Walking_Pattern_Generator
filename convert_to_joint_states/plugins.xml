@@ -1,0 +1,5 @@
+<library path="convert_to_joint_states">
+  <class type="convert_to_joint_states::Default_ConvertToJointStates" base_class_type="control_plugin_base::ConvertToJointStates">
+    <description>Default convert_to_joint_states plugin.</description>
+  </class>
+</library>

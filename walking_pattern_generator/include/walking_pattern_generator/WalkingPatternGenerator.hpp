@@ -1,6 +1,11 @@
 #include "rclcpp/rclcpp.hpp"
-#include "msgs_package/msg/to_walking_stabilization_controller_message.hpp"
-#include "msgs_package/srv/to_kinematics_message.hpp"
+#include "msgs_package/msg/walking_pattern.hpp"  // いずれ消える？
+#include "msgs_package/msg/control_output.hpp"  // DEBUG:
+#include "sensor_msgs/msg/joint_state.hpp"
+#include "kinematics/IK.hpp"
+#include "kinematics/FK.hpp"
+#include "kinematics/Jacobian.hpp"
+
 #include "Eigen/Dense"
 
 namespace walking_pattern_generator
@@ -10,70 +15,60 @@ namespace walking_pattern_generator
       WalkingPatternGenerator(const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
 
     private:
-      rclcpp::Publisher<msgs_package::msg::ToWalkingStabilizationControllerMessage>::SharedPtr toWSC_pub_;
-      rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_FK_clnt_;
-      rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedPtr toKine_IK_clnt_;
-
-      // get FK, IK result. set publish data.
-      std::array<double, 3> p_target_r_;
-      std::array<double, 3> p_target_l_;
-      std::array<double, 6> q_target_r_;
-      std::array<double, 6> q_target_l_;
-
-      // timer
-      rclcpp::TimerBase::SharedPtr step_pub_;
-
-      // PARAMETER
-      bool publish_ok_check_;
-      int step_counter_;
-      int loop_number_;
+      // publisher
+      // TODO: managerが完成次第、ControlOutput -> WalkingPattern に変更するべき
+      // TODO: 重要性からして、ここはServiceのほうがいい気がするんだ。
+      // TODO: ここの型をJointStateにして、ros2_controlに対応させる。さすればRviz2との連携も可能。
+      // rclcpp::Publisher<msgs_package::msg::ControlOutput>::SharedPtr pub_walking_pattern_;
       
-      // parameter 
-      Eigen::Vector2d init_com_;  // 初期重心位置(x, y)
-      double init_com_z_;  // 必要？いらないはず。 一応、記録用。
-      // parameter
-      Eigen::Matrix<double, 2, 5> walking_pattern_s_;  // 歩行パラメータ(x1~5, y1~5)
-      // parameter
-      int t_sup_;
-      
-      // calc
-      Eigen::Vector2d init_global_p_;  // 初期着地位置(x, y)
-      Eigen::Vector2d global_p_;  // 着地位置(x, y)
-      Eigen::Vector2d global_p_pre_;  // １step前の着地位置(x, y)
-      
-      Eigen::Vector2d segment_;  // 歩行素片位置(x, y)
-      Eigen::Vector2d segment_vel_;  // 歩行素片速度(x, y)
-      
-      Eigen::Vector2d x_;  // n歩目の歩行状態のxの最終状態(x, dx)
-      Eigen::Vector2d y_;  // 上に同じ(y, dy)
-      
-      Eigen::Vector2d xi_;  // n歩目が始まる瞬間のxの重心位置と速度(x, dx)
-      Eigen::Vector2d yi_;  // 上に同じ(y, dy)
-      
-      Eigen::Vector2d target_x_;  // xの最終状態の目標値(x, dx)
-      Eigen::Vector2d target_y_;  // 上に同じ(y, dy)
+      // CHECKME
+      rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr pub_walking_pattern_;
 
+      // 共有ライブラリの実体化
+      kinematics::FK FK_;
+      kinematics::IK IK_;
+      kinematics::Jacobian Jacobian_;
 
+      // 動歩行パターン生成関数
+      void WalkingPatternGenerate(void);
 
+      // 歩行パターンの行列. 各関節の角度・回転速度を保存
+      std::vector<std::array<double, 6>> WalkingPattern_Pos_legR_;
+      std::vector<std::array<double, 6>> WalkingPattern_Pos_legL_;
+      std::vector<std::array<double, 6>> WalkingPattern_Vel_legR_;
+      std::vector<std::array<double, 6>> WalkingPattern_Vel_legL_;
 
-      void step_WPG_pub(void);
-
-      // Lamdaに移行
-      // void callback_FK_res(const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future);
-      // void callback_IK_res(const rclcpp::Client<msgs_package::srv::ToKinematicsMessage>::SharedFuture future);
-
-      std::array<double, 6> Vector2Array(Eigen::Vector<double, 6> vector);
-
-      void JacobiMatrix_leg(std::array<double, 6> Q_legR, std::array<double, 6> Q_legL);
+      // ヤコビアン
       Eigen::Matrix<double, 6, 6> Jacobi_legR_;
       Eigen::Matrix<double, 6, 6> Jacobi_legL_;
-      std::array<Eigen::Vector3d, 6> P_FK_legR_;
-      std::array<Eigen::Vector3d, 6> P_FK_legL_;
+
+      // 関節角度
+      std::array<double, 6> Q_legR_;
+      std::array<double, 6> Q_legL_;
+
+
+// TODO: Parameterとして扱いたい変数達
+      void DEBUG_ParameterSetting(void);
+
+      float weight_;  // 重量[kg]
+      float length_leg_;  // 脚の長さ[m]. これが腰の高さとなる。
+
+      // 歩行パラメータ
+      std::vector<std::array<double, 3>> LandingPosition_;
+
+      // 目標足先姿勢行列
+      Eigen::Matrix<double, 3, 3> R_target_leg;
+
+      // 脚の単位行列
       std::array<Eigen::Vector3d, 6> UnitVec_legR_;
       std::array<Eigen::Vector3d, 6> UnitVec_legL_;
 
-// DEBUG===/*
-      void DEBUG_ParameterSetting(void);
-// DEBUG===*/
+      // 脚のリンク長
+        // proto準拠
+      std::array<Eigen::Vector3d, 7> P_legR_;
+      std::array<Eigen::Vector3d, 7> P_legL_;
+        // 腰位置に合わせる
+      std::array<Eigen::Vector3d, 7> P_legR_waist_standard_;
+      std::array<Eigen::Vector3d, 7> P_legL_waist_standard_;
   };
 }
