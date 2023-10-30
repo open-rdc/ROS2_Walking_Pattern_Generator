@@ -1,0 +1,4 @@
+control_cycle: 0.01
+walking_cycle: 0.8
+both_leg_support_period: 0.5
+single_leg_support_period: 0.3
