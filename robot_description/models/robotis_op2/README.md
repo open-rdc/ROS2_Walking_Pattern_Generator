@@ -1,0 +1,1 @@
+robotis_op2のモデルをココに置く。Licenseも含めて。
