@@ -1,3 +1,4 @@
-package_dir: robot_description/
-urdf_dir: models/robotis_op2/urdf/
-config_dir: config/robotis_op2/
+pathes:
+  package_dir: robot_description/
+  urdf_dir: models/robotis_op2/urdf/
+  config_dir: config/robotis_op2/
