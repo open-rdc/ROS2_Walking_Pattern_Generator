@@ -27,19 +27,9 @@ def generate_launch_description():
     ]
   )
 
-  # robot_manager  
-  # TODO: ココはBringupに移行するべき。
-  robot_manager = Node(
-    package = "robot_manager",
-    executable = "robot_manager",
-    output = "screen",
-    parameters = [{'use_sim_time': True}]
-  )
-
   return launch.LaunchDescription([
     webots,
     robotis_op2_driver,
-    robot_manager,
     launch.actions.RegisterEventHandler(
       event_handler = launch.event_handlers.OnProcessExit(
         target_action = webots,

@@ -53,7 +53,7 @@ source install/setup.bash
 ## Usage
 Run the program with the following command:
 ```bash
-ros2 launch webots_robot_handler start_launch.py
+ros2 launch robot_bringup robot_bringup_launch.py
 ```
 
 ![example](
