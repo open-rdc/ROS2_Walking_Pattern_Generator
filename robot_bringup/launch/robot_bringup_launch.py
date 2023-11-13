@@ -15,6 +15,10 @@ def generate_launch_description():
     ])
   )
 
+  # TODO: Load Rviz2 launch file
+
+  # TODO: Load Logger launch file
+
   # load robot_manager node
   robot_manager = Node(
     package = "robot_manager",
@@ -22,6 +26,7 @@ def generate_launch_description():
     output = "screen"
   )
 
+  # Execution
   return launch.LaunchDescription([
     # another launch file
     sim_launch,
