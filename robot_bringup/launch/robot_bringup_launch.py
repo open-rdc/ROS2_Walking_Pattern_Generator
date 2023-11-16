@@ -17,9 +17,11 @@ def generate_launch_description():
 
   # TODO: Load Rviz2 launch file
 
-  # TODO: Load Logger launch file
+  # Logger launch fileはRMの起動をしているlaunchで読み込み、起動をするべき。動いていないときにどう記録しろと。
 
   # load robot_manager node
+  # TODO: RMの起動など、制御プログラムは他launchファイルに記述して、制御実行時にそのlaunchファイルを起動する手順を取るべき。
+    # そうしないと、rosbagを使って再現するときに干渉しちゃうし、RMの起動を阻止しないと行けない。
   robot_manager = Node(
     package = "robot_manager",
     executable = "robot_manager",
