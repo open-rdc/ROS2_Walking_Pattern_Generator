@@ -42,6 +42,7 @@ namespace convert_to_joint_states
     // LOG: 遊脚軌道に関するlogの取得
     // WPG_log_SwingTrajectory << swing_trajectory_ << " " << old_swing_trajectory_ << " " << (swing_trajectory_-old_swing_trajectory_) << std::endl;      
 
+    // TODO: 各足先位置の計算、もっと単純化できると思うんだ。
     if(foot_pos[walking_step][1] == 0) {  // 歩行開始時、終了時
       int ref_ws; 
       if(walking_step == 0) {  // 歩行開始時
@@ -240,7 +241,7 @@ namespace convert_to_joint_states
         jointVel_legR_ = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
         jointVel_legL_ = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
       }
-      else {
+      else {  // BUG: ココ、間違いの可能性あり。重心速度ではなく、足先速度で計算するべきでは？
         jointVel_legR_ = Jacobi_legR_.inverse()*CoG_3D_Vel_;
         jointVel_legL_ = Jacobi_legL_.inverse()*CoG_3D_Vel_;
       }
@@ -279,7 +280,7 @@ namespace convert_to_joint_states
         jointVel_legR_ = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
         jointVel_legL_ = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
       }
-      else {
+      else {  // BUG: ココ、間違いの可能性あり。重心速度ではなく、足先速度で計算するべきでは？
         jointVel_legR_ = Jacobi_legR_.inverse()*CoG_3D_Vel_Swing_;
         jointVel_legL_ = Jacobi_legL_.inverse()*CoG_3D_Vel_;
       }
@@ -318,7 +319,7 @@ namespace convert_to_joint_states
         jointVel_legR_ = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
         jointVel_legL_ = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
       }
-      else {
+      else {  // BUG: ココ、間違いの可能性あり。重心速度ではなく、足先速度で計算するべきでは？
         jointVel_legR_ = Jacobi_legR_.inverse()*CoG_3D_Vel_;
         jointVel_legL_ = Jacobi_legL_.inverse()*CoG_3D_Vel_Swing_;
       }
