@@ -1,0 +1,10 @@
+# read "plugins.xml" of plugin_package_dir.
+#
+/**:
+  ros__parameters:
+    plugin_pathes:
+      foot_step_planner_dir: foot_step_planner
+      walking_pattern_generator_dir: walking_pattern_generator
+      walking_stabilization_controller_dir: walking_stabilization_controller
+      convert_to_joint_states: convert_to_joint_states
+      kinematics: kinematics
