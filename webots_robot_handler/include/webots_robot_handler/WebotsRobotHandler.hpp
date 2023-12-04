@@ -22,10 +22,6 @@ namespace webots_robot_handler
 
     private:
       // マネージャからのCallback
-      // TODO: ここの型をJointStateにして、ros2_controlに対応させる。さすればRviz2との連携も可能。
-      // void ControlOutput_Callback(const msgs_package::msg::ControlOutput::SharedPtr callback_data);
-
-      // CHECKME
       void JointStates_Callback(const sensor_msgs::msg::JointState::SharedPtr callbacl_data);
 
       // DEBUG: 1つ前のcounterを記憶。データ落ちが無いかの判定に用いる。
@@ -51,15 +47,11 @@ namespace webots_robot_handler
       // init関数以外でもrclcpp::Nodeを使えるようにするため。
       webots_ros2_driver::WebotsNode *node_;
 
-      // rclcpp::Publisher<msgs_package::msg::Feedback>::SharedPtr pub_feedback_;
-      // TODO: ここの型をJointStateにして、ros2_controlに対応させる。さすればRviz2との連携も可能。
-      // rclcpp::Subscription<msgs_package::msg::ControlOutput>::SharedPtr sub_control_output_;
-
-      // CHECKME
+      // rclcpp::Publisher<msgs_package::msg::Feedback>::SharedPtr pub_feedback_ = nullptr;
+      // std::shared_ptr<msgs_package::msg::Feedback> pub_feedback_msg_ = std::make_shared<msgs_package::msg::Feedback>();
+      
       rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr sub_joint_state_;
 
-      // std::shared_ptr<msgs_package::msg::Feedback> pub_feedback_msg_;
-      
       // Webots内のロボットが持つデバイスのタグを持つ。このタグをもとに、Webotsの関数はデバイスを区別する。
       WbDeviceTag motorsTag_[20];  // 全モータ２０個
       WbDeviceTag positionSensorsTag_[20];  // 全モータの回転角度センサ２０個

@@ -54,8 +54,17 @@ namespace robot_manager
       std::shared_ptr<sensor_msgs::msg::JointState> pub_joint_states_msg_ = std::make_shared<sensor_msgs::msg::JointState>();
       rclcpp::TimerBase::SharedPtr wall_timer_;
 
+      // publisher (debug mode)
+      // rclcpp::Publisher<msgs_package::msg::FootStepPlan>::SharedPtr pub_foot_step_plan_;
+      // std::shared_ptr<msgs_package::msg::FootStepPlan> pub_foot_step_plan_msg_ = std::make_shared<msgs_packages::msg::FootStepPlan>();
+      // rclcpp::Publisher<msgs_package::msg::WalkingPattern>::SharedPtr pub_walking_pattern_;
+      // std::shared_ptr<msgs_package::msg::WalkingPattern> pub_walking_pattern_msg_ = std::make_shared<msgs_packages::msg::WalkingPattern>();
+      // rclcpp::Publisher<msgs_package::msg::WalkingStabilization>::SharedPtr pub_walking_stabilization_;
+      // std::shared_ptr<msgs_package::msg::WalkingStabilization> pub_walking_stabilization_msg_ = std::make_shared<msgs_packages::msg::WalkingStabilization>();
+
       // subscriber
       // TODO: ココにFeedbackのSubscriberとCallback関数を定義。
+      // rclcpp::Subscription<msgs_package::msg::Feedback>::SharedPtr sub_feedback_ = nullptr;
 
       // parameters 
         // TODO: 外部から値を取ってきて定義したい子達
