@@ -6,7 +6,7 @@
 
 #include <fstream>
 
-namespace logger {
+namespace Recorder {
   static const rmw_qos_profile_t custom_qos_profile =
   {
     RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
@@ -20,20 +20,20 @@ namespace logger {
     false  // avoid_ros_namespace_conventions
   };
 
-  class RobotFeedbackLogger : public rclcpp::Node {
+  class RobotFeedbackRecorder : public rclcpp::Node {
     public:
-      RobotFeedbackLogger(
+      RobotFeedbackRecorder(
         const rclcpp::NodeOptions &options = rclcpp::NodeOptions()
-      ) : Node("RobotFeedbackLogger", options) {
+      ) : Node("RobotFeedbackRecorder", options) {
         auto custom_QoS = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile));
 
         WRH_log_Feedback.open(WRH_log_Feedback_path, std::ios::out);
 
         using namespace std::placeholders;
-        sub_feedback_ = this->create_subscription<msgs_package::msg::Feedback>("Feedback", custom_QoS, std::bind(&RobotFeedbackLogger::Feedback_Callback, this, _1));
+        sub_feedback_ = this->create_subscription<msgs_package::msg::Feedback>("Feedback", custom_QoS, std::bind(&RobotFeedbackRecorder::Feedback_Callback, this, _1));
       }
 
-      ~RobotFeedbackLogger() {
+      ~RobotFeedbackRecorder() {
         WRH_log_Feedback.close();
       }
 
@@ -80,7 +80,7 @@ reference:
         if(1 != diff) {
           loss_count_++;
           if(2 == diff) {
-            // RCLCPP_WARN(this->get_logger(), "Feedback Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+1);
+            // RCLCPP_WARN(this->get_Recorder(), "Feedback Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+1);
             WRH_log_Feedback << counter_old_+1 << " ";
             for(double acce : callback_data->accelerometer_now) {
               WRH_log_Feedback << acce << " ";
@@ -93,7 +93,7 @@ reference:
           }
           else {
             for(int loss_step = 1; loss_step < diff; loss_step++) {
-              // RCLCPP_WARN(this->get_logger(), "Feedback Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+loss_step);
+              // RCLCPP_WARN(this->get_Recorder(), "Feedback Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+loss_step);
               WRH_log_Feedback << counter_old_+loss_step << " ";
               for(double acce : callback_data->accelerometer_now) {
                 WRH_log_Feedback << acce << " ";
@@ -138,7 +138,7 @@ reference:
 
 int main(int argc, char *argv[]) {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<logger::RobotFeedbackLogger>());
+  rclcpp::spin(std::make_shared<Recorder::RobotFeedbackRecorder>());
   rclcpp::shutdown();
 
   return 0;
