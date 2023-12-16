@@ -1,7 +1,9 @@
 #include <iostream>
+#include <regex>
+#include <chrono>
 
 #include "rclcpp/rclcpp.hpp"
-#include <rmw/qos_profiles.h>
+// #include <rmw/qos_profiles.h>
 #include "msgs_package/msg/feedback.hpp"
 
 #include <fstream>
@@ -27,14 +29,23 @@ namespace Recorder {
       ) : Node("RobotFeedbackRecorder", options) {
         // auto custom_QoS = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile));
 
-        WRH_log_Feedback.open(WRH_log_Feedback_path, std::ios::out);
+        // ファイルの作成。ファイル名先頭に日付時間を付与
+        auto time_now = std::chrono::system_clock::now();
+        std::time_t datetime = std::chrono::system_clock::to_time_t(time_now);
+        std::string datetime_str = std::ctime(&datetime);
+        file_feedback_acc_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__feedback_acceleration.dat";
+        file_feedback_gyro_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__feedback_gyro.dat";
+
+        file_feedback_acc.open(file_feedback_acc_path, std::ios::out);
+        file_feedback_gyro.open(file_feedback_gyro_path, std::ios::out);
 
         using namespace std::placeholders;
         sub_feedback_ = this->create_subscription<msgs_package::msg::Feedback>("Feedback", 10, std::bind(&RobotFeedbackRecorder::Feedback_Callback, this, _1));
       }
 
       ~RobotFeedbackRecorder() {
-        WRH_log_Feedback.close();
+        file_feedback_acc.close();
+        file_feedback_gyro.close();
       }
 
     private:
@@ -83,28 +94,28 @@ reference:
             feedback_step_count.push_back(-999);  // loss dataなので、エラー値。いや、単にカウント値を入れるのとエラー値は別にしたほうが良いか？Plotする時を考えると。
             feedback_acceleration.push_back(feedback_acceleration.back());
             feedback_gyro.push_back(feedback_gyro.back());
-            // WRH_log_Feedback << counter_old_+loss_step << " ";
-            // for(double acce : callback_data->accelerometer_now) {
-            //   WRH_log_Feedback << acce << " ";
-            // }
-            // for(double gyro : callback_data->gyro_now) {
-            //   WRH_log_Feedback << gyro << " ";
-            // }
-            // WRH_log_Feedback << std::endl;
+            file_feedback_acc << counter_old_+loss_step << " ";
+            file_feedback_gyro << counter_old_+loss_step << " ";
+            for(double acce : callback_data->accelerometer_now) {
+              file_feedback_acc << acce << " " << std::endl;
+            }
+            for(double gyro : callback_data->gyro_now) {
+              file_feedback_gyro << gyro << " " << std::endl;
+            }
           }
         }
         // record
         feedback_step_count.push_back(callback_data->step_count);
         feedback_acceleration.push_back(callback_data->accelerometer_now);
         feedback_gyro.push_back(callback_data->gyro_now);
-        // WRH_log_Feedback << callback_data->step_count << " ";
-        // for(double acce : callback_data->accelerometer_now) {
-        //   WRH_log_Feedback << acce << " ";
-        // }
-        // for(double gyro : callback_data->gyro_now) {
-        //   WRH_log_Feedback << gyro << " ";
-        // }
-        // WRH_log_Feedback << std::endl;
+        file_feedback_acc << callback_data->step_count << " ";
+        file_feedback_gyro << callback_data->step_count << " ";
+        for(double acce : callback_data->accelerometer_now) {
+          file_feedback_acc << acce << " " << std::endl;
+        }
+        for(double gyro : callback_data->gyro_now) {
+          file_feedback_gyro << gyro << " " << std::endl;
+        }
 
         counter_old_ = callback_data->step_count;
         
@@ -113,8 +124,10 @@ reference:
       rclcpp::Subscription<msgs_package::msg::Feedback>::SharedPtr sub_feedback_;
 
       // TODO: ファイル名を生成する。../data/内に記録するようにする（../表記が行けるか？無理ならこのフルパスをゲットして記録するか？）
-      std::ofstream WRH_log_Feedback;
-      std::string WRH_log_Feedback_path = "/WRH_log_Feedback.dat";
+      std::ofstream file_feedback_acc;
+      std::ofstream file_feedback_gyro;
+      std::string file_feedback_acc_path;
+      std::string file_feedback_gyro_path;
 
       int loss_count_ = 0;
       int counter_old_ = 0;
