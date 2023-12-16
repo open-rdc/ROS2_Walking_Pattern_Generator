@@ -9,7 +9,11 @@
 #include <fstream>
 
 <<<<<<< HEAD:robot_logger/src/robot_feedback_logger.cpp
+<<<<<<< HEAD:robot_logger/src/robot_feedback_logger.cpp
 namespace logger {
+=======
+namespace Recorder {
+>>>>>>> parent of 04d80b3 (Revert "change robot_logger -> robot_recorder"):robot_recorder/src/robot_feedback_recorder.cpp
   static const rmw_qos_profile_t custom_qos_profile =
   {
     RMW_QOS_POLICY_HISTORY_KEEP_LAST,  // History: keep_last or keep_all
@@ -38,12 +42,16 @@ namespace Recorder {
   // };
 >>>>>>> 84beea4e2d00560f83ec49e451b04f097e726a50:robot_recorder/src/robot_feedback_recorder.cpp
 
-  class RobotFeedbackLogger : public rclcpp::Node {
+  class RobotFeedbackRecorder : public rclcpp::Node {
     public:
-      RobotFeedbackLogger(
+      RobotFeedbackRecorder(
         const rclcpp::NodeOptions &options = rclcpp::NodeOptions()
 <<<<<<< HEAD:robot_logger/src/robot_feedback_logger.cpp
+<<<<<<< HEAD:robot_logger/src/robot_feedback_logger.cpp
       ) : Node("RobotFeedbackLogger", options) {
+=======
+      ) : Node("RobotFeedbackRecorder", options) {
+>>>>>>> parent of 04d80b3 (Revert "change robot_logger -> robot_recorder"):robot_recorder/src/robot_feedback_recorder.cpp
         auto custom_QoS = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile));
 =======
       ) : Node("RobotFeedbackRecorder", options) {
@@ -62,10 +70,14 @@ namespace Recorder {
 
         using namespace std::placeholders;
 <<<<<<< HEAD:robot_logger/src/robot_feedback_logger.cpp
+<<<<<<< HEAD:robot_logger/src/robot_feedback_logger.cpp
         sub_feedback_ = this->create_subscription<msgs_package::msg::Feedback>("Feedback", custom_QoS, std::bind(&RobotFeedbackLogger::Feedback_Callback, this, _1));
+=======
+        sub_feedback_ = this->create_subscription<msgs_package::msg::Feedback>("Feedback", custom_QoS, std::bind(&RobotFeedbackRecorder::Feedback_Callback, this, _1));
+>>>>>>> parent of 04d80b3 (Revert "change robot_logger -> robot_recorder"):robot_recorder/src/robot_feedback_recorder.cpp
       }
 
-      ~RobotFeedbackLogger() {
+      ~RobotFeedbackRecorder() {
         WRH_log_Feedback.close();
 =======
         sub_feedback_ = this->create_subscription<msgs_package::msg::Feedback>("Feedback", 10, std::bind(&RobotFeedbackRecorder::Feedback_Callback, this, _1));
@@ -121,7 +133,7 @@ reference:
 <<<<<<< HEAD:robot_logger/src/robot_feedback_logger.cpp
           loss_count_++;
           if(2 == diff) {
-            // RCLCPP_WARN(this->get_logger(), "Feedback Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+1);
+            // RCLCPP_WARN(this->get_Recorder(), "Feedback Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+1);
             WRH_log_Feedback << counter_old_+1 << " ";
 =======
           for(int loss_step = 1; loss_step < diff; loss_step++) {
@@ -144,7 +156,7 @@ reference:
           }
           else {
             for(int loss_step = 1; loss_step < diff; loss_step++) {
-              // RCLCPP_WARN(this->get_logger(), "Feedback Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+loss_step);
+              // RCLCPP_WARN(this->get_Recorder(), "Feedback Data Loss!!: loss count [ %d ], loss data step number [ %d ]", loss_count_, counter_old_+loss_step);
               WRH_log_Feedback << counter_old_+loss_step << " ";
               for(double acce : callback_data->accelerometer_now) {
                 WRH_log_Feedback << acce << " ";
@@ -196,7 +208,7 @@ reference:
 
 int main(int argc, char *argv[]) {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<logger::RobotFeedbackLogger>());
+  rclcpp::spin(std::make_shared<Recorder::RobotFeedbackRecorder>());
   rclcpp::shutdown();
 
   return 0;
