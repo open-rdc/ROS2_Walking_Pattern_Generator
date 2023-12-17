@@ -15,7 +15,13 @@ def generate_launch_description():
     ])
   )
 
-  # TODO: Load Rviz2 launch file
+  # Load visualizer launch file
+  visual_launch = launch.actions.IncludeLaunchDescription(
+    PythonLaunchDescriptionSource([
+      os.path.join(get_package_share_directory("robot_visualizer"), "launch"), 
+      "/robot_visualizer.launch.py"
+    ])
+  )
 
   # Logger launch fileはRMの起動をしているlaunchで読み込み、起動をするべき。動いていないときにどう記録しろと。
 
@@ -32,6 +38,7 @@ def generate_launch_description():
   return launch.LaunchDescription([
     # another launch file
     sim_launch,
+    visual_launch,
 
     # node
     robot_manager
