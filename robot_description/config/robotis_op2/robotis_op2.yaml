@@ -1,5 +1,0 @@
-/**:
-  ros__parameters:
-    start_link_name:
-      - head: bar
-      - r_arm: foo

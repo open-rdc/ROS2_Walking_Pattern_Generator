@@ -21,15 +21,15 @@ def str_to_vec(str_vec, type="float"):
   return vec
 
 # TODO: BringUpとかに置くべきYAMLファイルを読んで、urdf_pathとrobot_nameを宣言するべき。
-robot_name = "RobotisOp2"
+robot_name = "robotis_op2"
 urdf_name = "robotis_op2.urdf"
 print("[INFO] Robot name is " + robot_name)
 try:
-  models_dir_path = "../../robot_description/models/" + robot_name
+  models_dir_path = "../../robot_description/models/" + robot_name + "/urdf"
   urdf_path = models_dir_path + "/" + urdf_name
   os.listdir(models_dir_path)
 except:
-  print("[ERROR] robot_description/models/" + robot_name + "/" + urdf_name + " is not found.")
+  print("[ERROR] robot_description/models/" + robot_name + "/urdf/" + urdf_name + " is not found.")
   quit()
 
 try:

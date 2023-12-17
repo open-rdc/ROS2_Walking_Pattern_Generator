@@ -1,0 +1,47 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="robotis_op2">
+
+	<xacro:include filename="$(find robot_description)/models/robotis_op2/urdf/robotis_op2.visuals.xacro" />      
+
+	<xacro:include filename="$(find robot_description)/models/robotis_op2/urdf/robotis_op2.structure.head.xacro" />
+	<xacro:include filename="$(find robot_description)/models/robotis_op2/urdf/robotis_op2.structure.arm.xacro" />
+	<xacro:include filename="$(find robot_description)/models/robotis_op2/urdf/robotis_op2.structure.leg.xacro" />
+
+	<xacro:include filename="$(find robot_description)/models/robotis_op2/urdf/robotis_op2.inertia.xacro" /> 
+	<xacro:include filename="$(find robot_description)/models/robotis_op2/urdf/robotis_op2.gazebo.xacro" />
+	<xacro:include filename="$(find robot_description)/models/robotis_op2/urdf/robotis_op2.transmissions.xacro" />    
+
+
+        <!-- base link -->
+	<link name="base_link"/>
+
+	<joint name="base_joint" type="fixed">
+		<parent link="base_link"/>
+		<child link="body_link"/>
+	</joint>
+
+        <!-- body link -->
+	<link name="body_link">
+		<visual>
+	        	<xacro:insert_mesh_body_link />	
+        	</visual>
+        	<collision>    		
+            		<xacro:insert_mesh_body_link />
+        	</collision>
+        	<inertial>    		
+            		<xacro:insert_inertia_body_link />
+        	</inertial>
+    	</link> 
+
+        <!-- head links -->
+	<xacro:robotis_op2_head parent="body_link" />
+
+	<!-- arm links -->
+	<xacro:robotis_op2_larm parent="body_link" />
+	<xacro:robotis_op2_rarm parent="body_link" />
+
+	<!-- leg links -->
+	<xacro:robotis_op2_lleg parent="body_link" />
+	<xacro:robotis_op2_rleg parent="body_link" />
+
+</robot>

@@ -1,0 +1,282 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+	<!-- <xacro:property name="pi" value="3.141592654" /> -->
+
+	<!-- left leg -->
+	<xacro:macro name="robotis_op2_lleg" params="parent">
+
+		<!-- left hip yaw link -->
+		<joint name="l_hip_yaw" type="revolute">
+			<parent link="${parent}"/>
+			<child link="l_hip_yaw_link"/>
+    			<origin xyz="-0.005 0.037 -0.0907" rpy="0 0 0" />
+    			<axis xyz="0 0 -1" />
+    			<limit effort="2.8" velocity="5.6548668" lower="-2.6179939" upper="2.6179939" />
+  		</joint>
+		<xacro:insert_transmission name="l_hip_yaw" />
+
+		<link name="l_hip_yaw_link">
+			<visual>
+		        	<xacro:insert_mesh_l_hip_yaw_link />
+	        	</visual>
+	        	<collision>
+	            		<xacro:insert_mesh_l_hip_yaw_link />
+	        	</collision>
+	        	<inertial>
+	            		<xacro:insert_inertia_l_hip_yaw_link />
+	        	</inertial>
+	    	</link>
+
+		<!-- left hip roll link -->
+		<joint name="l_hip_roll" type="revolute">
+			<parent link="l_hip_yaw_link"/>
+			<child link="l_hip_roll_link"/>
+    			<origin xyz="0 0 -0.0315" rpy="0 0 0" />
+    			<axis xyz="-1 0 0" />
+    			<limit effort="2.8" velocity="5.6548668" lower="-2.6179939" upper="2.6179939" />
+  		</joint>
+		<xacro:insert_transmission name="l_hip_roll" />
+
+		<link name="l_hip_roll_link">
+			<visual>
+		        	<xacro:insert_mesh_l_hip_roll_link />
+	        	</visual>
+	        	<collision>
+	            		<xacro:insert_mesh_l_hip_roll_link />
+	        	</collision>
+	        	<inertial>
+	            		<xacro:insert_inertia_l_hip_roll_link />
+	        	</inertial>
+	    	</link>
+
+		<!-- left hip pitch link -->
+		<joint name="l_hip_pitch" type="revolute">
+			<parent link="l_hip_roll_link"/>
+			<child link="l_hip_pitch_link"/>
+    			<origin xyz="0 0 0" rpy="0 0 0" />
+    			<axis xyz="0 -1 0" />
+    			<limit effort="2.8" velocity="5.6548668" lower="-2.6179939" upper="2.6179939" />
+  		</joint>
+		<xacro:insert_transmission name="l_hip_pitch" />
+
+
+		<link name="l_hip_pitch_link">
+			<visual>
+		        	<xacro:insert_mesh_l_hip_pitch_link />
+	        	</visual>
+	        	<collision>
+	            		<xacro:insert_mesh_l_hip_pitch_link />
+	        	</collision>
+	        	<inertial>
+	            		<xacro:insert_inertia_l_hip_pitch_link />
+	        	</inertial>
+	    	</link>
+
+		<!-- left knee link -->
+		<joint name="l_knee" type="revolute">
+			<parent link="l_hip_pitch_link"/>
+			<child link="l_knee_link"/>
+    			<origin xyz="0 0 -0.093" rpy="0 0 0" />
+    			<axis xyz="0 -1 0" />
+    			<limit effort="2.8" velocity="5.6548668" lower="-2.6179939" upper="2.6179939" />
+  		</joint>
+		<xacro:insert_transmission name="l_knee" />
+
+		<link name="l_knee_link">
+			<visual>
+		        	<xacro:insert_mesh_l_knee_link />
+	        	</visual>
+	        	<collision>
+	            		<xacro:insert_mesh_l_knee_link />
+	        	</collision>
+	        	<inertial>
+	            		<xacro:insert_inertia_l_knee_link />
+	        	</inertial>
+	    	</link>
+
+	        <!-- left ankle pitch link -->
+		<joint name="l_ank_pitch" type="revolute">
+			<parent link="l_knee_link"/>
+			<child link="l_ank_pitch_link"/>
+    			<origin xyz="0 0 -0.093" rpy="0 0 0" />
+    			<axis xyz="0 1 0" />
+    			<limit effort="2.8" velocity="5.6548668" lower="-2.6179939" upper="2.6179939" />
+  		</joint>
+		<xacro:insert_transmission name="l_ank_pitch" />
+
+		<link name="l_ank_pitch_link">
+			<visual>
+		        	<xacro:insert_mesh_l_ank_pitch_link />
+	        	</visual>
+	        	<collision>
+	            		<xacro:insert_mesh_l_ank_pitch_link />
+	        	</collision>
+	        	<inertial>
+	            		<xacro:insert_inertia_l_ank_pitch_link />
+	        	</inertial>
+	    	</link>
+
+		<!-- left ankle roll link -->
+		<joint name="l_ank_roll" type="revolute">
+			<parent link="l_ank_pitch_link"/>
+			<child link="l_ank_roll_link"/>
+    			<origin xyz="0 0 0" rpy="0 0 0" />
+    			<axis xyz="1 0 0" />
+    			<limit effort="2.8" velocity="5.6548668" lower="-2.6179939" upper="2.6179939" />
+  		</joint>
+		<xacro:insert_transmission name="l_ank_roll" />
+
+		<link name="l_ank_roll_link">
+			<visual>
+		        	<xacro:insert_mesh_l_ank_roll_link />
+	        	</visual>
+	        	<collision>
+	            		<xacro:insert_mesh_l_ank_roll_link />
+	        	</collision>
+	        	<inertial>
+	            		<xacro:insert_inertia_l_ank_roll_link />
+	        	</inertial>
+	    	</link>
+
+	</xacro:macro>
+
+	<!-- right leg -->
+	<xacro:macro name="robotis_op2_rleg" params="parent">
+
+		<!-- right hip yaw link -->
+		<joint name="r_hip_yaw" type="revolute">
+			<parent link="${parent}"/>
+			<child link="r_hip_yaw_link"/>
+    			<origin xyz="-0.005 -0.037 -0.0907" rpy="0 0 0" />
+    			<axis xyz="0 0 -1" />
+    			<limit effort="2.8" velocity="5.6548668" lower="-2.6179939" upper="2.6179939" />
+  		</joint>
+		<xacro:insert_transmission name="r_hip_yaw" />
+
+		<link name="r_hip_yaw_link">
+			<visual>
+		        	<xacro:insert_mesh_r_hip_yaw_link />
+	        	</visual>
+	        	<collision>
+	            		<xacro:insert_mesh_r_hip_yaw_link />
+	        	</collision>
+	        	<inertial>
+	            		<xacro:insert_inertia_r_hip_yaw_link />
+	        	</inertial>
+	    	</link>
+
+		<!-- right hip roll link -->
+		<joint name="r_hip_roll" type="revolute">
+			<parent link="r_hip_yaw_link"/>
+			<child link="r_hip_roll_link"/>
+    			<origin xyz="0 0 -0.0315" rpy="0 0 0" />
+    			<axis xyz="-1 0 0" />
+    			<limit effort="2.8" velocity="5.6548668" lower="-2.6179939" upper="2.6179939" />
+  		</joint>
+		<xacro:insert_transmission name="r_hip_roll" />
+
+		<link name="r_hip_roll_link">
+			<visual>
+		        	<xacro:insert_mesh_r_hip_roll_link />
+	        	</visual>
+	        	<collision>
+	            		<xacro:insert_mesh_r_hip_roll_link />
+	        	</collision>
+	        	<inertial>
+	            		<xacro:insert_inertia_r_hip_roll_link />
+	        	</inertial>
+	    	</link>
+
+		<!-- right hip pitch link -->
+		<joint name="r_hip_pitch" type="revolute">
+			<parent link="r_hip_roll_link"/>
+			<child link="r_hip_pitch_link"/>
+    			<origin xyz="0 0 0" rpy="0 0 0" />
+    			<axis xyz="0 1 0" />
+    			<limit effort="2.8" velocity="5.6548668" lower="-2.6179939" upper="2.6179939" />
+  		</joint>
+		<xacro:insert_transmission name="r_hip_pitch" />
+
+
+		<link name="r_hip_pitch_link">
+			<visual>
+		        	<xacro:insert_mesh_r_hip_pitch_link />
+	        	</visual>
+	        	<collision>
+	            		<xacro:insert_mesh_r_hip_pitch_link />
+	        	</collision>
+	        	<inertial>
+	            		<xacro:insert_inertia_r_hip_pitch_link />
+	        	</inertial>
+	    	</link>
+
+		<!-- right knee link -->
+		<joint name="r_knee" type="revolute">
+			<parent link="r_hip_pitch_link"/>
+			<child link="r_knee_link"/>
+    			<origin xyz="0 0 -0.093" rpy="0 0 0" />
+    			<axis xyz="0 1 0" />
+    			<limit effort="2.8" velocity="5.6548668" lower="-2.6179939" upper="2.6179939" />
+  		</joint>
+		<xacro:insert_transmission name="r_knee" />
+
+		<link name="r_knee_link">
+			<visual>
+		        	<xacro:insert_mesh_r_knee_link />
+	        	</visual>
+	        	<collision>
+	            		<xacro:insert_mesh_r_knee_link />
+	        	</collision>
+	        	<inertial>
+	            		<xacro:insert_inertia_r_knee_link />
+	        	</inertial>
+	    	</link>
+
+	        <!-- right ankle pitch link -->
+		<joint name="r_ank_pitch" type="revolute">
+			<parent link="r_knee_link"/>
+			<child link="r_ank_pitch_link"/>
+    			<origin xyz="0 0 -0.093" rpy="0 0 0" />
+    			<axis xyz="0 -1 0" />
+    			<limit effort="2.8" velocity="5.6548668" lower="-2.6179939" upper="2.6179939" />
+  		</joint>
+		<xacro:insert_transmission name="r_ank_pitch" />
+
+		<link name="r_ank_pitch_link">
+			<visual>
+		        	<xacro:insert_mesh_r_ank_pitch_link />
+	        	</visual>
+	        	<collision>
+	            		<xacro:insert_mesh_r_ank_pitch_link />
+	        	</collision>
+	        	<inertial>
+	            		<xacro:insert_inertia_r_ank_pitch_link />
+	        	</inertial>
+	    	</link>
+
+		<!-- right ankle roll link -->
+		<joint name="r_ank_roll" type="revolute">
+			<parent link="r_ank_pitch_link"/>
+			<child link="r_ank_roll_link"/>
+    			<origin xyz="0 0 0" rpy="0 0 0" />
+    			<axis xyz="1 0 0" />
+    			<limit effort="2.8" velocity="5.6548668" lower="-2.6179939" upper="2.6179939" />
+  		</joint>
+		<xacro:insert_transmission name="r_ank_roll" />
+
+		<link name="r_ank_roll_link">
+			<visual>
+		        	<xacro:insert_mesh_r_ank_roll_link />
+	        	</visual>
+	        	<collision>
+	            		<xacro:insert_mesh_r_ank_roll_link />
+	        	</collision>
+	        	<inertial>
+	            		<xacro:insert_inertia_r_ank_roll_link />
+	        	</inertial>
+	    	</link>
+
+	</xacro:macro>
+
+</robot>

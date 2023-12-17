@@ -1,0 +1,224 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+	<gazebo>
+		<plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+			<robotNamespace>/robotis_op2</robotNamespace>
+			<robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+		</plugin>
+	</gazebo>	
+
+	<gazebo>
+		<plugin name="ground_truth" filename="libgazebo_ros_p3d.so">			
+			<frameName>map</frameName>
+			<bodyName>base_link</bodyName>
+			<topicName>odom</topicName>
+			<updateRate>100.0</updateRate>
+		</plugin>
+	</gazebo>		
+	
+	<gazebo reference="base_link">
+		<selfCollide>false</selfCollide>
+	</gazebo>
+	
+	<!-- body link -->
+	<gazebo reference="body_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<!-- head links -->
+	<gazebo reference="head_pan_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="head_tilt_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="head_cam_link">
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<!-- left arm links -->
+	<gazebo reference="l_back_link">
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="l_sho_pitch_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="l_sho_roll_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="l_el_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<!-- right arm links -->
+	<gazebo reference="r_back_link">
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="r_sho_pitch_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="r_sho_roll_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="r_sho_el_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<!-- left leg links -->
+	<gazebo reference="l_hip_yaw_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="l_hip_roll_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="l_hip_pitch_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="l_knee_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="l_ank_pitch_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="l_ank_roll_link">
+    		<mu1>9000</mu1>
+    		<mu2>9000</mu2>
+    		<kp>1000000.0</kp>
+    		<kd>10.0</kd>
+    		<minDepth>0.001</minDepth>
+    		<maxContacts>1</maxContacts> 
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<!-- right leg links -->
+	<gazebo reference="r_hip_yaw_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="r_hip_roll_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="r_hip_pitch_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="r_knee_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="r_ank_pitch_link">
+		<mu1>0.5</mu1>
+		<mu2>0.5</mu2>
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<gazebo reference="r_ank_roll_link">
+    		<mu1>9000</mu1>
+    		<mu2>9000</mu2>
+    		<kp>1000000.0</kp>
+    		<kd>10.0</kd>
+    		<minDepth>0.001</minDepth>
+    		<maxContacts>1</maxContacts> 
+		<selfCollide>false</selfCollide>
+	</gazebo>
+
+	<!-- head camera -->
+	<gazebo reference="head_cam_link">
+        	<sensor name='camera' type='camera'>
+          		<pose>-0.050000 -0.010000 0.000000 -1.5708 0.000000 -3.141592</pose>
+          		<camera name='__default__'>
+            			<horizontal_fov>1.012300</horizontal_fov>
+            			<image>
+              				<width>320</width>
+              				<height>200</height>
+            			</image>
+            			<clip>
+              				<near>0.001000</near>
+              				<far>100.000000</far>
+            			</clip>
+          		</camera>
+          		<always_on>1</always_on>
+          		<update_rate>30.000000</update_rate>
+          		<visualize>1</visualize>
+          		<plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+            			<alwaysOn>true</alwaysOn>
+            			<updateRate>30</updateRate>
+            			<cameraName>robotis_op2/camera</cameraName>
+           			<imageTopicName>image_raw</imageTopicName>
+            			<cameraInfoTopicName>camera_info</cameraInfoTopicName>
+            			<frameName>camera_link</frameName>
+            			<hackBaseline>0.07</hackBaseline>
+            			<distortionK1>0.0</distortionK1>
+            			<distortionK2>0.0</distortionK2>
+            			<distortionK3>0.0</distortionK3>
+            			<distortionT1>0.0</distortionT1>
+            			<distortionT2>0.0</distortionT2>
+          		</plugin>        
+      		</sensor>
+	</gazebo>
+
+	<!-- imu sensor -->
+        <gazebo>
+        	<plugin filename="libhector_gazebo_ros_imu.so" name="gazebo_ros_imu">
+          		<bodyName>body_link</bodyName>
+          		<updateRate>50</updateRate>
+          		<serviceName>/robotis_op2/imu_service</serviceName>
+          		<topicName>/robotis_op2/imu</topicName>
+          		<gaussianNoise>0</gaussianNoise>
+          		<xyzOffset>0 0 0</xyzOffset>
+          		<rpyOffset>0 0 -0.703220730592</rpyOffset>
+        	</plugin>     
+      	</gazebo>  
+
+</robot>
