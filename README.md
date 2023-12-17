@@ -66,7 +66,7 @@ https://github.com/Yusuke-Yamasaki-555/memo_thesis/assets/91410662/bb742085-ff0e
 The robot_description package contains parts of [ROBOTIS-GIT/ROBOTIS-OP2-Common](https://github.com/ROBOTIS-GIT/ROBOTIS-OP2-Common) (license: Apache-2.0 license). <br>
 For details, see README.md in [robot_description/models/robotis_op2](https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/tree/devel/robot_description/models/robotis_op2). <br>
 
-This software is licensed under [Apache License 2.0](https://opensource.org/license/apache-2-0/). <br>
+This repository is licensed under [Apache License 2.0](https://opensource.org/license/apache-2-0/). <br>
 
 Main developer & maintainer: Yusuke-Yamasaki-555 ([GitHub](https://github.com/Yusuke-Yamasaki-555), [X (twitter)](https://twitter.com/OdoOdomeme555), [blog (jp)](https://odome.hatenablog.com/)) <br>
 
