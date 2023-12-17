@@ -13,6 +13,7 @@ find_package(ament_cmake REQUIRED)
 
 install(DIRECTORY
   models
+  config
   DESTINATION share/${PROJECT_NAME}/
 )
 
