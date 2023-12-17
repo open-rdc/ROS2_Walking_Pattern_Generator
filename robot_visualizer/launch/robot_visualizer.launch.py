@@ -7,7 +7,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 def generate_launch_description():
-# TODO: Rviz2のlaunch
+# Rviz2のlaunch
   rviz_launch = launch.actions.IncludeLaunchDescription(
     PythonLaunchDescriptionSource([
       os.path.join(get_package_share_directory("robot_visualizer"), "launch"),
