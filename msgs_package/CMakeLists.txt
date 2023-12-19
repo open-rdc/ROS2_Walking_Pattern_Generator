@@ -19,37 +19,15 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(sensor_msgs REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
 
-rosidl_generate_interfaces(msgs_package
-  # "msg/ControlOutput.msg"
+rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/FootStepRecord.msg"
   "msg/WalkingPatternRecord.msg"
   "msg/WalkingStabilizationRecord.msg"
   "msg/JointStateRecord.msg"
   "msg/Feedback.msg"
   DEPENDENCIES sensor_msgs
-  # "msg/WalkingPattern.msg"
-  # "srv/StabilizationControl.srv"
-  # old_message_file
-  # "srv/ToRobotManager.srv"
-  # "srv/ToWalkingPatternGenerator.srv"
-  # "srv/ToWalkingStabilizationController.srv"
-  # "msg/ToWalkingStabilizationControllerMessage.msg"
-  # "srv/ToKinematicsMessage.srv"
-  # "srv/ToWebotsRobotHandlerMessage.srv"
-  # DEPENDENCIES
 )
-
-# add_executable(hello_world src/hello_world.cpp)
-# target_include_directories(hello_world PUBLIC
-#   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-#   $<INSTALL_INTERFACE:include>)
-
-# install(TARGETS hello_world
-#   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
