@@ -31,6 +31,8 @@ namespace Recorder {
         // auto custom_QoS = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile));
 
         // ファイルの作成。ファイル名先頭に日付時間を付与
+          // TODO: Launch時にYear-Month-Day-Hour-Minuteの文字列をParameterとして受け取って、それをファイル名にしよう。
+            // TODO: そしてファイルも多くなるから、その文字列が名前のディレクトリをLaunch時に作ってもらおう。Debug ModeがONならね。
         auto time_now = std::chrono::system_clock::now();
         std::time_t datetime = std::chrono::system_clock::to_time_t(time_now);
         std::string datetime_str = std::ctime(&datetime);
@@ -48,13 +50,31 @@ namespace Recorder {
 
     private:
       void JointStates_Callback(const msgs_package::msg::JointStateRecord::SharedPtr callback_data) {
-
+        // データ落ちに対処
+        // 落ちたデータの箇所は、今の最新と同値で埋める。
+        // CHECKME: データ落ちの箇所は記録しておいたほうが良い？
+        diff = callback_data->step_count - counter_old_;
+        if(1 != diff) {
+          for(int loss_step = 1; loss_step < diff; loss_step++) {
+            // TODO: datファイルへの書き込みは最後に一括して行いたい。step_count data　って感じで。
+            jointStates_step_count.push_back(-999);  // loss dataなので、エラー値。いや、単にカウント値を入れるのとエラー値は別にしたほうが良いか？Plotする時を考えると。
+            jointStates.push_back(jointStates.back());
+            file_jointStates << counter_old_+loss_step << " ";
+            for(double acce : callback_data->accelerometer_now) {
+              file_jointStates << acce << " " << std::endl;
+            }
+          }
+        }
         // record
+        jointStates_step_count.push_back(callback_data->step_count);
         jointStates.push_back(callback_data->accelerometer_now);
+        file_jointStates << callback_data->step_count << " ";
         for(double acce : callback_data->accelerometer_now) {
           file_jointStates << acce << " " << std::endl;
         }
 
+        counter_old_ = callback_data->step_count;
+        
       }
 
       rclcpp::Subscription<msgs_package::msg::JointStateRecord>::SharedPtr sub_jointStates_;
@@ -63,7 +83,12 @@ namespace Recorder {
       std::ofstream file_jointStates;
       std::string file_jointStates_path;
 
+      int loss_count_ = 0;
+      int counter_old_ = 0;
+      int diff = 0;
+
       std::vector<std::array<double, 3>> jointStates;
+      std::vector<int> jointStates_step_count;
   };
 }
 

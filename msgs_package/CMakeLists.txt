@@ -18,15 +18,21 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+find_package(sensor_msgs REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
 rosidl_generate_interfaces(msgs_package
-  "msg/ControlOutput.msg"
+  # "msg/ControlOutput.msg"
+  "msg/FootStepRecord.msg"
+  "msg/WalkingPatternRecord.msg"
+  "msg/WalkingStabilizationRecord.msg"
+  "msg/JointStateRecord.msg"
   "msg/Feedback.msg"
-  "msg/WalkingPattern.msg"
-  "srv/StabilizationControl.srv"
+  DEPENDENCIES sensor_msgs
+  # "msg/WalkingPattern.msg"
+  # "srv/StabilizationControl.srv"
   # old_message_file
   # "srv/ToRobotManager.srv"
   # "srv/ToWalkingPatternGenerator.srv"

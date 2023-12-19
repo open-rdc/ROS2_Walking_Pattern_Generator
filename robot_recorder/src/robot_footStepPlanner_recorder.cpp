@@ -58,24 +58,24 @@ namespace Recorder {
             footStep_step_count.push_back(-999);  // loss dataなので、エラー値。いや、単にカウント値を入れるのとエラー値は別にしたほうが良いか？Plotする時を考えると。
             footStep.push_back(footStep.back());
             file_footStep << counter_old_+loss_step << " ";
-            for(double acce : callback_data->accelerometer_now) {
-              file_footStep << acce << " " << std::endl;
+            for(double foot : callback_data->foot_step_pos) {
+              file_footStep << foot << " " << std::endl;
             }
           }
         }
         // record
         footStep_step_count.push_back(callback_data->step_count);
-        footStep.push_back(callback_data->accelerometer_now);
+        footStep.push_back(callback_data->foot_step_pos);
         file_footStep << callback_data->step_count << " ";
-        for(double acce : callback_data->accelerometer_now) {
-          file_footStep << acce << " " << std::endl;
+        for(double foot : callback_data->foot_step_pos) {
+          file_footStep << foot << " " << std::endl;
         }
 
         counter_old_ = callback_data->step_count;
         
       }
 
-      rclcpp::Subscription<msgs_package::msg::footStepRecord>::SharedPtr sub_footStep_;
+      rclcpp::Subscription<msgs_package::msg::FootStepRecord>::SharedPtr sub_footStep_;
 
       // TODO: ファイル名を生成する。../data/内に記録するようにする（../表記が行けるか？無理ならこのフルパスをゲットして記録するか？）
       std::ofstream file_footStep;
@@ -85,7 +85,7 @@ namespace Recorder {
       int counter_old_ = 0;
       int diff = 0;
 
-      std::vector<std::array<double, 3>> footStep;
+      std::vector<std::array<double, 2>> footStep;
       std::vector<int> footStep_step_count;
   };
 }

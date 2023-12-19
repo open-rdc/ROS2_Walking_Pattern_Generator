@@ -1,0 +1,2 @@
+int32 step_count
+sensor_msgs/JointState joint_state
