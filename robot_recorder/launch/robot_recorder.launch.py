@@ -28,8 +28,11 @@ def generate_launch_description():
 
   try:
     os.mkdir(record_dir_path)
+  except FileExistsError:
+    pass
   except:
-    None
+    print("Could not make record dir.")
+    quit()
 
   record_dir_path = record_dir_path + "/"
 
