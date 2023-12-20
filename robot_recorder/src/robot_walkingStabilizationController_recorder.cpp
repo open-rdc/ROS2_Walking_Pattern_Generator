@@ -1,6 +1,6 @@
 #include <iostream>
-#include <regex>
-#include <chrono>
+// #include <regex>
+// #include <chrono>
 
 #include "rclcpp/rclcpp.hpp"
 // #include <rmw/qos_profiles.h>
@@ -30,12 +30,16 @@ namespace Recorder {
         // auto custom_QoS = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile));
 
         // ファイルの作成。ファイル名先頭に日付時間を付与
-        auto time_now = std::chrono::system_clock::now();
-        std::time_t datetime = std::chrono::system_clock::to_time_t(time_now);
-        std::string datetime_str = std::ctime(&datetime);
-        file_walkingStabilization_pos_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__walking_stabilization-cog-position.dat";
-        file_walkingStabilization_vel_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__walking_stabilization-cog-velocity.dat";
-        file_walkingStabilization_zmp_pos_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__walking_stabilization-zmp-position.dat";
+        // auto time_now = std::chrono::system_clock::now();
+        // std::time_t datetime = std::chrono::system_clock::to_time_t(time_now);
+        // std::string datetime_str = std::ctime(&datetime);
+
+        std::string record_dir_path = get_parameter("record_dir_path").as_string();
+        std::string launch_datetime = get_parameter("launch_datetime").as_string();
+
+        file_walkingStabilization_pos_path = record_dir_path + launch_datetime + "__walking_stabilization-cog-position.dat";
+        file_walkingStabilization_vel_path = record_dir_path + launch_datetime + "__walking_stabilization-cog-velocity.dat";
+        file_walkingStabilization_zmp_pos_path = record_dir_path + launch_datetime + "__walking_stabilization-zmp-position.dat";
 
         file_walkingStabilization_pos.open(file_walkingStabilization_pos_path, std::ios::out);
         file_walkingStabilization_vel.open(file_walkingStabilization_vel_path, std::ios::out);
@@ -126,7 +130,12 @@ namespace Recorder {
 
 int main(int argc, char *argv[]) {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<Recorder::RobotWalkingStabilizationRecorder>());
+
+  rclcpp::NodeOptions node_option;
+  node_option.allow_undeclared_parameters(true);
+  node_option.automatically_declare_parameters_from_overrides(true);
+
+  rclcpp::spin(std::make_shared<Recorder::RobotWalkingStabilizationRecorder>(node_option));
   rclcpp::shutdown();
 
   return 0;

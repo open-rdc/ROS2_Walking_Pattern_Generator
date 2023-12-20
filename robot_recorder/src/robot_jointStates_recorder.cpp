@@ -1,7 +1,6 @@
 #include <iostream>
-#include <regex>
-#include <chrono>
-//#include <filesystem>
+// #include <regex>
+// #include <chrono>
 
 #include "rclcpp/rclcpp.hpp"
 // #include <rmw/qos_profiles.h>
@@ -32,16 +31,18 @@ namespace Recorder {
         // auto custom_QoS = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(custom_qos_profile));
 
         // ファイルの作成。ファイル名先頭に日付時間を付与
-          // TODO: Launch時にYear-Month-Day-Hour-Minuteの文字列をParameterとして受け取って、それをファイル名にしよう。
-            // TODO: そしてファイルも多くなるから、その文字列が名前のディレクトリをLaunch時に作ってもらおう。Debug ModeがONならね。
-        auto time_now = std::chrono::system_clock::now();
-        std::time_t datetime = std::chrono::system_clock::to_time_t(time_now);
-        std::string datetime_str = std::ctime(&datetime);
-        //std::filesystem::path data_dir_path = "../data/";
-        file_jointStates_ang_legL_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__joint_states-legL-position.dat";
-        file_jointStates_ang_legR_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__joint_states-legR-position.dat";
-        file_jointStates_vel_legL_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__joint_states-legL-veloctiy.dat";
-        file_jointStates_vel_legR_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__joint_states-legR-velocity.dat";
+          // -TODO: Launch時にYear-Month-Day-Hour-Minuteの文字列をParameterとして受け取って、それをファイル名にしよう。
+            // -TODO: そしてファイルも多くなるから、その文字列が名前のディレクトリをLaunch時に作ってもらおう。Debug ModeがONならね。
+        std::string record_dir_path = get_parameter("record_dir_path").as_string();
+        std::string launch_datetime = get_parameter("launch_datetime").as_string();
+        // auto time_now = std::chrono::system_clock::now();
+        // std::time_t datetime = std::chrono::system_clock::to_time_t(time_now);
+        // std::string datetime_str = std::ctime(&datetime);
+
+        file_jointStates_ang_legL_path = record_dir_path + launch_datetime + "__joint_states-legL-position.dat";
+        file_jointStates_ang_legR_path = record_dir_path + launch_datetime + "__joint_states-legR-position.dat";
+        file_jointStates_vel_legL_path = record_dir_path + launch_datetime + "__joint_states-legL-veloctiy.dat";
+        file_jointStates_vel_legR_path = record_dir_path + launch_datetime + "__joint_states-legR-velocity.dat";
 
         file_jointStates_ang_legL.open(file_jointStates_ang_legL_path, std::ios::out);
         file_jointStates_ang_legR.open(file_jointStates_ang_legR_path, std::ios::out);
@@ -145,7 +146,12 @@ namespace Recorder {
 
 int main(int argc, char *argv[]) {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<Recorder::RobotJointStatesRecorder>());
+
+  rclcpp::NodeOptions node_option;
+  node_option.allow_undeclared_parameters(true);
+  node_option.automatically_declare_parameters_from_overrides(true);
+
+  rclcpp::spin(std::make_shared<Recorder::RobotJointStatesRecorder>(node_option));
   rclcpp::shutdown();
 
   return 0;

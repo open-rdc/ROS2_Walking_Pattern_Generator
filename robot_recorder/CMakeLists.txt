@@ -9,9 +9,6 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(robot_messages REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
 
 add_executable(feedback_recorder
   src/robot_feedback_recorder.cpp
@@ -108,6 +105,11 @@ install(TARGETS walkingStabilization_recorder
   DESTINATION lib/${PROJECT_NAME})
 install(TARGETS jointState_recorder
   DESTINATION lib/${PROJECT_NAME})
+
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
