@@ -1,0 +1,14 @@
+/**:
+  ros__parameters:
+    setting_debug_mode:
+      # setting visualizer
+      using_rviz: false
+      rviz_file: display.rviz
+      using_rqt: false
+      # setting recorder
+      using_feedback_recorder: true
+      using_footStep_recorder: true
+      using_walkingPattern_recorder: true
+      using_walkingStabilization_recorder: true
+      using_jointState_recorder: true
+      using_rosbag2: false

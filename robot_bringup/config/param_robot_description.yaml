@@ -1,0 +1,7 @@
+/**:
+  ros__parameters:
+    robot_description:
+      robot_name: robotis_op2
+      xacro_file_path: urdf/robotis_op2.urdf.xacro
+      urdf_file_path: urdf/robotis_op2.urdf
+      
