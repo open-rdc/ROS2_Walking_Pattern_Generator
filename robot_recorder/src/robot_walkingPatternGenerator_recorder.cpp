@@ -37,19 +37,24 @@ namespace Recorder {
         std::string record_dir_path = get_parameter("record_dir_path").as_string();
         std::string launch_datetime = get_parameter("launch_datetime").as_string();
 
-        file_walkingPattern_pos_path = record_dir_path + launch_datetime + "__walking_pattern-position.dat";
-        file_walkingPattern_vel_path = record_dir_path + launch_datetime + "__walking_pattern-velocity.dat";
+        // file_walkingPattern_pos_path = record_dir_path + launch_datetime + "__walking_pattern-position.dat";
+        // file_walkingPattern_vel_path = record_dir_path + launch_datetime + "__walking_pattern-velocity.dat";
+        file_walkingPattern_path = record_dir_path + launch_datetime + "__walking_pattern.dat";
 
-        file_walkingPattern_pos.open(file_walkingPattern_pos_path, std::ios::out);
-        file_walkingPattern_vel.open(file_walkingPattern_pos_path, std::ios::out);
+        // file_walkingPattern_pos.open(file_walkingPattern_pos_path, std::ios::out);
+        // file_walkingPattern_vel.open(file_walkingPattern_pos_path, std::ios::out);
+        file_walkingPattern.open(file_walkingPattern_path, std::ios::out);
+
+        file_walkingPattern << "# record data: step_count | walking_pattern_position (x y z) | walking_pattern_velocity (x y z)" << std::endl;
 
         using namespace std::placeholders;
         sub_walkingPattern_ = this->create_subscription<robot_messages::msg::WalkingPatternRecord>("walking_pattern", 10, std::bind(&RobotWalkingPatternRecorder::WalkingPattern_Callback, this, _1));
       }
 
       ~RobotWalkingPatternRecorder() {
-        file_walkingPattern_pos.close();
-        file_walkingPattern_vel.close();
+        // file_walkingPattern_pos.close();
+        // file_walkingPattern_vel.close();
+        file_walkingPattern.close();
       }
 
     private:
@@ -66,14 +71,16 @@ namespace Recorder {
             walkingPattern_pos.push_back(walkingPattern_pos.back());
             walkingPattern_vel.push_back(walkingPattern_vel.back());
 
-            file_walkingPattern_pos << counter_old_+loss_step << " ";
-            file_walkingPattern_vel << counter_old_+loss_step << " ";
+            // file_walkingPattern_pos << counter_old_+loss_step << " ";
+            // file_walkingPattern_vel << counter_old_+loss_step << " ";
+            file_walkingPattern << counter_old_+loss_step << " ";
             for(double pos : walkingPattern_pos.back()) {
-              file_walkingPattern_pos << pos << " " << std::endl;
+              file_walkingPattern << pos << " ";
             }
             for(double vel : walkingPattern_vel.back()) {
-              file_walkingPattern_vel << vel << " " << std::endl;
+              file_walkingPattern << vel << " ";
             }
+            file_walkingPattern << std::endl;
           }
         }
         // record
@@ -81,14 +88,16 @@ namespace Recorder {
         walkingPattern_pos.push_back(callback_data->cc_cog_pos_ref);
         walkingPattern_vel.push_back(callback_data->cc_cog_vel_ref);
 
-        file_walkingPattern_pos << callback_data->step_count << " ";
-        file_walkingPattern_vel << callback_data->step_count << " ";
+        // file_walkingPattern_pos << callback_data->step_count << " ";
+        // file_walkingPattern_vel << callback_data->step_count << " ";
+        file_walkingPattern << callback_data->step_count << " ";
         for(double pos : callback_data->cc_cog_pos_ref) {
-          file_walkingPattern_pos << pos << " " << std::endl;
+          file_walkingPattern << pos << " ";
         }
         for(double vel : callback_data->cc_cog_vel_ref) {
-          file_walkingPattern_vel << vel << " " << std::endl;
+          file_walkingPattern << vel << " ";
         }
+        file_walkingPattern << std::endl;
 
         counter_old_ = callback_data->step_count;
         
@@ -96,11 +105,12 @@ namespace Recorder {
 
       rclcpp::Subscription<robot_messages::msg::WalkingPatternRecord>::SharedPtr sub_walkingPattern_;
 
-      // TODO: ファイル名を生成する。../data/内に記録するようにする（../表記が行けるか？無理ならこのフルパスをゲットして記録するか？）
-      std::ofstream file_walkingPattern_pos;
-      std::ofstream file_walkingPattern_vel;
-      std::string file_walkingPattern_pos_path;
-      std::string file_walkingPattern_vel_path;
+      // std::ofstream file_walkingPattern_pos;
+      // std::ofstream file_walkingPattern_vel;
+      // std::string file_walkingPattern_pos_path;
+      // std::string file_walkingPattern_vel_path;
+      std::ofstream file_walkingPattern;
+      std::string file_walkingPattern_path;
 
       int loss_count_ = 0;
       int counter_old_ = 0;

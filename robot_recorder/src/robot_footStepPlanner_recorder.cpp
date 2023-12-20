@@ -41,6 +41,8 @@ namespace Recorder {
 
         file_footStep.open(file_footStep_path, std::ios::out);
 
+        file_footStep << "# record data: step_count | foot_step (x y)" << std::endl;
+
         using namespace std::placeholders;
         sub_footStep_ = this->create_subscription<robot_messages::msg::FootStepRecord>("foot_step", 10, std::bind(&RobotFootStepRecorder::FootStep_Callback, this, _1));
       }

@@ -1,0 +1,1 @@
+# record data: step_count | legL_position (6-joints [rad] value) |  legR_position (6-joints [rad] value) |  legL_velocity (6-joints [rad/s] value) |  legR_velocity (6-joints [rad/s] value)

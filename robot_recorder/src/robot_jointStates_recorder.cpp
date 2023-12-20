@@ -39,25 +39,30 @@ namespace Recorder {
         // std::time_t datetime = std::chrono::system_clock::to_time_t(time_now);
         // std::string datetime_str = std::ctime(&datetime);
 
-        file_jointStates_ang_legL_path = record_dir_path + launch_datetime + "__joint_states-legL-position.dat";
-        file_jointStates_ang_legR_path = record_dir_path + launch_datetime + "__joint_states-legR-position.dat";
-        file_jointStates_vel_legL_path = record_dir_path + launch_datetime + "__joint_states-legL-veloctiy.dat";
-        file_jointStates_vel_legR_path = record_dir_path + launch_datetime + "__joint_states-legR-velocity.dat";
+        // file_jointStates_ang_legL_path = record_dir_path + launch_datetime + "__joint_states-legL-position.dat";
+        // file_jointStates_ang_legR_path = record_dir_path + launch_datetime + "__joint_states-legR-position.dat";
+        // file_jointStates_vel_legL_path = record_dir_path + launch_datetime + "__joint_states-legL-veloctiy.dat";
+        // file_jointStates_vel_legR_path = record_dir_path + launch_datetime + "__joint_states-legR-velocity.dat";
+        file_jointStates_path = record_dir_path + launch_datetime + "__joint_states.dat";
 
-        file_jointStates_ang_legL.open(file_jointStates_ang_legL_path, std::ios::out);
-        file_jointStates_ang_legR.open(file_jointStates_ang_legR_path, std::ios::out);
-        file_jointStates_vel_legL.open(file_jointStates_vel_legL_path, std::ios::out);
-        file_jointStates_ang_legR.open(file_jointStates_vel_legR_path, std::ios::out);
+        // file_jointStates_ang_legL.open(file_jointStates_ang_legL_path, std::ios::out);
+        // file_jointStates_ang_legR.open(file_jointStates_ang_legR_path, std::ios::out);
+        // file_jointStates_vel_legL.open(file_jointStates_vel_legL_path, std::ios::out);
+        // file_jointStates_ang_legR.open(file_jointStates_vel_legR_path, std::ios::out);
+        file_jointStates.open(file_jointStates_path, std::ios::out);
+
+        file_jointStates << "# record data: step_count | legL_position (6-joints [rad] value) |  legR_position (6-joints [rad] value) |  legL_velocity (6-joints [rad/s] value) |  legR_velocity (6-joints [rad/s] value)" << std::endl;
 
         using namespace std::placeholders;
         sub_jointStates_ = this->create_subscription<robot_messages::msg::JointStateRecord>("joint_states_record", 10, std::bind(&RobotJointStatesRecorder::JointStates_Callback, this, _1));
       }
 
       ~RobotJointStatesRecorder() {
-        file_jointStates_ang_legL.close();
-        file_jointStates_ang_legR.close();
-        file_jointStates_vel_legL.close();
-        file_jointStates_vel_legR.close();
+        // file_jointStates_ang_legL.close();
+        // file_jointStates_ang_legR.close();
+        // file_jointStates_vel_legL.close();
+        // file_jointStates_vel_legR.close();
+      file_jointStates.close();
       }
 
     private:
@@ -75,22 +80,24 @@ namespace Recorder {
             jointStates_vel_legL.push_back(jointStates_vel_legL.back());
             jointStates_vel_legR.push_back(jointStates_vel_legR.back());
 
-            file_jointStates_ang_legL << counter_old_+loss_step << " ";
-            file_jointStates_ang_legR << counter_old_+loss_step << " ";
-            file_jointStates_vel_legL << counter_old_+loss_step << " ";
-            file_jointStates_vel_legR << counter_old_+loss_step << " ";
+            // file_jointStates_ang_legL << counter_old_+loss_step << " ";
+            // file_jointStates_ang_legR << counter_old_+loss_step << " ";
+            // file_jointStates_vel_legL << counter_old_+loss_step << " ";
+            // file_jointStates_vel_legR << counter_old_+loss_step << " ";
+            file_jointStates << counter_old_+loss_step << " ";
             for(double angL : jointStates_ang_legL.back()) {
-              file_jointStates_ang_legL << angL << " " << std::endl;
+              file_jointStates << angL << " ";
             }
             for(double angR : jointStates_ang_legR.back()) {
-              file_jointStates_ang_legL << angR << " " << std::endl;
+              file_jointStates << angR << " ";
             }
             for(double velL : jointStates_vel_legL.back()) {
-              file_jointStates_vel_legL << velL << " " << std::endl;
+              file_jointStates << velL << " ";
             }
             for(double velR : jointStates_vel_legR.back()) {
-              file_jointStates_vel_legR << velR << " " << std::endl;
+              file_jointStates << velR << " ";
             }
+            file_jointStates << std::endl;
           }
         }
         // record
@@ -100,37 +107,41 @@ namespace Recorder {
         jointStates_vel_legL.push_back(callback_data->joint_vel_leg_l);
         jointStates_vel_legR.push_back(callback_data->joint_vel_leg_r);
 
-        file_jointStates_ang_legL << callback_data->step_count << " ";
-        file_jointStates_ang_legR << callback_data->step_count << " ";
-        file_jointStates_vel_legL << callback_data->step_count << " ";
-        file_jointStates_vel_legR << callback_data->step_count << " ";
+        // file_jointStates_ang_legL << callback_data->step_count << " ";
+        // file_jointStates_ang_legR << callback_data->step_count << " ";
+        // file_jointStates_vel_legL << callback_data->step_count << " ";
+        // file_jointStates_vel_legR << callback_data->step_count << " ";
+        file_jointStates << callback_data->step_count << " ";
         for(double angL : callback_data->joint_ang_leg_l) {
-          file_jointStates_ang_legL << angL << " " << std::endl;
+          file_jointStates << angL << " ";
         }
         for(double angR : callback_data->joint_ang_leg_r) {
-          file_jointStates_ang_legR << angR << " " << std::endl;
+          file_jointStates << angR << " ";
         }
         for(double velL : callback_data->joint_vel_leg_l) {
-          file_jointStates_vel_legL << velL << " " << std::endl;
+          file_jointStates << velL << " ";
         }
         for(double velR : callback_data->joint_vel_leg_r) {
-          file_jointStates_vel_legR << velR << " " << std::endl;
+          file_jointStates << velR << " ";
         }
+        file_jointStates << std::endl;
+
         counter_old_ = callback_data->step_count;
         
       }
 
       rclcpp::Subscription<robot_messages::msg::JointStateRecord>::SharedPtr sub_jointStates_;
 
-      // TODO: ファイル名を生成する。../data/内に記録するようにする（../表記が行けるか？無理ならこのフルパスをゲットして記録するか？）
-      std::ofstream file_jointStates_ang_legL;
-      std::ofstream file_jointStates_ang_legR;
-      std::ofstream file_jointStates_vel_legL;
-      std::ofstream file_jointStates_vel_legR;
-      std::string file_jointStates_ang_legL_path;
-      std::string file_jointStates_ang_legR_path;
-      std::string file_jointStates_vel_legL_path;
-      std::string file_jointStates_vel_legR_path;
+      // std::ofstream file_jointStates_ang_legL;
+      // std::ofstream file_jointStates_ang_legR;
+      // std::ofstream file_jointStates_vel_legL;
+      // std::ofstream file_jointStates_vel_legR;
+      // std::string file_jointStates_ang_legL_path;
+      // std::string file_jointStates_ang_legR_path;
+      // std::string file_jointStates_vel_legL_path;
+      // std::string file_jointStates_vel_legR_path;
+      std::ofstream file_jointStates;
+      std::string file_jointStates_path;
 
       int loss_count_ = 0;
       int counter_old_ = 0;

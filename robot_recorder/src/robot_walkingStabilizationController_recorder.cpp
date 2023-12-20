@@ -37,22 +37,27 @@ namespace Recorder {
         std::string record_dir_path = get_parameter("record_dir_path").as_string();
         std::string launch_datetime = get_parameter("launch_datetime").as_string();
 
-        file_walkingStabilization_pos_path = record_dir_path + launch_datetime + "__walking_stabilization-cog-position.dat";
-        file_walkingStabilization_vel_path = record_dir_path + launch_datetime + "__walking_stabilization-cog-velocity.dat";
-        file_walkingStabilization_zmp_pos_path = record_dir_path + launch_datetime + "__walking_stabilization-zmp-position.dat";
+        // file_walkingStabilization_pos_path = record_dir_path + launch_datetime + "__walking_stabilization-cog-position.dat";
+        // file_walkingStabilization_vel_path = record_dir_path + launch_datetime + "__walking_stabilization-cog-velocity.dat";
+        // file_walkingStabilization_zmp_pos_path = record_dir_path + launch_datetime + "__walking_stabilization-zmp-position.dat";
+        file_walkingStabilization_path = record_dir_path + launch_datetime + "__walking_stabilization.dat";
 
-        file_walkingStabilization_pos.open(file_walkingStabilization_pos_path, std::ios::out);
-        file_walkingStabilization_vel.open(file_walkingStabilization_vel_path, std::ios::out);
-        file_walkingStabilization_zmp_pos.open(file_walkingStabilization_zmp_pos_path, std::ios::out);
+        // file_walkingStabilization_pos.open(file_walkingStabilization_pos_path, std::ios::out);
+        // file_walkingStabilization_vel.open(file_walkingStabilization_vel_path, std::ios::out);
+        // file_walkingStabilization_zmp_pos.open(file_walkingStabilization_zmp_pos_path, std::ios::out);
+        file_walkingStabilization.open(file_walkingStabilization_path, std::ios::out);
+
+        file_walkingStabilization << "# record data: step_count | fixed_CoG_position (x y z) | fixed_CoG_velocity (x y z) | fixed_ZMP_position (x y z)" << std::endl;
 
         using namespace std::placeholders;
         sub_walkingStabilization_ = this->create_subscription<robot_messages::msg::WalkingStabilizationRecord>("walking_stabilization", 10, std::bind(&RobotWalkingStabilizationRecorder::WalkingStabilization_Callback, this, _1));
       }
 
       ~RobotWalkingStabilizationRecorder() {
-        file_walkingStabilization_pos.close();
-        file_walkingStabilization_vel.close();
-        file_walkingStabilization_zmp_pos.close();
+        // file_walkingStabilization_pos.close();
+        // file_walkingStabilization_vel.close();
+        // file_walkingStabilization_zmp_pos.close();
+        file_walkingStabilization.close();
       }
 
     private:
@@ -70,18 +75,20 @@ namespace Recorder {
             walkingStabilization_vel.push_back(walkingStabilization_vel.back());
             walkingStabilization_zmp_pos.push_back(walkingStabilization_zmp_pos.back());
 
-            file_walkingStabilization_pos << counter_old_+loss_step << " ";
-            file_walkingStabilization_vel << counter_old_+loss_step << " ";
-            file_walkingStabilization_zmp_pos << counter_old_+loss_step << " ";
+            // file_walkingStabilization_pos << counter_old_+loss_step << " ";
+            // file_walkingStabilization_vel << counter_old_+loss_step << " ";
+            // file_walkingStabilization_zmp_pos << counter_old_+loss_step << " ";
+            file_walkingStabilization << counter_old_+loss_step << " ";
             for(double pos : walkingStabilization_pos.back()) {
-              file_walkingStabilization_pos << pos << " " << std::endl;
+              file_walkingStabilization << pos << " ";
             }
             for(double vel : walkingStabilization_vel.back()) {
-              file_walkingStabilization_vel << vel << " " << std::endl;
+              file_walkingStabilization << vel << " ";
             }
             for(double zmp : walkingStabilization_zmp_pos.back()) {
-              file_walkingStabilization_zmp_pos << zmp << " " << std::endl;
+              file_walkingStabilization << zmp << " ";
             }
+            file_walkingStabilization << std::endl;
           }
         }
         // record
@@ -90,18 +97,20 @@ namespace Recorder {
         walkingStabilization_vel.push_back(callback_data->cog_vel_fix);
         walkingStabilization_zmp_pos.push_back(callback_data->zmp_pos_fix);
 
-        file_walkingStabilization_pos << callback_data->step_count << " ";
-        file_walkingStabilization_vel << callback_data->step_count << " ";
-        file_walkingStabilization_zmp_pos << callback_data->step_count << " ";
+        // file_walkingStabilization_pos << callback_data->step_count << " ";
+        // file_walkingStabilization_vel << callback_data->step_count << " ";
+        // file_walkingStabilization_zmp_pos << callback_data->step_count << " ";
+        file_walkingStabilization << callback_data->step_count << " ";
         for(double pos : callback_data->cog_pos_fix) {
-          file_walkingStabilization_pos << pos << " " << std::endl;
+          file_walkingStabilization << pos << " ";
         }
         for(double vel : callback_data->cog_vel_fix) {
-          file_walkingStabilization_vel << vel << " " << std::endl;
+          file_walkingStabilization << vel << " ";
         }
         for(double zmp : callback_data->zmp_pos_fix) {
-          file_walkingStabilization_zmp_pos << zmp << " " << std::endl;
+          file_walkingStabilization << zmp << " ";
         }
+        file_walkingStabilization << std::endl;
 
         counter_old_ = callback_data->step_count;
         
@@ -109,13 +118,14 @@ namespace Recorder {
 
       rclcpp::Subscription<robot_messages::msg::WalkingStabilizationRecord>::SharedPtr sub_walkingStabilization_;
 
-      // TODO: ファイル名を生成する。../data/内に記録するようにする（../表記が行けるか？無理ならこのフルパスをゲットして記録するか？）
-      std::ofstream file_walkingStabilization_pos;
-      std::ofstream file_walkingStabilization_vel;
-      std::ofstream file_walkingStabilization_zmp_pos;
-      std::string file_walkingStabilization_pos_path;
-      std::string file_walkingStabilization_vel_path;
-      std::string file_walkingStabilization_zmp_pos_path;
+      // std::ofstream file_walkingStabilization_pos;
+      // std::ofstream file_walkingStabilization_vel;
+      // std::ofstream file_walkingStabilization_zmp_pos;
+      // std::string file_walkingStabilization_pos_path;
+      // std::string file_walkingStabilization_vel_path;
+      // std::string file_walkingStabilization_zmp_pos_path;
+      std::ofstream file_walkingStabilization;
+      std::string file_walkingStabilization_path;
 
       int loss_count_ = 0;
       int counter_old_ = 0;
