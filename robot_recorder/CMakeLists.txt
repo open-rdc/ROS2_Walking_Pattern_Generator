@@ -8,22 +8,105 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(msgs_package REQUIRED)
+find_package(robot_messages REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-add_executable(robot_feedback_recorder src/robot_feedback_recorder.cpp)
-ament_target_dependencies(robot_feedback_recorder
-  rclcpp
-  msgs_package
+add_executable(feedback_recorder
+  src/robot_feedback_recorder.cpp
 )
-target_include_directories(robot_feedback_recorder PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_compile_features(robot_feedback_recorder PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+target_include_directories(feedback_recorder
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+target_compile_features(feedback_recorder
+  PUBLIC 
+    c_std_99 
+    cxx_std_17
+)  # Require C99 and C++17
+ament_target_dependencies(feedback_recorder
+  rclcpp
+  robot_messages
+)
 
-install(TARGETS robot_feedback_recorder
+add_executable(footStep_recorder
+  src/robot_footStepPlanner_recorder.cpp
+)
+target_include_directories(footStep_recorder
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+target_compile_features(footStep_recorder
+  PUBLIC 
+    c_std_99 
+    cxx_std_17
+)  # Require C99 and C++17
+ament_target_dependencies(footStep_recorder
+  rclcpp
+  robot_messages
+)
+
+add_executable(walkingPattern_recorder
+  src/robot_walkingPatternGenerator_recorder.cpp
+)
+target_include_directories(walkingPattern_recorder
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+target_compile_features(walkingPattern_recorder
+  PUBLIC 
+    c_std_99 
+    cxx_std_17
+)  # Require C99 and C++17
+ament_target_dependencies(walkingPattern_recorder
+  rclcpp
+  robot_messages
+)
+
+add_executable(walkingStabilization_recorder
+  src/robot_walkingStabilizationController_recorder.cpp
+)
+target_include_directories(walkingStabilization_recorder
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+target_compile_features(walkingStabilization_recorder
+  PUBLIC 
+    c_std_99 
+    cxx_std_17
+)  # Require C99 and C++17
+ament_target_dependencies(walkingStabilization_recorder
+  rclcpp
+  robot_messages
+)
+
+add_executable(jointState_recorder
+  src/robot_jointStates_recorder.cpp
+)
+target_include_directories(jointState_recorder
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+target_compile_features(jointState_recorder
+  PUBLIC 
+    c_std_99 
+    cxx_std_17
+)  # Require C99 and C++17
+ament_target_dependencies(jointState_recorder
+  rclcpp
+  robot_messages
+)
+
+install(TARGETS feedback_recorder
+  DESTINATION lib/${PROJECT_NAME})
+install(TARGETS footStep_recorder
+  DESTINATION lib/${PROJECT_NAME})
+install(TARGETS walkingPattern_recorder
+  DESTINATION lib/${PROJECT_NAME})
+install(TARGETS walkingStabilization_recorder
+  DESTINATION lib/${PROJECT_NAME})
+install(TARGETS jointState_recorder
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)

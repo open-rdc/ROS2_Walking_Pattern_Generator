@@ -4,7 +4,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 // #include <rmw/qos_profiles.h>
-#include "msgs_package/msg/feedback.hpp"
+#include "robot_messages/msg/feedback.hpp"
 
 #include <fstream>
 
@@ -33,23 +33,28 @@ namespace Recorder {
         auto time_now = std::chrono::system_clock::now();
         std::time_t datetime = std::chrono::system_clock::to_time_t(time_now);
         std::string datetime_str = std::ctime(&datetime);
-        file_feedback_acc_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__feedback_acceleration.dat";
-        file_feedback_gyro_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__feedback_gyro.dat";
+        std::cout << datetime_str << std::endl;
+        file_feedback_acc_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__feedback-acceleration.dat";
+        file_feedback_gyro_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__feedback-gyro.dat";
 
         file_feedback_acc.open(file_feedback_acc_path, std::ios::out);
         file_feedback_gyro.open(file_feedback_gyro_path, std::ios::out);
 
+        std::cout << "hoge" << std::endl;
+        file_feedback_acc << "hoge" << std::endl;
+
         using namespace std::placeholders;
-        sub_feedback_ = this->create_subscription<msgs_package::msg::Feedback>("Feedback", 10, std::bind(&RobotFeedbackRecorder::Feedback_Callback, this, _1));
+        sub_feedback_ = this->create_subscription<robot_messages::msg::Feedback>("Feedback", 10, std::bind(&RobotFeedbackRecorder::Feedback_Callback, this, _1));
       }
 
       ~RobotFeedbackRecorder() {
         file_feedback_acc.close();
         file_feedback_gyro.close();
+        std::cout << "end" << std::endl;
       }
 
     private:
-      void Feedback_Callback(const msgs_package::msg::Feedback::SharedPtr callback_data) {
+      void Feedback_Callback(const robot_messages::msg::Feedback::SharedPtr callback_data) {
 /* Accelerometer & Gyro. Darwin-op.proto 仕様
 source: https://github.com/cyberbotics/webots/blob/master/projects/robots/robotis/darwin-op/protos/Darwin-op.proto
 
@@ -97,10 +102,11 @@ reference:
             feedback_gyro.push_back(feedback_gyro.back());
             file_feedback_acc << counter_old_+loss_step << " ";
             file_feedback_gyro << counter_old_+loss_step << " ";
-            for(double acce : callback_data->accelerometer_now) {
+
+            for(double acce : feedback_acceleration.back()) {
               file_feedback_acc << acce << " " << std::endl;
             }
-            for(double gyro : callback_data->gyro_now) {
+            for(double gyro : feedback_gyro.back()) {
               file_feedback_gyro << gyro << " " << std::endl;
             }
           }
@@ -111,6 +117,7 @@ reference:
         feedback_gyro.push_back(callback_data->gyro_now);
         file_feedback_acc << callback_data->step_count << " ";
         file_feedback_gyro << callback_data->step_count << " ";
+
         for(double acce : callback_data->accelerometer_now) {
           file_feedback_acc << acce << " " << std::endl;
         }
@@ -122,7 +129,7 @@ reference:
         
       }
 
-      rclcpp::Subscription<msgs_package::msg::Feedback>::SharedPtr sub_feedback_;
+      rclcpp::Subscription<robot_messages::msg::Feedback>::SharedPtr sub_feedback_;
 
       // TODO: ファイル名を生成する。../data/内に記録するようにする（../表記が行けるか？無理ならこのフルパスをゲットして記録するか？）
       std::ofstream file_feedback_acc;

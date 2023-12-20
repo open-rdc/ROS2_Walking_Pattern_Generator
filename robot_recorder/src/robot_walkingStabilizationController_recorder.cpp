@@ -4,7 +4,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 // #include <rmw/qos_profiles.h>
-#include "msgs_package/msg/walking_stabilization_record.hpp"
+#include "robot_messages/msg/walking_stabilization_record.hpp"
 
 #include <fstream>
 
@@ -33,20 +33,26 @@ namespace Recorder {
         auto time_now = std::chrono::system_clock::now();
         std::time_t datetime = std::chrono::system_clock::to_time_t(time_now);
         std::string datetime_str = std::ctime(&datetime);
-        file_walkingStabilization_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__walking_stabilization.dat";
+        file_walkingStabilization_pos_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__walking_stabilization-cog-position.dat";
+        file_walkingStabilization_vel_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__walking_stabilization-cog-velocity.dat";
+        file_walkingStabilization_zmp_pos_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__walking_stabilization-zmp-position.dat";
 
-        file_walkingStabilization.open(file_walkingStabilization_path, std::ios::out);
+        file_walkingStabilization_pos.open(file_walkingStabilization_pos_path, std::ios::out);
+        file_walkingStabilization_vel.open(file_walkingStabilization_vel_path, std::ios::out);
+        file_walkingStabilization_zmp_pos.open(file_walkingStabilization_zmp_pos_path, std::ios::out);
 
         using namespace std::placeholders;
-        sub_walkingStabilization_ = this->create_subscription<msgs_package::msg::WalkingStabilizationRecord>("walking_stabilization", 10, std::bind(&RobotWalkingStabilizationRecorder::WalkingStabilization_Callback, this, _1));
+        sub_walkingStabilization_ = this->create_subscription<robot_messages::msg::WalkingStabilizationRecord>("walking_stabilization", 10, std::bind(&RobotWalkingStabilizationRecorder::WalkingStabilization_Callback, this, _1));
       }
 
       ~RobotWalkingStabilizationRecorder() {
-        file_walkingStabilization.close();
+        file_walkingStabilization_pos.close();
+        file_walkingStabilization_vel.close();
+        file_walkingStabilization_zmp_pos.close();
       }
 
     private:
-      void WalkingStabilization_Callback(const msgs_package::msg::WalkingStabilizationRecord::SharedPtr callback_data) {
+      void WalkingStabilization_Callback(const robot_messages::msg::WalkingStabilizationRecord::SharedPtr callback_data) {
 
         // データ落ちに対処
         // 落ちたデータの箇所は、今の最新と同値で埋める。
@@ -56,36 +62,64 @@ namespace Recorder {
           for(int loss_step = 1; loss_step < diff; loss_step++) {
             // TODO: datファイルへの書き込みは最後に一括して行いたい。step_count data　って感じで。
             walkingStabilization_step_count.push_back(-999);  // loss dataなので、エラー値。いや、単にカウント値を入れるのとエラー値は別にしたほうが良いか？Plotする時を考えると。
-            walkingStabilization.push_back(walkingStabilization.back());
-            file_walkingStabilization << counter_old_+loss_step << " ";
-            for(double acce : callback_data->accelerometer_now) {
-              file_walkingStabilization << acce << " " << std::endl;
+            walkingStabilization_pos.push_back(walkingStabilization_pos.back());
+            walkingStabilization_vel.push_back(walkingStabilization_vel.back());
+            walkingStabilization_zmp_pos.push_back(walkingStabilization_zmp_pos.back());
+
+            file_walkingStabilization_pos << counter_old_+loss_step << " ";
+            file_walkingStabilization_vel << counter_old_+loss_step << " ";
+            file_walkingStabilization_zmp_pos << counter_old_+loss_step << " ";
+            for(double pos : walkingStabilization_pos.back()) {
+              file_walkingStabilization_pos << pos << " " << std::endl;
+            }
+            for(double vel : walkingStabilization_vel.back()) {
+              file_walkingStabilization_vel << vel << " " << std::endl;
+            }
+            for(double zmp : walkingStabilization_zmp_pos.back()) {
+              file_walkingStabilization_zmp_pos << zmp << " " << std::endl;
             }
           }
         }
         // record
         walkingStabilization_step_count.push_back(callback_data->step_count);
-        walkingStabilization.push_back(callback_data->accelerometer_now);
-        file_walkingStabilization << callback_data->step_count << " ";
-        for(double acce : callback_data->accelerometer_now) {
-          file_walkingStabilization << acce << " " << std::endl;
+        walkingStabilization_pos.push_back(callback_data->cog_pos_fix);
+        walkingStabilization_vel.push_back(callback_data->cog_vel_fix);
+        walkingStabilization_zmp_pos.push_back(callback_data->zmp_pos_fix);
+
+        file_walkingStabilization_pos << callback_data->step_count << " ";
+        file_walkingStabilization_vel << callback_data->step_count << " ";
+        file_walkingStabilization_zmp_pos << callback_data->step_count << " ";
+        for(double pos : callback_data->cog_pos_fix) {
+          file_walkingStabilization_pos << pos << " " << std::endl;
+        }
+        for(double vel : callback_data->cog_vel_fix) {
+          file_walkingStabilization_vel << vel << " " << std::endl;
+        }
+        for(double zmp : callback_data->zmp_pos_fix) {
+          file_walkingStabilization_zmp_pos << zmp << " " << std::endl;
         }
 
         counter_old_ = callback_data->step_count;
         
       }
 
-      rclcpp::Subscription<msgs_package::msg::WalkingStabilizationRecord>::SharedPtr sub_walkingStabilization_;
+      rclcpp::Subscription<robot_messages::msg::WalkingStabilizationRecord>::SharedPtr sub_walkingStabilization_;
 
       // TODO: ファイル名を生成する。../data/内に記録するようにする（../表記が行けるか？無理ならこのフルパスをゲットして記録するか？）
-      std::ofstream file_walkingStabilization;
-      std::string file_walkingStabilization_path;
+      std::ofstream file_walkingStabilization_pos;
+      std::ofstream file_walkingStabilization_vel;
+      std::ofstream file_walkingStabilization_zmp_pos;
+      std::string file_walkingStabilization_pos_path;
+      std::string file_walkingStabilization_vel_path;
+      std::string file_walkingStabilization_zmp_pos_path;
 
       int loss_count_ = 0;
       int counter_old_ = 0;
       int diff = 0;
 
-      std::vector<std::array<double, 3>> walkingStabilization;
+      std::vector<std::array<double, 3>> walkingStabilization_pos;
+      std::vector<std::array<double, 3>> walkingStabilization_vel;
+      std::vector<std::array<double, 2>> walkingStabilization_zmp_pos;
       std::vector<int> walkingStabilization_step_count;
   };
 }

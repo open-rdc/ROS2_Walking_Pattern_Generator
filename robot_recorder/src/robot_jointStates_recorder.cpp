@@ -1,11 +1,12 @@
 #include <iostream>
 #include <regex>
 #include <chrono>
+//#include <filesystem>
 
 #include "rclcpp/rclcpp.hpp"
 // #include <rmw/qos_profiles.h>
-// #include "msgs_package/msg/JointStates.hpp"
-#include "msgs_package/msg/joint_state_record.hpp"
+// #include "robot_messages/msg/JointStates.hpp"
+#include "robot_messages/msg/joint_state_record.hpp"
 
 #include <fstream>
 
@@ -36,20 +37,30 @@ namespace Recorder {
         auto time_now = std::chrono::system_clock::now();
         std::time_t datetime = std::chrono::system_clock::to_time_t(time_now);
         std::string datetime_str = std::ctime(&datetime);
-        file_jointStates_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__joint_states.dat";
+        //std::filesystem::path data_dir_path = "../data/";
+        file_jointStates_ang_legL_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__joint_states-legL-position.dat";
+        file_jointStates_ang_legR_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__joint_states-legR-position.dat";
+        file_jointStates_vel_legL_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__joint_states-legL-veloctiy.dat";
+        file_jointStates_vel_legR_path = std::regex_replace(datetime_str, std::regex(" "), "_") + "__joint_states-legR-velocity.dat";
 
-        file_jointStates.open(file_jointStates_path, std::ios::out);
+        file_jointStates_ang_legL.open(file_jointStates_ang_legL_path, std::ios::out);
+        file_jointStates_ang_legR.open(file_jointStates_ang_legR_path, std::ios::out);
+        file_jointStates_vel_legL.open(file_jointStates_vel_legL_path, std::ios::out);
+        file_jointStates_ang_legR.open(file_jointStates_vel_legR_path, std::ios::out);
 
         using namespace std::placeholders;
-        sub_jointStates_ = this->create_subscription<msgs_package::msg::JointStateRecord>("joint_states_record", 10, std::bind(&RobotJointStatesRecorder::JointStates_Callback, this, _1));
+        sub_jointStates_ = this->create_subscription<robot_messages::msg::JointStateRecord>("joint_states_record", 10, std::bind(&RobotJointStatesRecorder::JointStates_Callback, this, _1));
       }
 
       ~RobotJointStatesRecorder() {
-        file_jointStates.close();
+        file_jointStates_ang_legL.close();
+        file_jointStates_ang_legR.close();
+        file_jointStates_vel_legL.close();
+        file_jointStates_vel_legR.close();
       }
 
     private:
-      void JointStates_Callback(const msgs_package::msg::JointStateRecord::SharedPtr callback_data) {
+      void JointStates_Callback(const robot_messages::msg::JointStateRecord::SharedPtr callback_data) {
         // データ落ちに対処
         // 落ちたデータの箇所は、今の最新と同値で埋める。
         // CHECKME: データ落ちの箇所は記録しておいたほうが良い？
@@ -58,36 +69,76 @@ namespace Recorder {
           for(int loss_step = 1; loss_step < diff; loss_step++) {
             // TODO: datファイルへの書き込みは最後に一括して行いたい。step_count data　って感じで。
             jointStates_step_count.push_back(-999);  // loss dataなので、エラー値。いや、単にカウント値を入れるのとエラー値は別にしたほうが良いか？Plotする時を考えると。
-            jointStates.push_back(jointStates.back());
-            file_jointStates << counter_old_+loss_step << " ";
-            for(double acce : callback_data->accelerometer_now) {
-              file_jointStates << acce << " " << std::endl;
+            jointStates_ang_legL.push_back(jointStates_ang_legL.back());
+            jointStates_ang_legR.push_back(jointStates_ang_legR.back());
+            jointStates_vel_legL.push_back(jointStates_vel_legL.back());
+            jointStates_vel_legR.push_back(jointStates_vel_legR.back());
+
+            file_jointStates_ang_legL << counter_old_+loss_step << " ";
+            file_jointStates_ang_legR << counter_old_+loss_step << " ";
+            file_jointStates_vel_legL << counter_old_+loss_step << " ";
+            file_jointStates_vel_legR << counter_old_+loss_step << " ";
+            for(double angL : jointStates_ang_legL.back()) {
+              file_jointStates_ang_legL << angL << " " << std::endl;
+            }
+            for(double angR : jointStates_ang_legR.back()) {
+              file_jointStates_ang_legL << angR << " " << std::endl;
+            }
+            for(double velL : jointStates_vel_legL.back()) {
+              file_jointStates_vel_legL << velL << " " << std::endl;
+            }
+            for(double velR : jointStates_vel_legR.back()) {
+              file_jointStates_vel_legR << velR << " " << std::endl;
             }
           }
         }
         // record
         jointStates_step_count.push_back(callback_data->step_count);
-        jointStates.push_back(callback_data->accelerometer_now);
-        file_jointStates << callback_data->step_count << " ";
-        for(double acce : callback_data->accelerometer_now) {
-          file_jointStates << acce << " " << std::endl;
-        }
+        jointStates_ang_legL.push_back(callback_data->joint_ang_leg_l);
+        jointStates_ang_legR.push_back(callback_data->joint_ang_leg_r);
+        jointStates_vel_legL.push_back(callback_data->joint_vel_leg_l);
+        jointStates_vel_legR.push_back(callback_data->joint_vel_leg_r);
 
+        file_jointStates_ang_legL << callback_data->step_count << " ";
+        file_jointStates_ang_legR << callback_data->step_count << " ";
+        file_jointStates_vel_legL << callback_data->step_count << " ";
+        file_jointStates_vel_legR << callback_data->step_count << " ";
+        for(double angL : callback_data->joint_ang_leg_l) {
+          file_jointStates_ang_legL << angL << " " << std::endl;
+        }
+        for(double angR : callback_data->joint_ang_leg_r) {
+          file_jointStates_ang_legR << angR << " " << std::endl;
+        }
+        for(double velL : callback_data->joint_vel_leg_l) {
+          file_jointStates_vel_legL << velL << " " << std::endl;
+        }
+        for(double velR : callback_data->joint_vel_leg_r) {
+          file_jointStates_vel_legR << velR << " " << std::endl;
+        }
         counter_old_ = callback_data->step_count;
         
       }
 
-      rclcpp::Subscription<msgs_package::msg::JointStateRecord>::SharedPtr sub_jointStates_;
+      rclcpp::Subscription<robot_messages::msg::JointStateRecord>::SharedPtr sub_jointStates_;
 
       // TODO: ファイル名を生成する。../data/内に記録するようにする（../表記が行けるか？無理ならこのフルパスをゲットして記録するか？）
-      std::ofstream file_jointStates;
-      std::string file_jointStates_path;
+      std::ofstream file_jointStates_ang_legL;
+      std::ofstream file_jointStates_ang_legR;
+      std::ofstream file_jointStates_vel_legL;
+      std::ofstream file_jointStates_vel_legR;
+      std::string file_jointStates_ang_legL_path;
+      std::string file_jointStates_ang_legR_path;
+      std::string file_jointStates_vel_legL_path;
+      std::string file_jointStates_vel_legR_path;
 
       int loss_count_ = 0;
       int counter_old_ = 0;
       int diff = 0;
 
-      std::vector<std::array<double, 3>> jointStates;
+      std::vector<std::array<double, 6>> jointStates_ang_legL;
+      std::vector<std::array<double, 6>> jointStates_ang_legR;
+      std::vector<std::array<double, 6>> jointStates_vel_legL;
+      std::vector<std::array<double, 6>> jointStates_vel_legR;
       std::vector<int> jointStates_step_count;
   };
 }

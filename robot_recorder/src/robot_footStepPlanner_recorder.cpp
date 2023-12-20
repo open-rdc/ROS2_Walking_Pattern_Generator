@@ -4,7 +4,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 // #include <rmw/qos_profiles.h>
-#include "msgs_package/msg/foot_step_record.hpp"
+#include "robot_messages/msg/foot_step_record.hpp"
 
 #include <fstream>
 
@@ -38,7 +38,7 @@ namespace Recorder {
         file_footStep.open(file_footStep_path, std::ios::out);
 
         using namespace std::placeholders;
-        sub_footStep_ = this->create_subscription<msgs_package::msg::FootStepRecord>("foot_step", 10, std::bind(&RobotFootStepRecorder::FootStep_Callback, this, _1));
+        sub_footStep_ = this->create_subscription<robot_messages::msg::FootStepRecord>("foot_step", 10, std::bind(&RobotFootStepRecorder::FootStep_Callback, this, _1));
       }
 
       ~RobotFootStepRecorder() {
@@ -46,7 +46,7 @@ namespace Recorder {
       }
 
     private:
-      void FootStep_Callback(const msgs_package::msg::FootStepRecord::SharedPtr callback_data) {
+      void FootStep_Callback(const robot_messages::msg::FootStepRecord::SharedPtr callback_data) {
 
         // データ落ちに対処
         // 落ちたデータの箇所は、今の最新と同値で埋める。
@@ -58,7 +58,8 @@ namespace Recorder {
             footStep_step_count.push_back(-999);  // loss dataなので、エラー値。いや、単にカウント値を入れるのとエラー値は別にしたほうが良いか？Plotする時を考えると。
             footStep.push_back(footStep.back());
             file_footStep << counter_old_+loss_step << " ";
-            for(double foot : callback_data->foot_step_pos) {
+
+            for(double foot : footStep.back()) {
               file_footStep << foot << " " << std::endl;
             }
           }
@@ -67,6 +68,7 @@ namespace Recorder {
         footStep_step_count.push_back(callback_data->step_count);
         footStep.push_back(callback_data->foot_step_pos);
         file_footStep << callback_data->step_count << " ";
+
         for(double foot : callback_data->foot_step_pos) {
           file_footStep << foot << " " << std::endl;
         }
@@ -75,7 +77,7 @@ namespace Recorder {
         
       }
 
-      rclcpp::Subscription<msgs_package::msg::FootStepRecord>::SharedPtr sub_footStep_;
+      rclcpp::Subscription<robot_messages::msg::FootStepRecord>::SharedPtr sub_footStep_;
 
       // TODO: ファイル名を生成する。../data/内に記録するようにする（../表記が行けるか？無理ならこのフルパスをゲットして記録するか？）
       std::ofstream file_footStep;
