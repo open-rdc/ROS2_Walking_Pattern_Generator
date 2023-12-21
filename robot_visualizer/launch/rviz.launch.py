@@ -1,66 +1,55 @@
-from launch import LaunchDescription
-from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
+import os
+import yaml
 
+from launch import LaunchDescription
+from ament_index_python.packages import get_package_share_directory
+from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-
 from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
+  launch_description = LaunchDescription()
 
-    model_packages_name = "robot_description"
-    visual_package_name = "robot_visualizer"
-    xacro_file_name = "robotis_op2.urdf.xacro"
-    rviz_file_name = "display.rviz"
-
-    # Get URDF via xacro
-    robot_model = ParameterValue(Command(
-        [
-            PathJoinSubstitution([FindExecutable(name="xacro")]),
-            " ",
-            PathJoinSubstitution(
-                [FindPackageShare(model_packages_name), "models/robotis_op2/urdf", xacro_file_name]
-            ),
-        ]
-    ), value_type=str)
-    robot_model_param = {"robot_description": robot_model}
-
-    rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare(visual_package_name), "rviz", rviz_file_name]
-    )
-
-    robot_state_pub_node = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        output="both",
-        parameters=[robot_model_param],
-    )
-    # joint_state_pub_gui_node = Node(
-    #     package="joint_state_publisher_gui",
-    #     executable="joint_state_publisher_gui",
-    #     output="screen",
-    # )
+  debug_mode_yaml_path = os.path.join(get_package_share_directory("robot_bringup"), "config", "param_debug_mode.yaml")
+  with open(debug_mode_yaml_path, "r") as f:
+    debug_mode_yaml = yaml.safe_load(f)["/**"]["ros__parameters"]["setting_debug_mode"]
+  
+  description_yaml_path = os.path.join(get_package_share_directory("robot_bringup"), "config", "param_robot_description.yaml")
+  with open(description_yaml_path, "r") as f:
+    description_yaml = yaml.safe_load(f)["/**"]["ros__parameters"]["robot_description"]
+  
+  # Get URDF via xacro
+  robot_model = ParameterValue(
+    Command([
+      PathJoinSubstitution([FindExecutable(name="xacro")]),
+      " ",
+      PathJoinSubstitution(
+        [FindPackageShare("robot_description"), "models/" + description_yaml["robot_name"] + "/" + description_yaml["xacro_file_path"]]
+      ),
+    ]), value_type=str
+  )
+  robot_model_param = {"robot_description": robot_model}
+  
+  rviz_config_file = PathJoinSubstitution([
+    FindPackageShare("robot_visualizer"), "rviz", debug_mode_yaml["rviz_file"]
+  ])
+  
+  robot_state_pub_node = Node(
+    package="robot_state_publisher",
+    executable="robot_state_publisher",
+    parameters=[robot_model_param]
+  )
+  launch_description.add_action(robot_state_pub_node)
+  
+  if debug_mode_yaml["using_rviz"] == True:
     rviz_node = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        output="log",
-        arguments=["-d", rviz_config_file],
+      package="rviz2",
+      executable="rviz2",
+      arguments=["-d", rviz_config_file]
     )
+    launch_description.add_action(rviz_node)
+  
 
-    # my_joint_states_node = Node(
-    #     package="my_joint_states",
-    #     executable="my_joint_states",
-    #     name="my_joint_states",
-    #     output="screen",
-    # )
-
-    nodes = [
-        rviz_node,
-        robot_state_pub_node,
-        # joint_state_pub_gui_node,
-        #my_joint_states_node,
-    ]
-
-    return LaunchDescription(nodes)
+  return launch_description

@@ -31,6 +31,7 @@ def generate_launch_description():
         "/robot_visualizer.launch.py"
       ])
     )
+    launch_description.add_action(visual_launch)
     #launch_description.add_action(visual_launch)
     record_launch = launch.actions.IncludeLaunchDescription(
       PythonLaunchDescriptionSource([

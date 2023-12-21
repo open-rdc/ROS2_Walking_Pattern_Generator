@@ -7,6 +7,8 @@ from ament_index_python.packages import get_package_share_directory
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 def generate_launch_description():
+  launch_description = launch.LaunchDescription()
+
 # Rviz2のlaunch
   rviz_launch = launch.actions.IncludeLaunchDescription(
     PythonLaunchDescriptionSource([
@@ -14,6 +16,7 @@ def generate_launch_description():
       "/rviz.launch.py"
     ])
   )
+  launch_description.add_action(rviz_launch)
 
 # Loggerとの違いは、リアルタイムに表示をするだけ　｜　記録を取る
 
@@ -22,6 +25,4 @@ def generate_launch_description():
   # これ：https://github.com/iwatake2222/rotop
     # TODO: 動作確認と、pythonソースから実行できるか確認（コマンドラインでも、pythonでも）
   
-  return launch.LaunchDescription([
-    rviz_launch
-  ])
+  return launch_description
