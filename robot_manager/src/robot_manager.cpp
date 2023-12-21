@@ -5,6 +5,10 @@ using namespace std::chrono_literals;
 
 namespace robot_manager
 {
+  void RobotManager::Feedback_Callback(const robot_messages::msg::Feedback::SharedPtr callback_data) {
+    sub_feedback_msg_ = callback_data;
+  }
+
   void RobotManager::Step_Offline() {
 
     if(t_ >= T_sup_ - 0.01) {
@@ -83,6 +87,10 @@ namespace robot_manager
 
     // publisher
     pub_joint_states_ = this->create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
+
+    //subscription
+    using namespace std::placeholders;
+    sub_feedback_ = this->create_subscription<robot_messages::msg::Feedback>("feedback", 10, std::bind(&RobotManager::Feedback_Callback, this, _1));
 
     // setting /joint_states pub_joint_states_msg_
     // TODO: これはParameterServerからやりたい。

@@ -21,7 +21,7 @@ namespace webots_robot_handler
 
     private:
       // マネージャからのCallback
-      void JointStates_Callback(const sensor_msgs::msg::JointState::SharedPtr callbacl_data);
+      void JointStates_Callback(const sensor_msgs::msg::JointState::SharedPtr callback_data);
 
       // DEBUG: 1つ前のcounterを記憶。データ落ちが無いかの判定に用いる。
       int counter_old_ = -1;

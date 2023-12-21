@@ -2,6 +2,7 @@
 #include "pluginlib/class_loader.hpp"
 
 #include "sensor_msgs/msg/joint_state.hpp"
+#include "robot_messages/msg/feedback.hpp"
 
 #include "robot_manager/control_plugin_bases/PluginBase_FootStepPlanner.hpp"
 #include "robot_manager/control_plugin_bases/PluginBase_WalkingPatternGenerator.hpp"
@@ -55,16 +56,18 @@ namespace robot_manager
       rclcpp::TimerBase::SharedPtr wall_timer_;
 
       // publisher (debug mode)
-      // rclcpp::Publisher<msgs_package::msg::FootStepPlan>::SharedPtr pub_foot_step_plan_;
-      // std::shared_ptr<msgs_package::msg::FootStepPlan> pub_foot_step_plan_msg_ = std::make_shared<msgs_packages::msg::FootStepPlan>();
-      // rclcpp::Publisher<msgs_package::msg::WalkingPattern>::SharedPtr pub_walking_pattern_;
-      // std::shared_ptr<msgs_package::msg::WalkingPattern> pub_walking_pattern_msg_ = std::make_shared<msgs_packages::msg::WalkingPattern>();
-      // rclcpp::Publisher<msgs_package::msg::WalkingStabilization>::SharedPtr pub_walking_stabilization_;
-      // std::shared_ptr<msgs_package::msg::WalkingStabilization> pub_walking_stabilization_msg_ = std::make_shared<msgs_packages::msg::WalkingStabilization>();
+      // rclcpp::Publisher<robot_messages::msg::FootStepPlan>::SharedPtr pub_foot_step_plan_;
+      // std::shared_ptr<robot_messages::msg::FootStepPlan> pub_foot_step_plan_msg_ = std::make_shared<robot_messagess::msg::FootStepPlan>();
+      // rclcpp::Publisher<robot_messages::msg::WalkingPattern>::SharedPtr pub_walking_pattern_;
+      // std::shared_ptr<robot_messages::msg::WalkingPattern> pub_walking_pattern_msg_ = std::make_shared<robot_messagess::msg::WalkingPattern>();
+      // rclcpp::Publisher<robot_messages::msg::WalkingStabilization>::SharedPtr pub_walking_stabilization_;
+      // std::shared_ptr<robot_messages::msg::WalkingStabilization> pub_walking_stabilization_msg_ = std::make_shared<robot_messagess::msg::WalkingStabilization>();
 
       // subscriber
       // TODO: ココにFeedbackのSubscriberとCallback関数を定義。
-      // rclcpp::Subscription<msgs_package::msg::Feedback>::SharedPtr sub_feedback_ = nullptr;
+      rclcpp::Subscription<robot_messages::msg::Feedback>::SharedPtr sub_feedback_;
+      std::shared_ptr<robot_messages::msg::Feedback> sub_feedback_msg_ = std::make_shared<robot_messages::msg::Feedback>();
+      void Feedback_Callback(const robot_messages::msg::Feedback::SharedPtr callback_data);
 
       // parameters 
         // TODO: 外部から値を取ってきて定義したい子達
