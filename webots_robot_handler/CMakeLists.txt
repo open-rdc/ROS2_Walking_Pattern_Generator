@@ -21,6 +21,7 @@ find_package(rclcpp REQUIRED)
 
 # find_package(msgs_package REQUIRED)
 # find_package(kinematics REQUIRED)
+find_package(robot_messages REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
 find_package(Eigen3 REQUIRED)
@@ -41,6 +42,7 @@ ament_target_dependencies(${PROJECT_NAME}
   webots_ros2_driver
   # kinematics
   sensor_msgs
+  robot_messages
   # webots_ros2_control
   # controller_manager
   # msgs_package

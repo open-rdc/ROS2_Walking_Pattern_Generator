@@ -6,6 +6,7 @@
 // #include <rmw/qos_profiles.h>
 // #include "msgs_package/msg/control_output.hpp"
 // #include "msgs_package/msg/feedback.hpp"
+#include "robot_messages/msg/feedback.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 
 #include <webots/robot.h>
@@ -120,6 +121,7 @@ namespace webots_robot_handler
 
     // CHECKME
     sub_joint_state_ = node_->create_subscription<sensor_msgs::msg::JointState>("joint_states", 10, std::bind(&WebotsRobotHandler::JointStates_Callback, this, _1));
+    pub_feedback_ = node_->create_publisher<robot_messages::msg::Feedback>("feedback", 10);
 
     // DEBUG: parameter setting
     DEBUG_ParameterSetting();
@@ -128,12 +130,12 @@ namespace webots_robot_handler
     for(int tag = 0; tag < 20; tag++) {  
       motorsTag_[tag] = wb_robot_get_device(motors_name_[tag].c_str());
       positionSensorsTag_[tag] = wb_robot_get_device((motors_name_[tag]+"S").c_str());
-      wb_position_sensor_enable(positionSensorsTag_[tag], 1);  // enable & sampling_period: 100[ms]
+      wb_position_sensor_enable(positionSensorsTag_[tag], 1);  // enable & sampling_period: 1[ms]
     }
     accelerometerTag_ = wb_robot_get_device("Accelerometer");
-    wb_accelerometer_enable(accelerometerTag_, 1);  // enable & sampling_period: 100[ms]
+    wb_accelerometer_enable(accelerometerTag_, 1);  // enable & sampling_period: 1[ms]
     gyroTag_ = wb_robot_get_device("Gyro");
-    wb_gyro_enable(gyroTag_, 1);  // enable & sampling_period: 100[ms]
+    wb_gyro_enable(gyroTag_, 1);  // enable & sampling_period: 1[ms]
 
     // set init position & value
     // TODO: 脚の初期姿勢（特に位置）はIKの解から与えたい。今は角度を決め打ちで与えているので、初期姿勢の変更がめっちゃめんどくさい。
@@ -152,18 +154,39 @@ namespace webots_robot_handler
   // 恐らく、.wbtのstep_timeを10[ms]に設定してても、step()が10[ms]以内で回る保証はないのだろう。
   void WebotsRobotHandler::step() {
     // RCLCPP_INFO(node_->get_logger(), "step...");
-
     // // DEBUG: 初期姿勢が完了するまでwait
     if(wait_step != 0) {
       wait_step--;
     }
     else {
+
+      // feedback acce, gyro & joint_pos
+      for(int tag = 0; tag < 6; tag++) {
+        pub_feedback_msg_->q_now_leg_l[tag] = wb_position_sensor_get_value(positionSensorsTag_[jointNum_legL_[tag]]);
+        pub_feedback_msg_->q_now_leg_r[tag] = wb_position_sensor_get_value(positionSensorsTag_[jointNum_legR_[tag]]);
+      }
+      accelerometerValue_ = wb_accelerometer_get_values(accelerometerTag_);
+      gyroValue_ = wb_gyro_get_values(gyroTag_);
+
+      // fixed offset & axis-pose
+      pub_feedback_msg_->accelerometer_now[0] = accelerometerValue_[1]-512;
+      pub_feedback_msg_->accelerometer_now[1] = -(accelerometerValue_[0]-512);
+      pub_feedback_msg_->accelerometer_now[2] = accelerometerValue_[2]-640;
+      pub_feedback_msg_->gyro_now[0] = -(gyroValue_[0]-512);
+      pub_feedback_msg_->gyro_now[1] = -(gyroValue_[1]-512);
+      pub_feedback_msg_->gyro_now[2] = gyroValue_[2]-512;
+      pub_feedback_msg_->step_count = walking_step;
+
+      walking_step++;
+
       for(int tag = 0; tag < 6; tag++) {
         wb_motor_set_position(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Pos_legR_[0][tag]);  // DEBUG: control_Step -> 0
         wb_motor_set_velocity(motorsTag_[jointNum_legR_[tag]], WalkingPattern_Vel_legR_[0][tag]);
         wb_motor_set_position(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Pos_legL_[0][tag]);
         wb_motor_set_velocity(motorsTag_[jointNum_legL_[tag]], WalkingPattern_Vel_legL_[0][tag]);
       }
+    
+      pub_feedback_->publish(*pub_feedback_msg_);
     }
   }
 

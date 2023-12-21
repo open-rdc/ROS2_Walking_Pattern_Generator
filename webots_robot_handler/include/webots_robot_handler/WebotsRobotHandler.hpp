@@ -2,8 +2,7 @@
 #define WEBOTS_ROBOT_HANDLER_HPP
 
 #include "rclcpp/rclcpp.hpp"
-// #include "msgs_package/msg/feedback.hpp"
-// #include "msgs_package/msg/control_output.hpp"
+#include "robot_messages/msg/feedback.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 
 #include "webots_ros2_driver/PluginInterface.hpp"
@@ -47,9 +46,8 @@ namespace webots_robot_handler
       // init関数以外でもrclcpp::Nodeを使えるようにするため。
       webots_ros2_driver::WebotsNode *node_;
 
-      // rclcpp::Publisher<msgs_package::msg::Feedback>::SharedPtr pub_feedback_ = nullptr;
-      // std::shared_ptr<msgs_package::msg::Feedback> pub_feedback_msg_ = std::make_shared<msgs_package::msg::Feedback>();
-      
+      rclcpp::Publisher<robot_messages::msg::Feedback>::SharedPtr pub_feedback_;
+      std::shared_ptr<robot_messages::msg::Feedback> pub_feedback_msg_ = std::make_shared<robot_messages::msg::Feedback>();
       rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr sub_joint_state_;
 
       // Webots内のロボットが持つデバイスのタグを持つ。このタグをもとに、Webotsの関数はデバイスを区別する。
@@ -76,14 +74,15 @@ namespace webots_robot_handler
 // == step() ==
 
       double getJointAng_[20];  // Webots側から得た関節角度を記憶
-      const double *accelerometerValue_;  
-      const double *gyroValue_;
+      const double *accelerometerValue_ = 0;  
+      const double *gyroValue_ = 0;
 
       int wait_step;  // DEBUG: 初期姿勢になるまで待機するstep数
 
       int control_step;  // DEBUG: 
 
       int simu_step = 0;  // DEBUG:
+      int walking_step = 0;
   };
 }
 

@@ -49,7 +49,7 @@ def generate_launch_description():
     )
     launch_description.add_action(feedback_recorder_node)
 
-  if debug_mode_yaml["using_feedback_recorder"] == True:
+  if debug_mode_yaml["using_footStep_recorder"] == True:
     footStep_recorder_node = Node(
       package = "robot_recorder",
       executable = "footStep_recorder",

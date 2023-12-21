@@ -45,12 +45,12 @@ def generate_launch_description():
   # load robot_manager node
   # TODO: RMの起動など、制御プログラムは他launchファイルに記述して、制御実行時にそのlaunchファイルを起動する手順を取るべき。
     # そうしないと、rosbagを使って再現するときに干渉しちゃうし、RMの起動を阻止しないと行けない。
-  # robot_manager = Node(
-  #   package = "robot_manager",
-  #   executable = "robot_manager",
-  #   output = "screen"
-  # )
-  # launch_description.add_action(robot_manager)
+  robot_manager = Node(
+    package = "robot_manager",
+    executable = "robot_manager",
+    output = "screen"
+  )
+  launch_description.add_action(robot_manager)
 
   # Execution
   return launch_description

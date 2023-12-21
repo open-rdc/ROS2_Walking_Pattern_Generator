@@ -43,7 +43,7 @@ namespace Recorder {
         file_feedback << "# record data: step_count | acceleration (x y z) | gyro (x y z)" << std::endl;
 
         using namespace std::placeholders;
-        sub_feedback_ = this->create_subscription<robot_messages::msg::Feedback>("Feedback", 10, std::bind(&RobotFeedbackRecorder::Feedback_Callback, this, _1));
+        sub_feedback_ = this->create_subscription<robot_messages::msg::Feedback>("feedback", 10, std::bind(&RobotFeedbackRecorder::Feedback_Callback, this, _1));
       }
 
       ~RobotFeedbackRecorder() {
@@ -101,7 +101,7 @@ reference:
             feedback_gyro.push_back(feedback_gyro.back());
             // file_feedback_acc << counter_old_+loss_step << " ";
             // file_feedback_gyro << counter_old_+loss_step << " ";
-            file_feedback << counter_old_+loss_step<< " ";
+            file_feedback << -999 << " ";
 
             for(double acce : feedback_acceleration.back()) {
               file_feedback << acce << " ";
