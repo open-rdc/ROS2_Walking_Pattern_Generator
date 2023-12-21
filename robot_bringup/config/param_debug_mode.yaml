@@ -6,9 +6,9 @@
       rviz_file: display.rviz
       using_rqt: false
       # setting recorder
-      using_feedback_recorder: true
+      using_feedback_recorder: false
       using_footStep_recorder: false
       using_walkingPattern_recorder: false
       using_walkingStabilization_recorder: false
-      using_jointState_recorder: false
+      using_jointState_recorder: true
       using_rosbag2: false

@@ -45,7 +45,7 @@ namespace Recorder {
         // file_walkingPattern_vel.open(file_walkingPattern_pos_path, std::ios::out);
         file_walkingPattern.open(file_walkingPattern_path, std::ios::out);
 
-        file_walkingPattern << "# record data: step_count | walking_pattern_position (x y z) | walking_pattern_velocity (x y z)" << std::endl;
+        file_walkingPattern << "# record data: step_count | walking_pattern_position (x y z) | walking_pattern_velocity (x y z) | walking_pattern_zmp (x y)" << std::endl;
 
         using namespace std::placeholders;
         sub_walkingPattern_ = this->create_subscription<robot_messages::msg::WalkingPatternRecord>("walking_pattern", 10, std::bind(&RobotWalkingPatternRecorder::WalkingPattern_Callback, this, _1));
@@ -70,6 +70,7 @@ namespace Recorder {
             walkingPattern_step_count.push_back(-999);  // loss dataなので、エラー値。いや、単にカウント値を入れるのとエラー値は別にしたほうが良いか？Plotする時を考えると。
             walkingPattern_pos.push_back(walkingPattern_pos.back());
             walkingPattern_vel.push_back(walkingPattern_vel.back());
+            walkingPattern_zmp_pos.push_back(walkingPattern_zmp_pos.back());
 
             // file_walkingPattern_pos << counter_old_+loss_step << " ";
             // file_walkingPattern_vel << counter_old_+loss_step << " ";
@@ -80,6 +81,9 @@ namespace Recorder {
             for(double vel : walkingPattern_vel.back()) {
               file_walkingPattern << vel << " ";
             }
+            for(double zmp : walkingPattern_zmp_pos.back()) {
+              file_walkingPattern << zmp << " ";
+            }
             file_walkingPattern << std::endl;
           }
         }
@@ -87,6 +91,7 @@ namespace Recorder {
         walkingPattern_step_count.push_back(callback_data->step_count);
         walkingPattern_pos.push_back(callback_data->cc_cog_pos_ref);
         walkingPattern_vel.push_back(callback_data->cc_cog_vel_ref);
+        walkingPattern_zmp_pos.push_back(callback_data->wc_foot_land_pos_ref);
 
         // file_walkingPattern_pos << callback_data->step_count << " ";
         // file_walkingPattern_vel << callback_data->step_count << " ";
@@ -96,6 +101,9 @@ namespace Recorder {
         }
         for(double vel : callback_data->cc_cog_vel_ref) {
           file_walkingPattern << vel << " ";
+        }
+        for(double zmp : callback_data->wc_foot_land_pos_ref) {
+          file_walkingPattern << zmp << " ";
         }
         file_walkingPattern << std::endl;
 
@@ -118,6 +126,7 @@ namespace Recorder {
 
       std::vector<std::array<double, 3>> walkingPattern_pos;
       std::vector<std::array<double, 3>> walkingPattern_vel;
+      std::vector<std::array<double, 2>> walkingPattern_zmp_pos;
       std::vector<int> walkingPattern_step_count;
   };
 }

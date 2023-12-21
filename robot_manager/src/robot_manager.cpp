@@ -1,6 +1,14 @@
 #include "robot_manager/robot_manager.hpp"
 #include <chrono>
 
+#include "sensor_msgs/msg/joint_state.hpp"
+#include "robot_messages/msg/feedback.hpp"
+#include "robot_messages/msg/foot_step_record.hpp"
+#include "robot_messages/msg/walking_pattern_record.hpp"
+#include "robot_messages/msg/walking_stabilization_record.hpp"
+#include "robot_messages/msg/joint_state_record.hpp"
+
+
 using namespace std::chrono_literals;
 
 namespace robot_manager
@@ -17,13 +25,37 @@ namespace robot_manager
     }
 
     if(control_step_ < walking_pattern_ptr_->cc_cog_pos_ref.size()) { 
+
+      if(DebugMode_ == true) {
+        // pub foot_step (1step)
+        pub_foot_step_plan_record_msg_->step_count = control_step_;
+        pub_foot_step_plan_record_msg_->foot_step_pos = foot_step_ptr_->foot_pos[walking_step_];
+        pub_foot_step_plan_record_->publish(*pub_foot_step_plan_record_msg_);
+        pub_walking_pattern_record_msg_->step_count = control_step_;
+
+        // pub walking_pattern (1step)
+        pub_walking_pattern_record_msg_->cc_cog_pos_ref = walking_pattern_ptr_->cc_cog_pos_ref[control_step_];
+        pub_walking_pattern_record_msg_->cc_cog_vel_ref = walking_pattern_ptr_->cc_cog_vel_ref[control_step_];
+        pub_walking_pattern_record_msg_->wc_foot_land_pos_ref = walking_pattern_ptr_->wc_foot_land_pos_ref[walking_step_];
+        pub_walking_pattern_record_->publish(*pub_walking_pattern_record_msg_);
+      }
+
       // Walking_Stabilization_Controller (1step)
       // std::cout << "walking stabilization controller" << std::endl;
       start_time_ = std::chrono::system_clock::now();
-      walking_stabilization_ptr_ = wsc_->walking_stabilization_controller(walking_pattern_ptr_);
+      walking_stabilization_ptr_ = wsc_->walking_stabilization_controller(walking_pattern_ptr_);  // TODO: vector<array>で返さずに、1step分のarrayのみを返すようにするべき。
       end_time_ = std::chrono::system_clock::now();
       latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
       // std::cout << "WSC time [ms] : " << latency_ << std::endl;
+
+      if(DebugMode_ == true) {
+        //pub walking_stabilization (1step)
+        pub_walking_stabilization_record_msg_->step_count = control_step_;
+        pub_walking_stabilization_record_msg_->cog_pos_fix = walking_stabilization_ptr_->cog_pos_fix[control_step_];
+        pub_walking_stabilization_record_msg_->cog_vel_fix = walking_stabilization_ptr_->cog_vel_fix[control_step_];
+        pub_walking_stabilization_record_msg_->zmp_pos_fix = walking_stabilization_ptr_->zmp_pos_fix[walking_step_];
+        pub_walking_stabilization_record_->publish(*pub_walking_stabilization_record_msg_);
+      }
 
       // Convert_to_Joint_States (1step)
       // std::cout << "convert to joint states" << std::endl;
@@ -41,6 +73,16 @@ namespace robot_manager
       latency_ctjs_min_ = latency_ < latency_ctjs_min_ ? latency_ : latency_ctjs_min_;
       // std::cout << "CTJS time [ms] : " << latency_ << ", max [ms] : " << latency_ctjs_max_ << ", min [ms] : " << latency_ctjs_min_ <<  std::endl;
       // std::cout << control_step_ << std::endl;
+
+      if(DebugMode_ == true) {
+        // pub joint_states (1step)
+        pub_joint_state_record_msg_->step_count = control_step_;
+        pub_joint_state_record_msg_->joint_ang_leg_l = leg_joint_states_pat_ptr_->joint_ang_pat_legL;
+        pub_joint_state_record_msg_->joint_ang_leg_r = leg_joint_states_pat_ptr_->joint_ang_pat_legR;
+        pub_joint_state_record_msg_->joint_vel_leg_l = leg_joint_states_pat_ptr_->joint_vel_pat_legL;
+        pub_joint_state_record_msg_->joint_vel_leg_r = leg_joint_states_pat_ptr_->joint_vel_pat_legR;
+        pub_joint_state_record_->publish(*pub_joint_state_record_msg_);
+      }
     }
 
     // TODO: データの重要性からして、ここはServiceのほうがいい気がするんだ。
@@ -132,12 +174,19 @@ namespace robot_manager
     // Setting parameters
       // TODO: ParameterServerとかから得た値を使いたい
     ONLINE_GENERATE_ = false;
-    DebugMode_ = false;
+    DebugMode_ = true;
     UsingSimulator_ = true;
 
     // timer
     control_cycle_ = 0.01;  // 10[ms]
     T_sup_ = 0.8;  // 歩行周期
+
+    if(DebugMode_ == true) {
+      pub_foot_step_plan_record_ = this->create_publisher<robot_messages::msg::FootStepRecord>("foot_step", 10);
+      pub_walking_pattern_record_ = this->create_publisher<robot_messages::msg::WalkingPatternRecord>("walking_pattern", 10);
+      pub_walking_stabilization_record_ = this->create_publisher<robot_messages::msg::WalkingStabilizationRecord>("walking_stabilization", 10);
+      pub_joint_state_record_ = this->create_publisher<robot_messages::msg::JointStateRecord>("joint_states_record", 10);
+    }
 
     // 確実にstep0から送れるようにsleep
       // TODO: Handler側が何かしらのシグナルを出したらPubするようにしたい。

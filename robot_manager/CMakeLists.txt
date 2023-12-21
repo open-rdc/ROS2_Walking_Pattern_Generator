@@ -13,6 +13,7 @@ find_package(pluginlib REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(robot_messages REQUIRED)
 
 add_executable(robot_manager
   src/robot_manager.cpp
@@ -35,6 +36,7 @@ ament_target_dependencies(robot_manager
   rclcpp
   pluginlib
   sensor_msgs
+  robot_messages
 )
 
 ament_export_include_directories(

@@ -3,6 +3,10 @@
 
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "robot_messages/msg/feedback.hpp"
+#include "robot_messages/msg/foot_step_record.hpp"
+#include "robot_messages/msg/walking_pattern_record.hpp"
+#include "robot_messages/msg/walking_stabilization_record.hpp"
+#include "robot_messages/msg/joint_state_record.hpp"
 
 #include "robot_manager/control_plugin_bases/PluginBase_FootStepPlanner.hpp"
 #include "robot_manager/control_plugin_bases/PluginBase_WalkingPatternGenerator.hpp"
@@ -56,12 +60,14 @@ namespace robot_manager
       rclcpp::TimerBase::SharedPtr wall_timer_;
 
       // publisher (debug mode)
-      // rclcpp::Publisher<robot_messages::msg::FootStepPlan>::SharedPtr pub_foot_step_plan_;
-      // std::shared_ptr<robot_messages::msg::FootStepPlan> pub_foot_step_plan_msg_ = std::make_shared<robot_messagess::msg::FootStepPlan>();
-      // rclcpp::Publisher<robot_messages::msg::WalkingPattern>::SharedPtr pub_walking_pattern_;
-      // std::shared_ptr<robot_messages::msg::WalkingPattern> pub_walking_pattern_msg_ = std::make_shared<robot_messagess::msg::WalkingPattern>();
-      // rclcpp::Publisher<robot_messages::msg::WalkingStabilization>::SharedPtr pub_walking_stabilization_;
-      // std::shared_ptr<robot_messages::msg::WalkingStabilization> pub_walking_stabilization_msg_ = std::make_shared<robot_messagess::msg::WalkingStabilization>();
+      rclcpp::Publisher<robot_messages::msg::FootStepRecord>::SharedPtr pub_foot_step_plan_record_;
+      std::shared_ptr<robot_messages::msg::FootStepRecord> pub_foot_step_plan_record_msg_ = std::make_shared<robot_messages::msg::FootStepRecord>();
+      rclcpp::Publisher<robot_messages::msg::WalkingPatternRecord>::SharedPtr pub_walking_pattern_record_;
+      std::shared_ptr<robot_messages::msg::WalkingPatternRecord> pub_walking_pattern_record_msg_ = std::make_shared<robot_messages::msg::WalkingPatternRecord>();
+      rclcpp::Publisher<robot_messages::msg::WalkingStabilizationRecord>::SharedPtr pub_walking_stabilization_record_;
+      std::shared_ptr<robot_messages::msg::WalkingStabilizationRecord> pub_walking_stabilization_record_msg_ = std::make_shared<robot_messages::msg::WalkingStabilizationRecord>();
+      rclcpp::Publisher<robot_messages::msg::JointStateRecord>::SharedPtr pub_joint_state_record_;
+      std::shared_ptr<robot_messages::msg::JointStateRecord> pub_joint_state_record_msg_ = std::make_shared<robot_messages::msg::JointStateRecord>();
 
       // subscriber
       // TODO: ココにFeedbackのSubscriberとCallback関数を定義。

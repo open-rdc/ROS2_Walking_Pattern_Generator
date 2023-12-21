@@ -66,8 +66,9 @@ namespace Recorder {
             file_footStep << counter_old_+loss_step << " ";
 
             for(double foot : footStep.back()) {
-              file_footStep << foot << " " << std::endl;
+              file_footStep << foot << " ";
             }
+            file_footStep << std::endl;
           }
         }
         // record
@@ -76,8 +77,9 @@ namespace Recorder {
         file_footStep << callback_data->step_count << " ";
 
         for(double foot : callback_data->foot_step_pos) {
-          file_footStep << foot << " " << std::endl;
+          file_footStep << foot << " ";
         }
+        file_footStep << std::endl;
 
         counter_old_ = callback_data->step_count;
         
