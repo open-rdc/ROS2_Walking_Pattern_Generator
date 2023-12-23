@@ -11,12 +11,12 @@
         right_leg: r_leg
       limb_without_fixed_joints:
         base:
-          joint_names: []
-          position_sensor_names: []
-          joint_numbers: []
-          joint_unit_vector: []
-          link_length: []
-          joint_posture: []
+          joint_names: null
+          position_sensor_names: 'null'
+          joint_numbers: null
+          joint_unit_vector: null
+          link_length: null
+          joint_posture: null
         head:
           joint_names:
           - head_pan

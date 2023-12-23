@@ -48,7 +48,7 @@ def generate_launch_description():
   param_mode_switch_yaml = os.path.join(get_package_share_directory("robot_bringup"), "config", "param_mode_switch.yaml")
   param_control_yaml = os.path.join(get_package_share_directory("robot_bringup"), "config", "param_control.yaml")
   param_robot_description_yaml = os.path.join(get_package_share_directory("robot_bringup"), "config", "param_robot_description.yaml")
-  # limb_yaml = os.path.join(get_package_share_directory("robot_description"), "config", robot_description_yaml["robot_name"], "param_"+robot_description_yaml["robot_name"]+"_limb.yaml")
+  limb_yaml = os.path.join(get_package_share_directory("robot_description"), "config", robot_description_yaml["robot_name"], "param_"+robot_description_yaml["robot_name"]+"_limb.yaml")
   name_list_yaml = os.path.join(get_package_share_directory("robot_description"), "config", robot_description_yaml["robot_name"], "param_"+robot_description_yaml["robot_name"]+"_name_lists.yaml")
 
   # load param server
@@ -60,7 +60,7 @@ def generate_launch_description():
       param_mode_switch_yaml,
       param_control_yaml,
       param_robot_description_yaml,
-      # limb_yaml,
+      limb_yaml,
       name_list_yaml
     ]
   )

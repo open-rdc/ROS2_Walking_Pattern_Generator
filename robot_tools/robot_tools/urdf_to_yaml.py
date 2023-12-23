@@ -324,12 +324,12 @@ while i < len(joint_names_list_lists):
                                         }
                                       })
   nonfixed_joint_names_group_dicts_list.append({joint_names_group: {
-                                          "joint_names": nonfixed_joint_names_list_lists[i],
-                                          "position_sensor_names": [name+"_sensor" for name in nonfixed_joint_names_list_lists[i]],
-                                          "joint_numbers": nonfixed_joint_nums_list_lists[i],
-                                          "joint_unit_vector": nonfixed_joint_unit_vectors_list_lists[i],
-                                          "link_length": nonfixed_joint_link_lengths_list_lists[i],
-                                          "joint_posture": nonfixed_joint_postures_list_lists[i]
+                                          "joint_names": nonfixed_joint_names_list_lists[i].append("null") if nonfixed_joint_names_list_lists[i]==[] else nonfixed_joint_names_list_lists[i],
+                                          "position_sensor_names": "null" if nonfixed_joint_names_list_lists[i]==["null"] else [name+"_sensor" for name in nonfixed_joint_names_list_lists[i]],
+                                          "joint_numbers": nonfixed_joint_nums_list_lists[i].append("null") if nonfixed_joint_nums_list_lists[i]==[] else nonfixed_joint_nums_list_lists[i],
+                                          "joint_unit_vector": nonfixed_joint_unit_vectors_list_lists[i].append("null") if nonfixed_joint_unit_vectors_list_lists[i]==[] else nonfixed_joint_unit_vectors_list_lists[i],
+                                          "link_length": nonfixed_joint_link_lengths_list_lists[i].append("null") if nonfixed_joint_link_lengths_list_lists[i]== [] else nonfixed_joint_link_lengths_list_lists[i],
+                                          "joint_posture": nonfixed_joint_postures_list_lists[i].append("null") if nonfixed_joint_postures_list_lists[i]== [] else nonfixed_joint_postures_list_lists[i]
                                         }
                                       })
   i = i + 1
