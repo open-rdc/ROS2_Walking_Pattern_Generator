@@ -1,5 +1,6 @@
 import os
 import yaml
+from time import sleep
 
 import launch
 from launch_ros.actions import Node
@@ -16,34 +17,6 @@ def generate_launch_description():
   with open(robot_description_yaml_path, "r") as f:
     robot_description_yaml = yaml.safe_load(f)["/**"]["ros__parameters"]["robot_description"]
 
-  # load simulation launch file
-  if mode_switch_yaml["using_simulator"] == True:
-    sim_launch = launch.actions.IncludeLaunchDescription(
-      PythonLaunchDescriptionSource([
-        os.path.join(get_package_share_directory("webots_robot_handler"), "launch"), 
-        "/start_launch.py"
-      ])
-    )
-    launch_description.add_action(sim_launch)
-
-  # Load visualizer launch file & recorder launch file
-  if mode_switch_yaml["debug_mode"] == True:
-    visual_launch = launch.actions.IncludeLaunchDescription(
-      PythonLaunchDescriptionSource([
-        os.path.join(get_package_share_directory("robot_visualizer"), "launch"), 
-        "/robot_visualizer.launch.py"
-      ])
-    )
-    launch_description.add_action(visual_launch)
-
-    record_launch = launch.actions.IncludeLaunchDescription(
-      PythonLaunchDescriptionSource([
-        os.path.join(get_package_share_directory("robot_recorder"), "launch"),
-        "/robot_recorder.launch.py"
-      ])
-    )
-    launch_description.add_action(record_launch)
-
   # load param_file
   param_mode_switch_yaml = os.path.join(get_package_share_directory("robot_bringup"), "config", "param_mode_switch.yaml")
   param_control_yaml = os.path.join(get_package_share_directory("robot_bringup"), "config", "param_control.yaml")
@@ -51,7 +24,7 @@ def generate_launch_description():
   limb_yaml = os.path.join(get_package_share_directory("robot_description"), "config", robot_description_yaml["robot_name"], "param_"+robot_description_yaml["robot_name"]+"_limb.yaml")
   name_list_yaml = os.path.join(get_package_share_directory("robot_description"), "config", robot_description_yaml["robot_name"], "param_"+robot_description_yaml["robot_name"]+"_name_lists.yaml")
 
-  # load param server
+    # load param server
   parameter_server_node = Node(
     package = "robot_bringup",
     executable = "robot_parameter_server",
@@ -65,6 +38,7 @@ def generate_launch_description():
     ]
   )
   launch_description.add_action(parameter_server_node)
+  # sleep(2)
 
   # load robot_manager node
   # TODO: RMの起動など、制御プログラムは他launchファイルに記述して、制御実行時にそのlaunchファイルを起動する手順を取るべき。
@@ -75,7 +49,36 @@ def generate_launch_description():
     output = "screen"
   )
   launch_description.add_action(robot_manager)
+  # sleep(1)
 
+  # Load visualizer launch file & recorder launch file
+  if mode_switch_yaml["debug_mode"] == True:
+
+    record_launch = launch.actions.IncludeLaunchDescription(
+      PythonLaunchDescriptionSource([
+        os.path.join(get_package_share_directory("robot_recorder"), "launch"),
+        "/robot_recorder.launch.py"
+      ])
+    )
+    launch_description.add_action(record_launch)
+
+    visual_launch = launch.actions.IncludeLaunchDescription(
+      PythonLaunchDescriptionSource([
+        os.path.join(get_package_share_directory("robot_visualizer"), "launch"), 
+        "/robot_visualizer.launch.py"
+      ])
+    )
+    launch_description.add_action(visual_launch)
+
+  # load simulation launch file
+  if mode_switch_yaml["using_simulator"] == True:
+    sim_launch = launch.actions.IncludeLaunchDescription(
+      PythonLaunchDescriptionSource([
+        os.path.join(get_package_share_directory("webots_robot_handler"), "launch"), 
+        "/start_launch.py"
+      ])
+    )
+    launch_description.add_action(sim_launch)
 
 
   # Execution

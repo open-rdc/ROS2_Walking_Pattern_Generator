@@ -1,4 +1,6 @@
 import os
+from time import sleep
+
 import pathlib
 import launch
 from launch_ros.actions import Node
@@ -27,6 +29,7 @@ def generate_launch_description():
     ]
   )
 
+  # sleep(4)
   return launch.LaunchDescription([
     webots,
     robotis_op2_driver,

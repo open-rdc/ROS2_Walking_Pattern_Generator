@@ -48,9 +48,27 @@ namespace robot_manager
       // client parameters
       rclcpp::Node::SharedPtr node_ptr_;
       std::shared_ptr<rclcpp::SyncParametersClient> client_param_;
+
+      // param: mode_switch
       bool ONLINE_OR_OFFLINE_GENERATE_ = false;
       bool DEBUG_MODE_ = false;
+      bool USING_SIMULATOR_ = false;
 
+      // param: robot_description
+      std::string ROBOT_NAME_;
+
+      // param: control
+      double CONTROL_CYCLE_ = 0;
+      double WALKING_CYCLE_ = 0;
+
+      // param: limb
+      std::string LEFT_LEG_NAME_;
+      std::string RIGHT_LEG_NAME_;
+      std::vector<long> LEFT_LEG_JOINT_NUMBERS_;
+      std::vector<long> RIGHT_LEG_JOINT_NUMBERS_;
+
+      // param: name_lists
+      std::vector<std::string> ALL_JOINT_NAMES_WITHOUT_FIXED_;
 
       // step & timer
       void Step_Offline();

@@ -10,6 +10,8 @@
 
 
 using namespace std::chrono_literals;
+using namespace std::placeholders;
+
 
 namespace robot_manager
 {
@@ -19,7 +21,7 @@ namespace robot_manager
 
   void RobotManager::Step_Offline() {
 
-    if(t_ >= T_sup_ - 0.01) {
+    if(t_ >= WALKING_CYCLE_ - 0.01) {
       t_ = 0;
       walking_step_++;
     }
@@ -92,10 +94,10 @@ namespace robot_manager
     if(control_step_ < walking_pattern_ptr_->cc_cog_pos_ref.size()) {
       for(uint8_t th = 0; th < 6; th++) {
         // CHECKME: WSCとCTJSの型を単位Step用に修正したら、配列に[control_step_]が不要になる。
-        pub_joint_states_msg_->position.at(legL_num_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legL.at(th) * jointAng_posi_or_nega_legL_.at(th);
-        pub_joint_states_msg_->position.at(legR_num_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legR.at(th) * jointAng_posi_or_nega_legR_.at(th); 
-        pub_joint_states_msg_->velocity.at(legL_num_.at(th)) = std::abs(leg_joint_states_pat_ptr_->joint_vel_pat_legL.at(th));
-        pub_joint_states_msg_->velocity.at(legR_num_.at(th)) = std::abs(leg_joint_states_pat_ptr_->joint_vel_pat_legR.at(th));
+        pub_joint_states_msg_->position.at(LEFT_LEG_JOINT_NUMBERS_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legL.at(th) * jointAng_posi_or_nega_legL_.at(th);
+        pub_joint_states_msg_->position.at(RIGHT_LEG_JOINT_NUMBERS_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legR.at(th) * jointAng_posi_or_nega_legR_.at(th); 
+        pub_joint_states_msg_->velocity.at(LEFT_LEG_JOINT_NUMBERS_.at(th)) = std::abs(leg_joint_states_pat_ptr_->joint_vel_pat_legL.at(th));
+        pub_joint_states_msg_->velocity.at(RIGHT_LEG_JOINT_NUMBERS_.at(th)) = std::abs(leg_joint_states_pat_ptr_->joint_vel_pat_legR.at(th));
       }
       // std::cout << control_step_ << std::endl;
     }
@@ -103,8 +105,8 @@ namespace robot_manager
 
     // update
     control_step_++;
-    t_ += control_cycle_;
-    walking_time_ += control_cycle_;
+    t_ += CONTROL_CYCLE_;
+    walking_time_ += CONTROL_CYCLE_;
   }
 
   RobotManager::RobotManager(
@@ -127,77 +129,54 @@ namespace robot_manager
       RCLCPP_ERROR(this->get_logger(), "%s", ex.what());
     }
 
-    // publisher
-    pub_joint_states_ = this->create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
-
-    //subscription
-    using namespace std::placeholders;
-    sub_feedback_ = this->create_subscription<robot_messages::msg::Feedback>("feedback", 10, std::bind(&RobotManager::Feedback_Callback, this, _1));
-
     // client parrameters
     node_ptr_ = rclcpp::Node::make_shared("RobotManager");
     client_param_ = std::make_shared<rclcpp::SyncParametersClient>(node_ptr_, "RobotParameterServer");
+    rclcpp::sleep_for(2s);  // ParameterServerの立ち上げの完了を見越した待機。無しだと、ParameterServerが恐らく起動完了していない。
+    // param: mode_switch
     ONLINE_OR_OFFLINE_GENERATE_ = client_param_->get_parameter<bool>("mode_switch.on_or_offline_pattern_generate");
     DEBUG_MODE_ = client_param_->get_parameter<bool>("mode_switch.debug_mode");
+    USING_SIMULATOR_ = client_param_->get_parameter<bool>("mode_switch.using_simulator");
+    // param: robot_description
+    ROBOT_NAME_ = client_param_->get_parameter<std::string>("robot_description.robot_name");
+    // param: control
+    CONTROL_CYCLE_ = client_param_->get_parameter<double>("control_times.control_cycle");
+    WALKING_CYCLE_ = client_param_->get_parameter<double>("control_times.walking_cycle");
+    // param: limb
+    LEFT_LEG_NAME_ = client_param_->get_parameter<std::string>(ROBOT_NAME_+"_limb.limb_names.left_leg");
+    RIGHT_LEG_NAME_ = client_param_->get_parameter<std::string>(ROBOT_NAME_+"_limb.limb_names.right_leg");
+    LEFT_LEG_JOINT_NUMBERS_ = client_param_->get_parameter<std::vector<long>>(ROBOT_NAME_+"_limb.limb_without_fixed_joints."+LEFT_LEG_NAME_+".joint_numbers");
+    RIGHT_LEG_JOINT_NUMBERS_ = client_param_->get_parameter<std::vector<long>>(ROBOT_NAME_+"_limb.limb_without_fixed_joints."+RIGHT_LEG_NAME_+".joint_numbers");
+    // param: name_lists
+    ALL_JOINT_NAMES_WITHOUT_FIXED_ = client_param_->get_parameter<std::vector<std::string>>(ROBOT_NAME_+"_name_lists.all_names_without_fixed_joints.all_joint_names");
 
-    // setting /joint_states pub_joint_states_msg_
-    // TODO: これはParameterServerからやりたい。
-    std::vector<std::string> name = {
-        "head_pan",
-        "head_tilt",
-        "l_sho_pitch",
-        "l_sho_roll",
-        "l_el",
-        "r_sho_pitch",
-        "r_sho_roll",
-        "r_el",
-        "l_hip_yaw",
-        "l_hip_roll",
-        "l_hip_pitch",
-        "l_knee",
-        "l_ank_pitch",
-        "l_ank_roll",
-        "r_hip_yaw",
-        "r_hip_roll",
-        "r_hip_pitch",
-        "r_knee",
-        "r_ank_pitch",
-        "r_ank_roll"
-    };
-    legL_num_ = { 8,  9, 10, 11, 12, 13};
-    legR_num_ = {14, 15, 16, 17, 18, 19};
     jointAng_posi_or_nega_legR_ = {-1, -1, 1, 1, -1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
     jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
-    pub_joint_states_msg_->name.resize(20);
-    pub_joint_states_msg_->position.resize(20);
-    pub_joint_states_msg_->velocity.resize(20);
-    for(uint8_t th = 0; th < 20; th++) {
-      pub_joint_states_msg_->name.at(th) = name.at(th);
-      pub_joint_states_msg_->position.at(th) = 0.0;
-      pub_joint_states_msg_->velocity.at(th) = 0.0;
-    }
 
-    // Setting parameters
-      // TODO: ParameterServerとかから得た値を使いたい
-    // ONLINE_GENERATE_ = false;
-    // DEBUG_MODE_ = true;
-    // UsingSimulator_ = true;
-
-    // timer
-    control_cycle_ = 0.01;  // 10[ms]
-    T_sup_ = 0.8;  // 歩行周期
-
+    // publisher
+    pub_joint_states_ = this->create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
     if(DEBUG_MODE_ == true) {
       pub_foot_step_plan_record_ = this->create_publisher<robot_messages::msg::FootStepRecord>("foot_step", 10);
       pub_walking_pattern_record_ = this->create_publisher<robot_messages::msg::WalkingPatternRecord>("walking_pattern", 10);
       pub_walking_stabilization_record_ = this->create_publisher<robot_messages::msg::WalkingStabilizationRecord>("walking_stabilization", 10);
       pub_joint_state_record_ = this->create_publisher<robot_messages::msg::JointStateRecord>("joint_states_record", 10);
     }
+    //subscription
+    sub_feedback_ = this->create_subscription<robot_messages::msg::Feedback>("feedback", 10, std::bind(&RobotManager::Feedback_Callback, this, _1));
+    
+    pub_joint_states_msg_->name.resize(20);
+    pub_joint_states_msg_->position.resize(20);
+    pub_joint_states_msg_->velocity.resize(20);
+    for(uint8_t th = 0; th < 20; th++) {
+      pub_joint_states_msg_->name.at(th) = ALL_JOINT_NAMES_WITHOUT_FIXED_.at(th);
+      pub_joint_states_msg_->position.at(th) = 0.0;
+      pub_joint_states_msg_->velocity.at(th) = 0.0;
+    }
 
     // 確実にstep0から送れるようにsleep
       // TODO: Handler側が何かしらのシグナルを出したらPubするようにしたい。
-    if(UsingSimulator_ == true) {
-      for(uint16_t step = 0; step < 1000; step++) {
+    if(USING_SIMULATOR_ == true) {
+      for(uint16_t step = 0; step < 800; step++) {
         auto now_time = rclcpp::Clock().now();
         pub_joint_states_msg_->header.stamp = now_time;
         pub_joint_states_->publish(*pub_joint_states_msg_);
@@ -206,7 +185,7 @@ namespace robot_manager
     }
     RCLCPP_INFO(this->get_logger(), "Start Control Cycle.");
 
-    // オフラインパターン生成
+    // Offline Pattern Generate
     if(ONLINE_OR_OFFLINE_GENERATE_ == false) {
       // Foot_Step_Planner (stack)
       // std::cout << "foot step planner" << std::endl;

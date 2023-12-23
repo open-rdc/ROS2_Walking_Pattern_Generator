@@ -1,5 +1,6 @@
 # Visualizer launch file
 import os
+from time import sleep
 
 import launch
 from launch_ros.actions import Node
@@ -25,4 +26,6 @@ def generate_launch_description():
   # これ：https://github.com/iwatake2222/rotop
     # TODO: 動作確認と、pythonソースから実行できるか確認（コマンドラインでも、pythonでも）
   
+
+  # sleep(4)
   return launch_description

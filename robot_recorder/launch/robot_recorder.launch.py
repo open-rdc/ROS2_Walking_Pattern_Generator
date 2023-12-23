@@ -4,6 +4,7 @@
   # 開発ソフトウェアに関わるTopicをrecord。他はいらん。recordするTopic名をconfig fileから読み取るか？User側で増やしたくなるかもしれんし、Configいじれば良いんだな！という思考の流れを持つだろうから。
 
 import os 
+from time import sleep
 import datetime
 import yaml
 
@@ -84,5 +85,5 @@ def generate_launch_description():
   if debug_mode_yaml["using_rosbag2"] == True:
     None
 
-
+  # sleep(4)
   return launch_description
