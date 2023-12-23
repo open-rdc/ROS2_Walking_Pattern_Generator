@@ -8,17 +8,20 @@ import os
 # import pprint
 
 # stringのベクトルをfloat（or int）のlistに変換
-def str_to_vec(str_vec, type="float"):
-  vec = []
-  el = ""
-  for char in str_vec:
-    el = el + char
-    if char == " ":
-      vec.append(int(el) if type=="int" else float(el))
-      el = ""
-  vec.append(int(el) if type=="int" else float(el))
-  el = ""
-  return vec
+# def (str_vec, type="float"):
+#   """
+#   vec = []
+#   el = ""
+#   for char in str_vec:
+#     el = el + char
+#     if char == " ":
+#       vec.append(int(el) if type=="int" else float(el))
+#       el = ""
+#   vec.append(int(el) if type=="int" else float(el))
+#   el = ""
+#   """
+#   #return vec
+#   return str_vec
 
 # TODO: BringUpとかに置くべきYAMLファイルを読んで、urdf_pathとrobot_nameを宣言するべき。
 robot_name = "robotis_op2"
@@ -107,21 +110,21 @@ for i in range(0, len(urdf_all_joints)):
           child_link_names_list_lists.append([urdf_all_joints[i].find("child").attrib["link"]])
           joint_nums_list_lists.append([i])
           try:
-            joint_link_lengths_list_lists.append([str_to_vec(urdf_all_joints[i].find("origin").attrib["xyz"])])
-            joint_postures_list_lists.append([str_to_vec(urdf_all_joints[i].find("origin").attrib["rpy"])])
+            joint_link_lengths_list_lists.append([(urdf_all_joints[i].find("origin").attrib["xyz"])])
+            joint_postures_list_lists.append([(urdf_all_joints[i].find("origin").attrib["rpy"])])
           except:
             # print("WARNING")
-            joint_link_lengths_list_lists.append([0.0, 0.0, 0.0])
-            joint_postures_list_lists.append([0.0, 0.0, 0.0])
+            joint_link_lengths_list_lists.append(["0.0, 0.0, 0.0"])
+            joint_postures_list_lists.append(["0.0, 0.0, 0.0"])
 
           if fixed_type == False:
             nonfixed_joint_obj_list_lists.append([urdf_all_joints[i]])
             nonfixed_joint_names_list_lists.append([urdf_all_joints[i].attrib["name"]])
             nonfixed_child_link_names_list_lists.append([urdf_all_joints[i].find("child").attrib["link"]])
             nonfixed_joint_nums_list_lists.append([i-fixed_joint_cnt])
-            nonfixed_joint_unit_vectors_list_lists.append([str_to_vec(urdf_all_joints[i].find("axis").attrib["xyz"])])
-            nonfixed_joint_link_lengths_list_lists.append([str_to_vec(urdf_all_joints[i].find("origin").attrib["xyz"])])
-            nonfixed_joint_postures_list_lists.append([str_to_vec(urdf_all_joints[i].find("origin").attrib["rpy"])])
+            nonfixed_joint_unit_vectors_list_lists.append([(urdf_all_joints[i].find("axis").attrib["xyz"])])
+            nonfixed_joint_link_lengths_list_lists.append([(urdf_all_joints[i].find("origin").attrib["xyz"])])
+            nonfixed_joint_postures_list_lists.append([(urdf_all_joints[i].find("origin").attrib["rpy"])])
 
           elif fixed_type == True:
             nonfixed_joint_obj_list_lists.append([])
@@ -146,17 +149,17 @@ for i in range(0, len(urdf_all_joints)):
             joint_names_list_lists.append([urdf_all_joints[i].attrib["name"]])
             child_link_names_list_lists.append([urdf_all_joints[i].find("child").attrib["link"]])
             joint_nums_list_lists.append([i])
-            joint_link_lengths_list_lists.append([str_to_vec(urdf_all_joints[i].find("origin").attrib["xyz"])])
-            joint_postures_list_lists.append([str_to_vec(urdf_all_joints[i].find("origin").attrib["rpy"])])
+            joint_link_lengths_list_lists.append([(urdf_all_joints[i].find("origin").attrib["xyz"])])
+            joint_postures_list_lists.append([(urdf_all_joints[i].find("origin").attrib["rpy"])])
 
             if fixed_type == False:
               nonfixed_joint_obj_list_lists.append([urdf_all_joints[i]])
               nonfixed_joint_names_list_lists.append([urdf_all_joints[i].attrib["name"]])
               nonfixed_child_link_names_list_lists.append([urdf_all_joints[i].find("child").attrib["link"]])
               nonfixed_joint_nums_list_lists.append([i-fixed_joint_cnt])
-              nonfixed_joint_unit_vectors_list_lists.append([str_to_vec(urdf_all_joints[i].find("axis").attrib["xyz"])])
-              nonfixed_joint_link_lengths_list_lists.append([str_to_vec(urdf_all_joints[i].find("origin").attrib["xyz"])])
-              nonfixed_joint_postures_list_lists.append([str_to_vec(urdf_all_joints[i].find("origin").attrib["rpy"])])
+              nonfixed_joint_unit_vectors_list_lists.append([(urdf_all_joints[i].find("axis").attrib["xyz"])])
+              nonfixed_joint_link_lengths_list_lists.append([(urdf_all_joints[i].find("origin").attrib["xyz"])])
+              nonfixed_joint_postures_list_lists.append([(urdf_all_joints[i].find("origin").attrib["rpy"])])
 
             elif fixed_type == True:
               nonfixed_joint_obj_list_lists.append([])
@@ -174,17 +177,17 @@ for i in range(0, len(urdf_all_joints)):
             joint_names_list_lists[j].append(urdf_all_joints[i].attrib["name"])
             child_link_names_list_lists[j].append(urdf_all_joints[i].find("child").attrib["link"])
             joint_nums_list_lists[j].append(i)
-            joint_link_lengths_list_lists[j].append(str_to_vec(urdf_all_joints[i].find("origin").attrib["xyz"]))
-            joint_postures_list_lists[j].append(str_to_vec(urdf_all_joints[i].find("origin").attrib["rpy"]))
+            joint_link_lengths_list_lists[j].append(urdf_all_joints[i].find("origin").attrib["xyz"])
+            joint_postures_list_lists[j].append(urdf_all_joints[i].find("origin").attrib["rpy"])
 
             if fixed_type == False:
               nonfixed_joint_obj_list_lists[j].append(urdf_all_joints[i])
               nonfixed_joint_names_list_lists[j].append(urdf_all_joints[i].attrib["name"])
               nonfixed_child_link_names_list_lists[j].append(urdf_all_joints[i].find("child").attrib["link"])
               nonfixed_joint_nums_list_lists[j].append(i-fixed_joint_cnt)
-              nonfixed_joint_unit_vectors_list_lists[j].append(str_to_vec(urdf_all_joints[i].find("axis").attrib["xyz"]))
-              nonfixed_joint_link_lengths_list_lists[j].append(str_to_vec(urdf_all_joints[i].find("origin").attrib["xyz"]))
-              nonfixed_joint_postures_list_lists[j].append(str_to_vec(urdf_all_joints[i].find("origin").attrib["rpy"]))
+              nonfixed_joint_unit_vectors_list_lists[j].append(urdf_all_joints[i].find("axis").attrib["xyz"])
+              nonfixed_joint_link_lengths_list_lists[j].append(urdf_all_joints[i].find("origin").attrib["xyz"])
+              nonfixed_joint_postures_list_lists[j].append(urdf_all_joints[i].find("origin").attrib["rpy"])
 
             break
 
@@ -209,11 +212,11 @@ for i in range(0, len(urdf_all_joints)):
 
           joint_link_lengths_list_lists.append(joint_link_lengths_list_lists[j][k+1:])
           del joint_link_lengths_list_lists[-2][k+1:]
-          joint_link_lengths_list_lists.append([str_to_vec(urdf_all_joints[i].find("origin").attrib["xyz"])])
+          joint_link_lengths_list_lists.append([(urdf_all_joints[i].find("origin").attrib["xyz"])])
 
           joint_postures_list_lists.append(joint_postures_list_lists[j][k+1:])
           del joint_postures_list_lists[-2][k+1:]
-          joint_postures_list_lists.append([str_to_vec(urdf_all_joints[i].find("origin").attrib["rpy"])])
+          joint_postures_list_lists.append([(urdf_all_joints[i].find("origin").attrib["rpy"])])
 
           if fixed_type == False:
             
@@ -237,15 +240,15 @@ for i in range(0, len(urdf_all_joints)):
 
             nonfixed_joint_unit_vectors_list_lists.append(nonfixed_joint_unit_vectors_list_lists[j][k+1-fixed_joint_cnt_in_tree:])
             del nonfixed_joint_unit_vectors_list_lists[-2][k+1-fixed_joint_cnt_in_tree:]
-            nonfixed_joint_unit_vectors_list_lists.append([str_to_vec(urdf_all_joints[i].find("axis").attrib["xyz"])])
+            nonfixed_joint_unit_vectors_list_lists.append([(urdf_all_joints[i].find("axis").attrib["xyz"])])
 
             nonfixed_joint_link_lengths_list_lists.append(nonfixed_joint_link_lengths_list_lists[j][k+1-fixed_joint_cnt_in_tree:])
             del nonfixed_joint_link_lengths_list_lists[-2][k+1-fixed_joint_cnt_in_tree:]
-            nonfixed_joint_link_lengths_list_lists.append([str_to_vec(urdf_all_joints[i].find("origin").attrib["xyz"])])
+            nonfixed_joint_link_lengths_list_lists.append([(urdf_all_joints[i].find("origin").attrib["xyz"])])
 
             nonfixed_joint_postures_list_lists.append(nonfixed_joint_postures_list_lists[j][k+1-fixed_joint_cnt_in_tree:])
             del nonfixed_joint_postures_list_lists[-2][k+1-fixed_joint_cnt_in_tree:]
-            nonfixed_joint_postures_list_lists.append([str_to_vec(urdf_all_joints[i].find("origin").attrib["rpy"])])
+            nonfixed_joint_postures_list_lists.append([(urdf_all_joints[i].find("origin").attrib["rpy"])])
 
           break
 
@@ -377,19 +380,19 @@ for num_joint in range(0, len(urdf_all_joints)):
   joint_ori_xyz = []
   try:
     str_vec = urdf_joint.find("origin").attrib["xyz"]
-    joint_ori_xyz = str_to_vec(str_vec)
+    joint_ori_xyz = (str_vec)
   except:
     print("[WARNING][" + urdf_joint.attrib["name"] + "] Origin_xyz_tag is not defined.")
-    joint_ori_xyz.append([0.0, 0.0, 0.0])
+    joint_ori_xyz.append("0.0, 0.0, 0.0")
 
   # origin rpy
   joint_ori_rpy = []
   try:
     str_vec = urdf_joint.find("origin").attrib["rpy"]
-    joint_ori_rpy = str_to_vec(str_vec)
+    joint_ori_rpy = (str_vec)
   except:
     print("[WARNING][" + urdf_joint.attrib["name"] + "] Origin_rpy_tag is not defined.")
-    joint_ori_rpy.append([0.0, 0.0, 0.0])
+    joint_ori_rpy.append("0.0, 0.0, 0.0")
 
   # add 
   origin = []
@@ -401,7 +404,7 @@ for num_joint in range(0, len(urdf_all_joints)):
   joint_axis = []
   try:
     str_vec = urdf_joint.find("axis").attrib["xyz"]
-    joint_axis = str_to_vec(str_vec, "int")
+    joint_axis = (str_vec)
   except:
     print("[WARNING][" + urdf_joint.attrib["name"] + "] Axis_tag is not defined.")
     joint_axis.append(None)
