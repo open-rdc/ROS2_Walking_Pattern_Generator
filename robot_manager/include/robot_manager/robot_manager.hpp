@@ -45,6 +45,13 @@ namespace robot_manager
       std::shared_ptr<control_plugin_base::WalkingStabilization> walking_stabilization_ptr_ = std::make_shared<control_plugin_base::WalkingStabilization>();
       std::shared_ptr<control_plugin_base::LegJointStatesPattern> leg_joint_states_pat_ptr_ = std::make_shared<control_plugin_base::LegJointStatesPattern>();      
 
+      // client parameters
+      rclcpp::Node::SharedPtr node_ptr_;
+      std::shared_ptr<rclcpp::SyncParametersClient> client_param_;
+      bool ONLINE_OR_OFFLINE_GENERATE_ = false;
+      bool DEBUG_MODE_ = false;
+
+
       // step & timer
       void Step_Offline();
       float control_cycle_ = 0;
@@ -52,7 +59,7 @@ namespace robot_manager
       float t_ = 0;
       float walking_time_ = 0;
       uint32_t walking_step_ = 0;
-      bool ONLINE_GENERATE_ = false;
+      // bool ONLINE_GENERATE_ = false;
 
       // publisher
       rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr pub_joint_states_;
@@ -86,7 +93,7 @@ namespace robot_manager
 
       // Debug Mode
         // TODO: ココにDebug用のPublisherを定義。Loggerに合わせる。
-      bool DebugMode_ = false;
+      // bool DebugMode_ = false;
       bool UsingSimulator_ = true;
       std::chrono::system_clock::time_point start_time_;
       std::chrono::system_clock::time_point end_time_;

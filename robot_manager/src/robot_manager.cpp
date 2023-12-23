@@ -26,7 +26,7 @@ namespace robot_manager
 
     if(control_step_ < walking_pattern_ptr_->cc_cog_pos_ref.size()) { 
 
-      if(DebugMode_ == true) {
+      if(DEBUG_MODE_ == true) {
         // pub foot_step (1step)
         pub_foot_step_plan_record_msg_->step_count = control_step_;
         pub_foot_step_plan_record_msg_->foot_step_pos = foot_step_ptr_->foot_pos[walking_step_];
@@ -48,7 +48,7 @@ namespace robot_manager
       latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
       // std::cout << "WSC time [ms] : " << latency_ << std::endl;
 
-      if(DebugMode_ == true) {
+      if(DEBUG_MODE_ == true) {
         //pub walking_stabilization (1step)
         pub_walking_stabilization_record_msg_->step_count = control_step_;
         pub_walking_stabilization_record_msg_->cog_pos_fix = walking_stabilization_ptr_->cog_pos_fix[control_step_];
@@ -74,7 +74,7 @@ namespace robot_manager
       // std::cout << "CTJS time [ms] : " << latency_ << ", max [ms] : " << latency_ctjs_max_ << ", min [ms] : " << latency_ctjs_min_ <<  std::endl;
       // std::cout << control_step_ << std::endl;
 
-      if(DebugMode_ == true) {
+      if(DEBUG_MODE_ == true) {
         // pub joint_states (1step)
         pub_joint_state_record_msg_->step_count = control_step_;
         pub_joint_state_record_msg_->joint_ang_leg_l = leg_joint_states_pat_ptr_->joint_ang_pat_legL;
@@ -134,6 +134,12 @@ namespace robot_manager
     using namespace std::placeholders;
     sub_feedback_ = this->create_subscription<robot_messages::msg::Feedback>("feedback", 10, std::bind(&RobotManager::Feedback_Callback, this, _1));
 
+    // client parrameters
+    node_ptr_ = rclcpp::Node::make_shared("RobotManager");
+    client_param_ = std::make_shared<rclcpp::SyncParametersClient>(node_ptr_, "RobotParameterServer");
+    ONLINE_OR_OFFLINE_GENERATE_ = client_param_->get_parameter<bool>("mode_switch.on_or_offline_pattern_generate");
+    DEBUG_MODE_ = client_param_->get_parameter<bool>("mode_switch.debug_mode");
+
     // setting /joint_states pub_joint_states_msg_
     // TODO: これはParameterServerからやりたい。
     std::vector<std::string> name = {
@@ -173,15 +179,15 @@ namespace robot_manager
 
     // Setting parameters
       // TODO: ParameterServerとかから得た値を使いたい
-    ONLINE_GENERATE_ = false;
-    DebugMode_ = true;
-    UsingSimulator_ = true;
+    // ONLINE_GENERATE_ = false;
+    // DEBUG_MODE_ = true;
+    // UsingSimulator_ = true;
 
     // timer
     control_cycle_ = 0.01;  // 10[ms]
     T_sup_ = 0.8;  // 歩行周期
 
-    if(DebugMode_ == true) {
+    if(DEBUG_MODE_ == true) {
       pub_foot_step_plan_record_ = this->create_publisher<robot_messages::msg::FootStepRecord>("foot_step", 10);
       pub_walking_pattern_record_ = this->create_publisher<robot_messages::msg::WalkingPatternRecord>("walking_pattern", 10);
       pub_walking_stabilization_record_ = this->create_publisher<robot_messages::msg::WalkingStabilizationRecord>("walking_stabilization", 10);
@@ -201,7 +207,7 @@ namespace robot_manager
     RCLCPP_INFO(this->get_logger(), "Start Control Cycle.");
 
     // オフラインパターン生成
-    if(ONLINE_GENERATE_ == false) {
+    if(ONLINE_OR_OFFLINE_GENERATE_ == false) {
       // Foot_Step_Planner (stack)
       // std::cout << "foot step planner" << std::endl;
       start_time_ = std::chrono::system_clock::now();

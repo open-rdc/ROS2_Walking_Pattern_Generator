@@ -24,7 +24,7 @@ def generate_launch_description():
         "/start_launch.py"
       ])
     )
-    # launch_description.add_action(sim_launch)
+    launch_description.add_action(sim_launch)
 
   # Load visualizer launch file & recorder launch file
   if mode_switch_yaml["debug_mode"] == True:
@@ -34,7 +34,7 @@ def generate_launch_description():
         "/robot_visualizer.launch.py"
       ])
     )
-#    launch_description.add_action(visual_launch)
+    launch_description.add_action(visual_launch)
 
     record_launch = launch.actions.IncludeLaunchDescription(
       PythonLaunchDescriptionSource([
@@ -42,7 +42,7 @@ def generate_launch_description():
         "/robot_recorder.launch.py"
       ])
     )
-#    launch_description.add_action(record_launch)
+    launch_description.add_action(record_launch)
 
   # load param_file
   param_mode_switch_yaml = os.path.join(get_package_share_directory("robot_bringup"), "config", "param_mode_switch.yaml")
@@ -74,7 +74,7 @@ def generate_launch_description():
     executable = "robot_manager",
     output = "screen"
   )
-#  launch_description.add_action(robot_manager)
+  launch_description.add_action(robot_manager)
 
 
 
