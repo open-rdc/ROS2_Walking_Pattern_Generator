@@ -9,6 +9,11 @@ class ParameterServer : public rclcpp::Node {
       const rclcpp::NodeOptions &options
     ) : Node("RobotParameterServer", options) {
 
+      // mode_switch
+      on_or_offline_pattern_generate_ = get_parameter("mode_switch.on_or_offline_pattern_generate").as_bool();
+      debug_mode_ = get_parameter("mode_switch.debug_mode").as_bool();
+      using_simulator_ = get_parameter("mode_switch.using_simulator").as_bool();
+
       //robot_description
       robot_name_ = get_parameter("robot_description.robot_name").as_string();
       xacro_file_path_ = get_parameter("robot_description.xacro_file_path").as_string();
@@ -28,8 +33,8 @@ class ParameterServer : public rclcpp::Node {
       // right_leg_joint_names_ = get_parameter(robot_name_+"_limb.limb_without_fixed_joints."+right_leg_name_+".joint_names").as_string_array();
       // left_leg_joint_numbers_ = get_parameter(robot_name_+"_limb.limb_without_fixed_joints."+left_leg_name_+".joint_numbers").as_integer_array();
       // right_leg_joint_numbers_ = get_parameter(robot_name_+"_limb.limb_without_fixed_joints."+right_leg_name_+".joint_numbers").as_integer_array();
-      // left_leg_joint_unit_vecter_ = get_parameter(robot_name_+"_limb.limb_without_fixed_joints."+left_leg_name_+".joint_unit_vector").as_double_array();
-      // right_leg_joint_unit_vecter_ = get_parameter(robot_name_+"_limb.limb_without_fixed_joints."+right_leg_name_+".joint_unit_vector").as_double_array();
+      // left_leg_joint_unit_vecter_ = get_parameter(robot_name_+"_limb.limb_without_fixed_joints."+left_leg_name_+".joint_unit_vector").as_double_array();  // TODO: 多重配列は、Paramで読めない。ので、lengthは合計しちゃって良いと思われ。それか、文字列として扱うか。ほしいのは脚の始端から末端までの座標だし。それをparam_robot_description.yamlに書き込みたい。
+      // right_leg_joint_unit_vecter_ = get_parameter(robot_name_+"_limb.limb_without_fixed_joints."+right_leg_name_+".joint_unit_vector").as_double_array();  // TODO: 単位ベクトルは、軸方向の文字で良いのではないだろうか。それか、文字列として扱うか。
       // left_leg_link_length_ = get_parameter(robot_name_+"_limb.limb_without_fixed_joints."+left_leg_name_+".link_length").as_double_array();
       // right_leg_link_length_ = get_parameter(robot_name_+"_limb.limb_without_fixed_joints."+right_leg_name_+".link_length").as_double_array();
 
@@ -40,6 +45,11 @@ class ParameterServer : public rclcpp::Node {
 
   private:
     // param_fileに対応した変数
+
+    // mode_switch
+    bool on_or_offline_pattern_generate_;
+    bool debug_mode_;
+    bool using_simulator_;
 
     // robot_description
     std::string robot_name_;
