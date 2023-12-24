@@ -14,6 +14,11 @@ namespace walking_stabilization_controller
 
     return walking_stabilization_ptr;
   }
+
+  Default_WalkingStabilizationController::Default_WalkingStabilizationController() {
+    node_ptr_ = rclcpp::Node::make_shared("RobotManager");
+    client_param_ = std::make_shared<rclcpp::SyncParametersClient>(node_ptr_, "RobotParameterServer");
+  }
 }
   // std::unique_ptr<control_plugin_base::WalkingStabilization> Default_WalkingStabilizationController::walking_stabilization_controller(
   //   const std::shared_ptr<control_plugin_base::WalkingPattern> walking_pattern_ptr, 

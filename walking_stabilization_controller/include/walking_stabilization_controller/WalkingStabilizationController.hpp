@@ -10,7 +10,7 @@ namespace walking_stabilization_controller
   class Default_WalkingStabilizationController : public control_plugin_base::WalkingStabilizationController
   {
     public:
-      Default_WalkingStabilizationController(){}
+      Default_WalkingStabilizationController();
       ~Default_WalkingStabilizationController(){}
 
       std::unique_ptr<control_plugin_base::WalkingStabilization> walking_stabilization_controller(
@@ -18,6 +18,9 @@ namespace walking_stabilization_controller
       ) override;
       
     private:
+      rclcpp::Node::SharedPtr node_ptr_;
+      std::shared_ptr<rclcpp::SyncParametersClient> client_param_;
+
   };
 //   class Default_WalkingStabilizationController : public control_plugin_base::WalkingStabilizationController
 //   {
