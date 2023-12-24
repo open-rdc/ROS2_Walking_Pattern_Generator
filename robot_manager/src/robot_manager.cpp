@@ -94,8 +94,10 @@ namespace robot_manager
     if(control_step_ < walking_pattern_ptr_->cc_cog_pos_ref.size()) {
       for(uint8_t th = 0; th < 6; th++) {
         // CHECKME: WSCとCTJSの型を単位Step用に修正したら、配列に[control_step_]が不要になる。
-        pub_joint_states_msg_->position.at(LEFT_LEG_JOINT_NUMBERS_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legL.at(th) * jointAng_posi_or_nega_legL_.at(th);
-        pub_joint_states_msg_->position.at(RIGHT_LEG_JOINT_NUMBERS_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legR.at(th) * jointAng_posi_or_nega_legR_.at(th); 
+        // pub_joint_states_msg_->position.at(LEFT_LEG_JOINT_NUMBERS_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legL.at(th) * jointAng_posi_or_nega_legL_.at(th);
+        // pub_joint_states_msg_->position.at(RIGHT_LEG_JOINT_NUMBERS_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legR.at(th) * jointAng_posi_or_nega_legR_.at(th); 
+        pub_joint_states_msg_->position.at(LEFT_LEG_JOINT_NUMBERS_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legL.at(th);
+        pub_joint_states_msg_->position.at(RIGHT_LEG_JOINT_NUMBERS_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legR.at(th); 
         pub_joint_states_msg_->velocity.at(LEFT_LEG_JOINT_NUMBERS_.at(th)) = std::abs(leg_joint_states_pat_ptr_->joint_vel_pat_legL.at(th));
         pub_joint_states_msg_->velocity.at(RIGHT_LEG_JOINT_NUMBERS_.at(th)) = std::abs(leg_joint_states_pat_ptr_->joint_vel_pat_legR.at(th));
       }
@@ -154,8 +156,8 @@ namespace robot_manager
 
     // jointAng_posi_or_nega_legR_ = {-1, -1, 1, 1, -1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
     // jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
-    jointAng_posi_or_nega_legR_ = {1, 1, 1, 1, 1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
-    jointAng_posi_or_nega_legL_ = {1, 1, 1, 1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
+    // jointAng_posi_or_nega_legR_ = {1, 1, 1, 1, 1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
+    // jointAng_posi_or_nega_legL_ = {1, 1, 1, 1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
 
     // publisher
     pub_joint_states_ = this->create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
