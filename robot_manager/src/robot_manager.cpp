@@ -47,7 +47,7 @@ namespace robot_manager
       start_time_ = std::chrono::system_clock::now();
       walking_stabilization_ptr_ = wsc_->walking_stabilization_controller(walking_pattern_ptr_);  // TODO: vector<array>で返さずに、1step分のarrayのみを返すようにするべき。
       end_time_ = std::chrono::system_clock::now();
-      latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
+      all_latency_wsc_.push_back(double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000);
       // std::cout << "WSC time [ms] : " << latency_ << std::endl;
 
       if(DEBUG_MODE_ == true) {
@@ -70,9 +70,9 @@ namespace robot_manager
         t_
       );
       end_time_ = std::chrono::system_clock::now();
-      latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
-      latency_ctjs_max_ = latency_ > latency_ctjs_max_ ? latency_ : latency_ctjs_max_;
-      latency_ctjs_min_ = latency_ < latency_ctjs_min_ ? latency_ : latency_ctjs_min_;
+      all_latency_ctjs_.push_back(double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000);
+      // latency_ctjs_max_ = latency_ > latency_ctjs_max_ ? latency_ : latency_ctjs_max_;
+      // latency_ctjs_min_ = latency_ < latency_ctjs_min_ ? latency_ : latency_ctjs_min_;
       // std::cout << "CTJS time [ms] : " << latency_ << ", max [ms] : " << latency_ctjs_max_ << ", min [ms] : " << latency_ctjs_min_ <<  std::endl;
       // std::cout << control_step_ << std::endl;
 
@@ -87,15 +87,10 @@ namespace robot_manager
       }
     }
 
-    // TODO: データの重要性からして、ここはServiceのほうがいい気がするんだ。
-    // TODO: Pub/Subだから仕方がないが、データの受取ミスが発生する可能性がある。
     auto now_time = rclcpp::Clock().now();
     pub_joint_states_msg_->header.stamp = now_time;
     if(control_step_ < walking_pattern_ptr_->cc_cog_pos_ref.size()) {
       for(uint8_t th = 0; th < 6; th++) {
-        // CHECKME: WSCとCTJSの型を単位Step用に修正したら、配列に[control_step_]が不要になる。
-        // pub_joint_states_msg_->position.at(LEFT_LEG_JOINT_NUMBERS_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legL.at(th) * jointAng_posi_or_nega_legL_.at(th);
-        // pub_joint_states_msg_->position.at(RIGHT_LEG_JOINT_NUMBERS_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legR.at(th) * jointAng_posi_or_nega_legR_.at(th); 
         pub_joint_states_msg_->position.at(LEFT_LEG_JOINT_NUMBERS_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legL.at(th);
         pub_joint_states_msg_->position.at(RIGHT_LEG_JOINT_NUMBERS_.at(th)) = leg_joint_states_pat_ptr_->joint_ang_pat_legR.at(th); 
         pub_joint_states_msg_->velocity.at(LEFT_LEG_JOINT_NUMBERS_.at(th)) = std::abs(leg_joint_states_pat_ptr_->joint_vel_pat_legL.at(th));
@@ -104,6 +99,18 @@ namespace robot_manager
       // std::cout << control_step_ << std::endl;
     }
     pub_joint_states_->publish(*pub_joint_states_msg_);
+    if(control_step_ < walking_pattern_ptr_->cc_cog_pos_ref.size()) { 
+      if(control_cycle_ == 0) {
+        now_time_ = std::chrono::system_clock::now();
+        before_time_ = std::chrono::system_clock::now();
+        all_latency_pub_joint_states_.push_back(double(std::chrono::duration_cast<std::chrono::microseconds>(before_time_ - now_time_).count()) / 1000);
+      }
+      else {
+        now_time_ = std::chrono::system_clock::now();
+        all_latency_pub_joint_states_.push_back(double(std::chrono::duration_cast<std::chrono::microseconds>(before_time_ - now_time_).count()) / 1000);
+        before_time_ = now_time_;
+      }
+    }
 
     // update
     control_step_++;
@@ -154,11 +161,6 @@ namespace robot_manager
     // param: name_lists
     ALL_JOINT_NAMES_WITHOUT_FIXED_ = client_param_->get_parameter<std::vector<std::string>>(ROBOT_NAME_+"_name_lists.all_names_without_fixed_joints.all_joint_names");
 
-    // jointAng_posi_or_nega_legR_ = {-1, -1, 1, 1, -1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
-    // jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
-    // jointAng_posi_or_nega_legR_ = {1, 1, 1, 1, 1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
-    // jointAng_posi_or_nega_legL_ = {1, 1, 1, 1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
-
     // publisher
     pub_joint_states_ = this->create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
     if(DEBUG_MODE_ == true) {
@@ -198,7 +200,7 @@ namespace robot_manager
       start_time_ = std::chrono::system_clock::now();
       foot_step_ptr_ = fsp_->foot_step_planner();
       end_time_ = std::chrono::system_clock::now();
-      latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
+      latency_fsp_offline_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
       // std::cout << "FSP time [ms] : " << latency_ << std::endl;
 
       // Walking_Pattern_Generator (stack)
@@ -206,11 +208,17 @@ namespace robot_manager
       start_time_ = std::chrono::system_clock::now();
       walking_pattern_ptr_ = wpg_->walking_pattern_generator(foot_step_ptr_);
       end_time_ = std::chrono::system_clock::now();
-      latency_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
+      latency_wpg_offline_ = double(std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count()) / 1000;
       // std::cout << "WPG time [ms] : " << latency_ << std::endl;
     }
 
     wall_timer_ = this->create_wall_timer(10ms, std::bind(&RobotManager::Step_Offline, this));
+  }
+
+  RobotManager::~RobotManager() {
+    for(double op : all_latency_ctjs_) {
+      std::cout << op << std::endl;
+    }
   }
 
 }

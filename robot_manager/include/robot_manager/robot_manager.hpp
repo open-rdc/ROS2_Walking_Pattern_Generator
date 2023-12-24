@@ -24,7 +24,7 @@ namespace robot_manager
       RobotManager(
         const rclcpp::NodeOptions& options = rclcpp::NodeOptions()
       );
-      ~RobotManager(){}
+      ~RobotManager();
     
     private:
       // load class
@@ -127,8 +127,10 @@ namespace robot_manager
       std::vector<double> all_latency_ctjs_;
       double latency_ctjs_max_ = 0;
       double latency_ctjs_min_ = 9999;
-      std::vector<double> all_latency_cc_;
-      double latency_cc_max_ = 0;
-      double latency_cc_min_ = 9999;
+      std::chrono::system_clock::time_point now_time_;
+      std::chrono::system_clock::time_point before_time_;
+      std::vector<double> all_latency_pub_joint_states_;
+      double latency_pub_joint_states_max_ = 0;
+      double latency_pub_joint_states_min_ = 9999;
   };
 }

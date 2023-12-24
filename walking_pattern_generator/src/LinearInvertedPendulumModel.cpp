@@ -191,6 +191,8 @@ namespace walking_pattern_generator
     CONTROL_CYCLE_ = client_param_->get_parameter<double>("control_times.control_cycle");
     WALKING_CYCLE_ = client_param_->get_parameter<double>("control_times.walking_cycle");
     WAIST_POS_Z_ = client_param_->get_parameter<double>("control_constant.waist_pos_z");
+
+    RCLCPP_INFO(node_ptr_->get_logger(), "Start Up WalkingPatternGenerator.");
   }
 }
 

@@ -95,14 +95,14 @@ namespace convert_to_joint_states
       // float height_leg_lift_ = 0;  // 遊脚軌道の足上げ高さ
 
       // IKと歩行パラメータの定義・遊脚軌道の反映
-      Eigen::Vector<double, 3> Foot_3D_Pos_;
-      Eigen::Vector<double, 3> Foot_3D_Pos_Swing_;
-      Eigen::Vector<double, 6> CoG_3D_Vel_;
-      Eigen::Vector<double, 6> CoG_3D_Vel_Swing_;
+      Eigen::Vector<double, 3> Foot_3D_Pos_ = {0, 0, 0};
+      Eigen::Vector<double, 3> Foot_3D_Pos_Swing_ = {0, 0 ,0};
+      Eigen::Vector<double, 6> CoG_3D_Vel_ = {0, 0, 0, 0, 0, 0};
+      Eigen::Vector<double, 6> CoG_3D_Vel_Swing_ = {0, 0, 0, 0, 0, 0};
       std::array<double, 6> Q_legR_{0, 0, 0, 0, 0, 0};
       std::array<double, 6> Q_legL_{0, 0, 0, 0, 0, 0};
-      Eigen::Vector<double, 6> jointVel_legR_;
-      Eigen::Vector<double, 6> jointVel_legL_;
+      Eigen::Vector<double, 6> jointVel_legR_ = {0, 0, 0, 0, 0, 0};
+      Eigen::Vector<double, 6> jointVel_legL_ = {0, 0, 0, 0, 0, 0};
       Eigen::Matrix<double, 6, 6> Jacobi_legR_ = Eigen::MatrixXd::Zero(6, 6);
       Eigen::Matrix<double, 6, 6> Jacobi_legL_ = Eigen::MatrixXd::Zero(6, 6);
   };

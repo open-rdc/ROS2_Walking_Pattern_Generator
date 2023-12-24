@@ -42,7 +42,7 @@ class ParameterServer : public rclcpp::Node {
       // name_lists
       all_joint_names_without_fixed_ = get_parameter(robot_name_+"_name_lists.all_names_without_fixed_joints.all_joint_names").as_string_array();
 
-      RCLCPP_INFO(this->get_logger(), "Bringup Robot Parameter Server !!");
+      RCLCPP_INFO(this->get_logger(), "Start Up RobotParameterServer");
     }
 
 

@@ -30,6 +30,8 @@ namespace foot_step_planner
 
     WALKING_CYCLE_ = client_param_->get_parameter<double>("control_times.walking_cycle");
     WAIST_HEIGHT_ = client_param_->get_parameter<double>("control_constant.waist_pos_z");
+
+    RCLCPP_INFO(node_ptr_->get_logger(), "Start Up FootStepPlanner.");
   }
 }
 

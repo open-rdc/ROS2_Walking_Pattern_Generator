@@ -383,7 +383,7 @@ namespace convert_to_joint_states
     jac_ = jac_loader.createSharedInstance("kinematics::Default_Jacobian");
 
     // client parrameters
-    node_ptr_ = rclcpp::Node::make_shared("RobotManager");
+    node_ptr_ = rclcpp::Node::make_shared("ConvertToJointStates");
     client_param_ = std::make_shared<rclcpp::SyncParametersClient>(node_ptr_, "RobotParameterServer");
     
     // param: description
@@ -504,6 +504,8 @@ namespace convert_to_joint_states
 
     // 遊脚軌道関連
     // HEIGHT_LEG_LIFT_ = 0.025;  // 足上げ高さ [m]
+
+    RCLCPP_INFO(node_ptr_->get_logger(), "Start Up ConvertToJointStates.");
   }
 }
 
