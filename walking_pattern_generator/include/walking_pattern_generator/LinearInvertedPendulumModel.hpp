@@ -8,7 +8,7 @@ namespace walking_pattern_generator
 {
   class WPG_LinearInvertedPendulumModel : public control_plugin_base::WalkingPatternGenerator {
     public:
-      WPG_LinearInvertedPendulumModel(){}
+      WPG_LinearInvertedPendulumModel();
       ~WPG_LinearInvertedPendulumModel(){}
 
       std::unique_ptr<control_plugin_base::WalkingPattern> walking_pattern_generator(
@@ -16,5 +16,12 @@ namespace walking_pattern_generator
       ) override;
 
     private:
+      rclcpp::Node::SharedPtr node_ptr_;
+      std::shared_ptr<rclcpp::SyncParametersClient> client_param_;
+
+      double CONTROL_CYCLE_ = 0;
+      double WALKING_CYCLE_ = 0;
+      double WAIST_POS_Z_ = 0;
+
   };
 }

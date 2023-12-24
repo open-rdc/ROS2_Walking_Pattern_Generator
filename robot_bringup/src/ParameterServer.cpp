@@ -21,6 +21,7 @@ class ParameterServer : public rclcpp::Node {
 
       //control
       waist_pos_z_ = get_parameter("control_constant.waist_pos_z").as_double();
+      height_leg_lift_ = get_parameter("control_constant.height_leg_lift").as_double();
       control_cycle_ = get_parameter("control_times.control_cycle").as_double();
       walking_cycle_ = get_parameter("control_times.walking_cycle").as_double();
       both_leg_support_period_ = get_parameter("control_times.both_leg_support_period").as_double();
@@ -60,6 +61,7 @@ class ParameterServer : public rclcpp::Node {
 
     // control
     double waist_pos_z_;
+    double height_leg_lift_;
     double control_cycle_;
     double walking_cycle_;
     double both_leg_support_period_;

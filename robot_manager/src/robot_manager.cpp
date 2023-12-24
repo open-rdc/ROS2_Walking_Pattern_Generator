@@ -116,7 +116,10 @@ namespace robot_manager
     fsp_loader_("robot_manager", "control_plugin_base::FootStepPlanner"),
     wpg_loader_("robot_manager", "control_plugin_base::WalkingPatternGenerator"),
     wsc_loader_("robot_manager", "control_plugin_base::WalkingStabilizationController"),
-    ctjs_loader_("robot_manager", "control_plugin_base::ConvertToJointStates") {
+    ctjs_loader_("robot_manager", "control_plugin_base::ConvertToJointStates") 
+  {
+    rclcpp::sleep_for(2s);  // ParameterServerの立ち上げの完了を見越した待機。無しだと、ParameterServerが恐らく起動完了していない。
+
     // plugins
     try {
       // create instances
@@ -132,7 +135,6 @@ namespace robot_manager
     // client parrameters
     node_ptr_ = rclcpp::Node::make_shared("RobotManager");
     client_param_ = std::make_shared<rclcpp::SyncParametersClient>(node_ptr_, "RobotParameterServer");
-    rclcpp::sleep_for(2s);  // ParameterServerの立ち上げの完了を見越した待機。無しだと、ParameterServerが恐らく起動完了していない。
     // param: mode_switch
     ONLINE_OR_OFFLINE_GENERATE_ = client_param_->get_parameter<bool>("mode_switch.on_or_offline_pattern_generate");
     DEBUG_MODE_ = client_param_->get_parameter<bool>("mode_switch.debug_mode");
