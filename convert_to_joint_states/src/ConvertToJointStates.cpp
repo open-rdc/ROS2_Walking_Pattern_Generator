@@ -8,6 +8,34 @@
 
 namespace convert_to_joint_states
 {
+  Eigen::Vector3d Default_ConvertToJointStates::Convert_strVec2eigenVec(const std::string str_vec) {
+    std::stringstream strstream{str_vec};
+    std::string buffer;
+    std::vector<double> std_vec;
+    while(std::getline(strstream, buffer, ' ')) {
+      std_vec.push_back(std::stod(buffer));
+    }
+    // std::cout << std_vec[0] << " " << std_vec[1] << " " << std_vec[2] << std::endl;
+    Eigen::Vector3d eigen_vec = {std_vec[0], std_vec[1], std_vec[2]};
+    return eigen_vec;
+  }
+  Eigen::Vector3d Default_ConvertToJointStates::Convert_strVec2eigenVec_UnitVec(const std::string str_vec, std::vector<int>* direction_) {
+    std::stringstream strstream{str_vec};
+    std::string buffer;
+    std::vector<double> std_vec;
+    while(std::getline(strstream, buffer, ' ')) {
+      std_vec.push_back(std::stod(buffer));
+      if(std_vec.back() != 0) {
+        direction_->push_back((std_vec.back() > 0) - (std_vec.back() < 0));  // sign
+        // std::cout << direction_->back() << " " << direction_->size() << std::endl;
+        std_vec.back() = std::abs(std_vec.back());
+      }
+    }
+    // std::cout << std_vec[0] << " " << std_vec[1] << " " << std_vec[2] << std::endl;
+    Eigen::Vector3d eigen_vec = {std_vec[0], std_vec[1], std_vec[2]};
+    return eigen_vec;
+  }
+
   std::unique_ptr<control_plugin_base::LegJointStatesPattern> Default_ConvertToJointStates::convert_into_joint_states(
     const std::shared_ptr<control_plugin_base::WalkingStabilization> walking_stabilization_ptr,
     const std::shared_ptr<control_plugin_base::FootStep> foot_step_ptr,
@@ -28,10 +56,10 @@ namespace convert_to_joint_states
 //=====足の軌道計算
     // 遊脚軌道（正弦波）の計算
       // TODO: 両脚支持期間は支持脚切替時に重心速度が急激に変化しないようにするために設けるものである。
-    if(t >= T_dsup_/2 && t <= T_sup_-T_dsup_/2) {  // 片足支持期
+    if(t >= BOTH_LEG_SUPPORT_PERIOD_/2 && t <= WALKING_CYCLE_-BOTH_LEG_SUPPORT_PERIOD_/2) {  // 片足支持期
       old_swing_trajectory_ = swing_trajectory_;
-      swing_trajectory_ = height_leg_lift_ * std::sin((3.141592/(T_sup_-T_dsup_))*(t-T_dsup_/2));  
-      vel_swing_trajectory_ = ((swing_trajectory_ - old_swing_trajectory_) / control_cycle_);
+      swing_trajectory_ = HEIGHT_LEG_LIFT_ * std::sin((3.141592/(WALKING_CYCLE_-BOTH_LEG_SUPPORT_PERIOD_))*(t-BOTH_LEG_SUPPORT_PERIOD_/2));  
+      vel_swing_trajectory_ = ((swing_trajectory_ - old_swing_trajectory_) / CONTROL_CYCLE_);
     }
     else {  // 両脚支持期
       swing_trajectory_ = 0.0;
@@ -55,24 +83,24 @@ namespace convert_to_joint_states
         Foot_3D_Pos_ = {  // 左足
           walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],
           0.037-walking_stabilization_ptr->cog_pos_fix[control_step][1],
-          -length_leg_
+          -WAIST_HEIGHT_
         };
         Foot_3D_Pos_Swing_ = {  // 右足
           walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],
           -0.037-walking_stabilization_ptr->cog_pos_fix[control_step][1],
-          -length_leg_
+          -WAIST_HEIGHT_
         };
       }
       else if(foot_pos[ref_ws][1] < 0) {  // 右脚支持
         Foot_3D_Pos_ = {  // 右足
           walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],
           -0.037-walking_stabilization_ptr->cog_pos_fix[control_step][1],
-          -length_leg_
+          -WAIST_HEIGHT_
         };
         Foot_3D_Pos_Swing_ = {  // 左足
           walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],
           0.037-walking_stabilization_ptr->cog_pos_fix[control_step][1],
-          -length_leg_
+          -WAIST_HEIGHT_
         };
       }
     }
@@ -81,28 +109,28 @@ namespace convert_to_joint_states
       Foot_3D_Pos_ = {  
         walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],  // x 
         walking_stabilization_ptr->zmp_pos_fix[walking_step][1]-walking_stabilization_ptr->cog_pos_fix[control_step][1],  // y 
-        -length_leg_  // z 
+        -WAIST_HEIGHT_  // z 
       };
       // 遊脚
-      if(t <= T_dsup_/2) {  // 両脚支持（前半）
+      if(t <= BOTH_LEG_SUPPORT_PERIOD_/2) {  // 両脚支持（前半）
         Foot_3D_Pos_Swing_ = {
           walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],
-          walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1])*(t/(T_sup_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1], 
-          -length_leg_
+          walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1])*(t/(WALKING_CYCLE_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1], 
+          -WAIST_HEIGHT_
         };
       }
-      else if(t >= T_sup_-T_dsup_/2) {  // 両脚支持（後半）
+      else if(t >= WALKING_CYCLE_-BOTH_LEG_SUPPORT_PERIOD_/2) {  // 両脚支持（後半）
         Foot_3D_Pos_Swing_ = {
           walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0], 
-          walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1])*(t/(T_sup_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1], 
-          -length_leg_
+          walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1])*(t/(WALKING_CYCLE_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1], 
+          -WAIST_HEIGHT_
         };
       }
       else {  // 片脚支持
         Foot_3D_Pos_Swing_ = {
-          ((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0])*((t-T_dsup_/2)/(T_sup_-T_dsup_))),
-          walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1])*(t/(T_sup_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1],
-          -length_leg_ + swing_trajectory_ // z (遊脚軌道をzから引く) 
+          ((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0])*((t-BOTH_LEG_SUPPORT_PERIOD_/2)/(WALKING_CYCLE_-BOTH_LEG_SUPPORT_PERIOD_))),
+          walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1])*(t/(WALKING_CYCLE_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1],
+          -WAIST_HEIGHT_ + swing_trajectory_ // z (遊脚軌道をzから引く) 
         };
       }
 
@@ -112,28 +140,28 @@ namespace convert_to_joint_states
       Foot_3D_Pos_ = {
         walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],  // x 
         walking_stabilization_ptr->zmp_pos_fix[walking_step][1]-walking_stabilization_ptr->cog_pos_fix[control_step][1],  // y  
-        -length_leg_  // z 
+        -WAIST_HEIGHT_  // z 
       };
       // 遊脚
-      if(t <= T_dsup_/2) {  // 両脚支持（前半）
+      if(t <= BOTH_LEG_SUPPORT_PERIOD_/2) {  // 両脚支持（前半）
         Foot_3D_Pos_Swing_ = {
           walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],  
-          walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(T_sup_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1],  
-          -length_leg_
+          walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(WALKING_CYCLE_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1],  
+          -WAIST_HEIGHT_
         };
       }
-      else if(t >= T_sup_-T_dsup_/2) {  // 両脚支持（後半）
+      else if(t >= WALKING_CYCLE_-BOTH_LEG_SUPPORT_PERIOD_/2) {  // 両脚支持（後半）
         Foot_3D_Pos_Swing_ = {
           walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0], 
-          walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(T_sup_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1], 
-          -length_leg_
+          walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(WALKING_CYCLE_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1], 
+          -WAIST_HEIGHT_
         };
       }
       else {  // 片脚支持
         Foot_3D_Pos_Swing_ = {
-          ((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0])*((t-T_dsup_/2)/(T_sup_-T_dsup_)))-(walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0]), 
-          walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(T_sup_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1],
-          -length_leg_ + swing_trajectory_
+          ((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0])*((t-BOTH_LEG_SUPPORT_PERIOD_/2)/(WALKING_CYCLE_-BOTH_LEG_SUPPORT_PERIOD_)))-(walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0]), 
+          walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(WALKING_CYCLE_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1],
+          -WAIST_HEIGHT_ + swing_trajectory_
         };
       }
     }
@@ -142,28 +170,28 @@ namespace convert_to_joint_states
       Foot_3D_Pos_ = {
         walking_stabilization_ptr->zmp_pos_fix[walking_step][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0],  // x 
         walking_stabilization_ptr->zmp_pos_fix[walking_step][1]-walking_stabilization_ptr->cog_pos_fix[control_step][1],  // y
-        -length_leg_  // z 
+        -WAIST_HEIGHT_  // z 
       };
       // 遊脚
-      if(t <= T_dsup_/2) {  // 両脚支持（前半）
+      if(t <= BOTH_LEG_SUPPORT_PERIOD_/2) {  // 両脚支持（前半）
         Foot_3D_Pos_Swing_ = {
           walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0], 
-          walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(T_sup_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1], 
-          -length_leg_
+          walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(WALKING_CYCLE_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1], 
+          -WAIST_HEIGHT_
         };
       }
-      else if(t >= T_sup_-T_dsup_/2) {  // 両脚支持（後半）
+      else if(t >= WALKING_CYCLE_-BOTH_LEG_SUPPORT_PERIOD_/2) {  // 両脚支持（後半）
         Foot_3D_Pos_Swing_ = {
           walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->cog_pos_fix[control_step][0], 
-          walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(T_sup_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1], 
-          -length_leg_
+          walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(WALKING_CYCLE_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1], 
+          -WAIST_HEIGHT_
         };
       }
       else {  // 片脚支持
         Foot_3D_Pos_Swing_ = {
-          ((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0])*((t-T_dsup_/2)/(T_sup_-T_dsup_)))-((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0]) / 2),  
-          walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(T_sup_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1],
-          -length_leg_ + swing_trajectory_ 
+          ((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0])*((t-BOTH_LEG_SUPPORT_PERIOD_/2)/(WALKING_CYCLE_-BOTH_LEG_SUPPORT_PERIOD_)))-((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][0]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][0]) / 2),  
+          walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1]+((walking_stabilization_ptr->zmp_pos_fix[walking_step+1][1]-walking_stabilization_ptr->zmp_pos_fix[walking_step-1][1])*(t/(WALKING_CYCLE_)))-walking_stabilization_ptr->cog_pos_fix[control_step][1],
+          -WAIST_HEIGHT_ + swing_trajectory_ 
         };
       }
     }
@@ -228,7 +256,7 @@ namespace convert_to_joint_states
       }
 
       // LOG:
-      // WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
+      // WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, RIGHT_LEG_LINK_LENGTH_, 6).transpose() << " " << FK_.getFK(Q_legL_, LEFT_LEG_LINK_LENGTH_, 6).transpose() << std::endl;
 
       // Jacobianの計算
       legR_states_jac_ptr_->joint_ang = Q_legR_;
@@ -237,7 +265,7 @@ namespace convert_to_joint_states
       jac_->jacobian(legL_states_jac_ptr_, Jacobi_legL_);
 
       // 各関節速度の計算
-      if((t >= T_dsup_/2 && t < T_dsup_/2+0.05) || (t > (T_sup_ - T_dsup_/2-0.05) && t <= (T_sup_ - T_dsup_/2))) {
+      if((t >= BOTH_LEG_SUPPORT_PERIOD_/2 && t < BOTH_LEG_SUPPORT_PERIOD_/2+0.05) || (t > (WALKING_CYCLE_ - BOTH_LEG_SUPPORT_PERIOD_/2-0.05) && t <= (WALKING_CYCLE_ - BOTH_LEG_SUPPORT_PERIOD_/2))) {
         jointVel_legR_ = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
         jointVel_legL_ = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
       }
@@ -246,11 +274,11 @@ namespace convert_to_joint_states
         jointVel_legL_ = Jacobi_legL_.inverse()*CoG_3D_Vel_;
       }
 
-      // 歩行パラメータの代入
-      leg_joint_states_pat_ptr->joint_ang_pat_legR = Q_legR_;
-      leg_joint_states_pat_ptr->joint_vel_pat_legR = {jointVel_legR_[0], jointVel_legR_[1], jointVel_legR_[2], jointVel_legR_[3], jointVel_legR_[4], jointVel_legR_[5]};  // eigen::vectorをstd::arrayに変換するためにこうしている。
-      leg_joint_states_pat_ptr->joint_ang_pat_legL = Q_legL_;
-      leg_joint_states_pat_ptr->joint_vel_pat_legL = {jointVel_legL_[0], jointVel_legL_[1], jointVel_legL_[2], jointVel_legL_[3], jointVel_legL_[4], jointVel_legL_[5]};
+      // // 歩行パラメータの代入
+      // leg_joint_states_pat_ptr->joint_ang_pat_legR = Q_legR_;
+      // leg_joint_states_pat_ptr->joint_vel_pat_legR = {jointVel_legR_[0], jointVel_legR_[1], jointVel_legR_[2], jointVel_legR_[3], jointVel_legR_[4], jointVel_legR_[5]};  // eigen::vectorをstd::arrayに変換するためにこうしている。
+      // leg_joint_states_pat_ptr->joint_ang_pat_legL = Q_legL_;
+      // leg_joint_states_pat_ptr->joint_vel_pat_legL = {jointVel_legL_[0], jointVel_legL_[1], jointVel_legL_[2], jointVel_legL_[3], jointVel_legL_[4], jointVel_legL_[5]};
     }
     // 左脚支持期
     else if(foot_pos[walking_step][1] > 0) {
@@ -267,7 +295,7 @@ namespace convert_to_joint_states
       );
 
       // LOG:
-      // WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
+      // WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, RIGHT_LEG_LINK_LENGTH_, 6).transpose() << " " << FK_.getFK(Q_legL_, LEFT_LEG_LINK_LENGTH_, 6).transpose() << std::endl;
 
       // Jacobianの計算
       legR_states_jac_ptr_->joint_ang = Q_legR_;
@@ -276,7 +304,7 @@ namespace convert_to_joint_states
       jac_->jacobian(legL_states_jac_ptr_, Jacobi_legL_);
 
       // 各関節速度の計算
-      if((t >= T_dsup_/2 && t < T_dsup_/2+0.05) || (t > (T_sup_ - T_dsup_/2-0.05) && t <= (T_sup_ - T_dsup_/2))) {
+      if((t >= BOTH_LEG_SUPPORT_PERIOD_/2 && t < BOTH_LEG_SUPPORT_PERIOD_/2+0.05) || (t > (WALKING_CYCLE_ - BOTH_LEG_SUPPORT_PERIOD_/2-0.05) && t <= (WALKING_CYCLE_ - BOTH_LEG_SUPPORT_PERIOD_/2))) {
         jointVel_legR_ = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
         jointVel_legL_ = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
       }
@@ -285,11 +313,11 @@ namespace convert_to_joint_states
         jointVel_legL_ = Jacobi_legL_.inverse()*CoG_3D_Vel_;
       }
 
-      // 歩行パラメータの代入
-      leg_joint_states_pat_ptr->joint_ang_pat_legR = Q_legR_;  // 遊脚
-      leg_joint_states_pat_ptr->joint_vel_pat_legR = {jointVel_legR_[0], jointVel_legR_[1], jointVel_legR_[2], jointVel_legR_[3], jointVel_legR_[4], jointVel_legR_[5]};
-      leg_joint_states_pat_ptr->joint_ang_pat_legL = Q_legL_;  // 支持脚
-      leg_joint_states_pat_ptr->joint_vel_pat_legL = {jointVel_legL_[0], jointVel_legL_[1], jointVel_legL_[2], jointVel_legL_[3], jointVel_legL_[4], jointVel_legL_[5]};
+      // // 歩行パラメータの代入
+      // leg_joint_states_pat_ptr->joint_ang_pat_legR = Q_legR_;  // 遊脚
+      // leg_joint_states_pat_ptr->joint_vel_pat_legR = {jointVel_legR_[0], jointVel_legR_[1], jointVel_legR_[2], jointVel_legR_[3], jointVel_legR_[4], jointVel_legR_[5]};
+      // leg_joint_states_pat_ptr->joint_ang_pat_legL = Q_legL_;  // 支持脚
+      // leg_joint_states_pat_ptr->joint_vel_pat_legL = {jointVel_legL_[0], jointVel_legL_[1], jointVel_legL_[2], jointVel_legL_[3], jointVel_legL_[4], jointVel_legL_[5]};
     }
     // 右脚支持期
     else if(foot_pos[walking_step][1] < 0) {
@@ -306,7 +334,7 @@ namespace convert_to_joint_states
       );
 
       // LOG:
-      //WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, P_legR_waist_standard_, 6).transpose() << " " << FK_.getFK(Q_legL_, P_legL_waist_standard_, 6).transpose() << std::endl;
+      //WPG_log_FootTrajectory_FK << FK_.getFK(Q_legR_, RIGHT_LEG_LINK_LENGTH_, 6).transpose() << " " << FK_.getFK(Q_legL_, LEFT_LEG_LINK_LENGTH_, 6).transpose() << std::endl;
 
       // Jacobianの計算
       legR_states_jac_ptr_->joint_ang = Q_legR_;
@@ -315,7 +343,7 @@ namespace convert_to_joint_states
       jac_->jacobian(legL_states_jac_ptr_, Jacobi_legL_);
 
       // 各関節速度の計算
-      if((t >= T_dsup_/2 && t < T_dsup_/2+0.05) || (t > (T_sup_ - T_dsup_/2-0.05) && t <= (T_sup_ - T_dsup_/2))) {
+      if((t >= BOTH_LEG_SUPPORT_PERIOD_/2 && t < BOTH_LEG_SUPPORT_PERIOD_/2+0.05) || (t > (WALKING_CYCLE_ - BOTH_LEG_SUPPORT_PERIOD_/2-0.05) && t <= (WALKING_CYCLE_ - BOTH_LEG_SUPPORT_PERIOD_/2))) {
         jointVel_legR_ = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
         jointVel_legL_ = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
       }
@@ -323,13 +351,23 @@ namespace convert_to_joint_states
         jointVel_legR_ = Jacobi_legR_.inverse()*CoG_3D_Vel_;
         jointVel_legL_ = Jacobi_legL_.inverse()*CoG_3D_Vel_Swing_;
       }
-
-      // 歩行パラメータの代入
-      leg_joint_states_pat_ptr->joint_ang_pat_legR = Q_legR_;  // 支持脚
-      leg_joint_states_pat_ptr->joint_vel_pat_legR = {jointVel_legR_[0], jointVel_legR_[1], jointVel_legR_[2], jointVel_legR_[3], jointVel_legR_[4], jointVel_legR_[5]};
-      leg_joint_states_pat_ptr->joint_ang_pat_legL = Q_legL_;  // 遊脚
-      leg_joint_states_pat_ptr->joint_vel_pat_legL = {jointVel_legL_[0], jointVel_legL_[1], jointVel_legL_[2], jointVel_legL_[3], jointVel_legL_[4], jointVel_legL_[5]};
     }
+
+    // 歩行パラメータの代入
+    leg_joint_states_pat_ptr->joint_ang_pat_legR = {Q_legR_[0]*right_leg_unit_vector_direction_[0], 
+                                                    Q_legR_[1]*right_leg_unit_vector_direction_[1], 
+                                                    Q_legR_[2]*right_leg_unit_vector_direction_[2], 
+                                                    Q_legR_[3]*right_leg_unit_vector_direction_[3], 
+                                                    Q_legR_[4]*right_leg_unit_vector_direction_[4], 
+                                                    Q_legR_[5]*right_leg_unit_vector_direction_[5]};
+    leg_joint_states_pat_ptr->joint_vel_pat_legR = {jointVel_legR_[0], jointVel_legR_[1], jointVel_legR_[2], jointVel_legR_[3], jointVel_legR_[4], jointVel_legR_[5]};
+    leg_joint_states_pat_ptr->joint_ang_pat_legL = {Q_legL_[0]*left_leg_unit_vector_direction_[0], 
+                                                    Q_legL_[1]*left_leg_unit_vector_direction_[1], 
+                                                    Q_legL_[2]*left_leg_unit_vector_direction_[2], 
+                                                    Q_legL_[3]*left_leg_unit_vector_direction_[3], 
+                                                    Q_legL_[4]*left_leg_unit_vector_direction_[4], 
+                                                    Q_legL_[5]*left_leg_unit_vector_direction_[5]};
+    leg_joint_states_pat_ptr->joint_vel_pat_legL = {jointVel_legL_[0], jointVel_legL_[1], jointVel_legL_[2], jointVel_legL_[3], jointVel_legL_[4], jointVel_legL_[5]};
 
     // std::cout << "Here is default convert_to_joint_states plugin." << std::endl;
 
@@ -344,66 +382,128 @@ namespace convert_to_joint_states
     ik_ = ik_loader.createSharedInstance("kinematics::Default_InverseKinematics");
     jac_ = jac_loader.createSharedInstance("kinematics::Default_Jacobian");
 
-    // TODO: Parameterから得たい。それか引数で得たい。
-    UnitVec_legL_ = {
-      Eigen::Vector3d(0, 0, 1),
-      Eigen::Vector3d(1, 0, 0),
-      Eigen::Vector3d(0, 1, 0),
-      Eigen::Vector3d(0, 1, 0),
-      Eigen::Vector3d(0, 1, 0),
-      Eigen::Vector3d(1, 0, 0)
+    // client parrameters
+    node_ptr_ = rclcpp::Node::make_shared("RobotManager");
+    client_param_ = std::make_shared<rclcpp::SyncParametersClient>(node_ptr_, "RobotParameterServer");
+    
+    // param: description
+    ROBOT_NAME_ = client_param_->get_parameter<std::string>("robot_description.robot_name");
+    
+    // param: control
+    WAIST_HEIGHT_ = client_param_->get_parameter<double>("control_constant.waist_pos_z");
+    HEIGHT_LEG_LIFT_ = client_param_->get_parameter<double>("control_constant.height_leg_lift");
+    WALKING_CYCLE_ = client_param_->get_parameter<double>("control_times.walking_cycle");
+    CONTROL_CYCLE_ = client_param_->get_parameter<double>("control_times.control_cycle");
+    BOTH_LEG_SUPPORT_PERIOD_ = client_param_->get_parameter<double>("control_times.both_leg_support_period");
+    SINGLE_LEG_SUPPORT_PERIOD_ = client_param_->get_parameter<double>("control_times.single_leg_support_period");
+    
+    //param: limb
+    LEFT_LEG_NAME_ = client_param_->get_parameter<std::string>(ROBOT_NAME_+"_limb.limb_names.left_leg");
+    RIGHT_LEG_NAME_ = client_param_->get_parameter<std::string>(ROBOT_NAME_+"_limb.limb_names.right_leg");
+    LEFT_LEG_UNIT_VECTOR_STRING_ = client_param_->get_parameter<std::vector<std::string>>(ROBOT_NAME_+"_limb.limb_without_fixed_joints."+LEFT_LEG_NAME_+".joint_unit_vector");
+    RIGHT_LEG_UNIT_VECTOR_STRING_ = client_param_->get_parameter<std::vector<std::string>>(ROBOT_NAME_+"_limb.limb_without_fixed_joints."+RIGHT_LEG_NAME_+".joint_unit_vector");
+    LEFT_LEG_LINK_LENGTH_STRING_ = client_param_->get_parameter<std::vector<std::string>>(ROBOT_NAME_+"_limb.limb_without_fixed_joints."+LEFT_LEG_NAME_+".link_length");
+    RIGHT_LEG_LINK_LENGTH_STRING_ = client_param_->get_parameter<std::vector<std::string>>(ROBOT_NAME_+"_limb.limb_without_fixed_joints."+RIGHT_LEG_NAME_+".link_length");
+    
+    LEFT_LEG_UNIT_VECTOR_ = {
+      Convert_strVec2eigenVec_UnitVec(LEFT_LEG_UNIT_VECTOR_STRING_[0], &left_leg_unit_vector_direction_),
+      Convert_strVec2eigenVec_UnitVec(LEFT_LEG_UNIT_VECTOR_STRING_[1], &left_leg_unit_vector_direction_),
+      Convert_strVec2eigenVec_UnitVec(LEFT_LEG_UNIT_VECTOR_STRING_[2], &left_leg_unit_vector_direction_),
+      Convert_strVec2eigenVec_UnitVec(LEFT_LEG_UNIT_VECTOR_STRING_[3], &left_leg_unit_vector_direction_),
+      Convert_strVec2eigenVec_UnitVec(LEFT_LEG_UNIT_VECTOR_STRING_[4], &left_leg_unit_vector_direction_),
+      Convert_strVec2eigenVec_UnitVec(LEFT_LEG_UNIT_VECTOR_STRING_[5], &left_leg_unit_vector_direction_)
     };
-    UnitVec_legR_ = {
-      Eigen::Vector3d(0, 0, 1),
-      Eigen::Vector3d(1, 0, 0),
-      Eigen::Vector3d(0, 1, 0),
-      Eigen::Vector3d(0, 1, 0),
-      Eigen::Vector3d(0, 1, 0),
-      Eigen::Vector3d(1, 0, 0)
+    RIGHT_LEG_UNIT_VECTOR_ = {
+      Convert_strVec2eigenVec_UnitVec(RIGHT_LEG_UNIT_VECTOR_STRING_[0], &right_leg_unit_vector_direction_),
+      Convert_strVec2eigenVec_UnitVec(RIGHT_LEG_UNIT_VECTOR_STRING_[1], &right_leg_unit_vector_direction_),
+      Convert_strVec2eigenVec_UnitVec(RIGHT_LEG_UNIT_VECTOR_STRING_[2], &right_leg_unit_vector_direction_),
+      Convert_strVec2eigenVec_UnitVec(RIGHT_LEG_UNIT_VECTOR_STRING_[3], &right_leg_unit_vector_direction_),
+      Convert_strVec2eigenVec_UnitVec(RIGHT_LEG_UNIT_VECTOR_STRING_[4], &right_leg_unit_vector_direction_),
+      Convert_strVec2eigenVec_UnitVec(RIGHT_LEG_UNIT_VECTOR_STRING_[5], &right_leg_unit_vector_direction_)
     };
-    // 脚の関節位置。基準を腰（ｚ軸が股関節と等しい）に修正
-    P_legR_waist_standard_ = {  // 右脚
-      Eigen::Vector3d(-0.005, -0.037, 0),  // o(基準) -> 1
-      Eigen::Vector3d(0, 0, 0),  // 1 -> 2
-      Eigen::Vector3d(0, 0, 0),  // 2 -> 3
-      Eigen::Vector3d(0, 0, -0.093),  // 3 -> 4
-      Eigen::Vector3d(0, 0, -0.093),  // 4 -> 5
-      Eigen::Vector3d(0, 0, 0),  // 5 -> 6
-      Eigen::Vector3d(0, 0, 0)  // 6 -> a(足裏)
+    LEFT_LEG_LINK_LENGTH_ = {
+      Convert_strVec2eigenVec(LEFT_LEG_LINK_LENGTH_STRING_[0]),
+      Convert_strVec2eigenVec(LEFT_LEG_LINK_LENGTH_STRING_[1]),
+      Convert_strVec2eigenVec(LEFT_LEG_LINK_LENGTH_STRING_[2]),
+      Convert_strVec2eigenVec(LEFT_LEG_LINK_LENGTH_STRING_[3]),
+      Convert_strVec2eigenVec(LEFT_LEG_LINK_LENGTH_STRING_[4]),
+      Convert_strVec2eigenVec(LEFT_LEG_LINK_LENGTH_STRING_[5])
     };
-    P_legL_waist_standard_ = {  // 左脚
-      Eigen::Vector3d(-0.005, 0.037, 0),
-      Eigen::Vector3d(0, 0, 0),
-      Eigen::Vector3d(0, 0, 0),
-      Eigen::Vector3d(0, 0, -0.093),
-      Eigen::Vector3d(0, 0, -0.093),
-      Eigen::Vector3d(0, 0, 0),
-      Eigen::Vector3d(0, 0, 0)
+    LEFT_LEG_LINK_LENGTH_[0][2] = 0;  // 重心位置を腰とする処理。
+    LEFT_LEG_LINK_LENGTH_[1][2] = 0;  // DEBUG: ROBOTIS_OP2に合わせた処理。
+    LEFT_LEG_LINK_LENGTH_[6] = Eigen::Vector3d(0, 0, 0);  // joint-6から足先末端までのlinkを追加. Forward Kinematicsに合わせる。
+    RIGHT_LEG_LINK_LENGTH_ = {
+      Convert_strVec2eigenVec(RIGHT_LEG_LINK_LENGTH_STRING_[0]),
+      Convert_strVec2eigenVec(RIGHT_LEG_LINK_LENGTH_STRING_[1]),
+      Convert_strVec2eigenVec(RIGHT_LEG_LINK_LENGTH_STRING_[2]),
+      Convert_strVec2eigenVec(RIGHT_LEG_LINK_LENGTH_STRING_[3]),
+      Convert_strVec2eigenVec(RIGHT_LEG_LINK_LENGTH_STRING_[4]),
+      Convert_strVec2eigenVec(RIGHT_LEG_LINK_LENGTH_STRING_[5])
     };
+    RIGHT_LEG_LINK_LENGTH_[0][2] = 0;
+    RIGHT_LEG_LINK_LENGTH_[1][2] = 0;
+    RIGHT_LEG_LINK_LENGTH_[6] = Eigen::Vector3d(0, 0, 0);
+
+    // // TODO: Parameterから得たい。それか引数で得たい。
+    // LEFT_LEG_UNIT_VECTOR_ = {
+    //   Eigen::Vector3d(0, 0, 1),
+    //   Eigen::Vector3d(1, 0, 0),
+    //   Eigen::Vector3d(0, 1, 0),
+    //   Eigen::Vector3d(0, 1, 0),
+    //   Eigen::Vector3d(0, 1, 0),
+    //   Eigen::Vector3d(1, 0, 0)
+    // };
+    // RIGHT_LEG_UNIT_VECTOR_ = {
+    //   Eigen::Vector3d(0, 0, 1),
+    //   Eigen::Vector3d(1, 0, 0),
+    //   Eigen::Vector3d(0, 1, 0),
+    //   Eigen::Vector3d(0, 1, 0),
+    //   Eigen::Vector3d(0, 1, 0),
+    //   Eigen::Vector3d(1, 0, 0)
+    // };
+    // // 脚の関節位置。基準を腰（ｚ軸が股関節と等しい）に修正
+    // RIGHT_LEG_LINK_LENGTH_ = {  // 右脚
+    //   Eigen::Vector3d(-0.005, -0.037, 0),  // o(基準) -> 1
+    //   Eigen::Vector3d(0, 0, 0),  // 1 -> 2
+    //   Eigen::Vector3d(0, 0, 0),  // 2 -> 3
+    //   Eigen::Vector3d(0, 0, -0.093),  // 3 -> 4
+    //   Eigen::Vector3d(0, 0, -0.093),  // 4 -> 5
+    //   Eigen::Vector3d(0, 0, 0),  // 5 -> 6
+    //   Eigen::Vector3d(0, 0, 0)  // 6 -> a(足裏)
+    // };
+    // LEFT_LEG_LINK_LENGTH_ = {  // 左脚
+    //   Eigen::Vector3d(-0.005, 0.037, 0),
+    //   Eigen::Vector3d(0, 0, 0),
+    //   Eigen::Vector3d(0, 0, 0),
+    //   Eigen::Vector3d(0, 0, -0.093),
+    //   Eigen::Vector3d(0, 0, -0.093),
+    //   Eigen::Vector3d(0, 0, 0),
+    //   Eigen::Vector3d(0, 0, 0)
+    // };
     end_eff_rot_ = Eigen::Matrix3d::Identity();
 
     legL_states_ik_ptr_->end_eff_rot = end_eff_rot_;
     legR_states_ik_ptr_->end_eff_rot = end_eff_rot_;
-    legL_states_ik_ptr_->link_len = P_legL_waist_standard_;
-    legR_states_ik_ptr_->link_len = P_legR_waist_standard_;
+    legL_states_ik_ptr_->link_len = LEFT_LEG_LINK_LENGTH_;
+    legR_states_ik_ptr_->link_len = RIGHT_LEG_LINK_LENGTH_;
 
-    legL_states_jac_ptr_->link_len = P_legL_waist_standard_;
-    legR_states_jac_ptr_->link_len = P_legR_waist_standard_;
-    legL_states_jac_ptr_->unit_vec = UnitVec_legL_;
-    legR_states_jac_ptr_->unit_vec = UnitVec_legR_;
+    legL_states_jac_ptr_->link_len = LEFT_LEG_LINK_LENGTH_;
+    legR_states_jac_ptr_->link_len = RIGHT_LEG_LINK_LENGTH_;
+    legL_states_jac_ptr_->unit_vec = LEFT_LEG_UNIT_VECTOR_;
+    legR_states_jac_ptr_->unit_vec = RIGHT_LEG_UNIT_VECTOR_;
 
     // robot
-    length_leg_ = 171.856 / 1000;
+    // WAIST_HEIGHT_ = 171.856 / 1000;
 
     // control cycle
-    control_cycle_ = 0.01;
+    // CONTROL_CYCLE_ = 0.01;
 
     // 時間
-    T_sup_ = 0.8;  // 歩行周期
-    T_dsup_ = 0.5;  // 両脚支持期間
+    // WALKING_CYCLE_ = 0.8;  // 歩行周期
+    // BOTH_LEG_SUPPORT_PERIOD_ = 0.5;  // 両脚支持期間
 
     // 遊脚軌道関連
-    height_leg_lift_ = 0.025;  // 足上げ高さ [m]
+    // HEIGHT_LEG_LIFT_ = 0.025;  // 足上げ高さ [m]
   }
 }
 

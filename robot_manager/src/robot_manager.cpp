@@ -152,8 +152,10 @@ namespace robot_manager
     // param: name_lists
     ALL_JOINT_NAMES_WITHOUT_FIXED_ = client_param_->get_parameter<std::vector<std::string>>(ROBOT_NAME_+"_name_lists.all_names_without_fixed_joints.all_joint_names");
 
-    jointAng_posi_or_nega_legR_ = {-1, -1, 1, 1, -1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
-    jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
+    // jointAng_posi_or_nega_legR_ = {-1, -1, 1, 1, -1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
+    // jointAng_posi_or_nega_legL_ = {-1, -1, -1, -1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
+    jointAng_posi_or_nega_legR_ = {1, 1, 1, 1, 1, 1};  // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (right leg)
+    jointAng_posi_or_nega_legL_ = {1, 1, 1, 1, 1, 1}; // positive & negative. Changed from riht-handed system to specification of ROBOTIS OP2 of Webots. (left leg)
 
     // publisher
     pub_joint_states_ = this->create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
