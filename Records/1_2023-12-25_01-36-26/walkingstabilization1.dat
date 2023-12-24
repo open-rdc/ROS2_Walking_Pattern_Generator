@@ -1,4 +1,3 @@
-# record data: step_count | walking_pattern_position (x y z) | walking_pattern_velocity (x y z) | walking_pattern_zmp (x y)
 0 0 0 0 0 0 0 -0 -8.74527e-05 
 1 0 2.49725e-07 0 0 4.99678e-05 0 -0 -8.74527e-05 
 2 0 1.00031e-06 0 0 0.000100221 0 -0 -8.74527e-05 
