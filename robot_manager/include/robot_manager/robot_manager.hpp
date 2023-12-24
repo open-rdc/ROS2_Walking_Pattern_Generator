@@ -73,7 +73,7 @@ namespace robot_manager
       // step & timer
       void Step_Offline();  // debug mode抜き
       void Step_Offline_DebugMode();  // debug mode用
-      float control_cycle_ = 0;
+      // float control_cycle_ = 0;
       uint32_t control_step_ = 0;
       float t_ = 0;
       float walking_time_ = 0;
@@ -122,14 +122,20 @@ namespace robot_manager
       double latency_fsp_offline_;
       double latency_wpg_offline_;
       std::vector<double> all_latency_wsc_;
+      double latency_wsc_ave_ = 0;
+      double latency_wsc_med_ = 0;
       double latency_wsc_max_ = 0;
       double latency_wsc_min_ = 9999;
       std::vector<double> all_latency_ctjs_;
+      double latency_ctjs_ave_ = 0;
+      double latency_ctjs_med_ = 0;
       double latency_ctjs_max_ = 0;
       double latency_ctjs_min_ = 9999;
       std::chrono::system_clock::time_point now_time_;
       std::chrono::system_clock::time_point before_time_;
       std::vector<double> all_latency_pub_joint_states_;
+      double latency_pub_joint_states_ave_ = 0;
+      double latency_pub_joint_states_med_ = 0;
       double latency_pub_joint_states_max_ = 0;
       double latency_pub_joint_states_min_ = 9999;
   };

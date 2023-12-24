@@ -1,5 +1,7 @@
 #include "robot_manager/robot_manager.hpp"
 #include <chrono>
+#include <fstream>
+#include <algorithm>
 
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "robot_messages/msg/feedback.hpp"
@@ -100,14 +102,14 @@ namespace robot_manager
     }
     pub_joint_states_->publish(*pub_joint_states_msg_);
     if(control_step_ < walking_pattern_ptr_->cc_cog_pos_ref.size()) { 
-      if(control_cycle_ == 0) {
+      if(control_step_ == 0) {
         now_time_ = std::chrono::system_clock::now();
         before_time_ = std::chrono::system_clock::now();
-        all_latency_pub_joint_states_.push_back(double(std::chrono::duration_cast<std::chrono::microseconds>(before_time_ - now_time_).count()) / 1000);
+        //all_latency_pub_joint_states_.push_back(double(std::chrono::duration_cast<std::chrono::microseconds>(now_time_ - before_time_).count()) / 1000);
       }
       else {
         now_time_ = std::chrono::system_clock::now();
-        all_latency_pub_joint_states_.push_back(double(std::chrono::duration_cast<std::chrono::microseconds>(before_time_ - now_time_).count()) / 1000);
+        all_latency_pub_joint_states_.push_back(double(std::chrono::duration_cast<std::chrono::microseconds>(now_time_ - before_time_).count()) / 1000);
         before_time_ = now_time_;
       }
     }
@@ -216,8 +218,83 @@ namespace robot_manager
   }
 
   RobotManager::~RobotManager() {
-    for(double op : all_latency_ctjs_) {
-      std::cout << op << std::endl;
+    std::cout << "finish" << std::endl;
+    std::string num = "Num";
+
+    if(DEBUG_MODE_ == true) {
+      std::ofstream file_fsp;
+      std::string file_fsp_path = "src/Latency_Logs/"+num+"_latency_record_fsp.dat";
+      file_fsp.open(file_fsp_path, std::ios::out);
+      file_fsp << "unit: [ms]" << std::endl;
+      file_fsp << "latency_offline" << std::endl << latency_fsp_offline_ << std::endl;
+      file_fsp.close();
+
+      std::ofstream file_wpg;
+      std::string file_wpg_path = "src/Latency_Logs/"+num+"_latency_record_wpg.dat";
+      file_wpg.open(file_wpg_path, std::ios::out);
+      file_wpg << "unit: [ms]" << std::endl;
+      file_wpg << "latency_offline" << std::endl << latency_wpg_offline_ << std::endl;
+      file_wpg.close();
+
+      std::ofstream file_wsc;
+      std::string file_wsc_path = "src/Latency_Logs/"+num+"_latency_record_wsc.dat";
+      file_wsc.open(file_wsc_path, std::ios::out);
+      latency_wsc_max_ = *std::max_element(all_latency_wsc_.begin(), all_latency_wsc_.end());
+      latency_wsc_min_ = *std::min_element(all_latency_wsc_.begin(), all_latency_wsc_.end());
+      double sum = 0;
+      for(double val : all_latency_wsc_) {
+        sum += val;
+      }
+      latency_wsc_ave_ = sum / all_latency_wsc_.size();
+      file_wsc << "unit: [ms]" << std::endl;
+      file_wsc << "latency_max" << std::endl << latency_wsc_max_ << std::endl;
+      file_wsc << "latency_min" << std::endl << latency_wsc_min_ << std::endl;
+      file_wsc << "latency_ave" << std::endl << latency_wsc_ave_ << std::endl;
+      file_wsc << "all_latency" << std::endl;
+      for(double op : all_latency_wsc_) {
+        file_wsc << op << std::endl;
+      }
+      file_wsc.close();
+
+      std::ofstream file_ctjs;
+      std::string file_ctjs_path = "src/Latency_Logs/"+num+"_latency_record_ctjs.dat";
+      file_ctjs.open(file_ctjs_path, std::ios::out);
+      latency_ctjs_max_ = *std::max_element(all_latency_ctjs_.begin(), all_latency_ctjs_.end());
+      latency_ctjs_min_ = *std::min_element(all_latency_ctjs_.begin(), all_latency_ctjs_.end());
+      sum = 0;
+      for(double val : all_latency_ctjs_) {
+        sum += val;
+      }
+      latency_ctjs_ave_ = sum / all_latency_ctjs_.size();
+      file_ctjs << "unit: [ms]" << std::endl;
+      file_ctjs << "latency_max" << std::endl << latency_ctjs_max_ << std::endl;
+      file_ctjs << "latency_min" << std::endl << latency_ctjs_min_ << std::endl;
+      file_ctjs << "latency_ave" << std::endl << latency_ctjs_ave_ << std::endl;
+      file_ctjs << "all_latency" << std::endl;
+      for(double op : all_latency_ctjs_) {
+        file_ctjs << op << std::endl;
+      }
+      file_ctjs.close();
+
+      std::ofstream file_js;
+      std::string file_js_path = "src/Latency_Logs/"+num+"_latency_record_js.dat";
+      file_js.open(file_js_path, std::ios::out);
+      latency_pub_joint_states_max_ = *std::max_element(all_latency_pub_joint_states_.begin(), all_latency_pub_joint_states_.end());
+      latency_pub_joint_states_min_ = *std::min_element(all_latency_pub_joint_states_.begin(), all_latency_pub_joint_states_.end());
+      sum = 0;
+      for(double val : all_latency_pub_joint_states_) {
+        sum += val;
+      }
+      latency_pub_joint_states_ave_ = sum / all_latency_pub_joint_states_.size();
+      file_js << "unit: [ms]" << std::endl;
+      file_js << "latency_max" << std::endl << latency_pub_joint_states_max_ << std::endl;
+      file_js << "latency_min" << std::endl << latency_pub_joint_states_min_ << std::endl;
+      file_js << "latency_ave" << std::endl << latency_pub_joint_states_ave_ << std::endl;
+      file_js << "all_latency" << std::endl;
+      for(double op : all_latency_pub_joint_states_) {
+        file_js << op << std::endl;
+      }
+      file_js.close();
     }
   }
 
