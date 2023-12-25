@@ -36,7 +36,7 @@ namespace convert_to_joint_states
     return eigen_vec;
   }
 
-  std::unique_ptr<control_plugin_base::LegJointStatesPattern> Default_ConvertToJointStates::convert_into_joint_states(
+  std::unique_ptr<control_plugin_base::LegJointStatesPattern> Default_ConvertToJointStates::convert_to_joint_states(
     const std::shared_ptr<control_plugin_base::WalkingStabilization> walking_stabilization_ptr,
     const std::shared_ptr<control_plugin_base::FootStep> foot_step_ptr,
     uint32_t walking_step,

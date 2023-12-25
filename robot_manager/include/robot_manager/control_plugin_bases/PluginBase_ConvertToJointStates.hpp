@@ -17,7 +17,7 @@ namespace control_plugin_base
 
   class ConvertToJointStates {
     public:
-      virtual std::unique_ptr<LegJointStatesPattern> convert_into_joint_states(
+      virtual std::unique_ptr<LegJointStatesPattern> convert_to_joint_states(
         const std::shared_ptr<WalkingStabilization> walking_stabilization_ptr,
         const std::shared_ptr<FootStep> foot_step_ptr,
         uint32_t walking_step,

@@ -64,7 +64,7 @@ namespace robot_manager
       // Convert_to_Joint_States (1step)
       // std::cout << "convert to joint states" << std::endl;
       start_time_ = std::chrono::system_clock::now();
-      leg_joint_states_pat_ptr_ = ctjs_->convert_into_joint_states(
+      leg_joint_states_pat_ptr_ = ctjs_->convert_to_joint_states(
         walking_stabilization_ptr_, 
         foot_step_ptr_, 
         walking_step_, 
