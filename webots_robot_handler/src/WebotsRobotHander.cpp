@@ -159,7 +159,40 @@ namespace webots_robot_handler
       wait_step--;
     }
     else {
+/* Accelerometer & Gyro. Darwin-op.proto 仕様
+source: https://github.com/cyberbotics/webots/blob/master/projects/robots/robotis/darwin-op/protos/Darwin-op.proto
 
+        Accelerometer {
+          translation -0.01 0 -0.068
+          rotation 0 0 1.0 -1.5708  # z軸基準に座標を-90°回転 (x -> -y, y -> x, z -> z)
+          name "Accelerometer"
+          lookupTable [
+            -39.24 0 0 39.24 1024 0
+          ] 生のデータ：-39.24 ~ 39.24 [m/s^2] -> これを、0 ~ 1024にマッピング。
+        }
+        Gyro {
+          translation 0.01 0 -0.068
+          rotation 0 0 1.0 -3.1416  # z軸基準に座標を-180°回転 (x -> -x, y -> -y, z -> z)
+          name "Gyro"
+          lookupTable [
+            -27.925 0 0 27.925 1024 0
+          ]
+        }
+
+      Offset (センサデータ出力値より推測)
+      Acce
+        x: 512
+        y: 512
+        z: 640
+      Gyro
+        x: 512
+        y: 512
+        z: 512
+        
+reference:
+  acce: https://github.com/cyberbotics/webots/blob/master/docs/reference/accelerometer.md
+  gyro: https://github.com/cyberbotics/webots/blob/master/docs/reference/gyro.md
+*/
       // feedback acce, gyro & joint_pos
       for(int tag = 0; tag < 6; tag++) {
         pub_feedback_msg_->q_now_leg_l[tag] = wb_position_sensor_get_value(positionSensorsTag_[jointNum_legL_[tag]]);
@@ -169,12 +202,12 @@ namespace webots_robot_handler
       gyroValue_ = wb_gyro_get_values(gyroTag_);
 
       // fixed offset & axis-pose
-      pub_feedback_msg_->accelerometer_now[0] = accelerometerValue_[1]-512;
-      pub_feedback_msg_->accelerometer_now[1] = -(accelerometerValue_[0]-512);
-      pub_feedback_msg_->accelerometer_now[2] = accelerometerValue_[2]-640;
-      pub_feedback_msg_->gyro_now[0] = -(gyroValue_[0]-512);
-      pub_feedback_msg_->gyro_now[1] = -(gyroValue_[1]-512);
-      pub_feedback_msg_->gyro_now[2] = gyroValue_[2]-512;
+      pub_feedback_msg_->accelerometer_now[0] = accelerometerValue_[1];
+      pub_feedback_msg_->accelerometer_now[1] = 1024-(accelerometerValue_[0]);
+      pub_feedback_msg_->accelerometer_now[2] = accelerometerValue_[2];
+      pub_feedback_msg_->gyro_now[0] = 1024-(gyroValue_[0]);
+      pub_feedback_msg_->gyro_now[1] = 1024-(gyroValue_[1]);
+      pub_feedback_msg_->gyro_now[2] = gyroValue_[2];
       pub_feedback_msg_->step_count = walking_step;
 
       walking_step++;
