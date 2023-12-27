@@ -209,8 +209,8 @@ namespace convert_to_joint_states
       0   // rotation z
     };
     CoG_3D_Vel_Swing_ = {  // 遊脚用
-      walking_stabilization_ptr->cog_vel_fix[control_step][0],
-      walking_stabilization_ptr->cog_vel_fix[control_step][1],
+      walking_stabilization_ptr->cog_vel_fix[control_step][0],  // BUG: ココ、重心ではなく足先速度に変更する。前の着地位置から次の着地位置の差分を0.8/0.01で割れば、足先速度が出る。
+      walking_stabilization_ptr->cog_vel_fix[control_step][1],  // BUG: 上に同じく。
       vel_swing_trajectory_,
       0,
       0,
@@ -221,7 +221,7 @@ namespace convert_to_joint_states
     // WPG_log_SwingTrajectory_Vel << CoG_3D_Vel.transpose() << " " << CoG_3D_Vel_Swing_.transpose() << std::endl;
 
 //=====関節角度・角速度の算出 
-    if(foot_pos[walking_step][1] == 0) {  // 歩行開始、終了時
+    if(foot_pos[walking_step][1] == 0) {  // 歩行開始、終了時 (脚は踏み出さず、重心移動のみ)
       int ref_ws; 
       if(walking_step == 0) {  // 歩行開始時
         ref_ws = walking_step+1;
@@ -270,8 +270,11 @@ namespace convert_to_joint_states
         jointVel_legL_ = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
       }
       else {  // BUG: ココ、間違いの可能性あり。重心速度ではなく、足先速度で計算するべきでは？
-        jointVel_legR_ = Jacobi_legR_.inverse()*CoG_3D_Vel_;
-        jointVel_legL_ = Jacobi_legL_.inverse()*CoG_3D_Vel_;
+                // いや、確かにワールド座標からの足先速度は、胴体が速度を持っているかどうかで変化するけど、ココで与えている関節速度はあロボットのローカル座標からみた速度なので、式の形はセーフ。
+                // けど、重心速度ではなく足先速度を与えるべきなのは正しいはず。　今の着地位置から次の着地位置までの差分を0.8/0.01で割れば、足先速度が出るので、それを適用するべきでは？
+                // 支持脚なら、足先速度は重心速度と一致するはずなのでこれで良いはず。ただ遊脚は絶対に異なる。重心位置より後ろからそれより前に脚を出すのだから。
+          jointVel_legR_ = Jacobi_legR_.inverse()*CoG_3D_Vel_;
+          jointVel_legL_ = Jacobi_legL_.inverse()*CoG_3D_Vel_; 
       }
 
       // // 歩行パラメータの代入
@@ -309,6 +312,9 @@ namespace convert_to_joint_states
         jointVel_legL_ = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
       }
       else {  // BUG: ココ、間違いの可能性あり。重心速度ではなく、足先速度で計算するべきでは？
+                // いや、確かにワールド座標からの足先速度は、胴体が速度を持っているかどうかで変化するけど、ココで与えている関節速度はあロボットのローカル座標からみた速度なので、式の形はセーフ。
+                // けど、重心速度ではなく足先速度を与えるべきなのは正しいはず。　今の着地位置から次の着地位置までの差分を0.8/0.01で割れば、足先速度が出るので、それを適用するべきでは？
+                // 支持脚なら、足先速度は重心速度と一致するはずなのでこれで良いはず。ただ遊脚は絶対に異なる。重心位置より後ろからそれより前に脚を出すのだから。
         jointVel_legR_ = Jacobi_legR_.inverse()*CoG_3D_Vel_Swing_;
         jointVel_legL_ = Jacobi_legL_.inverse()*CoG_3D_Vel_;
       }
@@ -348,6 +354,9 @@ namespace convert_to_joint_states
         jointVel_legL_ = {12.26, 12.26, 12.26, 12.26, 12.26, 12.26};
       }
       else {  // BUG: ココ、間違いの可能性あり。重心速度ではなく、足先速度で計算するべきでは？
+                // いや、確かにワールド座標からの足先速度は、胴体が速度を持っているかどうかで変化するけど、ココで与えている関節速度はあロボットのローカル座標からみた速度なので、式の形はセーフ。
+                // けど、重心速度ではなく足先速度を与えるべきなのは正しいはず。　今の着地位置から次の着地位置までの差分を0.8/0.01で割れば、足先速度が出るので、それを適用するべきでは？
+                // 支持脚なら、足先速度は重心速度と一致するはずなのでこれで良いはず。ただ遊脚は絶対に異なる。重心位置より後ろからそれより前に脚を出すのだから。
         jointVel_legR_ = Jacobi_legR_.inverse()*CoG_3D_Vel_;
         jointVel_legL_ = Jacobi_legL_.inverse()*CoG_3D_Vel_Swing_;
       }
