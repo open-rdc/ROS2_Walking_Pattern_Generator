@@ -57,6 +57,7 @@ ros2 launch robot_bringup robot_bringup_launch.py
 ```
 
 Example of operation by executing this command:
+
 https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/assets/91410662/489c615b-d373-4a39-9559-d87f75b32a4c
 
 
