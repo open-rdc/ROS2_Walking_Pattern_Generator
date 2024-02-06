@@ -58,12 +58,16 @@ ros2 launch robot_bringup robot_bringup_launch.py
 
 Example of operation by executing this command:
 
-https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/assets/91410662/489c615b-d373-4a39-9559-d87f75b32a4c
+https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/assets/91410662/f884f510-2d0a-4b5f-9acd-73ad64a8446d
 
+<br>
+<br>
 
 ## Software Architecture
 ![software structure](https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/assets/91410662/f3dd77da-4cc7-4a26-92b7-a974c0c666ee)
 
+<br>
+<br>
 
 ## License & Author
 The robot_description package contains parts of [ROBOTIS-GIT/ROBOTIS-OP2-Common](https://github.com/ROBOTIS-GIT/ROBOTIS-OP2-Common) (license: Apache-2.0 license). <br>
