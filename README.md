@@ -56,11 +56,13 @@ Run the program with the following command:
 ros2 launch robot_bringup robot_bringup_launch.py
 ```
 
-![example](
-https://github.com/Yusuke-Yamasaki-555/memo_thesis/assets/91410662/bb742085-ff0e-4f1a-a79a-8ddacc514127)
+Example of operation by executing this command:
+https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/assets/91410662/489c615b-d373-4a39-9559-d87f75b32a4c
+
 
 ## Software Architecture
-![software architecture](https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/assets/91410662/65bc44c6-189f-4462-aab7-3f36bd31621c)
+![software structure](https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/assets/91410662/f3dd77da-4cc7-4a26-92b7-a974c0c666ee)
+
 
 ## License & Author
 The robot_description package contains parts of [ROBOTIS-GIT/ROBOTIS-OP2-Common](https://github.com/ROBOTIS-GIT/ROBOTIS-OP2-Common) (license: Apache-2.0 license). <br>
@@ -79,6 +81,8 @@ Main developer & maintainer: Yusuke-Yamasaki-555 ([GitHub](https://github.com/Yu
 ))<br>
   * Joint Status: [STATUS.txt](https://github.com/open-rdc/ROS2_Walking_Pattern_Generator/blob/main/STATUS.txt)
 <br>
+
+
 
   * Webots User Guide ([ROBOTIS' Robotis OP2](https://cyberbotics.com/doc/guide/robotis-op2))
 <br>
